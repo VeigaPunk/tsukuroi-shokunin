@@ -9,7 +9,7 @@
  {
   "id": "LP2",
   "statement": "The keys that take a path are `path` and its aliases `kernel_path`/`image_path`, plus `module_path`, `dtb_path`, `global_dtb`, `wallpaper` and `term_font`. A `#...` inside `cmdline` or `comment` is not a pin.",
-  "source": "S350 111-113, 134, 210, 295-308, 330-350",
+  "source": "S350 111-113, 134, 210, 267-268, 272-274, 295-308, 330-350; S351 28-32",
   "quote": "\"`kernel_path` - Alias of `path`.\"",
   "host_value": "only `path:` lines carry pins"
  },
@@ -29,8 +29,8 @@
  },
  {
   "id": "LP5",
-  "statement": "On a mismatch Limine panics unless `hash_mismatch_panic` is `no` (case-insensitive). The value is read from the first occurrence in the file. With `no`, it prints a warning and waits: `Y` boots the file anyway, and any other key returns to the menu.",
-  "source": "S353 1711-1712; S351 301-312",
+  "statement": "On a mismatch Limine panics unless `hash_mismatch_panic` is `no` (case-insensitive). The value is read from the first occurrence in the file. With `no`, it prints a warning and waits: `Y` (or `y`) boots the file anyway, and any other key returns to the menu.",
+  "source": "S353 1711-1712; S351 301-312; S352 798-802",
   "quote": "\"hash_mismatch_panic = hash_mismatch_panic_str == NULL || strcasecmp(hash_mismatch_panic_str, \"no\") != 0;\"",
   "host_value": "line 8 `hash_mismatch_panic: no` → prompt"
  },
@@ -44,7 +44,7 @@
  {
   "id": "LP7",
   "statement": "`objcopy` given only an input file rewrites that file. Even `--dump-section`, which only reads a section out, rewrites the UKI it reads, and the BLAKE2b of the whole file changes. Probe with an explicit output file, or not as root on `/boot` at all.",
-  "source": "S354 section `infile outfile` (raw HTML lines 189-190 and 634 of the pinned snapshot)",
+  "source": "S354 section `infile outfile` (raw HTML lines 188-191 and 634 of the pinned snapshot)",
   "quote": "\"If you do not specify outfile, objcopy creates a temporary file and destructively renames the result with the name of infile.\"",
   "host_value": "r86 ScoutHost 18:11:22 rewrote both UKIs (5 PE header bytes each)"
  },

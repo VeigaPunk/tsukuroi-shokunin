@@ -1,0 +1,1 @@
+I'll start by reading the declaration block and setting up my scratch environment in parallel.

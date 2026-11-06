@@ -1,0 +1,38 @@
+== proposed fixture patch (P3) applied to a battery copy
+pristine vs patched diff:
+--- lane/tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ lane/tools/limine-pin-battery-r87-p3-fixture-patch.py	2026-11-06 19:22:36.137758303 -0300
+@@ -255,6 +255,10 @@
+               "".join(ch.upper() if c.rng.random() < 0.5 else ch for ch in h))
+ 
+ 
++    c.entry()
++    c.pin("LP-MISMATCH", hashfmt=str.upper)  # PATCH: uppercase is not an OK signal
++
++
+ def fam_comment_decoy(c):
+     c.header()
+     c.entry()
+@@ -434,12 +438,13 @@
+         c.add("  cmdline: resume=/dev/mapper/root resume_offset=%d quiet" % rng.randint(1, 10 ** 7))
+     c.add("    //Snapshots")
+     mid = secrets.token_hex(16)
+-    for _ in range(3):
++    for _hist in range(3):
+         c.add("     ///2026-10-20 09:%02d:%02d" % (rng.randrange(60), rng.randrange(60)))
+         c.add("     ////linux")
+         c.add("     protocol: efi")
+         data = c.blob()
+-        name = "omarchy_linux.efi_sha256_%s" % hashlib.sha256(data).hexdigest()
++        nm = c.blob() if _hist == 1 else data  # PATCH: one name digest is stale
++        name = "omarchy_linux.efi_sha256_%s" % hashlib.sha256(nm).hexdigest()
+         rel = "%s/limine_history/%s" % (mid, name)
+         c.files[rel] = data
+         c.pin("OK", rel=rel, indent="     ")
+
+candidate              rc=0  families_passed 22/22 verdict met failed -
+leak-sha-explicit      rc=1  families_passed 3/22 verdict unmet failed COMMENT-DECOY,GZ-RAW,HASH-LENGTH,HASH-NONHEX,HASH-UPPER,HOST-SHAPE,KEY-CASE,LAST-HASH,MISMATCH-EARLY,MISMATCH-LATE,MISSING,MULTI-FAULT,OPTIONAL-SKIP,PANIC-DEFAULT,PANIC-NO-ONLY,SECUREBOOT,UNHASHED-DECOYS,UNRESOLVED,WHITESPACE-CRLF
+leak-sha               rc=1  families_passed 2/22 verdict unmet failed COMMENT-DECOY,GZ-RAW,HASH-LENGTH,HASH-NONHEX,HASH-UPPER,HOST-SHAPE,KEY-CASE,LAST-HASH,MISMATCH-EARLY,MISMATCH-LATE,MISSING,MULTI-FAULT,OPTIONAL-SKIP,PANIC-DEFAULT,PANIC-NO-ONLY,POSITIVE,SECUREBOOT,UNHASHED-DECOYS,UNRESOLVED,WHITESPACE-CRLF
+leak-upper-explicit    rc=1  families_passed 2/22 verdict unmet failed COMMENT-DECOY,GZ-RAW,HASH-LENGTH,HASH-NONHEX,HASH-UPPER,HOST-SHAPE,KEY-CASE,LAST-HASH,MISMATCH-EARLY,MISMATCH-LATE,MISSING,MULTI-FAULT,OPTIONAL-SKIP,PANIC-DEFAULT,PANIC-NO-ONLY,POSITIVE,SECUREBOOT,UNHASHED-DECOYS,UNRESOLVED,WHITESPACE-CRLF
+leak-upper             rc=1  families_passed 2/22 verdict unmet failed COMMENT-DECOY,GZ-RAW,HASH-LENGTH,HASH-NONHEX,HASH-UPPER,HOST-SHAPE,KEY-CASE,LAST-HASH,MISMATCH-EARLY,MISMATCH-LATE,MISSING,MULTI-FAULT,OPTIONAL-SKIP,PANIC-DEFAULT,PANIC-NO-ONLY,POSITIVE,SECUREBOOT,UNHASHED-DECOYS,UNRESOLVED,WHITESPACE-CRLF
+ref                    rc=0  families_passed 22/22 verdict met failed -

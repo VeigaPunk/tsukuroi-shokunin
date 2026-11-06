@@ -1,0 +1,25 @@
+# r08 filed-report rewrite, fleet root /home/vgpnk/Projects/shokunin
+$ git log --format='%h %an <%ae> %ad' --date=iso -2 -- .ufo/reports/round-86/tsukuroi.md
+dd58ef82 tsukuroi-shokunin <tsukuroi@shokunin.local> 2026-11-06 18:55:55 -0300
+909fad00 tsukuroi-shokunin <tsukuroi@shokunin.local> 2026-11-06 18:54:30 -0300
+$ git show --stat --oneline dd58ef82
+dd58ef82 round-86: tsukuroi report (label-gate wording)
+ .ufo/reports/round-86/tsukuroi.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ git diff 909fad00 dd58ef82 -- .ufo/reports/round-86/tsukuroi.md
+diff --git a/.ufo/reports/round-86/tsukuroi.md b/.ufo/reports/round-86/tsukuroi.md
+index 9db0d740..37f36c6c 100644
+--- a/.ufo/reports/round-86/tsukuroi.md
++++ b/.ufo/reports/round-86/tsukuroi.md
+@@ -50,7 +50,7 @@ Work items:
+   - ScoutPrefix checked 758 v7.2 `__setup`/`early_param` registrations and found no first-match collision. The entry's Limits line now records this.
+   - ScoutSources re-fetched all five pins live (sha256 equal); the cited regions are identical at v7.2.11. It also found S346 `used-by` incomplete, which is now fixed.
+   - ScoutHost read the host cmdline through the new rule; it is consistent with the receipt. **This seat caused the host incident.**
+-  - ExecSelftests wrote `nonauthor-label --selftest`, which is landed. It also found battery selftest defects D1 and D2, routed as R86-R4.
++  - ExecSelftests (a seat is the lane) wrote the label gate's `--selftest`, which is landed. It also found battery selftest defects D1 and D2, routed as R86-R4.
+   - ExecLints found that the registry row was missing at the entry commit. It was closed at landing.
+   - ScribeLesson drafted M1 and QUALITY 123, both landed.
+   - ConnectorOverlap: no sibling holds `obsolete_checksetup` or `parameqn` ground; mori's kernel-parameters.txt pin is the same file but a disjoint claim.
+$ git show 909fad00:.ufo/reports/round-86/tsukuroi.md | grep -n ExecSelftests
+53:  - ExecSelftests wrote `nonauthor-label --selftest`, which is landed. It also found battery selftest defects D1 and D2, routed as R86-R4.
+115:  - Three gates gained `--selftest`; each can fail (`w1/ExecSelftests/receipts/02-*`, `w1/MutGate.md` selftest column).

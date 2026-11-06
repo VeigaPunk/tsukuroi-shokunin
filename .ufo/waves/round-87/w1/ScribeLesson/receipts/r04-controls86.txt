@@ -1,0 +1,20 @@
+# r04 r86 freeze controls summary: near-miss block + receipt prose
+$ grep -nE '^(N0[1-9]|N1[0-2])' .ufo/waves/round-86/before/controls/controls-summary.txt
+25:N01-noresume-exact: 29 29 29  NORESUME-VALUED
+26:N02-nohib-exact: 29 29 29  NOHIB-VALUED
+27:N03-empty-resume: 29 29 29  EMPTY-RESUME
+28:N04-first-offset: 29 29 29  OFFSET-DUP
+29:N05-offset-malformed: 29 29 29  OFFSET-SSCANF
+30:N06-no-dash: 29 29 29  OFFSET-SSCANF
+31:N07-hib-literal: 29 29 29  HIBERNATE-NOX
+32:N08-boundary-le: 29 29 29  SWAP-BOUNDARY
+33:N09-first-swap: 29 29 29  MULTI-SWAP
+34:N10-no-bool-guard: 29 29 29  BOOL-FOR-INT
+35:N11-substring: 28 28 28  DECOYS-R86,PREC-DECOYS
+36:N12-short-prefix: 26 26 26  DECOYS-R86,EMPTY-RESUME,HR-NO-RESUME-ARG,PREC-NO-RESUME-ARG
+$ sed -n '8,12p' .ufo/waves/round-86/before/controls/controls-receipt.txt
+N01-N12 = near-miss controls: each is the L1's candidate DRAFT (scratch, not committed, never run against
+this battery before this freeze) minus ONE property, named in its docstring. Each fails exactly the family
+that property serves (N11 also PREC-DECOYS; N12 also the resume=-dependent families), so every declared
+"a 30/30 gate must X" sentence has a committed control lacking X below target (QUALITY 122).
+r85-carried/ = round-85 freeze controls k1-k6, CriticClaims forgers f1-f10, MutGate M26-M28 (byte copies).

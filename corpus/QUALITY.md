@@ -281,3 +281,21 @@ N02-nohib-exact: 29 29 29  NOHIB-VALUED
 
 the bullet names the pinned source and the rule, and the controls that lack the rule read below the 30/30 target.
 Lesson: `corpus/lessons/round-86.md` Mistakes `R86-LIMITS-DISCLOSED-NOT-ROUTED`.
+
+124. **No in-place writer touches `/boot`, and every `sudo` step leaves a `/boot` digest receipt (R87-BOOT-NO-INPLACE-WRITER):** a seat or L1 step never runs, on `/boot`, `/efi` or any file a boot pin names, a tool whose default output is its input (`objcopy`/`strip` without an explicit output file, `sed -i`, `sbsign` without `--output`, `ukify`, `mkinitcpio`, `limine*`, `bootctl`, `efibootmgr`); a wave context that permits `sudo` at all forbids it to seats by default and names the read commands it does permit, and every `sudo` step that runs records `sudo -n sh -c 'find /boot -type f -print0 | sort -z | xargs -0 b2sum'` into a before file and again into an after file and writes the `cmp` result into its committed receipt. After any suspected `/boot` change, `sudo python3 tools/check-limine-pins.py --live` is the read-only detector: rc 0 when every pin's file hashes to its `#<blake2b>` suffix, rc 1 naming each mismatched/missing/malformed pin, rc 2 when the conf is unreadable or a pin cannot be resolved. Captured by: round 86's bound "`sudo -n` is allowed ONLY for read-only inspection" was a rule on intent, naming no tool class and requiring no receipt; wave seat ScoutHost read `objcopy --dump-section` as inspection, and two calls (18:11:21 and 18:11:22) rewrote both UKIs in place (`.ufo/waves/round-86/w1/ScoutHost.md:17-27`; 5 PE header bytes changed per file on a controlled copy). No round-86 receipt holds a `/boot` digest list (`grep -rl 'b2sum' .ufo/waves/round-86/` → no path), so the change was found only by the L1's post-hoc reading (`.ufo/waves/round-87/before/host/receipt.txt`; `corpus/lessons/round-86.md` M3; `round-86-verifier-spotcheck.md` §5 routed 1). Red, round 86:
+
+```text
+$ grep -c 'IS FORBIDDEN FOR EVERY SEAT' .ufo/waves/round-86/w1-spec.json
+0
+$ grep -rl 'b2sum' .ufo/waves/round-86/ ; echo rc=$?
+rc=1
+$ sudo -n b2sum /boot/EFI/Linux/*.efi          # post-hoc, round 87: .ufo/waves/round-87/before/host/receipt.txt
+57f5eb94…  /boot/EFI/Linux/omarchy_linux.efi      # /boot/limine.conf:30 pins b990d8c6…
+eff78d32…  /boot/EFI/Linux/omarchy_linux-lts.efi  # /boot/limine.conf:38 pins a68c281d…
+```
+
+Green, round 87: `grep -c 'IS FORBIDDEN FOR EVERY SEAT' .ufo/waves/round-87/w1-spec.json` → 1;
+`.ufo/waves/round-87/after/live-receipt.txt` holds the before/after list digests (`0f6acc28…` both, `cmp` identical)
+around the one `sudo` live gate run, which reads rc 1 with `LP-MISMATCH line 30` and `line 38`.
+Shown able to fail: the detector is not vacuous in either direction. On the state the round-86 writer left it reads rc 1 and names both pins (the same live receipt), so a clean reading would be an observation, not a default; and a gate that answers HEALTHY whatever it reads is rejected by the committed freeze controls — `f1-constant-healthy` reads `0 0 0` of 22 with `HOST-SHAPE` among the failed families, and the do-nothing `K1` (gate absent) reads `0 0 0` (`.ufo/waves/round-87/before/controls/controls-summary.txt`, three runs each). The receipt leg is falsifiable the same way: the round-86 pair would not have been `cmp`-identical (the pin is the digest `ScoutHost.md:23` books as the file's "before" value, the file is the post-incident one). Drafted by round-87 wave seat ScribeLesson (`.ufo/waves/round-87/w1/ScribeLesson/01-quality-124-draft.md`).
+Lesson: `corpus/lessons/round-87.md` Mistakes `R87-INTENT-RULE-NOT-TOOL-RULE`.

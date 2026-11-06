@@ -5920,6 +5920,8 @@ stays as carried; its selftest figure is corrected in the round-71 correction pa
 | resume-gate-battery-r86 | gate | `python3 tools/resume-gate-battery-r86.py --gate <PATH> [--random <N>] [--out <FILE>]`; `--selftest` (absent, constant-HEALTHY and non-JSON gates plus an unreadable base, asserting battery rc and the failed-family set) | 0 met (30 of 30 families); 1 unmet; 2 base unreadable | controls in `.ufo/waves/round-86/before/controls/` (K1 r85 gate 26/30; near-miss N01-N12 26-29/30, each failing exactly its property family; r85-carried forgers, mutants and controls 0-25/30); `--selftest` PASS 4/4 | Round-86 C1 instrument, sha256 in `.ufo/waves/round-86/before/freeze-manifest.sha256`; base `.ufo/waves/round-85/before/host/facts-v2.json`; case list shuffled per run with an OS-entropy RNG | facts files under a random dir in `$TMPDIR`, removed before exit | tsukuroi |
 | count-resume-rows-r84 | gate | `python3 tools/count-resume-rows-r84.py --revision <REV>` (or `--root <DIR>`) | 0 met (≥7 rows, 0 failed, ≥4 snapshots); 1 unmet; 2 cannot-evaluate (manifest pin mismatch, entry absent or unparseable) | `python3 tools/count-resume-rows-r84.py --selftest --root .` (12 cases) | Round-84 provenance shape gate for HR rows; NOT a content measurement: a random-span junk entry also reads met (selftest P1), so C1 was re-declared exploratory | committed reads; selftest one temporary tree under `$TMPDIR` | tsukuroi |
 | nonauthor-label | gate | `python3 tools/check-nonauthor-label-r85.py --results <WAVE-results.json> <FILE>...`; `python3 tools/check-nonauthor-label-r85.py --selftest` (8 self-written fixture cases asserting rc, finding id and PATH:LINE site; exit 0 PASS / 1 FAIL) | 0 clean; 1 a line names a wave seat as a non-author reviewer (`NONAUTHOR-SEAT-LABEL`, site PATH:LINE); 2 results unreadable, malformed or empty, or FILE unreadable | `--selftest` (round 86, wave seat ExecSelftests; three one-line mutants each fail it, `.ufo/waves/round-86/w1/ExecSelftests/receipts/02-*`) and the r85 red/green/mutant receipts `.ufo/waves/round-85/w1/ExecLints/receipts/` (cases 08-17) | Round-85 QUALITY 120; seat census from the wave results file; line-local exemptions "is the lane" and "not a non-author" | read-only | tsukuroi |
+| limine-pins | gate | `python3 tools/check-limine-pins.py --conf <FILE> --esp <DIR> [--secure-boot-enforced {0,1}]` (or `sudo python3 tools/check-limine-pins.py --live`, read-only; receipts `.ufo/waves/round-87/after/live-receipt*.txt`) | 0 HEALTHY; 1 DEGRADED (any LP-MISMATCH, LP-MISSING or LP-HASH-FORMAT pin); 2 CANNOT-EVALUATE (conf unreadable, or any LP-UNRESOLVED pin, including a path that leaves the ESP root); 64 usage | `python3 tools/check-limine-pins.py --selftest` (15 fixtures, asserting rc and the sorted per-pin (line, status, consequence); exit 0 PASS / 1 FAIL) | Limine v12.9.4 rule set R1-R7 frozen in the `limine-pin-battery-r87` docstring; sources S350-S353; pin keys path, kernel_path, image_path, module_path, dtb_path, global_dtb, wallpaper, term_font; BLAKE2b-512 over the raw stored bytes, gzip not decompressed | read-only: conf and ESP files opened read-only; selftest private mkdtemp under `$TMPDIR`; never writes `/boot` | tsukuroi |
+| limine-pin-battery-r87 | gate | `python3 tools/limine-pin-battery-r87.py --gate <PATH> [--runs <N>] [--work <DIR>] [--json <FILE>]` | 0 met (22 of 22 families); 1 unmet; 2 usage/could-not-evaluate (no `--gate`) | `python3 tools/limine-pin-battery-r87.py --selftest` (5 cases: absent, constant-HEALTHY, non-JSON and constant-DEGRADED gates must read 0/22, the committed reference gate 22/22; it asserts the families_passed count only, not a named failed family or a single output field, see round-87 lesson R87-R1) | Round-87 C1 instrument sha256 `f2551c8e8386d599e3c2aca8888d5fbb0351a5a399dc43dc448556e99361989d` in `.ufo/waves/round-87/before/freeze-manifest.sha256`; rule set R1-R7 in its docstring; fixtures generated fresh per run with OS-entropy names, bytes and layouts, case list shuffled per run | fixtures under `--work` (default `$TMPDIR`), removed before exit; reads the gate path and its own fixtures only | tsukuroi |
 
 
 ## Round-81 correction — R81-REG-1: the `measure-round80` row's selftest cell
@@ -6252,3 +6254,32 @@ Reading: the repair moves the could-not-evaluate class into the exit map (measur
 candidate 6/6 at `c6fd9949`), but neither counter's own selftest is a coverage proof — the selftest
 kills 3 of 18 and 4 of 8 respectively. Both rows stay named coverage debt in `SCORECARD.md`
 "Round 81 — measured outcome", not admission evidence.
+
+## Round-87 correction — R87-REG-1: the `resume-gate-battery-r86` near-miss cell
+
+Append-only; the `resume-gate-battery-r86` row above stays as written. Its `Pinned values` cell says the
+near-miss controls N01-N12 read "26-29/30, each failing exactly its property family". The range holds; the
+universal does not: ten of the twelve fail exactly one family, N11 fails two and N12 four. From
+`.ufo/waves/round-86/before/controls/controls-summary.txt` (committed at `2f67de80`; families_passed of 30, three
+runs each, the failed-family set identical across runs):
+
+```text
+N01-noresume-exact: 29 29 29  NORESUME-VALUED
+N02-nohib-exact: 29 29 29  NOHIB-VALUED
+N03-empty-resume: 29 29 29  EMPTY-RESUME
+N04-first-offset: 29 29 29  OFFSET-DUP
+N05-offset-malformed: 29 29 29  OFFSET-SSCANF
+N06-no-dash: 29 29 29  OFFSET-SSCANF
+N07-hib-literal: 29 29 29  HIBERNATE-NOX
+N08-boundary-le: 29 29 29  SWAP-BOUNDARY
+N09-first-swap: 29 29 29  MULTI-SWAP
+N10-no-bool-guard: 29 29 29  BOOL-FOR-INT
+N11-substring: 28 28 28  DECOYS-R86,PREC-DECOYS
+N12-short-prefix: 26 26 26  DECOYS-R86,EMPTY-RESUME,HR-NO-RESUME-ARG,PREC-NO-RESUME-ARG
+```
+
+The disclosure existed only in prose (`controls-receipt.txt:9-10`, round-86 `CriticClaims.md:115-116`), not in
+this row. The row's other clauses stand: K1 r85 gate `26 26 26` of 30; the r85-carried forgers, mutants and
+controls `0-25/30`; `--selftest` PASS 4/4. Found by the non-author closure
+(`corpus/lessons/round-86-verifier-spotcheck.md` §5 routed 3); drafted by round-87 wave seat ScribeLesson
+(`.ufo/waves/round-87/w1/ScribeLesson/03-registry-correction-draft.md`), landed by the L1. No row text is edited.

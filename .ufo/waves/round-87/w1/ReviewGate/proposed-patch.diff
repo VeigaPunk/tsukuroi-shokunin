@@ -1,0 +1,102 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-limine-pins.py	2026-11-06 19:12:43.248660778 -0300
++++ /fast/scratch/hyaku/tsukuroi-r87/ReviewGate/check-limine-pins.proposed.py	2026-11-06 19:22:33.017936736 -0300
+@@ -77,19 +77,35 @@
+     return h.hexdigest()
+ 
+ 
++def sanitize(s):
++    """Make a possibly surrogate-escaped string safe for UTF-8 stdout/JSON."""
++    return s.encode("utf-8", "replace").decode("utf-8")
++
++
++def resolve_in_esp(esp, path):
++    """Join a URI path under esp; return None if it leaves the ESP (`..` components or a
++    symlink pointing outside). Limine resolves the path on the boot volume only."""
++    target = os.path.join(esp, *path.split("/"))
++    root = os.path.realpath(esp)
++    resolved = os.path.realpath(target)
++    if resolved != root and not resolved.startswith(root + os.sep):
++        return None
++    return target
++
++
+ def check(conf, esp, secure_boot):
+     try:
+         with open(conf, "rb") as f:
+-            text = f.read().decode("utf-8", "replace")
++            text = f.read().decode("utf-8", "surrogateescape")
+     except OSError as e:
+-        return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "error": "conf unreadable: %s" % e}
++        return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "error": "conf unreadable: %s" % sanitize(str(e))}
+     panic_setting = None
+     entry = None
+     raw_pins = []
+     for lineno, raw in enumerate(text.split("\n"), 1):
+         stripped = raw.replace("\r", "").strip(" \t")
+         if stripped.startswith("/"):
+-            entry = stripped.lstrip("/").lstrip("+").strip() or entry
++            entry = sanitize(stripped.lstrip("/").lstrip("+").strip()) or entry
+             continue
+         kv = split_key(raw)
+         if kv is None:
+@@ -104,7 +120,7 @@
+     prompt = (panic_setting is not None and panic_setting[1].lower() == "no" and not secure_boot)
+     pins = []
+     for lineno, key, written, entry_name, value, uri in raw_pins:
+-        rec = {"line": lineno, "key": written, "entry": entry_name, "uri": value}
++        rec = {"line": lineno, "key": written, "entry": entry_name, "uri": sanitize(value)}
+         optional = key in OPTIONAL_KEYS
+         h = uri["hash"]
+         if len(h) != 128 or not set(h) <= HEXDIGITS:
+@@ -118,8 +134,13 @@
+                        detail="resource %s(%s) is not the boot partition" % (resource, uri["root"]))
+             pins.append(rec)
+             continue
+-        target = os.path.join(esp, *uri["path"].split("/"))
+-        rec["file"] = target
++        target = resolve_in_esp(esp, uri["path"])
++        if target is None:
++            rec.update(status="LP-UNRESOLVED", consequence="not-modelled",
++                       detail="path escapes the ESP root")
++            pins.append(rec)
++            continue
++        rec["file"] = sanitize(target)
+         if not os.path.isfile(target):
+             rec.update(status="LP-MISSING", consequence="not-modelled")
+             pins.append(rec)
+@@ -127,7 +148,7 @@
+         try:
+             got = blake2b_file(target)
+         except OSError as e:
+-            rec.update(status="LP-UNRESOLVED", consequence="not-modelled", detail="unreadable: %s" % e)
++            rec.update(status="LP-UNRESOLVED", consequence="not-modelled", detail="unreadable: %s" % sanitize(str(e)))
+             pins.append(rec)
+             continue
+         rec["blake2b"] = got
+@@ -205,6 +226,8 @@
+         case("non-path-key", ["/e", "cmdline: x=boot():/EFI/Linux/a.efi#" + bad], False, 0, [])
+         case("crlf-blanks", ["/e\r", "\t path:\tboot():/EFI/Linux/a.efi#" + ha + " \t\r"], False, 0,
+              [(2, "OK", "none")])
++        case("traversal", ["/e", "path: boot():/../outside#" + ha], False, 2,
++             [(2, "LP-UNRESOLVED", "not-modelled")])
+         r = check(os.path.join(work, "absent.conf"), esp, False)
+         results.append(("conf-absent", r["rc"] == 2 and r["pins"] == [], r["rc"], r["pins"]))
+     finally:
+@@ -216,8 +239,16 @@
+     return 0 if passed == len(results) else 1
+ 
+ 
++class UsageParser(argparse.ArgumentParser):
++    """argparse's default error exit is 2, which collides with CANNOT-EVALUATE rc 2; usage is 64."""
++
++    def error(self, message):
++        self.print_usage(sys.stderr)
++        self.exit(64, "%s: error: %s\n" % (self.prog, message))
++
++
+ def main():
+-    ap = argparse.ArgumentParser(description="Read-only Limine v12.9.4 path-pin gate.")
++    ap = UsageParser(description="Read-only Limine v12.9.4 path-pin gate.")
+     ap.add_argument("--conf")
+     ap.add_argument("--esp")
+     ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)

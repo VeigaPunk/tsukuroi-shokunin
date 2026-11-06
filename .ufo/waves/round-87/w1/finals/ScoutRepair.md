@@ -1,0 +1,1 @@
+I'll start by reading the required context files in parallel.I accidentally wrote scratch files into the fleet root (cwd default). Removing them immediately.

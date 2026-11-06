@@ -1,0 +1,1 @@
+All fixes verified: traversal and symlink-escape now LP-UNRESOLVED rc 2, dangling symlink still MISSING, inside symlink still OK, raw-UTF-8 filename hashes OK with sanitized output, usage errors exit 64. Now saving receipts and writing the report.Now writing the report and the patched candidate copy into the wave dir.

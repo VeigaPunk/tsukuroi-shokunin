@@ -1,0 +1,28 @@
+diff --git i/tools/check-limine-pins.py w/tools/check-limine-pins.py
+index 777e8867..be3da962 100755
+--- i/tools/check-limine-pins.py
++++ w/tools/check-limine-pins.py
+@@ -80,7 +80,7 @@ def blake2b_file(path):
+ def check(conf, esp, secure_boot):
+     try:
+         with open(conf, "rb") as f:
+-            text = f.read().decode("utf-8", "replace")
++            text = f.read().decode("utf-8", "surrogateescape")
+     except OSError as e:
+         return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "error": "conf unreadable: %s" % e}
+     panic_setting = None
+@@ -118,7 +118,13 @@ def check(conf, esp, secure_boot):
+                        detail="resource %s(%s) is not the boot partition" % (resource, uri["root"]))
+             pins.append(rec)
+             continue
+-        target = os.path.join(esp, *uri["path"].split("/"))
++        parts = [x for x in uri["path"].split("/") if x not in ("", ".")]
++        if any(x == ".." for x in parts):
++            rec.update(status="LP-UNRESOLVED", consequence="not-modelled",
++                       detail="path escapes the ESP")
++            pins.append(rec)
++            continue
++        target = os.path.join(esp, *parts)
+         rec["file"] = target
+         if not os.path.isfile(target):
+             rec.update(status="LP-MISSING", consequence="not-modelled")

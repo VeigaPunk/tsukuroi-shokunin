@@ -1,0 +1,95 @@
+# ExecReplicate — round 87 w1 — evidence log
+
+Seat: ExecReplicate (leaf executor). Date: 2026-11-06.
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (branch master, jj-colocated). NOT mutated by this seat.
+Lane revision measured (tip at clone time and throughout):
+  $ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse master
+  cefb4188b484329c4908a19a277f8fb120fb4f56
+Clean room: /fast/scratch/hyaku/tsukuroi-r87/ExecReplicate/lane (git clone --shared of the lane)
+  $ git -C "$S/lane" rev-parse HEAD            -> cefb4188b484329c4908a19a277f8fb120fb4f56
+  $ git -C "$S/lane" branch --show-current     -> master
+  $ git -C "$S/lane" status --porcelain | wc -l -> 0   (clone clean before and after all runs)
+Interpreter: Python 3.14.8.  Disk: /fast 804G total, 418G avail (49% used) at start.
+Host guard honoured: no sudo, no /boot or /efi access, no objcopy/strip/sbsign/ukify/mkinitcpio/limine*/pacman,
+no /sys or /proc writes, no --live run. The L1 live receipt (.ufo/waves/round-87/after/live-receipt.txt) was
+read and quoted, never re-run.
+
+## 1. Kill rule ("void" check): battery bytes vs freeze manifest
+$ cd "$S/lane" && sha256sum tools/limine-pin-battery-r87.py
+f2551c8e8386d599e3c2aca8888d5fbb0351a5a399dc43dc448556e99361989d  tools/limine-pin-battery-r87.py
+$ head -1 .ufo/waves/round-87/before/freeze-manifest.sha256
+f2551c8e8386d599e3c2aca8888d5fbb0351a5a399dc43dc448556e99361989d  tools/limine-pin-battery-r87.py
+=> identical. Kill rule not triggered.
+
+## 2. Candidate gate identity in the clean room
+$ git -C "$S/lane" diff --stat a097bd9d50e83dd93c4f29c06a2a22cce12836be -- tools/check-limine-pins.py
+(empty: candidate file unchanged since its commit)
+$ sha256sum tools/check-limine-pins.py
+bbcc874ac8143ffb9bd97e4d3e2dfd934af3d6573f741d8b8ee3c00ecda9b73c  tools/check-limine-pins.py
+
+## 3. Counting command, three consecutive (judged) runs, cwd = clone root
+$ for r in 1 2 3; do python3 tools/limine-pin-battery-r87.py --gate tools/check-limine-pins.py \
+    --work "$S/work" --json "$S/out/run$r.json"; echo "rc=$?"; done
+families_passed 22/22 verdict met failed -
+rc=0
+families_passed 22/22 verdict met failed -
+rc=0
+families_passed 22/22 verdict met failed -
+rc=0
+Wall time (/usr/bin/time -f "runN wall=%e s"):
+run1 wall=2.72 s
+run2 wall=2.69 s
+run3 wall=2.74 s
+Receipt contents (run1/2/3.json): schema tsukuroi-limine-pin-battery-r87-v1, families_total 22,
+families_passed 22, failed_families [], cases 88, verdict "met"; case_log holds 88 entries over exactly
+22 families x 4 (CASES_PER_FAMILY=4, battery:475), every entry passed:true, every got == want.
+
+Extra probes (not part of the judged three): runs 4-6, same command:
+families_passed 22/22 verdict met failed -   (rc=0, x3)
+
+## 4. Freeze controls, one re-run each, in the clone
+Command shape: python3 <battery> --gate <control gate> --work "$S/work" [REF_DROP=<name> env]
+  K1      gate path = $S/lane/tools/check-limine-pins-ABSENT-r87.py (absent file, the do-nothing control)
+  K2      gate path = $S/lane/tools/check-boot-chain.py (lane's boot-chain gate, driven through the battery)
+  P0      gate path = $S/lane/.ufo/waves/round-87/before/controls/ref-gate-r87.py, REF_DROP unset (env -u)
+  f1-f4   gate path = .../controls/forgers/f{1..4}-*.py
+  N01-N18 gate path = .../controls/ref-gate-r87.py with REF_DROP=<one drop name from ref-gate DROPS>
+All 25 compared against .ufo/waves/round-87/before/controls/controls-summary.txt (25 parsed lines).
+Result: 24 of 25 read below 22/22; only P0 reads 22/22. See the report table; raw receipts in ./controls/.
+Only control whose family count wobbled: N06-prefix20 (freeze itself recorded 11 11 12; this seat measured
+11 on the judged run and 12,12,11,11,11 then 11,12,11,11,12,11,12,11,11,11 on 15 repeats => 11 families in
+11/16 runs, 12 in 5/16, never >= 22).
+
+## 5. Selftests, from an unrelated cwd ($S, not the clone)
+$ cd "$S" && python3 "$S/lane/tools/limine-pin-battery-r87.py" --selftest
+absent             PASS families_passed=0
+constant-healthy   PASS families_passed=0
+non-json           PASS families_passed=0
+constant-degraded  PASS families_passed=0
+reference-gate     PASS families_passed=22
+selftest PASS 5/5
+rc=0
+$ cd "$S" && python3 "$S/lane/tools/check-limine-pins.py" --selftest
+... 14 lines, each PASS; last two lines:
+selftest PASS 14/14
+candidate rc=0
+
+## 6. Committed L1 live receipt (read, not re-run) — .ufo/waves/round-87/after/live-receipt.txt
+$ sudo -n python3 tools/check-limine-pins.py --live
+{"findings": ["LP-MISMATCH line 30", "LP-MISMATCH line 38"], "hash_mismatch_panic": {"line": 8, "value": "no"},
+ ... "verdict" implied DEGRADED, rc=1 ...}
+rc=1
+(before/after `b2sum` list of /boot identical: 0f6acc28a3f9f4e3448fa2e9813dc61fb13f18c5d7a0fee6c5c21774e3560028)
+=> host consequence "prompt" for both main pins, consistent with the round-87 declaration; this seat did not
+   execute --live and did not touch /boot.
+
+## 7. Out-of-predicate probes (advisory, see report §Risks and ./proposals/)
+$ python3 tools/check-limine-pins.py --conf <fixture>/limine.conf --esp <fixture>/esp   (boot():/../outside/x.efi)
+{"findings": [], ... "status": "OK", "consequence": "none", "file": ".../esp/../outside/x.efi" ...}  rc=0
+$ python3 tools/check-limine-pins.py --conf <fixture>/limine.conf --esp <fixture>/esp   (file name byte 0xff)
+{"findings": ["LP-MISSING line 2"], "file": ".../esp/EFI/k\ufffd.efi", ...}  rc=1
+Same probes against the advisory-patched copy ($S/patchtest/lane, sha256 7d3deece45219d742225a5baf99e2ee37154f575543136b752d4175f9c02304f):
+  traversal -> {"status": "LP-UNRESOLVED", "consequence": "not-modelled", "detail": "path escapes the ESP"} rc=2
+  non-UTF-8 -> {"status": "OK", "consequence": "none", "file": ".../EFI/k\udcff.efi"} rc=0
+  battery x3 on the patched copy: families_passed 22/22 verdict met failed -  (rc=0, x3)
+  patched copy --selftest: selftest PASS 14/14

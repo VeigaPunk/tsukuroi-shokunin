@@ -1,0 +1,1 @@
+I'll start by setting up scratch and gathering the frozen predicate and near-miss receipts in parallel.

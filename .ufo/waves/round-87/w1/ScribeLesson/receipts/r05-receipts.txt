@@ -1,0 +1,41 @@
+# r05 host + live receipts, verbatim
+## .ufo/waves/round-87/after/live-receipt.txt
+# live run, read-only, 2026-11-06T19:13:00-03:00, TsukuroiR87
+$ sudo -n sh -c 'find /boot -type f -print0 | sort -z | xargs -0 b2sum' > before (digest of list below)
+0f6acc28a3f9f4e3448fa2e9813dc61fb13f18c5d7a0fee6c5c21774e3560028  -
+$ sudo -n python3 tools/check-limine-pins.py --live
+{"findings": ["LP-MISMATCH line 30", "LP-MISMATCH line 38"], "hash_mismatch_panic": {"line": 8, "value": "no"}, "pins": [{"blake2b": "57f5eb9420f462c798a9e7dbf01f9fadbe12332c595f48e199d86f9ab039078ab0f65d2bf52c60a5a0a905003b27c3cece4cfddcea612c4f6f2d164fffcdb5b1", "consequence": "prompt", "entry": "linux", "file": "/boot/EFI/Linux/omarchy_linux.efi", "key": "path", "line": 30, "status": "LP-MISMATCH", "uri": "boot():/EFI/Linux/omarchy_linux.efi#b990d8c699ef1987c24103770c14e020efc018dbdd7f9437e65ce0d5e7df273be02bbfa86e66ac6955923ccc62ea16379e3c15dcc1e2601ea04ab408db784cf9"}, {"blake2b": "eff78d32b1aed09d6b48e584e6ab88c5a9062fa4ed57d98bd6553e8efbf09928425eecbd451ee7b2f3bcabe0b7c9b34e777125470fc8ae5eb33a8cdda27ed4e5", "consequence": "prompt", "entry": "linux-lts", "file": "/boot/EFI/Linux/omarchy_linux-lts.efi", "key": "path", "line": 38, "status": "LP-MISMATCH", "uri": "boot():/EFI/Linux/omarchy_linux-lts.efi#a68c281d9e34c1bf1bab2400ff27ce373cd305bbde3f875a265ad0e58845c940e26039d5edd9c20e0463d378402320d38784c6402dfc9309363efe3bbe539c14"}, {"blake2b": "822299bbdaf0d4ede97d341fd5fcfa73fb3ca3942b7dcc597a79e7b46e69ec8f3eaabb194c431112de1c97b15345f1ca64adb0438b94d8fc8100cd393ce98024", "consequence": "none", "entry": "linux", "file": "/boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8", "key": "path", "line": 50, "status": "OK", "uri": "boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8#822299bbdaf0d4ede97d341fd5fcfa73fb3ca3942b7dcc597a79e7b46e69ec8f3eaabb194c431112de1c97b15345f1ca64adb0438b94d8fc8100cd393ce98024"}, {"blake2b": "6c1893df2144b71b7f2fbf95fe61f94aa1178968e002fb86c809581d14512d60130dde89cd21e96392216bb5ae622aede82b1f3e916694f820bf17c780ac03db", "consequence": "none", "entry": "linux-lts", "file": "/boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8", "key": "path", "line": 56, "status": "OK", "uri": "boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8#6c1893df2144b71b7f2fbf95fe61f94aa1178968e002fb86c809581d14512d60130dde89cd21e96392216bb5ae622aede82b1f3e916694f820bf17c780ac03db"}, {"blake2b": "2832912269f8e0f0cd4b7434d126938b9986af3ff3c27737054696daa53aaf9ce18e32edbb99d731f5bf4da7cb86826d754f16627d93619cc5db19e4769bf71c", "consequence": "none", "entry": "linux", "file": "/boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0", "key": "path", "line": 64, "status": "OK", "uri": "boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0#2832912269f8e0f0cd4b7434d126938b9986af3ff3c27737054696daa53aaf9ce18e32edbb99d731f5bf4da7cb86826d754f16627d93619cc5db19e4769bf71c"}], "rc": 1, "schema": "tsukuroi-limine-pins-v1", "secure_boot_enforced": false, "secure_boot_source": "efivar", "verdict": "DEGRADED"}
+rc=1
+$ (same /boot b2sum list after) | sha256sum ; cmp before after
+0f6acc28a3f9f4e3448fa2e9813dc61fb13f18c5d7a0fee6c5c21774e3560028  -
+cmp: identical (no /boot byte changed by the live run)
+
+## .ufo/waves/round-87/before/host/receipt.txt
+# host receipt, read-only, 2026-11-06T19:04:43-03:00 by TsukuroiR87
+$ pacman -Q limine limine-mkinitcpio-hook limine-snapper-sync
+limine 12.9.4-1
+limine-mkinitcpio-hook 1.40.0-2
+limine-snapper-sync 1.32.1-2
+$ limine --version | head -1
+Limine 12.9.4
+$ findmnt -no SOURCE,FSTYPE /boot
+/dev/nvme0n1p1 vfat
+$ sudo -n sh -c 'b2sum /boot/EFI/Linux/*.efi'
+57f5eb9420f462c798a9e7dbf01f9fadbe12332c595f48e199d86f9ab039078ab0f65d2bf52c60a5a0a905003b27c3cece4cfddcea612c4f6f2d164fffcdb5b1  /boot/EFI/Linux/omarchy_linux.efi
+eff78d32b1aed09d6b48e584e6ab88c5a9062fa4ed57d98bd6553e8efbf09928425eecbd451ee7b2f3bcabe0b7c9b34e777125470fc8ae5eb33a8cdda27ed4e5  /boot/EFI/Linux/omarchy_linux-lts.efi
+$ sudo -n sh -c "stat -c '%y %s %n' /boot/EFI/Linux/*.efi"
+2026-11-06 18:11:22.000000000 -0300 284447744 /boot/EFI/Linux/omarchy_linux.efi
+2026-11-06 18:11:22.000000000 -0300 281338880 /boot/EFI/Linux/omarchy_linux-lts.efi
+$ sudo -n grep -nE "^\s*(hash_mismatch_panic|path|module_path):" /boot/limine.conf
+8:hash_mismatch_panic: no
+30:  path: boot():/EFI/Linux/omarchy_linux.efi#b990d8c699ef1987c24103770c14e020efc018dbdd7f9437e65ce0d5e7df273be02bbfa86e66ac6955923ccc62ea16379e3c15dcc1e2601ea04ab408db784cf9
+38:  path: boot():/EFI/Linux/omarchy_linux-lts.efi#a68c281d9e34c1bf1bab2400ff27ce373cd305bbde3f875a265ad0e58845c940e26039d5edd9c20e0463d378402320d38784c6402dfc9309363efe3bbe539c14
+50:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8#822299bbdaf0d4ede97d341fd5fcfa73fb3ca3942b7dcc597a79e7b46e69ec8f3eaabb194c431112de1c97b15345f1ca64adb0438b94d8fc8100cd393ce98024
+56:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8#6c1893df2144b71b7f2fbf95fe61f94aa1178968e002fb86c809581d14512d60130dde89cd21e96392216bb5ae622aede82b1f3e916694f820bf17c780ac03db
+64:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0#2832912269f8e0f0cd4b7434d126938b9986af3ff3c27737054696daa53aaf9ce18e32edbb99d731f5bf4da7cb86826d754f16627d93619cc5db19e4769bf71c
+72:path: boot():/EFI/BOOT/BOOTX64.EFI
+$ od -An -tu1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d0-9f80-0caf3b2fbe4c
+od: /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d0-9f80-0caf3b2fbe4c: No such file or directory
+# correction (L1, same minute): the SecureBoot line above used the wrong vendor GUID; the EFI global-variable GUID is 8be4df61-93ca-11d2-aa0d-00e098032b8c
+$ od -An -tu1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c /sys/firmware/efi/efivars/SetupMode-8be4df61-93ca-11d2-aa0d-00e098032b8c
+   6   0   0   0   0   6   0   0   0   0

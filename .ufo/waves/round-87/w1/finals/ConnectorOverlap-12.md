@@ -1,0 +1,1 @@
+I'll start by reading the round declaration, the lane's province map, and surveying sibling lanes in parallel.

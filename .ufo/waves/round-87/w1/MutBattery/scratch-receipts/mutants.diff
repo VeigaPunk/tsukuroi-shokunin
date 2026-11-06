@@ -1,0 +1,107 @@
+--- tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ tools/limine-pin-battery-r87-m1-never-met.py	2026-11-06 19:18:55.690323118 -0300
+@@ -521,7 +521,7 @@
+             c, d, conf, esp = build(fam, rng, root)
+             want = c.finish()
+             got, err = (None, "gate absent") if not os.path.isfile(gate) else run_gate(gate, conf, esp, c.sb, d)
+-            ok = got is not None and got[0] == want[0] and got[3] == want[0] and got[1] == want[1] and [list(x) for x in got[2]] == [list(x) for x in want[2]]
++            ok = False  # MUT-M1 never-met
+             log.append({"family": fam, "passed": ok,
+                         "want": [want[0], want[1], [list(x) for x in want[2]]],
+                         "got": None if got is None else [got[0], got[1], [list(x) for x in got[2]], got[3]],
+--- tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ tools/limine-pin-battery-r87-m2-always-met.py	2026-11-06 19:18:55.690409658 -0300
+@@ -521,7 +521,7 @@
+             c, d, conf, esp = build(fam, rng, root)
+             want = c.finish()
+             got, err = (None, "gate absent") if not os.path.isfile(gate) else run_gate(gate, conf, esp, c.sb, d)
+-            ok = got is not None and got[0] == want[0] and got[3] == want[0] and got[1] == want[1] and [list(x) for x in got[2]] == [list(x) for x in want[2]]
++            ok = True  # MUT-M2 always-met
+             log.append({"family": fam, "passed": ok,
+                         "want": [want[0], want[1], [list(x) for x in want[2]]],
+                         "got": None if got is None else [got[0], got[1], [list(x) for x in got[2]], got[3]],
+--- tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ tools/limine-pin-battery-r87-m3-family-skipped.py	2026-11-06 19:18:55.690454718 -0300
+@@ -522,7 +522,7 @@
+             want = c.finish()
+             got, err = (None, "gate absent") if not os.path.isfile(gate) else run_gate(gate, conf, esp, c.sb, d)
+             ok = got is not None and got[0] == want[0] and got[3] == want[0] and got[1] == want[1] and [list(x) for x in got[2]] == [list(x) for x in want[2]]
+-            log.append({"family": fam, "passed": ok,
++            log.append({"family": fam, "passed": (ok or fam == "MULTI-FAULT"),
+                         "want": [want[0], want[1], [list(x) for x in want[2]]],
+                         "got": None if got is None else [got[0], got[1], [list(x) for x in got[2]], got[3]],
+                         "error": err})
+--- tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ tools/limine-pin-battery-r87-m4-families-21.py	2026-11-06 19:18:55.690499028 -0300
+@@ -470,7 +470,7 @@
+     "MULTI-FAULT": fam_multi,
+     "UNHASHED-DECOYS": fam_unhashed_decoys,
+     "MALFORMED-INPUT": fam_malformed_input,
+-    "HOST-SHAPE": fam_host_shape,
++    # MUT-M4: HOST-SHAPE family removed (21 total)
+ }
+ CASES_PER_FAMILY = 4
+ 
+--- tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ tools/limine-pin-battery-r87-m5-ignore-rc.py	2026-11-06 19:18:55.690528958 -0300
+@@ -521,7 +521,7 @@
+             c, d, conf, esp = build(fam, rng, root)
+             want = c.finish()
+             got, err = (None, "gate absent") if not os.path.isfile(gate) else run_gate(gate, conf, esp, c.sb, d)
+-            ok = got is not None and got[0] == want[0] and got[3] == want[0] and got[1] == want[1] and [list(x) for x in got[2]] == [list(x) for x in want[2]]
++            ok = got is not None and got[1] == want[1] and [list(x) for x in got[2]] == [list(x) for x in want[2]]  # MUT-M5 ignore-rc
+             log.append({"family": fam, "passed": ok,
+                         "want": [want[0], want[1], [list(x) for x in want[2]]],
+                         "got": None if got is None else [got[0], got[1], [list(x) for x in got[2]], got[3]],
+--- tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ tools/limine-pin-battery-r87-m6-ignore-consequence.py	2026-11-06 19:18:55.690559558 -0300
+@@ -521,7 +521,7 @@
+             c, d, conf, esp = build(fam, rng, root)
+             want = c.finish()
+             got, err = (None, "gate absent") if not os.path.isfile(gate) else run_gate(gate, conf, esp, c.sb, d)
+-            ok = got is not None and got[0] == want[0] and got[3] == want[0] and got[1] == want[1] and [list(x) for x in got[2]] == [list(x) for x in want[2]]
++            ok = got is not None and got[0] == want[0] and got[3] == want[0] and got[1] == want[1] and [list(x)[:2] for x in got[2]] == [list(x)[:2] for x in want[2]]  # MUT-M6 ignore-consequence
+             log.append({"family": fam, "passed": ok,
+                         "want": [want[0], want[1], [list(x) for x in want[2]]],
+                         "got": None if got is None else [got[0], got[1], [list(x) for x in got[2]], got[3]],
+--- tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ tools/limine-pin-battery-r87-m7-ignore-line.py	2026-11-06 19:18:55.690588408 -0300
+@@ -521,7 +521,7 @@
+             c, d, conf, esp = build(fam, rng, root)
+             want = c.finish()
+             got, err = (None, "gate absent") if not os.path.isfile(gate) else run_gate(gate, conf, esp, c.sb, d)
+-            ok = got is not None and got[0] == want[0] and got[3] == want[0] and got[1] == want[1] and [list(x) for x in got[2]] == [list(x) for x in want[2]]
++            ok = got is not None and got[0] == want[0] and got[3] == want[0] and got[1] == want[1] and sorted([x[1:] for x in got[2]]) == sorted([x[1:] for x in want[2]])  # MUT-M7 ignore-line
+             log.append({"family": fam, "passed": ok,
+                         "want": [want[0], want[1], [list(x) for x in want[2]]],
+                         "got": None if got is None else [got[0], got[1], [list(x) for x in got[2]], got[3]],
+--- tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ tools/limine-pin-battery-r87-m8-ref-from-cwd.py	2026-11-06 19:18:55.690879399 -0300
+@@ -70,6 +70,7 @@
+ import tempfile
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
++_START_CWD = os.getcwd()  # MUT-M8 invocation cwd
+ TIMEOUT = 20
+ HEX = "0123456789abcdef"
+ 
+@@ -566,7 +567,7 @@
+                     f.write(src)
+             r = run_battery(g, work)
+             results.append((name, r["verdict"] == ("met" if must else "unmet"), r["families_passed"]))
+-        lane = os.path.dirname(HERE)
++        lane = _START_CWD  # MUT-M8 ref path from cwd
+         ref = os.path.join(lane, ".ufo", "waves", "round-87", "before", "controls", "ref-gate-r87.py")
+         if os.path.isfile(ref):
+             r = run_battery(ref, work)
+--- tools/limine-pin-battery-r87.py	2026-11-06 19:17:51.293828315 -0300
++++ tools/limine-pin-battery-r87-m8b-ref-from-cwd-late.py	2026-11-06 19:18:55.692793910 -0300
+@@ -566,7 +566,7 @@
+                     f.write(src)
+             r = run_battery(g, work)
+             results.append((name, r["verdict"] == ("met" if must else "unmet"), r["families_passed"]))
+-        lane = os.path.dirname(HERE)
++        lane = os.getcwd()  # MUT-M8b ref path from cwd at resolve time
+         ref = os.path.join(lane, ".ufo", "waves", "round-87", "before", "controls", "ref-gate-r87.py")
+         if os.path.isfile(ref):
+             r = run_battery(ref, work)

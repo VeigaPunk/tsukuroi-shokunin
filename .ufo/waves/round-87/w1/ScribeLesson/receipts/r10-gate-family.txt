@@ -1,0 +1,39 @@
+# r10 gate exit contract and HOST-SHAPE family (cwd lane root: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin)
+$ sed -n '20,26p' tools/check-limine-pins.py
+  check-limine-pins.py --selftest
+Output: one JSON object on stdout {verdict, rc, pins[{line, key, entry, uri, status, consequence, ...}], ...}.
+Exit: 0 HEALTHY; 1 DEGRADED (a pin mismatches, is missing, or is malformed); 2 CANNOT-EVALUATE (conf unreadable,
+or a pin that cannot be resolved here); 64 usage.
+Never writes: opens files read-only, no temp files outside --selftest's own mkdtemp (honours TMPDIR).
+"""
+import argparse
+$ sed -n '451,479p' tools/limine-pin-battery-r87.py
+FAMILIES = {
+    "POSITIVE": fam_positive,
+    "MISMATCH-EARLY": lambda c: fam_mismatch(c, False),
+    "MISMATCH-LATE": lambda c: fam_mismatch(c, True),
+    "MISSING": fam_missing,
+    "HASH-LENGTH": fam_hash_short,
+    "HASH-NONHEX": fam_hash_nonhex,
+    "HASH-UPPER": fam_hash_upper,
+    "COMMENT-DECOY": fam_comment_decoy,
+    "KEY-CASE": fam_key_case,
+    "WHITESPACE-CRLF": fam_whitespace,
+    "LAST-HASH": fam_last_hash,
+    "GZ-RAW": fam_gz_raw,
+    "UNRESOLVED": fam_unresolved,
+    "PANIC-DEFAULT": fam_panic_default,
+    "PANIC-NO-ONLY": fam_panic_no_only,
+    "PANIC-FIRST": fam_panic_first,
+    "SECUREBOOT": fam_secureboot,
+    "OPTIONAL-SKIP": fam_optional_skip,
+    "MULTI-FAULT": fam_multi,
+    "UNHASHED-DECOYS": fam_unhashed_decoys,
+    "MALFORMED-INPUT": fam_malformed_input,
+    "HOST-SHAPE": fam_host_shape,
+}
+CASES_PER_FAMILY = 4
+
+
+def build(fam, rng, root):
+    c = Case(fam, rng)

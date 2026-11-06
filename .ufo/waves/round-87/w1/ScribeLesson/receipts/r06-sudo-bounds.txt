@@ -1,0 +1,13 @@
+# r06 wave-context sudo bounds, r86 vs r87
+$ grep -c 'IS FORBIDDEN FOR EVERY SEAT' .ufo/waves/round-86/w1-spec.json
+0
+$ grep -c 'IS FORBIDDEN FOR EVERY SEAT' .ufo/waves/round-87/w1-spec.json
+1
+$ python3 - (json walk: sudo sentences)
+.ufo/waves/round-86/w1-spec.json: `sudo -n` is allowed ONLY for read-only inspection (btrfs inspect-internal map-swapfile -r, lsattr, filefrag -v, cat/stat of root-only files).
+.ufo/waves/round-86/w1-spec.json: gz | grep -E 'PM_STD_PARTITION|HIBERNATION'`, and the boot-entry source of the cmdline (limine config / /etc/kernel/cmdline, read-only, sudo -n cat only).
+.ufo/waves/round-87/w1-spec.json: 4-1; the round-86 incident (seat ran `sudo objcopy --dump-section` on both UKIs; with no output file objcopy rewrote them in place) left lines 30/38 of /boot/limine.
+.ufo/waves/round-87/w1-spec.json: - HOST IS READ-ONLY AND `sudo` IS FORBIDDEN FOR EVERY SEAT THIS ROUND (round-86 incident: a "read-only" `sudo objcopy --dump-section` rewrote both UKIs in /boot).
+.ufo/waves/round-87/w1-spec.json: Do NOT run --live (sudo forbidden).
+.ufo/waves/round-87/w1-spec.json: Run its --selftest and the battery once (no sudo).
+.ufo/waves/round-87/w1-spec.json: md: (a) QUALITY 124 text: no in-place writer (objcopy/strip/sed -i/sbsign/ukify, any tool whose default output is its input) may touch /boot or any file a boot pin names, and every seat or step that uses sudo records `find /boot -type f -print0 | sort -z | xargs -0 b2sum` before and after and `cmp`s them; with a red/green example using the round-86 receipts and the round-87 live receipt /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.

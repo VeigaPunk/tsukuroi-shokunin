@@ -1,0 +1,12 @@
+--- pristine.py
++++ m20-unresolved-precedence-first.py
+@@ -140,6 +140,6 @@
+     statuses = {p["status"] for p in pins}
+-    if statuses & set(FAULTS):
++    if "LP-UNRESOLVED" in statuses:
++        verdict, rc = "CANNOT-EVALUATE", 2
++    elif statuses & set(FAULTS):
+         verdict, rc = "DEGRADED", 1
+-    elif "LP-UNRESOLVED" in statuses:
+-        verdict, rc = "CANNOT-EVALUATE", 2
+     else:

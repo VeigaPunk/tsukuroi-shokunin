@@ -1,0 +1,93 @@
+--- tools/limine-pin-battery-r87.py
++++ tools/limine-pin-battery-r87.py (proposed w1/MutGate)
+@@ -106,4 +106,5 @@
+         self.conf_missing = False
+         self.panic_value = None  # value of first hash_mismatch_panic, None = absent
++        self.meta = {}           # extra assertions: "entries" {line: entry}, "panic" {line, value}
+ 
+     def add(self, text):
+@@ -141,5 +142,5 @@
+ 
+     def pin(self, status, key="path", indent="  ", resource="boot()", data=None, hashfmt=None,
+-            rel=None, gz=False):
++            rel=None, gz=False, entry=None):
+         """Append one pin line; record its expectation (consequence resolved at finish())."""
+         if rel is None:
+@@ -165,4 +166,6 @@
+         ln = self.add("%s%s: %s" % (indent, key, uri))
+         self.expect.append([ln, status, key])
++        if entry is not None:
++            self.meta.setdefault("entries", {})[ln] = entry
+         return ln
+ 
+@@ -192,7 +195,8 @@
+ 
+ def set_panic(c, value, indent=""):
+-    c.add("%shash_mismatch_panic: %s" % (indent, value))
++    ln = c.add("%shash_mismatch_panic: %s" % (indent, value))
+     if c.panic_value is None:
+         c.panic_value = value.strip()
++        c.meta["panic"] = {"line": ln, "value": value.strip()}
+ 
+ 
+@@ -449,4 +453,31 @@
+ 
+ 
++def fam_paren_path(c):
++    """R2: the resource ends at the FIRST '('; a stored path may itself contain '(' and ')'."""
++    c.header()
++    label = rname(c.rng, "")
++    c.entry(label)
++    rel = "EFI/Linux/%s(%d).efi" % (rname(c.rng, ""), c.rng.randrange(10))
++    c.files[rel] = c.blob()
++    c.pin("OK", rel=rel)
++    c.pin("LP-MISMATCH", key="kernel_path", rel=rel)
++
++
++def fam_entry_label(c):
++    """The per-pin entry label is reported; sibling entries must not be confused."""
++    c.header()
++    for label in (rname(c.rng, ""), "EFI fallback", rname(c.rng, "")):
++        c.entry(label)
++        c.pin(c.rng.choice(["OK", "LP-MISMATCH"]), entry=label)
++
++
++def fam_panic_metadata(c):
++    """The reported hash_mismatch_panic record names the first occurrence's line and value."""
++    c.header()
++    set_panic(c, c.rng.choice(["no", "NO", "No"]), indent="  ")
++    c.entry()
++    c.pin("LP-MISMATCH")
++
++
+ FAMILIES = {
+     "POSITIVE": fam_positive,
+@@ -472,4 +503,7 @@
+     "MALFORMED-INPUT": fam_malformed_input,
+     "HOST-SHAPE": fam_host_shape,
++    "PAREN-PATH": fam_paren_path,
++    "ENTRY-LABEL": fam_entry_label,
++    "PANIC-METADATA": fam_panic_metadata,
+ }
+ CASES_PER_FAMILY = 4
+@@ -505,5 +539,6 @@
+         out = json.loads(p.stdout)
+         pins = sorted((int(x["line"]), str(x["status"]), str(x["consequence"])) for x in out["pins"])
+-        got = (p.returncode, out["verdict"], pins, out["rc"])
++        entries = {int(x["line"]): ("entry" in x, x.get("entry")) for x in out["pins"]}
++        got = (p.returncode, out["verdict"], pins, out["rc"], entries, out.get("hash_mismatch_panic"))
+     except Exception as e:  # noqa: BLE001 - any malformed output is a failed case
+         return None, "bad-output: %s rc=%s stderr=%s" % (type(e).__name__, p.returncode, p.stderr[-300:])
+@@ -523,4 +558,12 @@
+             got, err = (None, "gate absent") if not os.path.isfile(gate) else run_gate(gate, conf, esp, c.sb, d)
+             ok = got is not None and got[0] == want[0] and got[3] == want[0] and got[1] == want[1] and [list(x) for x in got[2]] == [list(x) for x in want[2]]
++            if ok and "entries" in c.meta:
++                ok = all((not got[4].get(ln, (False, None))[0]) or got[4][ln][1] == e
++                         for ln, e in c.meta["entries"].items())
++            if ok and "panic" in c.meta:
++                pm = got[5]
++                ok = not isinstance(pm, dict) or (
++                    pm.get("line") == c.meta["panic"]["line"]
++                    and str(pm.get("value", "")).strip().lower() == c.meta["panic"]["value"].lower())
+             log.append({"family": fam, "passed": ok,
+                         "want": [want[0], want[1], [list(x) for x in want[2]]],

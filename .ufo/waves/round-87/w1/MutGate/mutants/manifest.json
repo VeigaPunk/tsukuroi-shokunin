@@ -1,0 +1,152 @@
+[
+ {
+  "name": "m01-comment-not-skipped",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m01-comment-not-skipped.py",
+  "diff": "--- pristine.py\n+++ m01-comment-not-skipped.py\n@@ -46,3 +46,3 @@\n     line = raw.replace(\"\\r\", \"\").strip(\" \\t\")\n-    if not line or line[0] == \"#\":\n+    if not line:\n         return None\n"
+ },
+ {
+  "name": "m02-no-blank-strip",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m02-no-blank-strip.py",
+  "diff": "--- pristine.py\n+++ m02-no-blank-strip.py\n@@ -45,3 +45,3 @@\n     \"\"\"Return (key_lower, key_as_written, value) for a key line, else None.\"\"\"\n-    line = raw.replace(\"\\r\", \"\").strip(\" \\t\")\n+    line = raw.replace(\"\\r\", \"\")\n     if not line or line[0] == \"#\":\n"
+ },
+ {
+  "name": "m03-key-case-sensitive",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m03-key-case-sensitive.py",
+  "diff": "--- pristine.py\n+++ m03-key-case-sensitive.py\n@@ -53,3 +53,3 @@\n         return None\n-    return line[:i].lower(), line[:i], line[i + 1:].lstrip(\" \\t\")\n+    return line[:i], line[:i], line[i + 1:].lstrip(\" \\t\")\n \n"
+ },
+ {
+  "name": "m04-first-hash",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m04-first-hash.py",
+  "diff": "--- pristine.py\n+++ m04-first-hash.py\n@@ -65,3 +65,3 @@\n     tail = value[rp + 3:]\n-    cut = tail.rfind(\"#\")\n+    cut = tail.find(\"#\")\n     if cut < 0:\n"
+ },
+ {
+  "name": "m05-last-open-paren",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m05-last-open-paren.py",
+  "diff": "--- pristine.py\n+++ m05-last-open-paren.py\n@@ -58,3 +58,3 @@\n     \"\"\"Limine uri_resolve: resource up to the first '(', root up to the first '):/', hash after the last '#'.\"\"\"\n-    lp = value.find(\"(\")\n+    lp = value.rfind(\"(\")\n     if lp < 0:\n"
+ },
+ {
+  "name": "m06-hash-127",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m06-hash-127.py",
+  "diff": "--- pristine.py\n+++ m06-hash-127.py\n@@ -109,3 +109,3 @@\n         h = uri[\"hash\"]\n-        if len(h) != 128 or not set(h) <= HEXDIGITS:\n+        if len(h) != 127 or not set(h) <= HEXDIGITS:\n             rec.update(status=\"LP-HASH-FORMAT\", consequence=\"skip\" if optional else \"panic\",\n"
+ },
+ {
+  "name": "m07-hash-129",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m07-hash-129.py",
+  "diff": "--- pristine.py\n+++ m07-hash-129.py\n@@ -109,3 +109,3 @@\n         h = uri[\"hash\"]\n-        if len(h) != 128 or not set(h) <= HEXDIGITS:\n+        if len(h) != 129 or not set(h) <= HEXDIGITS:\n             rec.update(status=\"LP-HASH-FORMAT\", consequence=\"skip\" if optional else \"panic\",\n"
+ },
+ {
+  "name": "m08-hex-lowercase-only",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m08-hex-lowercase-only.py",
+  "diff": "--- pristine.py\n+++ m08-hex-lowercase-only.py\n@@ -37,3 +37,3 @@\n OPTIONAL_KEYS = frozenset({\"wallpaper\", \"term_font\"})\n-HEXDIGITS = frozenset(string.hexdigits)\n+HEXDIGITS = frozenset(\"0123456789abcdef\")\n KEYCHARS = frozenset(string.ascii_letters + \"_\")\n"
+ },
+ {
+  "name": "m09-any-resource-resolves",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m09-any-resource-resolves.py",
+  "diff": "--- pristine.py\n+++ m09-any-resource-resolves.py\n@@ -115,3 +115,3 @@\n         resource = uri[\"resource\"][1:] if uri[\"resource\"].startswith(\"$\") else uri[\"resource\"]\n-        if resource != \"boot\" or uri[\"root\"] != \"\":\n+        if False:\n             rec.update(status=\"LP-UNRESOLVED\", consequence=\"not-modelled\",\n"
+ },
+ {
+  "name": "m10-root-ignored",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m10-root-ignored.py",
+  "diff": "--- pristine.py\n+++ m10-root-ignored.py\n@@ -115,3 +115,3 @@\n         resource = uri[\"resource\"][1:] if uri[\"resource\"].startswith(\"$\") else uri[\"resource\"]\n-        if resource != \"boot\" or uri[\"root\"] != \"\":\n+        if resource != \"boot\":\n             rec.update(status=\"LP-UNRESOLVED\", consequence=\"not-modelled\",\n"
+ },
+ {
+  "name": "m11-gzip-decompress",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m11-gzip-decompress.py",
+  "diff": "--- pristine.py\n+++ m11-gzip-decompress.py\n@@ -74,4 +74,7 @@\n     with open(path, \"rb\") as f:\n-        for chunk in iter(lambda: f.read(1 << 20), b\"\"):\n-            h.update(chunk)\n+        data = f.read()\n+    if data[:2] == b\"\\x1f\\x8b\":\n+        import gzip\n+        data = gzip.decompress(data)\n+    h.update(data)\n     return h.hexdigest()\n"
+ },
+ {
+  "name": "m12-missing-as-unresolved",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m12-missing-as-unresolved.py",
+  "diff": "--- pristine.py\n+++ m12-missing-as-unresolved.py\n@@ -123,3 +123,3 @@\n         if not os.path.isfile(target):\n-            rec.update(status=\"LP-MISSING\", consequence=\"not-modelled\")\n+            rec.update(status=\"LP-UNRESOLVED\", consequence=\"not-modelled\")\n             pins.append(rec)\n"
+ },
+ {
+  "name": "m13-missing-as-ok",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m13-missing-as-ok.py",
+  "diff": "--- pristine.py\n+++ m13-missing-as-ok.py\n@@ -123,3 +123,3 @@\n         if not os.path.isfile(target):\n-            rec.update(status=\"LP-MISSING\", consequence=\"not-modelled\")\n+            rec.update(status=\"OK\", consequence=\"none\")\n             pins.append(rec)\n"
+ },
+ {
+  "name": "m14-panic-last-wins",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m14-panic-last-wins.py",
+  "diff": "--- pristine.py\n+++ m14-panic-last-wins.py\n@@ -97,3 +97,3 @@\n         key, written, value = kv\n-        if key == \"hash_mismatch_panic\" and panic_setting is None:\n+        if key == \"hash_mismatch_panic\":\n             panic_setting = (lineno, value)\n"
+ },
+ {
+  "name": "m15-panic-default-prompt",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m15-panic-default-prompt.py",
+  "diff": "--- pristine.py\n+++ m15-panic-default-prompt.py\n@@ -103,3 +103,3 @@\n                 raw_pins.append((lineno, key, written, entry, value, uri))\n-    prompt = (panic_setting is not None and panic_setting[1].lower() == \"no\" and not secure_boot)\n+    prompt = (panic_setting is None or (panic_setting[1].lower() == \"no\" and not secure_boot))\n     pins = []\n"
+ },
+ {
+  "name": "m16-panic-no-inverted",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m16-panic-no-inverted.py",
+  "diff": "--- pristine.py\n+++ m16-panic-no-inverted.py\n@@ -103,3 +103,3 @@\n                 raw_pins.append((lineno, key, written, entry, value, uri))\n-    prompt = (panic_setting is not None and panic_setting[1].lower() == \"no\" and not secure_boot)\n+    prompt = (panic_setting is not None and panic_setting[1].lower() != \"no\")\n     pins = []\n"
+ },
+ {
+  "name": "m17-secureboot-ignored",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m17-secureboot-ignored.py",
+  "diff": "--- pristine.py\n+++ m17-secureboot-ignored.py\n@@ -103,3 +103,3 @@\n                 raw_pins.append((lineno, key, written, entry, value, uri))\n-    prompt = (panic_setting is not None and panic_setting[1].lower() == \"no\" and not secure_boot)\n+    prompt = (panic_setting is not None and panic_setting[1].lower() == \"no\")\n     pins = []\n"
+ },
+ {
+  "name": "m18-optional-no-skip",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m18-optional-no-skip.py",
+  "diff": "--- pristine.py\n+++ m18-optional-no-skip.py\n@@ -137,3 +137,3 @@\n             rec.update(status=\"LP-MISMATCH\",\n-                       consequence=\"skip\" if optional else (\"prompt\" if prompt else \"panic\"))\n+                       consequence=(\"prompt\" if prompt else \"panic\"))\n         pins.append(rec)\n"
+ },
+ {
+  "name": "m19-degraded-only-mismatch",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m19-degraded-only-mismatch.py",
+  "diff": "--- pristine.py\n+++ m19-degraded-only-mismatch.py\n@@ -140,3 +140,3 @@\n     statuses = {p[\"status\"] for p in pins}\n-    if statuses & set(FAULTS):\n+    if \"LP-MISMATCH\" in statuses:\n         verdict, rc = \"DEGRADED\", 1\n"
+ },
+ {
+  "name": "m20-unresolved-precedence-first",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m20-unresolved-precedence-first.py",
+  "diff": "--- pristine.py\n+++ m20-unresolved-precedence-first.py\n@@ -140,6 +140,6 @@\n     statuses = {p[\"status\"] for p in pins}\n-    if statuses & set(FAULTS):\n+    if \"LP-UNRESOLVED\" in statuses:\n+        verdict, rc = \"CANNOT-EVALUATE\", 2\n+    elif statuses & set(FAULTS):\n         verdict, rc = \"DEGRADED\", 1\n-    elif \"LP-UNRESOLVED\" in statuses:\n-        verdict, rc = \"CANNOT-EVALUATE\", 2\n     else:\n"
+ },
+ {
+  "name": "m21-lines-0-based",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m21-lines-0-based.py",
+  "diff": "--- pristine.py\n+++ m21-lines-0-based.py\n@@ -88,3 +88,3 @@\n     raw_pins = []\n-    for lineno, raw in enumerate(text.split(\"\\n\"), 1):\n+    for lineno, raw in enumerate(text.split(\"\\n\"), 0):\n         stripped = raw.replace(\"\\r\", \"\").strip(\" \\t\")\n"
+ },
+ {
+  "name": "m22-cr-not-stripped",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m22-cr-not-stripped.py",
+  "diff": "--- pristine.py\n+++ m22-cr-not-stripped.py\n@@ -45,3 +45,3 @@\n     \"\"\"Return (key_lower, key_as_written, value) for a key line, else None.\"\"\"\n-    line = raw.replace(\"\\r\", \"\").strip(\" \\t\")\n+    line = raw.strip(\" \\t\")\n     if not line or line[0] == \"#\":\n"
+ },
+ {
+  "name": "m23-value-not-lstripped",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m23-value-not-lstripped.py",
+  "diff": "--- pristine.py\n+++ m23-value-not-lstripped.py\n@@ -53,3 +53,3 @@\n         return None\n-    return line[:i].lower(), line[:i], line[i + 1:].lstrip(\" \\t\")\n+    return line[:i].lower(), line[:i], line[i + 1:]\n \n"
+ },
+ {
+  "name": "m24-entry-not-tracked",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m24-entry-not-tracked.py",
+  "diff": "--- pristine.py\n+++ m24-entry-not-tracked.py\n@@ -91,3 +91,3 @@\n         if stripped.startswith(\"/\"):\n-            entry = stripped.lstrip(\"/\").lstrip(\"+\").strip() or entry\n+            entry = None\n             continue\n"
+ },
+ {
+  "name": "m25-panic-line-metadata-zero",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m25-panic-line-metadata-zero.py",
+  "diff": "--- pristine.py\n+++ m25-panic-line-metadata-zero.py\n@@ -98,3 +98,3 @@\n         if key == \"hash_mismatch_panic\" and panic_setting is None:\n-            panic_setting = (lineno, value)\n+            panic_setting = (0, value)\n         if key in PIN_KEYS:\n"
+ },
+ {
+  "name": "m26-pin-keys-path-only",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m26-pin-keys-path-only.py",
+  "diff": "--- pristine.py\n+++ m26-pin-keys-path-only.py\n@@ -34,4 +34,3 @@\n \n-PIN_KEYS = frozenset({\"path\", \"kernel_path\", \"image_path\", \"module_path\", \"dtb_path\", \"global_dtb\",\n-                      \"wallpaper\", \"term_font\"})\n+PIN_KEYS = frozenset({\"path\"})\n OPTIONAL_KEYS = frozenset({\"wallpaper\", \"term_font\"})\n"
+ },
+ {
+  "name": "m27-optional-wallpaper-dropped",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m27-optional-wallpaper-dropped.py",
+  "diff": "--- pristine.py\n+++ m27-optional-wallpaper-dropped.py\n@@ -36,3 +36,3 @@\n                       \"wallpaper\", \"term_font\"})\n-OPTIONAL_KEYS = frozenset({\"wallpaper\", \"term_font\"})\n+OPTIONAL_KEYS = frozenset({\"term_font\"})\n HEXDIGITS = frozenset(string.hexdigits)\n"
+ },
+ {
+  "name": "m28-hash-case-sensitive-compare",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m28-hash-case-sensitive-compare.py",
+  "diff": "--- pristine.py\n+++ m28-hash-case-sensitive-compare.py\n@@ -133,3 +133,3 @@\n         rec[\"blake2b\"] = got\n-        if got == h.lower():\n+        if got == h:\n             rec.update(status=\"OK\", consequence=\"none\")\n"
+ },
+ {
+  "name": "m29-sha256-instead-of-blake2b",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m29-sha256-instead-of-blake2b.py",
+  "diff": "--- pristine.py\n+++ m29-sha256-instead-of-blake2b.py\n@@ -72,3 +72,3 @@\n def blake2b_file(path):\n-    h = hashlib.blake2b()\n+    h = hashlib.sha256()\n     with open(path, \"rb\") as f:\n"
+ },
+ {
+  "name": "m30-last-pin-only",
+  "path": "/fast/scratch/hyaku/tsukuroi-r87/MutGate/mutants/m30-last-pin-only.py",
+  "diff": "--- pristine.py\n+++ m30-last-pin-only.py\n@@ -102,3 +102,3 @@\n             if uri is not None:\n-                raw_pins.append((lineno, key, written, entry, value, uri))\n+                raw_pins[:] = [(lineno, key, written, entry, value, uri)]\n     prompt = (panic_setting is not None and panic_setting[1].lower() == \"no\" and not secure_boot)\n"
+ }
+]

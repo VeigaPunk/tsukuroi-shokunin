@@ -1,0 +1,42 @@
+# SOURCES S350-S354 check — ReviewEntry-4, 2026-11-06
+
+Lane revision measured: cefb4188b484329c4908a19a277f8fb120fb4f56 (`git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse master`).
+
+## sha256 (pinned snapshot vs SOURCES.md vs freeze manifest)
+
+`$ cd .ufo/waves/round-87/before/src && sha256sum -c SHA256SUMS` → all five `OK`, rc=0:
+
+```
+limine-v12.9.4-CONFIG.md: OK
+limine-v12.9.4-common_lib_config.c: OK
+limine-v12.9.4-common_lib_uri.c: OK
+limine-v12.9.4-common_menu.c: OK
+binutils-docs-objcopy.html: OK
+```
+
+The same five hashes appear in `.ufo/waves/round-87/before/freeze-manifest.sha256` and in the
+corpus/SOURCES.md rows S350-S354 (raw rows quoted in the report). All three sources agree.
+
+## Anchor coverage (row citation ⊆ SOURCES anchor)
+
+- S350 (CONFIG.md): SOURCES anchor `111-113, 134, 152-156, 210, 295-308, 330-350, 446-462`.
+  LP2 cites 111-113, 134, 210, 295-308, 330-350 ✓; LP4 cites 446-447, 456-462 ✓; LP6 cites
+  152-156, 451-455 ⊂ 446-462 ✓. (Anchor over-covers 461-462 = blank + "## Macros"; harmless.)
+- S351 (uri.c): SOURCES anchor `18-26, 28-104, 301-319, 344-362, 403-487, 662-664, 696-710`.
+  LP3 78-101 ⊂ 28-104 ✓; LP4 344 ⊂ 344-362, 403-470 ⊂ 403-487 ✓; LP5 301-312 ⊂ 301-319 ✓;
+  LP6 18-26, 302, 696-702 ✓.
+- S352 (config.c): SOURCES anchor `527-551, 778-818`. LP1 527-551 ✓, 798-799 ⊂ 778-818 ✓
+  (loop actually closes at 552 — cosmetic).
+- S353 (menu.c): SOURCES anchor `1711-1717`. LP5 1711-1712 ✓, LP6 1714-1717 ✓.
+- S354 (objcopy.html): SOURCES anchor `section infile outfile; raw HTML lines 189-190 (that
+  paragraph) and 634`. DEFECT: the paragraph's final line "the name of infile." is line 191;
+  the LP7 quote includes it. Anchor should be 188-191 (or 189-191).
+
+## used-by
+
+- S350/S351/S352/S353 used-by: `corpus/knowledge/limine-pin-plane-r87.md, tools/check-limine-pins.py`.
+  Verified: gate docstring (tools/check-limine-pins.py:5-9) states "sources are the pinned Limine
+  v12.9.4 files in .ufo/waves/round-87/before/src/ (registry S350-S353)"; the entry cites all of
+  S350-S354. ✓
+- S354 used-by: `corpus/knowledge/limine-pin-plane-r87.md` only. The gate has no S354 reference
+  (grep `S35[0-4]` on the gate shows only S350-S353). ✓

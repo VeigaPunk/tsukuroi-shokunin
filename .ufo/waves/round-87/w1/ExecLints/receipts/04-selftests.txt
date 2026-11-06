@@ -1,0 +1,26 @@
+$ python3 tools/check-limine-pins.py --selftest   # cwd /fast/scratch/hyaku/tsukuroi-r87/ExecLints/lane
+ok               PASS rc=0 [(2, 'OK', 'none')]
+upper            PASS rc=0 [(2, 'OK', 'none')]
+mismatch-panic   PASS rc=1 [(2, 'LP-MISMATCH', 'panic')]
+mismatch-prompt  PASS rc=1 [(3, 'LP-MISMATCH', 'prompt')]
+first-setting    PASS rc=1 [(4, 'LP-MISMATCH', 'panic')]
+secureboot       PASS rc=1 [(3, 'LP-MISMATCH', 'panic')]
+comment          PASS rc=0 [(3, 'OK', 'none')]
+missing          PASS rc=1 [(2, 'LP-MISSING', 'not-modelled')]
+format           PASS rc=1 [(2, 'LP-HASH-FORMAT', 'panic')]
+unresolved       PASS rc=2 [(2, 'LP-UNRESOLVED', 'not-modelled')]
+wallpaper-skip   PASS rc=1 [(1, 'LP-MISMATCH', 'skip')]
+non-path-key     PASS rc=0 []
+crlf-blanks      PASS rc=0 [(2, 'OK', 'none')]
+conf-absent      PASS rc=2 []
+selftest PASS 14/14
+RC=0
+
+$ python3 tools/limine-pin-battery-r87.py --selftest   # cwd /fast/scratch/hyaku/tsukuroi-r87/ExecLints/lane
+absent             PASS families_passed=0
+constant-healthy   PASS families_passed=0
+non-json           PASS families_passed=0
+constant-degraded  PASS families_passed=0
+reference-gate     PASS families_passed=22
+selftest PASS 5/5
+RC=0
