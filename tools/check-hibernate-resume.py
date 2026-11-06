@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Hibernate gate: availability (round 85) and resume chain (round 84). Read-only.
+"""Hibernate gate: availability (round 85), resume chain (round 84), kernel token parse (round 86). Read-only.
 
 Usage:
   check-hibernate-resume.py --facts FILE     gate a resume-facts/2 document
   check-hibernate-resume.py --live           capture this host read-only, then gate it
+  check-hibernate-resume.py --selftest       run the gate on itself over built-in fixtures (rc + finding IDs)
 
 Prints one JSON object {"verdict": HEALTHY|DEGRADED|CANNOT-EVALUATE,
 "findings": [...]} and exits 0 / 1 / 2.
@@ -29,8 +30,13 @@ Resume-chain rules (round-84 declaration; o = resume_offset= on the cmdline):
   HR-HOOK-BEFORE-ENCRYPT    HOOKS runs `resume` before `encrypt`
   HR-SWAP-TOO-SMALL         free swap is smaller than /sys/power/image_size
   HR-NO-DISK-STATE          /sys/power/state does not offer `disk`
+Token parse (round-86 declaration; Linux v7.2 init/main.c obsolete_checksetup raw 201-228, kernel/params.c
+parameqn raw 86-95, kernel/power/hibernate.c raw 1402-1465): a token selects a boot option when its first
+len(option) characters equal the option with '-' read as '_'; `noresume` and `nohibernate` ignore the rest of the
+token (`noresume=1` counts), the last `resume=` / `resume_offset=` wins, an empty `resume=` means no resume
+device, and a `resume_offset=` whose value has no leading decimal digit is skipped (sscanf "%llu").
 Sources and host rows: corpus/knowledge/hibernate-resume-plane-r84.md (resume chain) and
-corpus/knowledge/hibernation-availability-r85.md (availability).
+corpus/knowledge/hibernation-availability-r85.md (availability), corpus/knowledge/hibernation-boot-parse-r86.md (parse).
 """
 import argparse
 import json
@@ -96,15 +102,21 @@ def lockdown_mode(lockdown):
     return next(w[1:-1] for w in lockdown.split() if len(w) > 2 and w[0] == "[" and w[-1] == "]")
 
 
+def matches(tok, setup):
+    """obsolete_checksetup: the first len(setup) characters equal setup, '-' read as '_' (parameqn)."""
+    n = len(setup)
+    return len(tok) >= n and tok[:n].replace("-", "_") == setup.replace("-", "_")
+
+
 def availability(cmdline, lockdown):
     """Findings of hibernation_available() and the noresume switch, parsed as the kernel does."""
     disabled = noresume = False
     for tok in cmdline.split():
-        if tok == "nohibernate":
-            disabled = True
-        elif tok == "noresume":
-            noresume = True
-        elif tok.startswith("hibernate="):
+        if matches(tok, "nohibernate"):
+            disabled = True  # nohibernate_setup ignores its argument
+        elif matches(tok, "noresume"):
+            noresume = True  # noresume_setup ignores its argument
+        elif matches(tok, "hibernate="):
             v = tok[len("hibernate="):]
             if v.startswith("noresume"):
                 noresume = True
@@ -122,24 +134,33 @@ def availability(cmdline, lockdown):
     return found
 
 
-def arg(cmdline, key):
+def arg(cmdline, setup):
+    """Rest of the last token matching setup (each matching token overwrites; the kernel keeps the last)."""
     val = None
     for tok in cmdline.split():
-        if tok.startswith(key + "="):
-            val = tok.split("=", 1)[1]  # the kernel honours the last occurrence
+        if matches(tok, setup):
+            val = tok[len(setup):]
+    return val
+
+
+def resume_offset(cmdline):
+    """resume_offset_setup: sscanf("%llu") needs a leading decimal digit; otherwise the value is kept."""
+    val = None
+    for tok in cmdline.split():
+        if matches(tok, "resume_offset="):
+            rest = tok[len("resume_offset="):]
+            digits = len(rest) - len(rest.lstrip("0123456789"))
+            if digits:
+                val = int(rest[:digits])
     return val
 
 
 def gate(f):
     cmdline = validate(f)
     found = availability(cmdline, f["lockdown"])
-    if arg(cmdline, "resume") is None:
+    if not arg(cmdline, "resume="):  # absent, or empty: resume_file stays "" and find_resume_device fails
         return sorted(found | {"HR-NO-RESUME-ARG"})
-    raw_o = arg(cmdline, "resume_offset")
-    try:
-        o = int(raw_o) if raw_o is not None else None
-    except ValueError:
-        raise Malformed("resume_offset-not-int")
+    o = resume_offset(cmdline)
     if f["resume_swapfile"] is not None:
         if o is None:
             found.add("HR-OFFSET-MISSING")
@@ -189,12 +210,73 @@ def failed_probes(receipt):
     return failed
 
 
+SELFTEST_BASE = {
+    "schema": SCHEMA, "cmdline": "quiet resume=/dev/mapper/root resume_offset=4096 rw",
+    "swaps": [{"path": "/swap/swapfile", "type": "file", "size_kib": 8388608, "used_kib": 0}],
+    "resume_swapfile": "/swap/swapfile", "map_swapfile_offset": 4096, "swapfile_attrs": "---------------C------",
+    "resume_dev_majmin": "254:0", "sys_power_resume": "254:0", "sys_power_resume_offset": 4096,
+    "sys_power_state": "freeze mem disk", "image_size": 1024, "hooks": ["base", "udev", "encrypt", "resume"],
+    "lockdown": "[none] integrity confidentiality",
+}
+SELFTEST_CASES = [
+    # (name, cmdline or None, field overrides, expected rc, expected findings)
+    ("positive", None, {}, 0, []),
+    ("noresume-valued", "noresume=0 quiet resume=/dev/mapper/root resume_offset=4096", {}, 1, ["HR-NORESUME-ARG"]),
+    ("nohibernate-valued", "quiet nohibernate=1 resume=/dev/mapper/root resume_offset=4096", {}, 1,
+     ["HR-HIBERNATE-DISABLED"]),
+    ("empty-resume-last", "resume=/dev/mapper/root resume_offset=4096 resume=", {}, 1, ["HR-NO-RESUME-ARG"]),
+    ("offset-nondigit-skipped", "resume=/dev/mapper/root resume_offset=4096 resume_offset=abc", {}, 0, []),
+    ("offset-dash-digit-prefix", "resume=/dev/mapper/root resume-offset=4096k", {}, 0, []),
+    ("offset-last-wins", "resume=/dev/mapper/root resume_offset=4096 resume_offset=8192", {}, 1,
+     ["HR-OFFSET-MISMATCH", "HR-SYSFS-OFFSET-MISMATCH"]),
+    ("decoys", "noresum no_resume xnoresume nohibernat resume=/dev/mapper/root resume_offset=4096", {}, 0, []),
+    ("hibernate-nox", "hibernate=noxyz resume=/dev/mapper/root resume_offset=4096", {}, 1, ["HR-HIBERNATE-DISABLED"]),
+    ("boundary-equal", None, {"image_size": 8388608 * 1024}, 0, []),
+    ("lockdown-integrity", None, {"lockdown": "none [integrity] confidentiality"}, 1, ["HR-LOCKDOWN-BLOCKS"]),
+    ("bool-for-int", None, {"image_size": True}, 2, []),
+    ("schema-v1", None, {"schema": "resume-facts/1"}, 2, []),
+]
+
+
+def selftest():
+    """Self-invocation: run this file as a subprocess on each fixture; assert rc and the finding IDs."""
+    work = tempfile.mkdtemp(prefix="hibernate-resume-selftest-")
+    bad = []
+    try:
+        for name, cmdline, over, want_rc, want in SELFTEST_CASES:
+            facts = dict(SELFTEST_BASE, **over)
+            if cmdline is not None:
+                facts["cmdline"] = cmdline
+            path = os.path.join(work, name + ".json")
+            with open(path, "w", encoding="utf-8") as fh:
+                json.dump(facts, fh)
+            p = subprocess.run([sys.executable, os.path.abspath(__file__), "--facts", path],
+                               capture_output=True, text=True, timeout=20)
+            try:
+                got = json.loads(p.stdout).get("findings")
+            except ValueError:
+                got = None
+            ok = p.returncode == want_rc and got == want
+            print(json.dumps({"case": name, "rc": p.returncode, "want_rc": want_rc, "findings": got,
+                              "want": want, "pass": ok}, sort_keys=True))
+            if not ok:
+                bad.append(name)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+    print(json.dumps({"selftest": "PASS" if not bad else "FAIL", "cases": len(SELFTEST_CASES), "failed": bad},
+                     sort_keys=True))
+    return 0 if not bad else 1
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--facts")
     g.add_argument("--live", action="store_true")
+    g.add_argument("--selftest", action="store_true")
     a = ap.parse_args(argv)
+    if a.selftest:
+        return selftest()
     tmp = None
     try:
         path = a.facts
