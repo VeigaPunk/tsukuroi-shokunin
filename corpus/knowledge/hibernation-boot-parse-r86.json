@@ -1,0 +1,66 @@
+[
+ {
+  "id": "BP1",
+  "statement": "A boot token reaches a `__setup` handler when its first strlen(option) characters equal the option string; the handler receives the rest of the token, value included. No check that the next character is `=` or end of token (that check exists only for early params).",
+  "source": "S346",
+  "raw_lines": "201-228",
+  "quote": "int n = strlen(p->str); if (parameqn(line, p->str, n)) {",
+  "host_value": null
+ },
+ {
+  "id": "BP2",
+  "statement": "The comparison reads `-` as `_` on both sides, so `resume-offset=` selects `resume_offset=`.",
+  "source": "S347",
+  "raw_lines": "79-95",
+  "quote": "if (dash2underscore(a[i]) != dash2underscore(b[i])) return false;",
+  "host_value": "no dashed hibernation token"
+ },
+ {
+  "id": "BP3",
+  "statement": "An unknown `param=val` token is rejoined into `param=val` before the `__setup` search; dotted module-style names (`x.noresume=1`) only reach the search under their full name and so match no hibernation option.",
+  "source": "S346",
+  "raw_lines": "503-532",
+  "quote": "repair_env_string(param, val);  …  if (obsolete_checksetup(param)) return 0;",
+  "host_value": null
+ },
+ {
+  "id": "BP4",
+  "statement": "`noresume` and `nohibernate` are registered bare and their handlers ignore the argument, so `noresume=0`, `noresume=1`, `noresumefoo` and `nohibernate=1` all set the flags. `noresum` (shorter than the option) does not.",
+  "source": "S343",
+  "raw_lines": "1440-1444, 1461-1465, 1518, 1524",
+  "quote": "static int __init noresume_setup(char *str) { noresume = 1; return 1; }",
+  "host_value": "none of these tokens"
+ },
+ {
+  "id": "BP5",
+  "statement": "`resume=` copies its value verbatim and each later token overwrites it (last wins); a `noresume` earlier on the line makes it return before copying.",
+  "source": "S343",
+  "raw_lines": "1402-1409",
+  "quote": "if (noresume) return 1; strscpy(resume_file, str);",
+  "host_value": "one token, `resume=/dev/mapper/root`"
+ },
+ {
+  "id": "BP6",
+  "statement": "An empty `resume_file` means no resume device: `find_resume_device` returns -ENOENT before any lookup. Its default is `CONFIG_PM_STD_PARTITION`, so an empty last `resume=` on this host leaves nothing to resume from.",
+  "source": "S343",
+  "raw_lines": "46, 982-985",
+  "quote": "if (!strlen(resume_file)) return -ENOENT;",
+  "host_value": "`CONFIG_PM_STD_PARTITION=\"\"`, `CONFIG_HIBERNATION=y` (`/proc/config.gz`)"
+ },
+ {
+  "id": "BP7",
+  "statement": "`resume_offset=` changes the offset only when sscanf `%llu` converts; base-10 conversion stops at once without a leading decimal digit (no `+`, no `-` for unsigned), so `resume_offset=abc` keeps the earlier value and `resume_offset=4096k` reads 4096.",
+  "source": "S343; S348",
+  "raw_lines": "1411-1422; 3662-3673",
+  "quote": "if (sscanf(str, \"%llu\", &offset) == 1) swsusp_resume_block = offset;",
+  "host_value": "`resume_offset=3795013`, `/sys/power/resume_offset` = 3795013"
+ },
+ {
+  "id": "BP8",
+  "statement": "Token order matters only through `noresume`: before `resume=` the device is never copied (BP5); after it the resume initcall still bails out (1106-1112). Either way the image is not read; the gate reports HR-NORESUME-ARG and does not model the order.",
+  "source": "S343",
+  "raw_lines": "1402-1405, 1106-1112",
+  "quote": "If the user said \"noresume\".. bail out early.",
+  "host_value": null
+ }
+]
