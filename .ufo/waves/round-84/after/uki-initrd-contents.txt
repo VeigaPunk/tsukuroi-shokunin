@@ -1,0 +1,10 @@
+# UKI initramfs contents, captured 2026-11-06T15:50:19-03:00 by TsukuroiR84 (read-only; image copied to scratch and deleted)
+$ sha256sum /boot/EFI/Linux/omarchy_linux.efi
+12a522862748768ac561aa958d822a93ddd3fbd61e340cd4f815a5285157001a  /boot/EFI/Linux/omarchy_linux.efi
+$ sudo -n objcopy -O binary --only-section=.initrd /boot/EFI/Linux/omarchy_linux.efi <scratch>/initrd.img; sha256sum
+279d492ee9b23d38744546b14031f10a5642c4160030d5d5c8043f0639f014a2
+$ lsinitcpio <scratch>/initrd.img | grep -E "systemd-hibernate-resume|hooks/(resume|encrypt)$"
+hooks/encrypt
+hooks/resume
+usr/lib/systemd/systemd-hibernate-resume
+rc=0

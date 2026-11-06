@@ -1,0 +1,246 @@
+{
+ "entry": "hibernate-resume-plane-r84",
+ "round": 84,
+ "verified-at": "2026-11-06",
+ "host_capture": "2026-11-06T15:44:21-03:00",
+ "snapshots": {
+  "S336": {
+   "url": "https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/admin-guide/kernel-parameters.txt",
+   "path": ".ufo/waves/round-84/before/src/kernel-parameters.txt",
+   "sha256": "23b1a690210b6884f040a6b1e5baf1fc18856e844d30d4784470bd210953340c"
+  },
+  "S337": {
+   "url": "https://raw.githubusercontent.com/kdave/btrfs-progs/v7.1/Documentation/ch-swapfile.rst",
+   "path": ".ufo/waves/round-84/before/src/ch-swapfile.rst",
+   "sha256": "4442dc5b86a211618163461336a0f9d68a533f9a717f7a2e6c9e92baae4f2447"
+  },
+  "S338": {
+   "url": "https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/power/swsusp-and-swap-files.rst",
+   "path": ".ufo/waves/round-84/before/src/swsusp-and-swap-files.rst",
+   "sha256": "7334ffa5adb44c87d6b59cef49b26a2133436b3a4b84e044ecaf9887639ba71d"
+  },
+  "S339": {
+   "url": "https://raw.githubusercontent.com/systemd/systemd/v262/man/systemd-hibernate-resume.service.xml",
+   "path": ".ufo/waves/round-84/before/src/systemd-hibernate-resume.service.xml",
+   "sha256": "170fb1f73bf34c85e20418168a649b45cd9e30d8b979a4f247860ec3ca3a43c5"
+  },
+  "S340": {
+   "url": "https://raw.githubusercontent.com/torvalds/linux/v7.2/Documentation/ABI/testing/sysfs-power",
+   "path": ".ufo/waves/round-84/before/src/sysfs-power",
+   "sha256": "c2be59dd56c9c036b9daedc9fc041333a1dee964abdb71ca6bcefa8c9592a102"
+  },
+  "S341": {
+   "url": "https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio/-/raw/v42.2/install/resume",
+   "path": ".ufo/waves/round-84/before/src/mkinitcpio-install-resume",
+   "sha256": "207d0eb3c469ebfeaad29a4ca7c209ab097d26087c458cf916012fe58ce4e83e"
+  }
+ },
+ "receipts": {
+  "capture": {
+   "path": ".ufo/waves/round-84/before/host/receipt.txt",
+   "sha256": "467a882728b26b01b95aec15fdbb7be83aa73279cddc95bb191ac6c78f07ce36"
+  }
+ },
+ "rows": [
+  {
+   "id": "HR1",
+   "statement": "The kernel reads resume_offset= as the swap header's position inside the resume= partition, counted in PAGE_SIZE units and needed only for a swap file; this host boots with resume=/dev/mapper/root resume_offset=3795013 because its only swap area is a file.",
+   "source": {
+    "snapshot": "S336",
+    "lines": [
+     6581,
+     6582
+    ],
+    "quote": "at which the swap header is located, in <PAGE_SIZE> units (needed only for swap files)"
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     4,
+     4
+    ],
+    "value": "resume_offset=3795013"
+   }
+  },
+  {
+   "id": "HR2",
+   "statement": "On btrfs the resume offset comes from btrfs inspect-internal map-swapfile, whose -r form prints the value already divided by the page size; on this host it prints 3795013, equal to the cmdline resume_offset, so the configured offset points at the current swap header.",
+   "source": {
+    "snapshot": "S337",
+    "lines": [
+     127,
+     127
+    ],
+    "quote": "that will print the device physical offset and the adjusted value for"
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     13,
+     13
+    ],
+    "value": "3795013"
+   }
+  },
+  {
+   "id": "HR3",
+   "statement": "filefrag is the wrong tool on btrfs: its physical_offset column is a btrfs logical address, not the device offset; on this host filefrag reports the first extent at block 3530821 while map-swapfile reports 3795013, so a resume_offset copied from filefrag would point at the wrong place.",
+   "source": {
+    "snapshot": "S337",
+    "lines": [
+     118,
+     118
+    ],
+    "quote": "The value is the physical offset on the device."
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     24,
+     24
+    ],
+    "value": "3530821"
+   }
+  },
+  {
+   "id": "HR4",
+   "statement": "A btrfs swap file must be NODATACOW, which also disables checksums and compression even on a compress=zstd mount; lsattr on /swap/swapfile shows the C attribute, so the file meets the requirement on this host.",
+   "source": {
+    "snapshot": "S337",
+    "lines": [
+     13,
+     13
+    ],
+    "quote": "swapfile - must be NODATACOW (i.e. also NODATASUM, no compression)"
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     17,
+     17
+    ],
+    "value": "---------------C------"
+   }
+  },
+  {
+   "id": "HR5",
+   "statement": "Hibernation can only write to an active swap file; /proc/swaps lists /swap/swapfile as an active file swap of 31722876 KiB, so the precondition holds at capture time and fails if the file is swapped off.",
+   "source": {
+    "snapshot": "S338",
+    "lines": [
+     57,
+     58
+    ],
+    "quote": "the swap file has to be active (ie. be present in /proc/swaps) so that it can be used for suspending."
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     9,
+     9
+    ],
+    "value": "/swap/swapfile file 31722876"
+   }
+  },
+  {
+   "id": "HR6",
+   "statement": "Deleting and recreating the swap file can move its header, so resume_offset must be re-derived whenever the file is recreated; the file's birth time 1791060333 (2026-10-03 17:45:33 -03) is the recheck trigger: a different birth time means re-run map-swapfile before trusting hibernation.",
+   "source": {
+    "snapshot": "S338",
+    "lines": [
+     61,
+     61
+    ],
+    "quote": "the location of its header need not be the same as before."
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     32,
+     32
+    ],
+    "value": "1791060333 257 32484229120"
+   }
+  },
+  {
+   "id": "HR7",
+   "statement": "systemd-hibernate-resume hands the resume device to the kernel by writing its major:minor to /sys/power/resume; on this host /sys/power/resume reads 253:0, which is /dev/mapper/root (stat hex fd:0), so the device the kernel will resume from this boot is the swap file's filesystem device.",
+   "source": {
+    "snapshot": "S339",
+    "lines": [
+     38,
+     38
+    ],
+    "quote": "Internally, it works by writing the major:minor of selected device node to"
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     40,
+     40
+    ],
+    "value": "253:0"
+   }
+  },
+  {
+   "id": "HR8",
+   "statement": "/sys/power/resume_offset overrides the cmdline offset, so the value that matters at hibernation time is the sysfs one; here it reads 3795013, equal to both the cmdline and map-swapfile, so no writer has changed it since boot.",
+   "source": {
+    "snapshot": "S340",
+    "lines": [
+     307,
+     308
+    ],
+    "quote": "Using this sysfs file will override any values that were set using the kernel command line for disk offset."
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     44,
+     44
+    ],
+    "value": "3795013"
+   }
+  },
+  {
+   "id": "HR9",
+   "statement": "The mkinitcpio resume hook packs systemd-hibernate-resume into a busybox initramfs only when systemd is at least version 255; this host runs systemd 262, and the booted UKI's initramfs does carry usr/lib/systemd/systemd-hibernate-resume (after/uki-initrd-contents.txt), so resume runs through that binary, not the hook's own resume= parser.",
+   "source": {
+    "snapshot": "S341",
+    "lines": [
+     11,
+     12
+    ],
+    "quote": "if (( systemd_ver >= 255 )); then add_binary /usr/lib/systemd/systemd-hibernate-resume"
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     79,
+     79
+    ],
+    "value": "systemd 262 (262.1-1-arch)"
+   }
+  },
+  {
+   "id": "HR10",
+   "statement": "image_size is an upper limit in bytes on the hibernation image, and the image must fit in free swap; here image_size is 12835467264 bytes against about 20 GB of free swap at capture, so the headroom check passes but shrinks as swap use grows.",
+   "source": {
+    "snapshot": "S340",
+    "lines": [
+     97,
+     98
+    ],
+    "quote": "string representing a non-negative integer that will be used as an upper limit of the image size, in bytes."
+   },
+   "host": {
+    "receipt": "capture",
+    "lines": [
+     56,
+     56
+    ],
+    "value": "12835467264"
+   }
+  }
+ ]
+}
