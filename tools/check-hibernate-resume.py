@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-"""Hibernate-resume consistency gate (round 84). Read-only.
+"""Hibernate gate: availability (round 85) and resume chain (round 84). Read-only.
 
 Usage:
-  check-hibernate-resume.py --facts FILE     gate a resume-facts/1 document
+  check-hibernate-resume.py --facts FILE     gate a resume-facts/2 document
   check-hibernate-resume.py --live           capture this host read-only, then gate it
 
 Prints one JSON object {"verdict": HEALTHY|DEGRADED|CANNOT-EVALUATE,
 "findings": [...]} and exits 0 / 1 / 2.
 
-Rules (frozen in the round-84 declaration; o = resume_offset= on the cmdline):
-  HR-NO-RESUME-ARG          no resume= on the cmdline (nothing else is evaluated)
+Availability rules (round-85 declaration; Linux v7.2 kernel/power/hibernate.c hibernate_setup,
+noresume_setup, nohibernate_setup, hibernation_available; include/linux/security.h
+enum lockdown_reason; security/lockdown/lockdown.c), always evaluated:
+  HR-HIBERNATE-DISABLED     a `nohibernate` token, or `hibernate=V` with V starting `no` but
+                            not `noresume`/`nocompress` (the kernel tests those prefixes first)
+  HR-LOCKDOWN-BLOCKS        /sys/kernel/security/lockdown selects `integrity` or
+                            `confidentiality` (LOCKDOWN_HIBERNATION < LOCKDOWN_INTEGRITY_MAX)
+  HR-NORESUME-ARG           a `noresume` token or `hibernate=noresume...`, unless
+                            HR-HIBERNATE-DISABLED fired (nohibernate already sets noresume)
+Resume-chain rules (round-84 declaration; o = resume_offset= on the cmdline):
+  HR-NO-RESUME-ARG          no resume= on the cmdline (no other resume-chain rule is evaluated)
   HR-OFFSET-MISSING         a swap file is active but the cmdline has no resume_offset=
   HR-OFFSET-MISMATCH        resume_offset= differs from `btrfs inspect-internal map-swapfile -r`
   HR-SWAPFILE-COW           the swap file lacks the NOCOW attribute (lsattr 'C')
@@ -20,7 +29,8 @@ Rules (frozen in the round-84 declaration; o = resume_offset= on the cmdline):
   HR-HOOK-BEFORE-ENCRYPT    HOOKS runs `resume` before `encrypt`
   HR-SWAP-TOO-SMALL         free swap is smaller than /sys/power/image_size
   HR-NO-DISK-STATE          /sys/power/state does not offer `disk`
-Sources and host rows: corpus/knowledge/hibernate-resume-plane-r84.md.
+Sources and host rows: corpus/knowledge/hibernate-resume-plane-r84.md (resume chain) and
+corpus/knowledge/hibernation-availability-r85.md (availability).
 """
 import argparse
 import json
@@ -30,7 +40,8 @@ import subprocess
 import sys
 import tempfile
 
-SCHEMA = "resume-facts/1"
+SCHEMA = "resume-facts/2"
+LOCKDOWN_BLOCKING = ("integrity", "confidentiality")
 CAPTURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "capture-resume-facts-r84.py")
 
 
@@ -71,7 +82,44 @@ def validate(f):
     hooks = need(f, "hooks", list)
     if not all(isinstance(h, str) for h in hooks):
         raise Malformed("type:hooks[]")
+    lockdown = need(f, "lockdown", str, nullable=True)
+    if lockdown is not None:
+        selected = [w for w in lockdown.split() if len(w) > 2 and w[0] == "[" and w[-1] == "]"]
+        if len(selected) != 1:
+            raise Malformed("lockdown-selection")
     return cmdline
+
+
+def lockdown_mode(lockdown):
+    if lockdown is None:
+        return None
+    return next(w[1:-1] for w in lockdown.split() if len(w) > 2 and w[0] == "[" and w[-1] == "]")
+
+
+def availability(cmdline, lockdown):
+    """Findings of hibernation_available() and the noresume switch, parsed as the kernel does."""
+    disabled = noresume = False
+    for tok in cmdline.split():
+        if tok == "nohibernate":
+            disabled = True
+        elif tok == "noresume":
+            noresume = True
+        elif tok.startswith("hibernate="):
+            v = tok[len("hibernate="):]
+            if v.startswith("noresume"):
+                noresume = True
+            elif v.startswith("nocompress"):
+                pass
+            elif v.startswith("no"):
+                disabled = True
+    found = set()
+    if disabled:
+        found.add("HR-HIBERNATE-DISABLED")
+    elif noresume:
+        found.add("HR-NORESUME-ARG")
+    if lockdown_mode(lockdown) in LOCKDOWN_BLOCKING:
+        found.add("HR-LOCKDOWN-BLOCKS")
+    return found
 
 
 def arg(cmdline, key):
@@ -84,14 +132,14 @@ def arg(cmdline, key):
 
 def gate(f):
     cmdline = validate(f)
+    found = availability(cmdline, f["lockdown"])
     if arg(cmdline, "resume") is None:
-        return ["HR-NO-RESUME-ARG"]
+        return sorted(found | {"HR-NO-RESUME-ARG"})
     raw_o = arg(cmdline, "resume_offset")
     try:
         o = int(raw_o) if raw_o is not None else None
     except ValueError:
         raise Malformed("resume_offset-not-int")
-    found = set()
     if f["resume_swapfile"] is not None:
         if o is None:
             found.add("HR-OFFSET-MISSING")

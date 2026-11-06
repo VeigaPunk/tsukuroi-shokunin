@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Read-only capture of this host's hibernate-resume facts (round 84).
+"""Read-only capture of this host's hibernate-resume facts (round 84; lockdown added round 85).
 
 Writes two files into --out DIR:
   receipt.txt  every command, its exit code and its raw output, in order
-  facts.json   the resume-facts/1 document the round-84 gate reads
+  facts.json   the resume-facts/2 document the gate reads (resume-facts/1 plus `lockdown`)
 
 Read-only: it reads /proc and /sys, stats device nodes, sources the
 mkinitcpio configuration in a child bash to print the effective HOOKS, and
@@ -20,7 +20,7 @@ import os
 import subprocess
 import sys
 
-SCHEMA = "resume-facts/1"
+SCHEMA = "resume-facts/2"
 ENV = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "LC_ALL": "C", "LANG": "C"}
 
 
@@ -94,6 +94,13 @@ def main(argv=None):
     hooks = rec("bash -c <source mkinitcpio.conf + conf.d; print HOOKS>",
                 *run(["bash", "-c", HOOKS_SH])).split()
     rec("systemctl --version", *run(["systemctl", "--version"]))
+    # round 85: hibernation availability (kernel lockdown). An absent securityfs file means the
+    # lockdown LSM is not present; that is recorded as rc 0 "absent", not as a failed probe.
+    lockdown = None
+    if os.path.exists("/sys/kernel/security/lockdown"):
+        lockdown = rec("cat /sys/kernel/security/lockdown", *read("/sys/kernel/security/lockdown")).strip() or None
+    else:
+        rec("test -e /sys/kernel/security/lockdown", 0, "absent\n", "")
     facts = {
         "schema": SCHEMA,
         "captured_at": stamp,
@@ -109,6 +116,7 @@ def main(argv=None):
         "sys_power_disk": disk,
         "image_size": int(img) if img.isdigit() else -1,
         "hooks": hooks,
+        "lockdown": lockdown,
     }
     with open(os.path.join(a.out, "receipt.txt"), "w", encoding="utf-8") as fh:
         fh.write("".join(log))
