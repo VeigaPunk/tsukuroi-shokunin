@@ -1,0 +1,78 @@
+$ sed -n '201,228p' init_main.c
+static bool __init obsolete_checksetup(char *line)
+{
+	const struct obs_kernel_param *p;
+	bool had_early_param = false;
+
+	p = __setup_start;
+	do {
+		int n = strlen(p->str);
+		if (parameqn(line, p->str, n)) {
+			if (p->early) {
+				/* Already done in parse_early_param?
+				 * (Needs exact match on param part).
+				 * Keep iterating, as we can have early
+				 * params and __setups of same names 8( */
+				if (line[n] == '\0' || line[n] == '=')
+					had_early_param = true;
+			} else if (!p->setup_func) {
+				pr_warn("Parameter %s is obsolete, ignored\n",
+					p->str);
+				return true;
+			} else if (p->setup_func(line + n))
+				return true;
+		}
+		p++;
+	} while (p < __setup_end);
+
+	return had_early_param;
+}
+
+$ sed -n '86,95p' kernel_params.c
+bool parameqn(const char *a, const char *b, size_t n)
+{
+	size_t i;
+
+	for (i = 0; i < n; i++) {
+		if (dash2underscore(a[i]) != dash2underscore(b[i]))
+			return false;
+	}
+	return true;
+}
+
+$ sed -n '1402,1422p' kernel_power_hibernate.c
+static int __init resume_setup(char *str)
+{
+	if (noresume)
+		return 1;
+
+	strscpy(resume_file, str);
+	return 1;
+}
+
+static int __init resume_offset_setup(char *str)
+{
+	unsigned long long offset;
+
+	if (noresume)
+		return 1;
+
+	if (sscanf(str, "%llu", &offset) == 1)
+		swsusp_resume_block = offset;
+
+	return 1;
+}
+
+$ sed -n '3667,3673p' lib_vsprintf.c
+		}
+
+		if (!digit
+		    || (base == 16 && !isxdigit(digit))
+		    || (base == 10 && !isdigit(digit))
+		    || (base == 8 && !isodigit(digit))
+		    || (base == 0 && !isdigit(digit)))
+
+$ sed -n '762,763p' kernel_power_main.c
+	if (hibernation_available())
+		count += sysfs_emit_at(buf, count, "disk ");
+

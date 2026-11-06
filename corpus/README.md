@@ -922,3 +922,25 @@ owned by `SCORECARD.md`.
   `resume_offset=`, the `<=` headroom boundary, first-swap-only sums and a probabilistic MALFORMED kind each pass
   20/20 (`corpus/lessons/round-85.md` M3, M4; QUALITY 122). A successor battery enumerates MALFORMED kinds and
   carries one near-miss control per asserted property.
+
+### Round 86 — hibernation boot-option parse (`knowledge/hibernation-boot-parse-r86.md`)
+
+Ground the corpus held only as an unpinned Limits line (`hibernation-availability-r85.md:56` at `3f567898`): how
+Linux v7.2 turns cmdline tokens into the hibernation switches — `__setup` prefix match with `-` read as `_`
+(S346, S347), value-blind `noresume`/`nohibernate`, last-wins `resume=`/`resume_offset=`, empty `resume=` as no
+device, and the sscanf skip for a non-digit offset (S343, S348), with this host's values. `kernel/power/main.c` is
+pinned (S349) for the r85 `state_show` limit. C2 is exploratory; its non-author judgment is the closure's. The
+gate's parse change (C1) and its measured outcome are owned by `SCORECARD.md`.
+
+### Frontier (round-86 addition)
+
+- Tokenizer fidelity: tokens after a bare `--`, quoted values and bootconfig `init.*` are read by the gate as boot
+  options; the kernel does not read them (`.ufo/waves/round-86/w1/CriticKernel.md` divergences 2, 3, 6; lesson R86-R1).
+- Device class: `resume=` values the capture cannot resolve (UUID=, PARTUUID=, LABEL=, `8:2`, `0`) leave the device
+  rule unevaluated; a false-HEALTHY path (CriticKernel divergence 1; lesson R86-R2).
+- The r86 battery certifies the new parse rules only on healthy bases: `CriticClaims/forgers/f4-shortcut.py` reads
+  30/30 (lesson M2, R86-R3). A successor battery composes suffixed tokens and skipped offsets with chain faults.
+- The `__setup` first-match question is closed for v7.2 (ScoutPrefix: 758 registrations, no collision); reopen on a
+  new kernel tag.
+- secretmem/CXL still have no fact key; with S349 pinned, `/sys/power/disk` `[disabled]` beside `/sys/power/state`
+  can name the blocker (carried from round 85).

@@ -238,3 +238,46 @@ R31 wave-2 correction to 80 (wave-2 CritQuality80; appended, the criterion text 
 121. **The landing commit passes the lane's knowledge-header gate (R85-RUN-THE-GATE-YOU-HAVE):** before a round that adds or edits a `corpus/knowledge/*.md` entry files its report, `python3 tools/check-knowledge-header.py --revision <landed tip>` reads rc 0. Captured by: round 84 landed `hibernate-resume-plane-r84.md` without `source:`/`recheck:` lines while this gate (QUALITY 8, round 34) already existed and reports exactly that at `3ed94533` (rc 1, two `KNOWLEDGE-HEADER-MISSING` findings, `.ufo/waves/round-85/w1/ExecLints/receipts/01-reuse-lane-header-gate-at-3ed94533.txt`); the spot-check found it instead (§5 defect 1). The defect class was not a missing tool but an unrun one; no second header grammar is added (the wave's companion check is kept as evidence only).
 
 122. **A declared discrimination property names its near-miss control (R85-MUST-HAS-CONTROL):** a declaration sentence of the form "a candidate that reaches the target must X" is written only if a committed control that lacks X (and implements everything else) reads below target at the freeze; otherwise the sentence is omitted and the property is listed as uncertified. Captured by: the round-85 declaration said a 20/20 gate "must … parse `hibernate=` by the kernel's prefix order", but `.ufo/waves/round-85/w1/CriticClaims/forgers/f1-literal-avail.py`, which matches only the exact tokens, reads 20/20 on the frozen battery (`CriticClaims.md` C2(a); L1 re-run at `479d868b`, `families_passed 20`). Shown able to fail: that control, run before the freeze, reads met, so the criterion refuses the sentence; `f7-mutant-stack.py` (four stacked edge deviations, 20/20) shows the same for token order, the swap-headroom boundary and multi-swap sums.
+
+123. **A divergence disclosed in a `Limits` section is frozen as a rule or routed, never shipped as a gate rule (R86-LIMITS-IS-NOT-A-FIX):** when a `corpus/knowledge/` entry's `Limits` section names a place where a lane gate's rule differs from the behaviour of the source that gate models, that bullet carries, in the same commit, either (a) a `Routed:` pointer naming the round and the defect id that will fix it, or (b) the rule that implements the source behaviour together with a committed control that lacks the rule and reads below the battery target; a `Limits` bullet records what is not known, and never discharges a known wrong answer. Captured by: round 85's entry named the kernel's prefix match against the gate's whole-token match in its own `Limits` (`corpus/knowledge/hibernation-availability-r85.md:52-57` at `92be7506`) and shipped the whole-token rule in the gate (`tools/check-hibernate-resume.py:102-106`, `sha256 88041b75…83e7`), so `--live` answered HEALTHY for `noresume=1` / `nohibernate=1`; the closure routed it as `corpus/lessons/round-85-verifier-spotcheck.md` §5 defect 4, and no criterion then in force covered it (QUALITY 94 authorises `Limits` for citation gaps, 122 binds declaration sentences, 121 requires running a gate that exists, 63 governs mechanism wording). Shown able to fail — red, the r85 pair at `92be7506`:
+
+```text
+$ git -C <lane> show 92be7506:corpus/knowledge/hibernation-availability-r85.md | sed -n '52,57p'
+- Rule text versus kernel parsing: the gate matches whole tokens `nohibernate` and `noresume`; the kernel's
+  `__setup` matching is by byte prefix (S343 1518-1524 register the bare names, and their handlers ignore any
+  argument, raw 1440-1444, 1461-1465), so `noresume=1`, `noresumefoo` and `nohibernate=1` also set the flags in a
+  real kernel. The gate reads them as HEALTHY (`.ufo/waves/round-85/w1/ReviewGate.md` L1, fixtures T9-T11).
+  The prefix behaviour rests on `init/main.c` `obsolete_checksetup`, which is not in the pinned set. This host's
+  cmdline carries none of these forms.
+$ git -C <lane> show 92be7506:tools/check-hibernate-resume.py | sed -n '102,106p'
+    for tok in cmdline.split():
+        if tok == "nohibernate":
+            disabled = True
+        elif tok == "noresume":
+            noresume = True
+```
+
+no `Routed:` pointer, no rule, no control: red. Green, the r86 pair at `1e1caabc`:
+
+```text
+$ sed -n '52,58p' corpus/knowledge/hibernation-availability-r85.md
+- Rule text versus kernel parsing: the gate matches whole tokens `nohibernate` and `noresume`; the kernel's
+  `__setup` matching is by byte prefix (S343 1518-1524 register the bare names, and their handlers ignore any
+  argument, raw 1440-1444, 1461-1465), so `noresume=1`, `noresumefoo` and `nohibernate=1` also set the flags in a
+  real kernel. The gate reads them as HEALTHY (`.ufo/waves/round-85/w1/ReviewGate.md` L1, fixtures T9-T11).
+  The prefix behaviour rests on `init/main.c` `obsolete_checksetup`, pinned round 86 as S346 (raw 201-228).
+  This host's cmdline carries none of these forms. Round 86: the gate now parses tokens this way
+  (`hibernation-boot-parse-r86.md` BP1-BP4).
+$ sed -n '105,108p' tools/check-hibernate-resume.py
+def matches(tok, setup):
+    """obsolete_checksetup: the first len(setup) characters equal setup, '-' read as '_' (parameqn)."""
+    n = len(setup)
+    return len(tok) >= n and tok[:n].replace("-", "_") == setup.replace("-", "_")
+$ grep -E '^(K1|N01|N02)' .ufo/waves/round-86/before/controls/controls-summary.txt   # committed at 2f67de80
+K1-r85-gate-do-nothing: 26 26 26  EMPTY-RESUME,NOHIB-VALUED,NORESUME-VALUED,OFFSET-SSCANF
+N01-noresume-exact: 29 29 29  NORESUME-VALUED
+N02-nohib-exact: 29 29 29  NOHIB-VALUED
+```
+
+the bullet names the pinned source and the rule, and the controls that lack the rule read below the 30/30 target.
+Lesson: `corpus/lessons/round-86.md` Mistakes `R86-LIMITS-DISCLOSED-NOT-ROUTED`.

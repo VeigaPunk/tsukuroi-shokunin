@@ -27,7 +27,7 @@
   "id": "BP4",
   "statement": "`noresume` and `nohibernate` are registered bare and their handlers ignore the argument, so `noresume=0`, `noresume=1`, `noresumefoo` and `nohibernate=1` all set the flags. `noresum` (shorter than the option) does not.",
   "source": "S343",
-  "raw_lines": "1440-1444, 1461-1465, 1518, 1524",
+  "raw_lines": "1440-1444, 1461-1466, 1518, 1524",
   "quote": "static int __init noresume_setup(char *str) { noresume = 1; return 1; }",
   "host_value": "none of these tokens"
  },
@@ -49,15 +49,15 @@
  },
  {
   "id": "BP7",
-  "statement": "`resume_offset=` changes the offset only when sscanf `%llu` converts; base-10 conversion stops at once without a leading decimal digit (no `+`, no `-` for unsigned), so `resume_offset=abc` keeps the earlier value and `resume_offset=4096k` reads 4096.",
+  "statement": "resume_offset= changes the offset only when sscanf %llu converts; base-10 conversion stops at once without a leading decimal digit (no + , no - for unsigned), so resume_offset=abc keeps the earlier value; with a leading digit the conversion stops at the first non-digit, so resume_offset=4096k reads 4096 (simple_strntoull raw 79-95; its digit loop _parse_integer_limit is in lib/kstrtox.c, not pinned).",
   "source": "S343; S348",
-  "raw_lines": "1411-1422; 3662-3673",
+  "raw_lines": "1411-1422; 3662-3681, 79-95",
   "quote": "if (sscanf(str, \"%llu\", &offset) == 1) swsusp_resume_block = offset;",
   "host_value": "`resume_offset=3795013`, `/sys/power/resume_offset` = 3795013"
  },
  {
   "id": "BP8",
-  "statement": "Token order matters only through `noresume`: before `resume=` the device is never copied (BP5); after it the resume initcall still bails out (1106-1112). Either way the image is not read; the gate reports HR-NORESUME-ARG and does not model the order.",
+  "statement": "Across options, order matters only through noresume: before resume= the device is never copied (BP5); after it the resume initcall still bails out (1106-1112). Either way the image is not read; the gate reports HR-NORESUME-ARG and does not model where noresume sits. Within one option, order selects the winner (last wins, BP5, BP7), which the gate does model.",
   "source": "S343",
   "raw_lines": "1402-1405, 1106-1112",
   "quote": "If the user said \"noresume\".. bail out early.",

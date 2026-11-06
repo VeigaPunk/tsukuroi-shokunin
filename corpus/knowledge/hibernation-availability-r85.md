@@ -56,6 +56,8 @@ Quotes are verbatim at the cited raw lines of the pinned snapshot (code quotes k
   The prefix behaviour rests on `init/main.c` `obsolete_checksetup`, pinned round 86 as S346 (raw 201-228).
   This host's cmdline carries none of these forms. Round 86: the gate now parses tokens this way
   (`hibernation-boot-parse-r86.md` BP1-BP4).
+  Round 86 supersedes the first sentence of this bullet: the gate matches by prefix (`matches()` in
+  `tools/check-hibernate-resume.py`); the sentence is kept as the round-85 record.
 - An empty `resume=` counts as present for the gate, while the kernel then has no resume device (ReviewGate L3).
   Round 86: fixed in the gate (HR-NO-RESUME-ARG; `hibernation-boot-parse-r86.md` BP6).
 - The snapshots are tag v7.2; the host runs 7.2.11. Every cited region is byte-identical at v7.2.11.
