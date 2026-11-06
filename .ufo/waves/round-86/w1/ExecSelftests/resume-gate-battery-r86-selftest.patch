@@ -1,0 +1,30 @@
+--- a/tools/resume-gate-battery-r86.py
++++ b/tools/resume-gate-battery-r86.py
+@@ -102,7 +102,9 @@
+ import sys
+ import tempfile
+ 
+-BASE = ".ufo/waves/round-85/before/host/facts-v2.json"  # unchanged r85 host base
++# unchanged r85 host base; anchored to the repo root so --selftest is CWD-independent
++BASE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
++                    ".ufo/waves/round-85/before/host/facts-v2.json")
+ SCHEMA = "resume-facts/2"
+ AVAIL = ["HR-HIBERNATE-DISABLED", "HR-LOCKDOWN-BLOCKS", "HR-NORESUME-ARG"]
+ CHAIN = ["HR-NO-RESUME-ARG", "HR-OFFSET-MISSING", "HR-OFFSET-MISMATCH", "HR-SWAPFILE-COW",
+@@ -466,6 +468,16 @@
+         print(json.dumps({"case": "base-unreadable", "rc": rc, "want_rc": 2, "pass": ok}, sort_keys=True))
+         if not ok:
+             bad.append("base-unreadable")
++        real = os.path.join(os.path.dirname(os.path.abspath(__file__)), "check-hibernate-resume.py")
++        out = os.path.join(work, "positive-control.json")
++        rc = main(["--gate", real, "--random", "1", "--out", out], quiet=True)
++        with open(out, encoding="utf-8") as fh:
++            res = json.load(fh)
++        ok = rc == 0 and res["verdict"] == "met" and not res["failed_families"]
++        print(json.dumps({"case": "positive-control", "rc": rc, "want_rc": 0,
++                          "verdict": res.get("verdict"), "pass": ok}, sort_keys=True))
++        if not ok:
++            bad.append("positive-control")
+     finally:
+         shutil.rmtree(work, ignore_errors=True)
+     print(json.dumps({"selftest": "PASS" if not bad else "FAIL", "failed": bad}, sort_keys=True))

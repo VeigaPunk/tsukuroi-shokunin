@@ -1,0 +1,36 @@
+### /etc/default/limine
+TARGET_OS_NAME="Omarchy"
+
+ESP_PATH="/boot"
+
+KERNEL_CMDLINE[default]+="cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs"
+KERNEL_CMDLINE[default]+=" quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0"
+
+ENABLE_UKI=yes
+CUSTOM_UKI_NAME="omarchy"
+
+ENABLE_LIMINE_FALLBACK=yes
+
+# Find and add other bootloaders
+FIND_BOOTLOADERS=yes
+
+BOOT_ORDER="*, *fallback, Snapshots"
+
+MAX_SNAPSHOT_ENTRIES=5
+
+SNAPSHOT_FORMAT_CHOICE=5
+KERNEL_CMDLINE[default]+=" resume=/dev/mapper/root resume_offset=3795013"
+
+### /etc/limine-entry-tool.d/resume.conf
+KERNEL_CMDLINE[default]+=" resume=/dev/mapper/root resume_offset=3795013"
+
+### /boot/limine.conf cmdline lines
+31:  cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+39:  cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+51:     cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=/@/.snapshots/2/snapshot rw rootfstype=btrfs
+57:     cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=/@/.snapshots/2/snapshot rw rootfstype=btrfs
+65:     cmdline: resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root root=/dev/mapper/root zswap.enabled=0 rootflags=subvol=/@/.snapshots/1/snapshot rw rootfstype=btrfs
+
+### /boot/limine.conf path hash suffixes
+omarchy_linux.efi#b990d8c699ef1987c24103770c14e020efc018dbdd7f9437e65ce0d5e7df273be02bbfa86e66ac6955923ccc62ea16379e3c15dcc1e2601ea04ab408db784cf9
+omarchy_linux-lts.efi#a68c281d9e34c1bf1bab2400ff27ce373cd305bbde3f875a265ad0e58845c940e26039d5edd9c20e0463d378402320d38784c6402dfc9309363efe3bbe539c14

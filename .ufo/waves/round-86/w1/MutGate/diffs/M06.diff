@@ -1,0 +1,11 @@
+--- a/check-hibernate-resume.py
++++ b/M06.py
+@@ -127,7 +127,7 @@
+     found = set()
+     if disabled:
+         found.add("HR-HIBERNATE-DISABLED")
+-    elif noresume:
++    if disabled or noresume:  # nohibernate implies noresume, reported as its own finding
+         found.add("HR-NORESUME-ARG")
+     if lockdown_mode(lockdown) in LOCKDOWN_BLOCKING:
+         found.add("HR-LOCKDOWN-BLOCKS")

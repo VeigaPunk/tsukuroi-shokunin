@@ -1,0 +1,70 @@
+A) registrations scanned: 758 (757 literal + 1 macro-expanded pair)
+
+B) match sets for hibernation tokens (all 758 registrations tested per token)
+  'noresume'                 intended 'noresume'      matches=1 others=0  OK
+        INTENDED     __setup     'noresume'         kernel/power/hibernate.c:1518
+  'noresume=1'               intended 'noresume'      matches=1 others=0  OK
+        INTENDED     __setup     'noresume'         kernel/power/hibernate.c:1518
+  'noresume=0'               intended 'noresume'      matches=1 others=0  OK
+        INTENDED     __setup     'noresume'         kernel/power/hibernate.c:1518
+  'noresumefoo'              intended 'noresume'      matches=1 others=0  OK
+        INTENDED     __setup     'noresume'         kernel/power/hibernate.c:1518
+  'nohibernate'              intended 'nohibernate'   matches=1 others=0  OK
+        INTENDED     __setup     'nohibernate'      kernel/power/hibernate.c:1524
+  'nohibernate=1'            intended 'nohibernate'   matches=1 others=0  OK
+        INTENDED     __setup     'nohibernate'      kernel/power/hibernate.c:1524
+  'hibernate=noresume'       intended 'hibernate='    matches=1 others=0  OK
+        INTENDED     __setup     'hibernate='       kernel/power/hibernate.c:1521
+  'hibernate=nocompress'     intended 'hibernate='    matches=1 others=0  OK
+        INTENDED     __setup     'hibernate='       kernel/power/hibernate.c:1521
+  'hibernate=noxyz'          intended 'hibernate='    matches=1 others=0  OK
+        INTENDED     __setup     'hibernate='       kernel/power/hibernate.c:1521
+  'resume=/dev/mapper/root'  intended 'resume='       matches=1 others=0  OK
+        INTENDED     __setup     'resume='          kernel/power/hibernate.c:1520
+  'resume='                  intended 'resume='       matches=1 others=0  OK
+        INTENDED     __setup     'resume='          kernel/power/hibernate.c:1520
+  'resume=UUID=xyz'          intended 'resume='       matches=1 others=0  OK
+        INTENDED     __setup     'resume='          kernel/power/hibernate.c:1520
+  'resume_offset=4096'       intended 'resume_offset=' matches=1 others=0  OK
+        INTENDED     __setup     'resume_offset='   kernel/power/hibernate.c:1519
+  'resume_offset=abc'        intended 'resume_offset=' matches=1 others=0  OK
+        INTENDED     __setup     'resume_offset='   kernel/power/hibernate.c:1519
+  'resume-offset=4096'       intended 'resume_offset=' matches=1 others=0  OK
+        INTENDED     __setup     'resume_offset='   kernel/power/hibernate.c:1519
+
+  ALL FIVE OPTIONS CLEAN: True
+
+C) POSITIVE CONTROL -- a real prefix collision that exists in v7.2 (method detects it)
+  token 'root=/dev/sda1' -> 2 match(es):
+        __setup     'ro'           init/do_mounts.c:53 fn=, readonly
+        __setup     'root='        init/do_mounts.c:62 fn=, root_dev_setup
+  token 'ro'             -> 1 match(es):
+        __setup     'ro'           init/do_mounts.c:53 fn=, readonly
+  token 'rw'             -> 1 match(es):
+        __setup     'rw'           init/do_mounts.c:54 fn=, readwrite
+  -> 'ro' (init/do_mounts.c:53) prefix-matches 'root=...' but readonly() returns 0
+     when *str is non-empty, so obsolete_checksetup CONTINUES and 'root=' matches next.
+
+D) reverse direction: is any of the five a PREFIX of a longer registration?
+  'noresume'       -> NONE
+  'nohibernate'    -> NONE
+  'hibernate='     -> NONE
+  'resume='        -> NONE
+  'resume_offset=' -> NONE
+
+E) strict-prefix check: every prefix of each option string vs the registration set
+  'noresume'       prefix 'noresume'   <- __setup     'noresume'       kernel/power/hibernate.c:1518  EXACT (intended)
+  'nohibernate'    prefix 'nohibernate' <- __setup     'nohibernate'    kernel/power/hibernate.c:1524  EXACT (intended)
+  'hibernate='     prefix 'hibernate=' <- __setup     'hibernate='     kernel/power/hibernate.c:1521  EXACT (intended)
+  'resume='        prefix 'resume='    <- __setup     'resume='        kernel/power/hibernate.c:1520  EXACT (intended)
+  'resume_offset=' prefix 'resume_offset=' <- __setup     'resume_offset=' kernel/power/hibernate.c:1519  EXACT (intended)
+
+F) host cmdline hibernation tokens vs the whole table
+  'resume=/dev/mapper/root'          -> [('resume=', 'kernel/power/hibernate.c:1520')]
+  'resume_offset=3795013'            -> [('resume_offset=', 'kernel/power/hibernate.c:1519')]
+  'quiet'                            -> [('quiet', 'init/main.c:250')]
+  'loglevel=0'                       -> [('loglevel', 'init/main.c:269')]
+  'root=/dev/mapper/root'            -> [('ro', 'init/do_mounts.c:53'), ('root=', 'init/do_mounts.c:62')]
+  'rootflags=subvol=@'               -> [('ro', 'init/do_mounts.c:53'), ('rootflags=', 'init/do_mounts.c:121')]
+  'rw'                               -> [('rw', 'init/do_mounts.c:54')]
+  'rootfstype=btrfs'                 -> [('ro', 'init/do_mounts.c:53'), ('rootfstype=', 'init/do_mounts.c:122')]

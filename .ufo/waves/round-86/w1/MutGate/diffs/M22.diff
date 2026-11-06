@@ -1,0 +1,11 @@
+--- a/check-hibernate-resume.py
++++ b/M22.py
+@@ -181,7 +181,7 @@
+         found.add("HR-HOOK-BEFORE-ENCRYPT")
+     if f["swaps"]:
+         free = sum((s["size_kib"] - s["used_kib"]) * 1024 for s in f["swaps"])
+-        if free < f["image_size"]:
++        if free <= f["image_size"]:
+             found.add("HR-SWAP-TOO-SMALL")
+     if "disk" not in f["sys_power_state"].split():
+         found.add("HR-NO-DISK-STATE")

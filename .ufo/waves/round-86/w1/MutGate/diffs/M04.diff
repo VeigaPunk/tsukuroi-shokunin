@@ -1,0 +1,13 @@
+--- a/check-hibernate-resume.py
++++ b/M04.py
+@@ -105,7 +105,9 @@
+ def matches(tok, setup):
+     """obsolete_checksetup: the first len(setup) characters equal setup, '-' read as '_' (parameqn)."""
+     n = len(setup)
+-    return len(tok) >= n and tok[:n].replace("-", "_") == setup.replace("-", "_")
++    if not (len(tok) >= n and tok[:n].replace("-", "_") == setup.replace("-", "_")):
++        return False
++    return len(tok) == n or tok[n] == "="
+ 
+ 
+ def availability(cmdline, lockdown):

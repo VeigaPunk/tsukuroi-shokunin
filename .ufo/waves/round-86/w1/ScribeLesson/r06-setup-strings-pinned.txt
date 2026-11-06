@@ -1,0 +1,32 @@
+# receipt r06 — this seat's read-only setup-string listing over the five pinned v7.2 files (frontier note only; NOT the full-tree sweep)
+$ cd .ufo/waves/round-86/before/src && grep -n '__setup(' kernel_power_hibernate.c
+1518:__setup("noresume", noresume_setup);
+1519:__setup("resume_offset=", resume_offset_setup);
+1520:__setup("resume=", resume_setup);
+1521:__setup("hibernate=", hibernate_setup);
+1522:__setup("resumewait", resumewait_setup);
+1523:__setup("resumedelay=", resumedelay_setup);
+1524:__setup("nohibernate", nohibernate_setup);
+rc=0
+$ grep -ho '__setup("[^"]*"' *.c | sed 's/__setup("//;s/"//' | sort -u   # five pinned files only
+hibernate=
+init=
+initcall_blacklist=
+nohibernate
+noresume
+pm_async=
+pm_debug_messages
+rdinit=
+reset_devices
+resume=
+resumedelay=
+resume_offset=
+resumewait
+rc=0
+$ sha256sum -c SHA256SUMS   # pinned set intact
+init_main.c: OK
+kernel_params.c: OK
+kernel_power_hibernate.c: OK
+kernel_power_main.c: OK
+lib_vsprintf.c: OK
+rc=0

@@ -1,0 +1,33 @@
+Host values vs .ufo/waves/round-86/before/host/receipt.txt — round 86 w1 ReviewEntry (2026-11-06)
+
+Receipt line 1 (entry header claim):
+# host capture TsukuroiR86 2026-11-06T17:55:05-03:00, read-only
+→ matches entry `host capture:` timestamp and read-only marker exactly. OK
+
+### uname -r
+7.2.11-arch1-1
+→ entry header "the host runs 7.2.11" TRUE.
+
+### /proc/cmdline (relevant tokens only)
+resume=/dev/mapper/root resume_offset=3795013 quiet splash ... root=/dev/mapper/root zswap.enabled=1 ...
+→ BP5 "one token, `resume=/dev/mapper/root`": exactly one resume= token. TRUE
+→ BP7 "resume_offset=3795013": present verbatim. TRUE
+→ BP2 "no dashed hibernation token": no resume-offset/no-resume/no-hibernate token anywhere. TRUE
+→ BP4 "none of these tokens": no noresume/nohibernate/noresum* token. TRUE
+
+### zcat /proc/config.gz | grep -E 'CONFIG_PM_STD_PARTITION|CONFIG_HIBERNATION='
+CONFIG_HIBERNATION=y
+CONFIG_PM_STD_PARTITION=""
+→ BP6 host cell exact match. TRUE
+
+### /sys/power/resume_offset
+3795013
+→ BP7 "/sys/power/resume_offset = 3795013" TRUE.
+
+### gate --live
+{"findings": [], "verdict": "HEALTHY"}
+rc=0
+→ consistent with a healthy hibernation chain on this cmdline (no BP row claims otherwise). OK
+
+All five populated Host-value cells (BP2, BP4, BP5, BP6, BP7) verified. BP1/BP3/BP8 host cells are
+null in the .json and shown as "—" in the .md. Agreement OK.

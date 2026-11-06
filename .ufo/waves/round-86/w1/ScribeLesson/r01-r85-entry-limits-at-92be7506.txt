@@ -1,0 +1,16 @@
+# receipt r01 — r85 entry Limits at 92be7506 (read-only git)
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse master
+1e1caabcdd740a6429dd31d7aba3b725ff8c677d
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 92be7506:corpus/knowledge/hibernation-availability-r85.md | sed -n '50,59p'
+## Limits
+
+- Rule text versus kernel parsing: the gate matches whole tokens `nohibernate` and `noresume`; the kernel's
+  `__setup` matching is by byte prefix (S343 1518-1524 register the bare names, and their handlers ignore any
+  argument, raw 1440-1444, 1461-1465), so `noresume=1`, `noresumefoo` and `nohibernate=1` also set the flags in a
+  real kernel. The gate reads them as HEALTHY (`.ufo/waves/round-85/w1/ReviewGate.md` L1, fixtures T9-T11).
+  The prefix behaviour rests on `init/main.c` `obsolete_checksetup`, which is not in the pinned set. This host's
+  cmdline carries none of these forms.
+- An empty `resume=` counts as present for the gate, while the kernel then has no resume device (ReviewGate L3).
+- The snapshots are tag v7.2; the host runs 7.2.11. Every cited region is byte-identical at v7.2.11.
+rc=0

@@ -1,0 +1,27 @@
+# receipt r04 — r86 battery docstring parse rule (frozen at 2f67de80) and family list
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 2f67de80:tools/resume-gate-battery-r86.py | sha256sum
+a49a18aa21322579f723cbddd38f0fcdff686cde85f525a9a81976ef176fbc21  -
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 2f67de80:tools/resume-gate-battery-r86.py | sed -n '7,19p'
+Round-86 parse amendment (frozen; Linux v7.2 init/main.c obsolete_checksetup raw 201-228 and
+kernel/params.c parameqn raw 86-95: a __setup string matches every token whose first strlen(str)
+characters equal it, '-' and '_' compared equal, and the rest of the token, value included, goes
+to the setup function; kernel/power/hibernate.c raw 1402-1465: noresume_setup and
+nohibernate_setup ignore their argument, resume_setup copies its argument verbatim (an empty
+resume= leaves resume_file empty and find_resume_device raw 982-985 returns -ENOENT),
+resume_offset_setup keeps the previous value unless sscanf "%llu" converts, which needs a leading
+decimal digit (lib/vsprintf.c vsscanf)). Define for a token t and a setup string S:
+  t matches S  iff len(t) >= len(S) and t[:len(S)] equals S with every '-' read as '_'.
+Then, superseding the round-85 token tests below:
+  - "a token equal to `nohibernate`" reads "a token matching `nohibernate`";
+  - "a token equal to `noresume`" reads "a token matching `noresume`";
+  - "a token `hibernate=V`" reads "a token matching `hibernate=`, V = the rest";
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 2f67de80:tools/resume-gate-battery-r86.py | sed -n '120,125p'
+FAMILIES = ["POSITIVE", "MALFORMED"] + IDS + ["MULTI-FAULT", "PREC-NOHIB", "PREC-DECOYS",
+                                               "PREC-NO-RESUME-ARG"]
+R86 = ["NORESUME-VALUED", "NOHIB-VALUED", "EMPTY-RESUME", "OFFSET-DUP", "OFFSET-SSCANF", "HIBERNATE-NOX",
+       "SWAP-BOUNDARY", "MULTI-SWAP", "BOOL-FOR-INT", "DECOYS-R86"]
+FAMILIES = FAMILIES + R86
+TARGET = len(FAMILIES)
+rc=0

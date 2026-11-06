@@ -1,0 +1,24 @@
+# objcopy --dump-section incident: byte-level evidence
+# A = pristine copy of /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+# B = A after one 'objcopy --dump-section .cmdline=out B' (no output file => objcopy rewrote its input in place)
+
+$ sha256sum A.efi B.efi
+2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8  /fast/scratch/hyaku/tsukuroi-r86/ScoutHost/objtest2/A.efi
+f27416c686db35c0c048f810b29eb0f9110770bb0b30139931da38b2e0d74893  /fast/scratch/hyaku/tsukuroi-r86/ScoutHost/objtest2/B.efi
+
+$ cmp -l A.efi B.efi   (1-based byte positions; octal values)
+137   5 206
+138 177 107
+139 262 356
+217 300 175
+218 264 175
+
+$ stat -c '%n %s' A.efi B.efi
+/fast/scratch/hyaku/tsukuroi-r86/ScoutHost/objtest2/A.efi 284439552
+/fast/scratch/hyaku/tsukuroi-r86/ScoutHost/objtest2/B.efi 284439552
+
+# changed offsets are 0-based 136..138 (PE TimeDateStamp low 3 bytes) and 216..217 (PE optional-header CheckSum low 2 bytes);
+# section table and every section payload (.text .linux .initrd .cmdline .osrel .uname ...) are byte-identical; size unchanged.
+
+# BLAKE2b-512 of A.efi (pristine) == the '#<hash>' suffix limine.conf records for that exact path:
+822299bbdaf0d4ede97d341fd5fcfa73fb3ca3942b7dcc597a79e7b46e69ec8f3eaabb194c431112de1c97b15345f1ca64adb0438b94d8fc8100cd393ce98024

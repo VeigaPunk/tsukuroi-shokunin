@@ -1,0 +1,18 @@
+# receipt r09 — the r85 battery could not see the divergence: its 20 families name none of the four K1 fails
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 2f67de80:tools/resume-gate-battery-r85.py | grep -n 'FAMILIES =' -A1
+84:FAMILIES = ["POSITIVE", "MALFORMED"] + IDS + ["MULTI-FAULT", "PREC-NOHIB", "PREC-DECOYS",
+85-                                               "PREC-NO-RESUME-ARG"]
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 2f67de80:tools/resume-gate-battery-r85.py | grep -c 'NORESUME-VALUED\|NOHIB-VALUED\|EMPTY-RESUME\|OFFSET-SSCANF'
+0
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 2f67de80:tools/resume-gate-battery-r86.py | grep -n '^R86 = ' -A2
+122:R86 = ["NORESUME-VALUED", "NOHIB-VALUED", "EMPTY-RESUME", "OFFSET-DUP", "OFFSET-SSCANF", "HIBERNATE-NOX",
+123-       "SWAP-BOUNDARY", "MULTI-SWAP", "BOOL-FOR-INT", "DECOYS-R86"]
+124-FAMILIES = FAMILIES + R86
+rc=0
+$ sed -n '2p' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/before/controls/N01-noresume-exact.py
+"""NEAR-MISS CONTROL N01-noresume-exact (round-86 freeze; candidate draft minus one property: noresume matched exactly, no argument/suffix).
+rc=0
+
+Note: the `grep -c` line prints `0` (no match); the `rc=` shown is the first pipeline element's status (git), not grep's 1.

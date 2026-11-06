@@ -1,0 +1,23 @@
+--- a/tools/capture-resume-facts-r84.py
++++ b/tools/capture-resume-facts-r84.py
+@@ -78,7 +78,19 @@
+         attrs = out.split()[0] if rc == 0 and out.split() else None
+         rec(f"sudo -n filefrag -v {swapfile}", *run(["sudo", "-n", "filefrag", "-v", swapfile]))
+         rec(f"stat -c '%W %i %s' {swapfile}", *run(["stat", "-c", "%W %i %s", swapfile]))
+-    resume = next((t.split("=", 1)[1] for t in cmdline.split() if t.startswith("resume=")), None)
++    # Boot words as the kernel sees them: parse_args() stops at a bare `--` (kernel/params.c
++    # v7.2 raw 182-183), the last `resume=` wins (kernel/power/hibernate.c raw 1402-1409), and
++    # next_arg()/repair_env_string() strip the quotes (lib/cmdline.c raw 237-284, init/main.c
++    # raw 463-476), so `resume=""` leaves an empty resume_file (hibernate.c raw 984).
++    words = cmdline.split()
++    if "--" in words:
++        words = words[:words.index("--")]
++    resume = None
++    for t in words:
++        if t.startswith("resume="):
++            resume = t.split("=", 1)[1]
++            if resume.startswith('"'):
++                resume = resume[:-1] if resume.endswith('"') and len(resume) > 1 else resume[1:]
+     devmm = None
+     if resume and resume.startswith("/dev/"):
+         rc, out, err = run(["stat", "-L", "-c", "%t %T", resume])

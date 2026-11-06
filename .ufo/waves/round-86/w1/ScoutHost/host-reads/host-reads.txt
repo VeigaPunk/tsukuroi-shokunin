@@ -1,0 +1,29 @@
+# host reads, read-only, 2026-11-06 (ScoutHost)
+
+### uname -r
+7.2.11-arch1-1
+
+### /proc/cmdline
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+
+### /sys/power/resume
+253:0
+### /sys/power/resume_offset
+3795013
+### /sys/power/disk
+[platform] shutdown reboot suspend test_resume
+### /sys/power/state
+freeze mem disk
+### zcat /proc/config.gz | grep -E 'PM_STD_PARTITION|HIBERNATION'
+CONFIG_ARCH_HIBERNATION_POSSIBLE=y
+CONFIG_ARCH_HIBERNATION_HEADER=y
+CONFIG_HIBERNATION=y
+CONFIG_HIBERNATION_SNAPSHOT_DEV=y
+CONFIG_HIBERNATION_COMP_LZO=y
+# CONFIG_HIBERNATION_COMP_LZ4 is not set
+CONFIG_HIBERNATION_DEF_COMP="lzo"
+CONFIG_PM_STD_PARTITION=""
+
+### gate --live
+{"findings": [], "verdict": "HEALTHY"}
+rc=0

@@ -1,0 +1,12 @@
+--- a/tools/resume-gate-battery-r86.py
++++ b/tools/resume-gate-battery-r86.py
+@@ -355,6 +355,9 @@
+     else:
+         cl = put_after(f["cmdline"], "resume=", "resume=")
+     out.append(("EMPTY-RESUME", dict(f, cmdline=cl), (1, "DEGRADED", ["HR-NO-RESUME-ARG"]), {"suppressed": c_ids}))
++    # MutBattery r86: the last resume= wins, so a later non-empty value must override an earlier empty one
++    out.append(("EMPTY-RESUME", dict(b, cmdline=put_after(b["cmdline"], "resume=", "resume=") + " resume=/dev/" + word(rng, 4)),
++                (0, "HEALTHY", []), {"order": "empty-then-value"}))
+     if file_base:
+         wrong = o + rng.randint(1, 10 ** 6)
+         out.append(("OFFSET-DUP", dict(b, cmdline=put_before(b["cmdline"], "resume_offset=", f"resume_offset={wrong}")),

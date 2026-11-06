@@ -1,0 +1,14 @@
+--- a/check-hibernate-resume.py
++++ b/M10.py
+@@ -150,8 +150,9 @@
+         if matches(tok, "resume_offset="):
+             rest = tok[len("resume_offset="):]
+             digits = len(rest) - len(rest.lstrip("0123456789"))
+-            if digits:
+-                val = int(rest[:digits])
++            if not digits:
++                raise Malformed("resume_offset-nondigit")
++            val = int(rest[:digits])
+     return val
+ 
+ 

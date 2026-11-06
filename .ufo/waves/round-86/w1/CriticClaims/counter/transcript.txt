@@ -1,0 +1,23 @@
+# Counterexample inputs (host base .ufo/waves/round-85/before/host/facts-v2.json, image_size = free+1), measured 2026-11-06T18:08:53-03:00
+# lane 1e1caabcdd740a6429dd31d7aba3b725ff8c677d
+
+$ python3 tools/check-hibernate-resume.py --facts /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/CriticClaims/counter/A-suffix-noresume-chain.json
+{"findings": ["HR-NORESUME-ARG", "HR-SWAP-TOO-SMALL"], "verdict": "DEGRADED"}
+rc=1
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/CriticClaims/forgers/f4-shortcut.py --facts /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/CriticClaims/counter/A-suffix-noresume-chain.json
+{"findings": ["HR-NORESUME-ARG"], "verdict": "DEGRADED"}
+rc=1
+
+$ python3 tools/check-hibernate-resume.py --facts /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/CriticClaims/counter/B-skipped-offset-fault.json
+{"findings": ["HR-SWAP-TOO-SMALL"], "verdict": "DEGRADED"}
+rc=1
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/CriticClaims/forgers/f4-shortcut.py --facts /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/CriticClaims/counter/B-skipped-offset-fault.json
+{"findings": [], "verdict": "HEALTHY"}
+rc=0
+
+$ python3 tools/check-hibernate-resume.py --facts /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/CriticClaims/counter/C-suffix-nohib-chain.json
+{"findings": ["HR-HIBERNATE-DISABLED", "HR-SWAP-TOO-SMALL"], "verdict": "DEGRADED"}
+rc=1
+$ python3 /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/CriticClaims/forgers/f4-shortcut.py --facts /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/CriticClaims/counter/C-suffix-nohib-chain.json
+{"findings": ["HR-HIBERNATE-DISABLED"], "verdict": "DEGRADED"}
+rc=1

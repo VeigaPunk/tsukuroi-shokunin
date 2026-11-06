@@ -1,0 +1,22 @@
+# receipt r02 — r85 gate whole-token match at 92be7506 (read-only git)
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 92be7506:tools/check-hibernate-resume.py | sha256sum
+88041b7509fc5824b036d45dd3416bfadbaeb17f0b702e15af0edd17944483e7  -
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 92be7506:tools/check-hibernate-resume.py | sed -n '102,106p'
+    for tok in cmdline.split():
+        if tok == "nohibernate":
+            disabled = True
+        elif tok == "noresume":
+            noresume = True
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 92be7506:tools/check-hibernate-resume.py | sed -n '12,20p'   # docstring rule as shipped
+noresume_setup, nohibernate_setup, hibernation_available; include/linux/security.h
+enum lockdown_reason; security/lockdown/lockdown.c), always evaluated:
+  HR-HIBERNATE-DISABLED     a `nohibernate` token, or `hibernate=V` with V starting `no` but
+                            not `noresume`/`nocompress` (the kernel tests those prefixes first)
+  HR-LOCKDOWN-BLOCKS        /sys/kernel/security/lockdown selects `integrity` or
+                            `confidentiality` (LOCKDOWN_HIBERNATION < LOCKDOWN_INTEGRITY_MAX)
+  HR-NORESUME-ARG           a `noresume` token or `hibernate=noresume...`, unless
+                            HR-HIBERNATE-DISABLED fired (nohibernate already sets noresume)
+Resume-chain rules (round-84 declaration; o = resume_offset= on the cmdline):
+rc=0

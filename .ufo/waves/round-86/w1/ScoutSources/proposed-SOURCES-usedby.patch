@@ -1,0 +1,34 @@
+Proposed patch — NOT applied by ScoutSources (the L1 decides what lands).
+
+Target: corpus/SOURCES.md (rows S346 and S349), at lane revision b96dc4beb8b826dab80ff07411b07c549c7a1b17.
+
+Why: the round's own registry rows and the round's own entries disagree about which entry uses which row.
+
+  * S346 (init/main.c) — row's used-by cell lists only corpus/knowledge/hibernation-boot-parse-r86.md,
+    but corpus/knowledge/hibernation-availability-r85.md cites S346 twice (line 3, "S346 (init/main.c) … added
+    round 86"; line 56, "pinned round 86 as S346 (raw 201-228)").
+  * S349 (kernel/power/main.c) — the row's used-by cell lists corpus/knowledge/hibernation-availability-r85.md,
+    and that entry does name S349 (lines 3 and 70), so the row is TRUE as it stands. The round that pinned the
+    file is r86 (.ufo/waves/round-86/before/src/kernel_power_main.c, sha256
+    7b60dabe707cf070b416f6375946c213b96bf3f67c3161b69c9a4fcfc9f53955) but the r86 entry does not cite S349 —
+    a pinning fact, not a usage fact. Leaving S349 unchanged is correct; the note is recorded so the L1 does not
+    "fix" it by adding the r86 entry to the used-by cell (that would BREAK the reverse-cite census command,
+    which requires every used-by path to name the row id — the r86 entry does not name S349).
+
+Unified diff (the one change that is actually needed — S346 only; S349 is left alone):
+
+--- a/corpus/SOURCES.md
++++ b/corpus/SOURCES.md
+@@ -357,7 +357,7 @@
+-| S346 | Linux v7.2 init/main.c — https://raw.githubusercontent.com/torvalds/linux/v7.2/init/main.c | code | A | How the kernel hands unknown boot tokens to __setup handlers | tag v7.2, raw lines 201-228 (obsolete_checksetup: prefix match, rest of token passed), 463-475 (repair_env_string), 503-532 (unknown_bootoption); pinned snapshot .ufo/waves/round-86/before/src/init_main.c sha256 e895a643df800a83857b88bebb6e990c17cd0890e485a48a7b972f5d2ae73516 | a __setup handler runs for every token whose first strlen(option) characters equal the option, with the rest of the token as its argument | mined | 2026-11-06 | on-release | corpus/knowledge/hibernation-boot-parse-r86.md |
++| S346 | Linux v7.2 init/main.c — https://raw.githubusercontent.com/torvalds/linux/v7.2/init/main.c | code | A | How the kernel hands unknown boot tokens to __setup handlers | tag v7.2, raw lines 201-228 (obsolete_checksetup: prefix match, rest of token passed), 463-475 (repair_env_string), 503-532 (unknown_bootoption); pinned snapshot .ufo/waves/round-86/before/src/init_main.c sha256 e895a643df800a83857b88bebb6e990c17cd0890e485a48a7b972f5d2ae73516 | a __setup handler runs for every token whose first strlen(option) characters equal the option, with the rest of the token as its argument | mined | 2026-11-06 | on-release | corpus/knowledge/hibernation-availability-r85.md, corpus/knowledge/hibernation-boot-parse-r86.md |
+
+S349 is deliberately NOT touched: its row is already true (its used-by entry names it), and adding the r86 entry
+to that cell would break the reverse-cite census command, because the r86 entry does not name S349.
+
+Census notes:
+  * the seven frozen registry commands must stay clean (350 rows after the S350 candidate lands; malformed 0;
+    tier/status enums unchanged; duplicate ids 0; used-by paths must exist on disk);
+  * the reverse-cite command (awk … $12 | while read … grep -qw "$i" "$p") requires the used-by file to name the
+    row id — hibernation-availability-r85.md names S346 (lines 3 and 56), so the added cell passes that check;
+  * "no '|' inside any cell" holds: the cell above contains no pipe characters.

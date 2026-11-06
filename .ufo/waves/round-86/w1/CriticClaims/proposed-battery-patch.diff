@@ -1,0 +1,27 @@
+--- a/tools/resume-gate-battery-r86.py
++++ b/tools/resume-gate-battery-r86.py
+@@ -203,11 +203,11 @@
+     f = copy.deepcopy(f)
+     o = offset(f)
+     if fid == "HR-HIBERNATE-DISABLED":
+-        f["cmdline"] = add_tokens(f["cmdline"], rng, rng.choice(["nohibernate", "hibernate=no"]))
++        f["cmdline"] = add_tokens(f["cmdline"], rng, rng.choice(["nohibernate", "hibernate=no", "nohibernate=1"]))
+     elif fid == "HR-LOCKDOWN-BLOCKS":
+         f["lockdown"] = rng.choice(LOCK_SHUT)
+     elif fid == "HR-NORESUME-ARG":
+-        f["cmdline"] = add_tokens(f["cmdline"], rng, rng.choice(["noresume", "hibernate=noresume"]))
++        f["cmdline"] = add_tokens(f["cmdline"], rng, rng.choice(["noresume", "hibernate=noresume", "noresume=1"]))
+     elif fid == "HR-NO-RESUME-ARG":
+         f["cmdline"] = set_token(f["cmdline"], "resume", None)
+     elif fid == "HR-OFFSET-MISSING":
+@@ -367,6 +367,10 @@
+                          ("digit-prefix", replace_tok(b["cmdline"], "resume_offset=", f"resume_offset={o}{word(rng, 3)}")),
+                          ("dash", replace_tok(b["cmdline"], "resume_offset=", f"resume-offset={o}"))):
+             out.append(("OFFSET-SSCANF", dict(b, cmdline=cl), (0, "HEALTHY", []), {"kind": kind}))
++        bad = perturb(b, "HR-OFFSET-MISMATCH", rng)
++        out.append(("OFFSET-SSCANF",
++                    dict(bad, cmdline=put_after(bad["cmdline"], "resume_offset=", "resume_offset=" + junk)),
++                    (1, "DEGRADED", ["HR-OFFSET-MISMATCH"]), {"kind": "junk-on-faulty-base"}))
+     for kind, want in (("no", (1, "DEGRADED", ["HR-HIBERNATE-DISABLED"])), ("noresume", (1, "DEGRADED", ["HR-NORESUME-ARG"])),
+                        ("nocompress", (0, "HEALTHY", []))):
+         sfx = word(rng, 3)

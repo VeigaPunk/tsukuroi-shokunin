@@ -1,0 +1,19 @@
+[
+ {"name":"baseline"},
+ {"name":"H1-dashes-post-resume","cmdline":"quiet splash -- resume=/dev/mapper/root resume_offset=3795013"},
+ {"name":"H1b-dashes-post-only-nothing-before","cmdline":"quiet splash -- resume=/dev/mapper/root resume_offset=3795013 loglevel=3"},
+ {"name":"H2-resume-quoted-empty","cmdline":"quiet resume=\"\" resume_offset=3795013 splash"},
+ {"name":"H3-resume-unresolvable-dev","cmdline":"quiet resume=/dev/mapper/nonexistent resume_offset=3795013","over":{"resume_dev_majmin":null}},
+ {"name":"H4-resume-devnum-wrong","cmdline":"quiet resume=8:2 resume_offset=3795013","over":{"resume_dev_majmin":null}},
+ {"name":"H5-resume-PARTUUID","cmdline":"quiet resume=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618 resume_offset=3795013","over":{"resume_dev_majmin":null}},
+ {"name":"H6-double-resume-first-good-last-bogus","cmdline":"resume=/dev/mapper/root resume=/dev/mapper/bogus resume_offset=3795013"},
+ {"name":"D1-dashes-post-noresume","cmdline":"resume=/dev/mapper/root resume_offset=3795013 quiet -- noresume"},
+ {"name":"O1-offset-overflow-2pow64","cmdline":"resume=/dev/mapper/root resume_offset=18446744073709551616"},
+ {"name":"O2-offset-overflow-sysfs-ullmax","cmdline":"resume=/dev/mapper/root resume_offset=18446744073709551616","over":{"sys_power_resume_offset":18446744073709551615}},
+ {"name":"P1-hibernate-protect-image","cmdline":"resume=/dev/mapper/root resume_offset=3795013 hibernate=protect_image"},
+ {"name":"P2-hibernate-protect-imageX","cmdline":"resume=/dev/mapper/root resume_offset=3795013 hibernate=protect_imageXYZ"},
+ {"name":"R1-noresume-before-resume","cmdline":"noresume resume=/dev/mapper/root resume_offset=3795013"},
+ {"name":"R2-nohibernate-valued","cmdline":"nohibernate=1 resume=/dev/mapper/root resume_offset=3795013"},
+ {"name":"Q1-quoted-good-device","cmdline":"resume=\"/dev/mapper/root\" resume_offset=3795013","over":{"resume_dev_majmin":null}},
+ {"name":"Q2-quoted-bogus-device","cmdline":"resume=\"/dev/mapper/bogus\" resume_offset=3795013","over":{"resume_dev_majmin":null}}
+]

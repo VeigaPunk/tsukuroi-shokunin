@@ -1,0 +1,47 @@
+# __setup/early_param prefix-collision sweep — ScoutSources — 2026-11-06T18:34:02-03:00
+# tree: linux-7.2 tarball from cdn.kernel.org, sha256 f9fef3d14c0df53819026f4be74459835c2a0b0dcbf5b5bbd9ea19f0829402b3
+#   (matches the official sha256sums.asc entry for linux-7.2.tar.xz)
+# method: every literal __setup("..")/early_param("..")/early_param_on_off("..") registration in the whole tree,
+#   plus the two macro expansions of arch/sh/kernel/cpu/init.c:50 (nofpu, nodsp);
+#   a registration matches a token iff the registration's folded form equals the token's first strlen(registration) chars.
+
+== tag v7.2: 760 literal registrations, 697 distinct option strings (__setup=416 early_param=343 early_param_on_off=1)
+   'noresume'                 -> ['noresume']
+   'noresume=0'               -> ['noresume']
+   'noresume=1'               -> ['noresume']
+   'noresumefoo'              -> ['noresume']
+   'noresum'                  -> []
+   'nohibernate'              -> ['nohibernate']
+   'nohibernate=1'            -> ['nohibernate']
+   'resume'                   -> []
+   'resume='                  -> ['resume=']
+   'resume=/dev/mapper/root'  -> ['resume=']
+   'resume_offset'            -> []
+   'resume_offset=3795013'    -> ['resume_offset=']
+   'resume-offset=3795013'    -> ['resume_offset=']
+   'hibernate'                -> []
+   'hibernate=1'              -> ['hibernate=']
+   'hibernate=noresume'       -> ['hibernate=']
+   'x.noresume=1'             -> []
+   'no'                       -> []
+
+== tag v7.2.11: 760 literal registrations, 697 distinct option strings (__setup=416 early_param=343 early_param_on_off=1)
+   'noresume'                 -> ['noresume']
+   'noresume=0'               -> ['noresume']
+   'noresume=1'               -> ['noresume']
+   'noresumefoo'              -> ['noresume']
+   'noresum'                  -> []
+   'nohibernate'              -> ['nohibernate']
+   'nohibernate=1'            -> ['nohibernate']
+   'resume'                   -> []
+   'resume='                  -> ['resume=']
+   'resume=/dev/mapper/root'  -> ['resume=']
+   'resume_offset'            -> []
+   'resume_offset=3795013'    -> ['resume_offset=']
+   'resume-offset=3795013'    -> ['resume_offset=']
+   'hibernate'                -> []
+   'hibernate=1'              -> ['hibernate=']
+   'hibernate=noresume'       -> ['hibernate=']
+   'x.noresume=1'             -> []
+   'no'                       -> []
+

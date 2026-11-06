@@ -1,0 +1,54 @@
+# ExecLints — receipt index (lane revision 1e1caabcdd740a6429dd31d7aba3b725ff8c677d, branch master)
+
+cwd for every command below: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+environment: PYTHONDONTWRITEBYTECODE=1 (no bytecode written into the lane)
+
+1. python3 tools/check-knowledge-header.py --revision 1e1caabcdd740a6429dd31d7aba3b725ff8c677d
+   rc=0
+   stdout -> knowledge-header.out (JSON): "status":"PASS", note_count 102, clean_count 102, complete_count 102, finding_count 0, findings []
+   stderr -> knowledge-header.err (empty)
+   scope: "every *.md under corpus/knowledge/ at the bound revision; column-0 header keys outside fenced blocks; operative (last) value per key; read-only, no host action taken"
+   new entry row: {"path":"corpus/knowledge/hibernation-boot-parse-r86.md","lines":{"source":3,"verified-at":5,"recheck":4},"problems":[]}
+   baseline: python3 tools/check-knowledge-header.py --revision 3f56789829b84a97b2a8aa786618022195ef53cb -> rc=0, PASS 101/101, finding_count 0 (knowledge-header-preround.out); +1 note this round, no finding.
+
+2. python3 tools/check-registry-coverage.py --help
+   rc=0
+   stdout -> registry-help.out (usage; modes --revision REV | --selftest, --branch default master)
+
+   python3 tools/check-registry-coverage.py --revision 1e1caabcdd740a6429dd31d7aba3b725ff8c677d
+   rc=1
+   stdout -> registry-tip.out (JSON):
+   {"branch":"master","branch_tip":"1e1caabcdd740a6429dd31d7aba3b725ff8c677d","counts":{"findings":1,"missing":1,"registered":135,"rows_total":135,"tools_total":136},"findings":[{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/resume-gate-battery-r86.py"}],"revision":"1e1caabcdd740a6429dd31d7aba3b725ff8c677d","status":"FAIL"}
+   stderr -> registry-tip.err (empty)
+   bisect:
+     3f567898 -> PASS 135/135, findings 0, rc 0
+     2f67de80 -> FAIL 1 finding, 136 tools / 135 rows, rc 1  (introduced by this round's freeze commit)
+     dc884949 -> FAIL same, rc 1
+     1e1caabc -> FAIL same, rc 1
+   fixture (scratch clone --shared, origin removed, worktree SKILL.md committed as fixture 2ce6c784583204b6b6879f606e34589948110adf):
+     python3 tools/check-registry-coverage.py --revision 2ce6c784... -> rc 0, PASS 136/136, findings 0
+     output -> registry-fixture-worktree-skill.out
+   gate selftest: python3 tools/check-registry-coverage.py --selftest -> rc=0, "PASS (23 cases, 23 passed, 0 failed)" (registry-selftest.out)
+
+3. bash tools/tsukuroi-census.sh --selftest
+   rc=0
+   output -> census-selftest.out: "TSUKUROI_CENSUS_SELFTEST: PASS (218 cases, 218 passed, 0 failed)" (221 lines, wall 115.82 s)
+
+4. /home/vgpnk/Projects/shokunin/scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+   rc=0
+   output -> sources-census.out: 52 x "tsukuroi\tW04\t<Snnn> duplicate url ... across scopes", 1 x "tsukuroi\tok\t/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md"; no E code, no warning naming S346-S349; wall 3.11 s
+   corpus/SOURCES.md rows: 349 (r85 closed at 345; +4 = S346-S349 present at lines 357-360)
+
+5. python3 tools/check-scorecard-unique-sections.py --help
+   rc=2
+   output -> scorecard-help.out: "check-scorecard-unique-sections: unknown arguments ['--help']" (the tool has no --help; its contract is the module docstring: [--file <path>] | --selftest)
+   python3 tools/check-scorecard-unique-sections.py
+   rc=0
+   output -> scorecard.out: "check-scorecard-unique-sections: every duplicate level-2 heading pair carries a supersession marker; ok"
+   python3 tools/check-scorecard-unique-sections.py --selftest
+   rc=0
+   output -> scorecard-selftest.out: "SCORECARD_UNIQUE_SECTIONS: PASS (5 cases, 5 passed, 0 failed)"
+
+Tracked worktree state at measurement (git status --porcelain -- SKILL.md tools/ corpus/ SCORECARD.md):
+  M SKILL.md        (uncommitted; not authored by this seat; adds the resume-gate-battery-r86 row at worktree line 5920 and the --selftest note on the hibernate-resume row; saved as skill-uncommitted.diff, 22 lines)
+tools/ and corpus/ and SCORECARD.md at the worktree are identical to 1e1caabc (no tracked diff), so the gates read the tip content.

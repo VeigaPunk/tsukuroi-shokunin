@@ -1,0 +1,11 @@
+--- a/check-hibernate-resume.py
++++ b/M16.py
+@@ -158,7 +158,7 @@
+ def gate(f):
+     cmdline = validate(f)
+     found = availability(cmdline, f["lockdown"])
+-    if not arg(cmdline, "resume="):  # absent, or empty: resume_file stays "" and find_resume_device fails
++    if not arg(cmdline, "resume"):  # absent, or empty: resume_file stays "" and find_resume_device fails
+         return sorted(found | {"HR-NO-RESUME-ARG"})
+     o = resume_offset(cmdline)
+     if f["resume_swapfile"] is not None:

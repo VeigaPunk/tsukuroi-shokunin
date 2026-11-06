@@ -3849,3 +3849,37 @@ and the S336 anchor extension, lesson `corpus/lessons/round-85.md` (Gate 3 admit
 120–122, `tools/check-nonauthor-label-r85.py`, r84 entry header and wording repairs, registry rows. Measured at the
 tip: C2 20/20 ×3, all controls unmet, gate `--live` HEALTHY, knowledge-header gate rc 0, census selftest 218/218.
 Outcome in `SCORECARD.md` "Round 85 — measured outcome".
+
+## Round 86 — hibernation boot-option parse (2026-11-06, TsukuroiR86)
+
+Motivating evidence: the round-85 closure routed five defects (`corpus/lessons/round-85-verifier-spotcheck.md` §5);
+defect 4 is a live false HEALTHY — the gate matched `noresume`/`nohibernate` as whole tokens, while Linux v7.2
+`obsolete_checksetup` (init/main.c raw 201-228) runs the handler for any token that starts with the option and the
+handlers ignore the value, so `noresume=1` stops resume and the gate said HEALTHY; an empty `resume=` likewise.
+
+**Freeze `2f67de80`.** `tools/resume-gate-battery-r86.py` (sha256 `a49a18aa…fbc21`): the r85 battery plus ten
+families (NORESUME-VALUED, NOHIB-VALUED, EMPTY-RESUME, OFFSET-DUP, OFFSET-SSCANF, HIBERNATE-NOX, SWAP-BOUNDARY,
+MULTI-SWAP, BOOL-FOR-INT, DECOYS-R86), 30 total, `--selftest`. Controls at freeze, 3 runs each: K1 r85 gate 26/30;
+near-miss N01–N12 (candidate draft minus one property) 26–29/30, each failing exactly its family; r85 forgers,
+mutants and controls 0–25/30. Pinned v7.2 `init/main.c`, `kernel/params.c`, `kernel/power/hibernate.c` (= r85 pin),
+`kernel/power/main.c`, `lib/vsprintf.c`.
+
+**Candidate `dc884949`.** `matches()` (prefix, `-`=`_`), value-blind `noresume`/`nohibernate`, last-wins `resume=`
+with empty = absent, sscanf-style `resume_offset=`; `--selftest` 13 fixtures. **Entry `1e1caabc`.** BP1–BP8,
+S346–S349, r85 entry Limits repointed.
+
+**Wave w1** (14 seats: scout 3, executor 3, mutation-tester 2, critic 2, reviewer 2, scribe 1, connector 1; attack
+6/14). Integrated: ExecReplicate 30/30 ×3 clean-room and every control to the family; MutGate 22/24 killed (M19
+survivor, M06EQ equivalent); MutBattery every round-86 family load-bearing; CriticClaims f4-shortcut 30/30
+(lesson M2, routed R86-R3), N01–N12 sentences 12/12; CriticKernel six divergences outside the frozen families
+(routed R86-R1/R2); ReviewGate no defect; ReviewEntry BP7/BP8 partial → reworded; ScoutPrefix no `__setup`
+collision in 758 registrations; ExecSelftests `nonauthor-label --selftest` landed, battery selftest D1/D2 routed
+(R86-R4); ExecLints registry gap closed at landing; ScribeLesson M1 and QUALITY 123 landed.
+
+**Landing `b96dc4be`.** Measured at the tip: C1 30/30 ×3, K1 26/30, f4-shortcut 30/30, three selftests PASS,
+`--live` HEALTHY, header gate 102/102, registry 136/136, census rc 0 (rows 349). Outcome in `SCORECARD.md`
+"Round 86 — measured outcome".
+
+Host incident (round 86): wave seat ScoutHost's `sudo objcopy --dump-section` rewrote both UKIs in `/boot/EFI/Linux/`
+(5 PE header bytes each); the `/boot/limine.conf` BLAKE2b pins no longer match (L1 re-check read-only with `b2sum`).
+Not repaired by the lane (operator-owned boot chain); L0 question filed; lesson round-86 M3.

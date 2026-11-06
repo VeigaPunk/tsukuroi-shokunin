@@ -1,0 +1,57 @@
+Line pins — numbered grep over .ufo/waves/round-86/before/src/ (round 86 w1, ReviewEntry, 2026-11-06)
+
+init_main.c (S346):
+  201 static bool __init obsolete_checksetup(char *line)
+  208 int n = strlen(p->str);
+  209 if (parameqn(line, p->str, n)) {
+  215 if (line[n] == '\0' || line[n] == '=')          # inside if (p->early) at 210
+  221 } else if (p->setup_func(line + n))
+  227 return had_early_param;   228 }
+  462 /* Change NUL term back to "=", to make "param" the whole string. */
+  463 static void __init repair_env_string(char *param, char *val)   (body to 475: val[-1]='=', quoted branch 468-471)
+  477 /* Anything after -- gets handed straight to init. */
+  503 static int __init unknown_bootoption(char *param, char *val,
+  518 repair_env_string(param, val);
+  527 if (obsolete_checksetup(param))   528 return 0;
+
+kernel_params.c (S347):
+  79 static char dash2underscore(char c)   81 if (c == '-')   82 return '_';
+  86 bool parameqn(const char *a, const char *b, size_t n)
+  91 if (dash2underscore(a[i]) != dash2underscore(b[i]))   92 return false;   94 return true;
+
+kernel_power_hibernate.c (S343):
+  46 static char resume_file[256] = CONFIG_PM_STD_PARTITION;
+  982 static int __init find_resume_device(void)   984 if (!strlen(resume_file))   985 return -ENOENT;
+  1106 static int __init software_resume_initcall(void)
+  1109  * If the user said "noresume".. bail out early.
+  1111 if (noresume || !hibernation_available())   1112 return 0;
+  1402 static int __init resume_setup(char *str)   1404 if (noresume)   1405 return 1;   1407 strscpy(resume_file, str);   (to 1409)
+  1411 static int __init resume_offset_setup(char *str)   1418 if (sscanf(str, "%llu", &offset) == 1)   1419 swsusp_resume_block = offset;   (to 1422)
+  1440 static int __init noresume_setup(char *str)   1442 noresume = 1;   1443 return 1;   (to 1444)
+  1461 static int __init nohibernate_setup(char *str)   1463 noresume = 1;   1464 nohibernate = 1;   (return 1; 1466, } 1467 — outside cited 1461-1465, F4)
+  1518 __setup("noresume", noresume_setup);
+  1519 __setup("resume_offset=", resume_offset_setup);
+  1520 __setup("resume=", resume_setup);
+  1524 __setup("nohibernate", nohibernate_setup);
+
+lib_vsprintf.c (S348):
+  3659 str = skip_spaces(str);   3661 digit = *str;
+  3662 if (is_sign && digit == '-') {
+  3671 || (base == 10 && !isdigit(digit))
+  3674 break;                                       # one line PAST cited 3662-3673 (F1)
+  3675+ val.u = simple_strntoull(str, &next, base, ...)  # outside cited range (F1)
+
+kernel_power_main.c (S349):
+  762 if (hibernation_available())
+  763 count += sysfs_emit_at(buf, count, "disk ");   # r85-entry repoint quote exact at 762-763
+
+Gate tools/check-hibernate-resume.py:
+  105-108 matches(): prefix + '-'->'_' both sides (mirrors obsolete_checksetup/parameqn)
+  113-117 availability loop over cmdline.split() — order-insensitive for noresume/nohibernate
+  137-143 arg(): last matching token wins
+  161-162 if not arg(cmdline, "resume="):  # absent, or empty ... return ... "HR-NO-RESUME-ARG"
+  no quote/`--`/bootconfig handling anywhere (Limits "not modelled" true)
+
+Battery tools/resume-gate-battery-r86.py:
+  224 NORESUME-VALUED expects ["HR-NORESUME-ARG"]; 227 EMPTY-RESUME(last) expects ["HR-NO-RESUME-ARG"]
+  357-358 EMPTY-RESUME family; 361+ OFFSET-DUP (wrong offset after right -> HR-OFFSET-MISMATCH)

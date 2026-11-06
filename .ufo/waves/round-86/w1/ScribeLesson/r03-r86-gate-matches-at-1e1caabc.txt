@@ -1,0 +1,26 @@
+# receipt r03 — r86 gate prefix match at the entry commit 1e1caabc (working tree = commit for tools/)
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse master
+1e1caabcdd740a6429dd31d7aba3b725ff8c677d
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 1e1caabc:tools/check-hibernate-resume.py | sha256sum
+8123d033c0ccf8e3c6bdbdd1f1bb392125d661084731a324794501239ea3f024  -
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 1e1caabc:tools/check-hibernate-resume.py | sed -n '105,108p'
+def matches(tok, setup):
+    """obsolete_checksetup: the first len(setup) characters equal setup, '-' read as '_' (parameqn)."""
+    n = len(setup)
+    return len(tok) >= n and tok[:n].replace("-", "_") == setup.replace("-", "_")
+rc=0
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 1e1caabc:tools/check-hibernate-resume.py | sed -n '112,122p'
+    """Findings of hibernation_available() and the noresume switch, parsed as the kernel does."""
+    disabled = noresume = False
+    for tok in cmdline.split():
+        if matches(tok, "nohibernate"):
+            disabled = True  # nohibernate_setup ignores its argument
+        elif matches(tok, "noresume"):
+            noresume = True  # noresume_setup ignores its argument
+        elif matches(tok, "hibernate="):
+            v = tok[len("hibernate="):]
+            if v.startswith("noresume"):
+                noresume = True
+rc=0

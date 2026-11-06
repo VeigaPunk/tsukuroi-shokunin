@@ -1,0 +1,18 @@
+# receipt r07 — registry finding at the entry commit, read from the wave seat's output (not re-run)
+$ cat /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-86/w1/ExecLints/registry-tip.out
+{"branch":"master","branch_tip":"1e1caabcdd740a6429dd31d7aba3b725ff8c677d","counts":{"findings":1,"missing":1,"registered":135,"rows_total":135,"tools_total":136},"findings":[{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/resume-gate-battery-r86.py"}],"revision":"1e1caabcdd740a6429dd31d7aba3b725ff8c677d","status":"FAIL"}
+rc=0
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin show 1e1caabc:SKILL.md | grep -c 'resume-gate-battery-r86'
+0
+rc=0
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin status --porcelain SKILL.md   # working tree carries the row, uncommitted
+ M SKILL.md
+rc=0
+
+$ grep -n 'resume-gate-battery-r86' /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/SKILL.md | cut -c1-90
+5917:| hibernate-resume | gate | `python3 tools/check-hibernate-resume.py --live` (or `--f
+5919:| resume-gate-battery-r85 | gate | `python3 tools/resume-gate-battery-r85.py --gate <
+5920:| resume-gate-battery-r86 | gate | `python3 tools/resume-gate-battery-r86.py --gate <
+rc=0

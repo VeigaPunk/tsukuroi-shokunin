@@ -1,0 +1,14 @@
+--- a/check-hibernate-resume.py
++++ b/M05.py
+@@ -112,9 +112,9 @@
+     """Findings of hibernation_available() and the noresume switch, parsed as the kernel does."""
+     disabled = noresume = False
+     for tok in cmdline.split():
+-        if matches(tok, "nohibernate"):
++        if tok == "nohibernate":
+             disabled = True  # nohibernate_setup ignores its argument
+-        elif matches(tok, "noresume"):
++        elif tok == "noresume":
+             noresume = True  # noresume_setup ignores its argument
+         elif matches(tok, "hibernate="):
+             v = tok[len("hibernate="):]

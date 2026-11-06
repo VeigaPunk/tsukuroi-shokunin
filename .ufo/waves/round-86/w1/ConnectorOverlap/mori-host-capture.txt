@@ -1,0 +1,23 @@
+# mori r24 host cmdline capture vs live, 2026-11-06T18:04:52-03:00
+
+```
+$ uname -r
+7.2.11-arch1-1
+$ cat /proc/cmdline
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+$ grep -c 'psi=' /proc/cmdline
+0
+$ md5sum /proc/cmdline
+ecace254fc5680e70712d46226bf7aca  /proc/cmdline
+```
+--- live md5 ---
+ecace254fc5680e70712d46226bf7aca  /proc/cmdline
+--- live cmdline ---
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs
+--- mori r54 re-read ---
+crw-r--r-- 1 root root 1, 11 Oct 26 12:08 /dev/kmsg
+$ cat /proc/sys/kernel/printk
+0	4	1	4
+$ grep -Eo 'quiet|loglevel=[0-9]+|splash' /proc/cmdline
+resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 ...  (full line read; no mce=, no hwpoison= parameter present)
+```

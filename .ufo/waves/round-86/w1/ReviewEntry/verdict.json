@@ -1,0 +1,51 @@
+{
+  "seat": "ReviewEntry",
+  "round": 86,
+  "wave": "w1",
+  "date": "2026-11-06",
+  "lane_revision": "1e1caabcdd740a6429dd31d7aba3b725ff8c677d",
+  "subject": "corpus/knowledge/hibernation-boot-parse-r86.md (+.json) BP1-BP8; round-86 edits to corpus/knowledge/hibernation-availability-r85.md",
+  "method": "grep line-pinning over pinned snapshots; sha256sum -c SHA256SUMS; host receipt comparison; git diff dc884949..1e1caabc for the r85 entry",
+  "snapshot_integrity": {
+    "sha256sum_c": "5 files OK, rc=0",
+    "sources_row_hashes_match_SHA256SUMS": true,
+    "s343_identical_to_r85_pin": "ae3dbeb6ae682c3e03b750d45138aa5644a2db04cfc21c70c59446dad0af86c1"
+  },
+  "rows": [
+    {"id": "BP1", "verdict": "supports", "cited": "S346 201-228", "actual": "obsolete_checksetup 201-228; quote at 208-209; line+n pass at 221; early-only line[n] test at 215"},
+    {"id": "BP2", "verdict": "supports", "cited": "S347 79-95", "actual": "dash2underscore 79-84, parameqn 86-95, quote at 91-92 in range; resume_offset= registered with '_' at S343 1519"},
+    {"id": "BP3", "verdict": "supports", "cited": "S346 503-532", "actual": "unknown_bootoption 503, repair_env_string call 518, obsolete_checksetup call 527-528; rejoin semantics at 463-475"},
+    {"id": "BP4", "verdict": "supports", "cited": "S343 1440-1444, 1461-1465, 1518, 1524", "actual": "noresume_setup 1440-1444 exact; nohibernate_setup 1461-1465 (return 1 at 1466 outside, harmless); bare __setup at 1518 and 1524; noresum shorter than option does not match"},
+    {"id": "BP5", "verdict": "supports", "cited": "S343 1402-1409", "actual": "resume_setup exact function; noresume bail 1404-1405; strscpy 1407; last-wins matches gate arg()"},
+    {"id": "BP6", "verdict": "supports", "cited": "S343 46, 982-985", "actual": "resume_file[256] = CONFIG_PM_STD_PARTITION at 46 exact; find_resume_device 982-985 exact, -ENOENT before lookup; host CONFIG_PM_STD_PARTITION=\"\" and CONFIG_HIBERNATION=y"},
+    {"id": "BP7", "verdict": "partial", "cited": "S343 1411-1422; S348 3662-3673", "actual": "resume_offset_setup exact 1411-1422 (sscanf 1418-1419); 3662 is_sign-guarded minus, 3671 base-10 isdigit; BUT break at 3674 is outside the window and the 4096k-reads-4096 half rests on the simple_strntoull dispatch at 3675+ (outside; kstrtox semantics unpinned)", "finding": "F1: extend range to 3662-3680 or add the stop-at-first-non-digit clause"},
+    {"id": "BP8", "verdict": "partial", "cited": "S343 1402-1405, 1106-1112", "actual": "both mechanisms exact and supported (resume_setup early return; initcall bail with verbatim quote at 1109); BUT the lead 'Token order matters only through noresume' overclaims: same-option last-token-wins is order too (BP5/BP7, battery OFFSET-DUP) and the gate models that order; gate is order-insensitive only for noresume placement", "finding": "F2: reword to cross-token-suppression scoping"}
+  ],
+  "header_checks": {
+    "source_line": "S343/S346/S347/S348 all mined tier A in SOURCES rows 354/357/358/359; S349 correctly uncited by BP rows (used by repointed r85 entry)",
+    "recheck_line": "command + 30d cadence + kernel-update/cmdline triggers, well-formed",
+    "verified_at": "2026-11-06 current",
+    "host_capture": "timestamp 2026-11-06T17:55:05-03:00 equals receipt line 1",
+    "gate_battery_files_exist": true,
+    "lesson_gate_exists": "corpus/lessons/round-86.md ## Gate line 21; its line pins agree with this review"
+  },
+  "host_values_match_receipt": true,
+  "md_json_agree": true,
+  "limits_spot_checks": "link-order first-true-wins (221-222); gate unmodeled quoted values (split-only tokenizer), post--- tokens (init_main.c 477), bootconfig: all true",
+  "r85_entry_diff": {
+    "verdict": "accurate",
+    "hunks": [
+      "source line adds S346+S349: both pinned round 86, checksums OK",
+      "prefix paragraph repointed to S346 raw 201-228: exact",
+      "HR-NO-RESUME-ARG fix claim: gate 161-162 fires on absent-or-empty resume=; battery EMPTY-RESUME expects it; S349 762-763 quote exact"
+    ],
+    "json_twin_stale": false
+  },
+  "findings": [
+    {"id": "F1", "severity": "low", "where": "hibernation-boot-parse-r86.md BP7 / .json raw_lines", "issue": "S348 window 3662-3673 omits break at 3674 and the simple_strntoull dispatch 3675+ backing the 4096k half", "patch": "cite 3662-3680 or add stop-at-first-non-digit clause"},
+    {"id": "F2", "severity": "low", "where": "hibernation-boot-parse-r86.md BP8 statement", "issue": "'Token order matters only through noresume' overclaims; last-token-wins is also order (BP5/BP7, OFFSET-DUP) and the gate models it", "patch": "reword to cross-token-suppression scoping as proposed in ReviewEntry.md"},
+    {"id": "F3", "severity": "info", "where": "entry header quote-fidelity sentence", "issue": "BP1/BP2/BP4/BP5/BP7 quotes are whitespace-normalized multi-line joins, not single verbatim lines nor the sanctioned ellipsis-join form", "patch": "reword header to whitespace-normalized joins, or reformat quotes as ellipsis-joins"},
+    {"id": "F4", "severity": "info", "where": "BP4 second range 1461-1465", "issue": "stops before return 1; (1466) of nohibernate_setup; all flag-setting lines inside", "patch": "optional: 1461-1466"}
+  ],
+  "overall": "C2 entry supported as exploratory depth candidate: 7 supports, 2 low-severity partials (BP7, BP8), 0 does-not-support; header, host values, md/json agreement, snapshot integrity and r85 repoint all verified. Findings F1-F4 are editorial; L1 decides. Nothing blocks C2."
+}

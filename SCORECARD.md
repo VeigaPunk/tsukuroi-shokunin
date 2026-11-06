@@ -7331,3 +7331,17 @@ C1 and C2 are causally separable: the battery reads only the gate; the entry is 
 Operability stays 9 (a corrected runnable arm, no ordinal move); depth stays 8 unless the closure endorses one.
 Uncredited repairs this round: `--selftest` for `hibernate-resume`, `nonauthor-label` and the r86 battery (routed 1;
 the r85 battery is retired as a probe superseded by r86); K1 r85 stated as the range 0–1/20 (routed 3).
+
+## Round 86 — measured outcome (measured at `b96dc4beb8b826dab80ff07411b07c549c7a1b17`; C1 target met with partial discrimination, C2 exploratory pending the closure)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured, sourced S346–S348) | operability 9 → 9 | `python3 tools/resume-gate-battery-r86.py --gate tools/check-hibernate-resume.py`: do-nothing K1 (r85 gate) 26/30 ×3 at the freeze `2f67de80` → candidate 30/30 `met` rc 0 in three consecutive runs at the landed tip (`.ufo/waves/round-86/after/measured-at-landing.txt`, `after/runs/cand-run{1,2,3}.json`); battery bytes `a49a18aa…fbc21` equal the freeze manifest; gate bytes unchanged since the candidate commit `dc884949` (`git diff --stat` empty); K1 re-run at the tip 26/30 | 30/30 ×3 | **met** by the frozen predicate and kill rule. Discrimination is partial and reported, not smoothed: wave seat CriticClaims' near-miss gate `w1/CriticClaims/forgers/f4-shortcut.py` (r85 gate plus four patches, two of them rule-violating shortcuts) also reads 30/30 (2 of 2 in the wave, 1 of 1 at the landed tip), so 30/30 does not certify two clauses of the predicate sentence: a suffixed `noresume…`/`nohibernate…` token with chain faults, and a skipped non-digit offset on a faulty base. The candidate answers both by the rule set (`w1/CriticClaims/counter/transcript.txt`). The twelve certified properties (N01–N12) hold (CriticClaims §4: 12/12). Lesson M2, routed R86-R3. |
+| C2 (exploratory, sourced S346–S348 + S343) | depth 8 → 8 | none (exploratory); entry `corpus/knowledge/hibernation-boot-parse-r86.md` + `.json`, rows BP1–BP8; lane seat ReviewEntry (advisory; a wave seat is the lane): 6 supports, 2 partial (BP7 citation window, BP8 "only"), both reworded at landing `b96dc4be`; ScoutPrefix whole-tree sweep (758 registrations, no first-match collision) discharges the entry's open Limits sentence | non-author `unprovable-but-better` with reasons | pending the hyaku closure |
+
+Uncredited repairs at `b96dc4be`: `--selftest` on `hibernate-resume` (13 fixtures), `resume-gate-battery-r86` (4 cases) and
+`nonauthor-label` (8 cases, three mutants fail it: `w1/ExecSelftests/receipts/02-*`) — r85 routed defect 1; r85 battery
+registry row states K1 0-1/20 (routed 3) and is retired to HISTORY ONLY; r85 entry Limits repointed to pinned S346/S349
+(routed 5); `check-registry-coverage.py --revision b96dc4be` PASS 136/136; `check-knowledge-header.py` PASS 102/102;
+sources census rc 0, rows 345 → 349, 52 W04 both ends, no E code. Axes now: depth8, coverage9, operability9,
+freshness9, calibration9, adjacency8 (unchanged). No capability row enters. No retirement. No axis harmed.

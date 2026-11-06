@@ -1,0 +1,15 @@
+--- a/check-hibernate-resume.py
++++ b/M12.py
+@@ -149,9 +149,10 @@
+     for tok in cmdline.split():
+         if matches(tok, "resume_offset="):
+             rest = tok[len("resume_offset="):]
+-            digits = len(rest) - len(rest.lstrip("0123456789"))
++            body = rest[1:] if rest[:1] in "+-" else rest
++            digits = len(body) - len(body.lstrip("0123456789"))
+             if digits:
+-                val = int(rest[:digits])
++                val = int(body[:digits])
+     return val
+ 
+ 

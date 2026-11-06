@@ -1,0 +1,89 @@
+--- a/tools/check-hibernate-resume.py
++++ b/tools/check-hibernate-resume.py
+@@ -102,6 +102,49 @@
+     return next(w[1:-1] for w in lockdown.split() if len(w) > 2 and w[0] == "[" and w[-1] == "]")
+ 
+ 
++def tokens(cmdline):
++    """Boot words as next_arg() (lib/cmdline.c v7.2 raw 237-284) + repair_env_string()
++    (init/main.c raw 463-476) deliver them: quotes stripped, `name=value` rejoined, and
++    parse_args() (kernel/params.c raw 182-183) stops at a bare `--`, so everything after it
++    goes to init and never reaches obsolete_checksetup."""
++    out, i, n = [], 0, len(cmdline)
++    while i < n:
++        while i < n and cmdline[i].isspace():
++            i += 1
++        if i >= n:
++            break
++        in_quote = quoted = 0
++        if cmdline[i] == '"':
++            i += 1
++            in_quote = quoted = 1
++        start = i
++        equals = 0
++        while i < n:
++            c = cmdline[i]
++            if c.isspace() and not in_quote:
++                break
++            if equals == 0 and c == '=':
++                equals = i
++            if c == '"':
++                in_quote = not in_quote
++            i += 1
++        word = cmdline[start:i]
++        if word == "--":
++            break
++        if equals:
++            k = equals - start
++            name, val = word[:k], word[k + 1:]
++            if val.startswith('"'):
++                val = val[1:]
++                if word.endswith('"'):
++                    val = val[:-1]
++            word = name + "=" + val
++        elif quoted and word.endswith('"'):
++            word = word[:-1]
++        out.append(word)
++    return out
++
++
+ def matches(tok, setup):
+     """obsolete_checksetup: the first len(setup) characters equal setup, '-' read as '_' (parameqn)."""
+     n = len(setup)
+@@ -111,7 +154,7 @@
+ def availability(cmdline, lockdown):
+     """Findings of hibernation_available() and the noresume switch, parsed as the kernel does."""
+     disabled = noresume = False
+-    for tok in cmdline.split():
++    for tok in tokens(cmdline):
+         if matches(tok, "nohibernate"):
+             disabled = True  # nohibernate_setup ignores its argument
+         elif matches(tok, "noresume"):
+@@ -137,7 +180,7 @@
+ def arg(cmdline, setup):
+     """Rest of the last token matching setup (each matching token overwrites; the kernel keeps the last)."""
+     val = None
+-    for tok in cmdline.split():
++    for tok in tokens(cmdline):
+         if matches(tok, setup):
+             val = tok[len(setup):]
+     return val
+@@ -146,7 +189,7 @@
+ def resume_offset(cmdline):
+     """resume_offset_setup: sscanf("%llu") needs a leading decimal digit; otherwise the value is kept."""
+     val = None
+-    for tok in cmdline.split():
++    for tok in tokens(cmdline):
+         if matches(tok, "resume_offset="):
+             rest = tok[len("resume_offset="):]
+             digits = len(rest) - len(rest.lstrip("0123456789"))
+@@ -227,6 +270,9 @@
+     ("empty-resume-last", "resume=/dev/mapper/root resume_offset=4096 resume=", {}, 1, ["HR-NO-RESUME-ARG"]),
+     ("offset-nondigit-skipped", "resume=/dev/mapper/root resume_offset=4096 resume_offset=abc", {}, 0, []),
+     ("offset-dash-digit-prefix", "resume=/dev/mapper/root resume-offset=4096k", {}, 0, []),
++    ("quoted-empty-resume", 'resume="" resume_offset=4096', {}, 1, ["HR-NO-RESUME-ARG"]),
++    ("quoted-device", 'resume="/dev/mapper/root" resume_offset=4096', {}, 0, []),
++    ("dashes-post-resume", "quiet -- resume=/dev/mapper/root resume_offset=4096", {}, 1, ["HR-NO-RESUME-ARG"]),
+     ("offset-last-wins", "resume=/dev/mapper/root resume_offset=4096 resume_offset=8192", {}, 1,
+      ["HR-OFFSET-MISMATCH", "HR-SYSFS-OFFSET-MISMATCH"]),
+     ("decoys", "noresum no_resume xnoresume nohibernat resume=/dev/mapper/root resume_offset=4096", {}, 0, []),

@@ -1,0 +1,18 @@
+--- a/check-hibernate-resume.py
++++ b/M13.py
+@@ -118,12 +118,12 @@
+             noresume = True  # noresume_setup ignores its argument
+         elif matches(tok, "hibernate="):
+             v = tok[len("hibernate="):]
+-            if v.startswith("noresume"):
++            if v.startswith("no"):
++                disabled = True
++            elif v.startswith("noresume"):
+                 noresume = True
+             elif v.startswith("nocompress"):
+                 pass
+-            elif v.startswith("no"):
+-                disabled = True
+     found = set()
+     if disabled:
+         found.add("HR-HIBERNATE-DISABLED")
