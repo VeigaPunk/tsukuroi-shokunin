@@ -1,0 +1,8048 @@
+{
+ "families_passed": 13,
+ "families_total": 20,
+ "target": 20,
+ "verdict": "unmet",
+ "failed_families": [
+  "HR-HIBERNATE-DISABLED",
+  "HR-LOCKDOWN-BLOCKS",
+  "HR-NORESUME-ARG",
+  "MALFORMED",
+  "MULTI-FAULT",
+  "PREC-NO-RESUME-ARG",
+  "PREC-NOHIB"
+ ],
+ "cases": 134,
+ "bases": [
+  "host",
+  "random0",
+  "random1",
+  "random2",
+  "random3",
+  "random4"
+ ],
+ "order_head": [
+  "HR-SYSFS-DEVICE-MISMATCH",
+  "HR-OFFSET-MISSING",
+  "HR-NO-ACTIVE-SWAP",
+  "HR-NO-ACTIVE-SWAP",
+  "HR-NO-DISK-STATE"
+ ],
+ "case_log": [
+  {
+   "base": "host",
+   "family": "HR-SYSFS-DEVICE-MISMATCH",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:16",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 0,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "HR-OFFSET-MISSING",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "order": 1,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "HR-NO-ACTIVE-SWAP",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "order": 2,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "HR-NO-ACTIVE-SWAP",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "order": 3,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "HR-NO-DISK-STATE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "order": 4,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "HR-OFFSET-MISMATCH",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795648,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 5,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "HR-HOOK-BEFORE-ENCRYPT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "resume",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "order": 6,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "HR-OFFSET-MISSING",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "order": 7,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "PREC-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:243",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "resume",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "suppressed": [
+    "HR-SYSFS-DEVICE-MISMATCH",
+    "HR-HOOK-BEFORE-ENCRYPT",
+    "HR-NO-DISK-STATE"
+   ],
+   "order": 8,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random4",
+   "family": "PREC-DECOYS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash hibernate=nocompress hibernate.compressor=lz4 xexfb.noresume=1 resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 9,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "HR-NO-DISK-STATE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "freeze",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "order": 10,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "HR-NO-RESUME-HOOK",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "order": 11,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:31",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "mem",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 31755931963,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-DISK-STATE",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 12,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random4",
+   "family": "PREC-NOHIB",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "noresume quiet rw yhabez=14 nohibernate splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 13,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random1",
+   "family": "PREC-DECOYS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 rlmey.noresume=1 hibernate=nocompress apznx.nohibernate=1 splash rw root=/dev/sdc1 resumewait quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 14,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "HR-NORESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet noresume rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NORESUME-ARG"
+    ]
+   ],
+   "order": 15,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "PREC-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "--------------",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 18607236937,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "resume",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "suppressed": [
+    "HR-SWAP-TOO-SMALL",
+    "HR-SWAPFILE-COW",
+    "HR-HOOK-BEFORE-ENCRYPT"
+   ],
+   "order": 16,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random1",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:225",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 46816328356,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "none [integrity] confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-DISK-STATE",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 17,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random2",
+   "family": "HR-SWAPFILE-COW",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "-------------",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "order": 18,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590778,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19591101,
+    "sys_power_state": "freeze",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none [integrity] confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-DISK-STATE",
+     "HR-NO-RESUME-HOOK",
+     "HR-OFFSET-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 19,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE",
+     "HR-NO-RESUME-HOOK",
+     "HR-OFFSET-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random2",
+   "family": "HR-SWAP-TOO-SMALL",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 19649056875,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "order": 20,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "HR-HIBERNATE-DISABLED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw hibernate=no root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 21,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "HR-NO-ACTIVE-SWAP",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "order": 22,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/0",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "schema-v0",
+   "order": 23,
+   "got": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "HR-SWAP-TOO-SMALL",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 46587936207,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "order": 24,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/0",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "schema-v0",
+   "order": 25,
+   "got": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "HR-SWAPFILE-COW",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "----------------------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "order": 26,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "MALFORMED",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "none integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "lockdown-unbracketed",
+   "order": 27,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "HR-HOOK-BEFORE-ENCRYPT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "resume",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "order": 28,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash hibernate=no quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3342091,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "resume",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED",
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-NO-DISK-STATE",
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 29,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-NO-DISK-STATE",
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random2",
+   "family": "HR-OFFSET-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647844,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 30,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "HR-OFFSET-MISSING",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "order": 31,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "PREC-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647874,
+    "sys_power_state": "freeze",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 19322779627,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "suppressed": [
+    "HR-SWAP-TOO-SMALL",
+    "HR-NO-DISK-STATE",
+    "HR-SYSFS-OFFSET-MISMATCH"
+   ],
+   "order": 32,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random1",
+   "family": "HR-OFFSET-MISSING",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "order": 33,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "PREC-NOHIB",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root nohibernate resume_offset=3795013 noresume quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 34,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "host",
+   "family": "HR-NO-RESUME-ARG",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "order": 35,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] [integrity] confidentiality"
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "lockdown-two-brackets",
+   "order": 36,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "HR-NO-DISK-STATE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "mem",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "order": 37,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "HR-SYSFS-OFFSET-MISMATCH",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795542,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 38,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "HR-NORESUME-ARG",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false hibernate=noresume rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NORESUME-ARG"
+    ]
+   ],
+   "order": 39,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random2",
+   "family": "HR-NO-ACTIVE-SWAP",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "order": 40,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "POSITIVE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 41,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "HR-HIBERNATE-DISABLED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp nohibernate",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 42,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1 hibernate=noresume",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78739626,
+    "swapfile_attrs": "--------------",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "freeze",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE",
+     "HR-NO-RESUME-HOOK",
+     "HR-NORESUME-ARG",
+     "HR-OFFSET-MISMATCH",
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "order": 43,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE",
+     "HR-NO-RESUME-HOOK",
+     "HR-OFFSET-MISMATCH",
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "host",
+   "family": "PREC-DECOYS",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "hibernate=nocompress npgwx.nohibernate=1 resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 hibernate.compressor=lz4 rootflags=subvol=@ rw rootfstype=btrfs resumewait",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 44,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "HR-HIBERNATE-DISABLED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 hibernate=no splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 45,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "host",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "resume",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "none integrity [confidentiality]",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "order": 46,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random4",
+   "family": "HR-HOOK-BEFORE-ENCRYPT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "resume",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "order": 47,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:232",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "freeze",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "none [integrity] confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-DISK-STATE",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 48,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random1",
+   "family": "HR-NORESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94 hibernate=noresume",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NORESUME-ARG"
+    ]
+   ],
+   "order": 49,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "host",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "resume",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "none integrity [confidentiality]",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795045,
+    "sys_power_state": "mem"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-DISK-STATE",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 50,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-NO-DISK-STATE",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "HR-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "order": 51,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "HR-NO-DISK-STATE",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "order": 52,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "HR-OFFSET-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78739339,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 53,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "HR-SYSFS-DEVICE-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:195",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 54,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "HR-SYSFS-DEVICE-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:240",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 55,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "PREC-NOHIB",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash hibernate=noresume resume_offset=78738767 rw quiet nohibernate cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 56,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 hibernate=noresume splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78739603,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 17740962803,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none [integrity] confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-RESUME-HOOK",
+     "HR-NORESUME-ARG",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 57,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random2",
+   "family": "HR-HOOK-BEFORE-ENCRYPT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "resume",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "order": 58,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "PREC-NOHIB",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw noresume root=/dev/sdc9 splash quiet hibernate=no",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 59,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "HR-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "order": 60,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "HR-LOCKDOWN-BLOCKS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS"
+    ]
+   ],
+   "order": 61,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random2",
+   "family": "HR-HIBERNATE-DISABLED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 nohibernate quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 62,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "host",
+   "family": "HR-NO-ACTIVE-SWAP",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": null,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": null,
+    "schema": "resume-facts/2",
+    "swapfile_attrs": null,
+    "swaps": [],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "order": 63,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none integrity confidentiality"
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "lockdown-unbracketed",
+   "order": 64,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "HR-LOCKDOWN-BLOCKS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS"
+    ]
+   ],
+   "order": 65,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random2",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:182",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "freeze mem",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 19768157414,
+    "hooks": [
+     "base",
+     "udev",
+     "resume",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none [integrity] confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-DISK-STATE",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 66,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-NO-DISK-STATE",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "HR-NO-RESUME-HOOK",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "order": 67,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "HR-NO-DISK-STATE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "order": 68,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/0",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "schema-v0",
+   "order": 69,
+   "got": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "HR-NO-RESUME-HOOK",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "order": 70,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "PREC-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash noresume root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:27",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze mem",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "resume",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG",
+     "HR-NORESUME-ARG"
+    ]
+   ],
+   "suppressed": [
+    "HR-HOOK-BEFORE-ENCRYPT",
+    "HR-SYSFS-DEVICE-MISMATCH",
+    "HR-NO-DISK-STATE"
+   ],
+   "order": 71,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random1",
+   "family": "HR-LOCKDOWN-BLOCKS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "none [integrity] confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS"
+    ]
+   ],
+   "order": 72,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "HR-SWAP-TOO-SMALL",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 21337696722,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "order": 73,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "PREC-NO-RESUME-ARG",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ nohibernate rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "----------------------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:30",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED",
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "suppressed": [
+    "HR-NO-DISK-STATE",
+    "HR-SWAPFILE-COW",
+    "HR-SYSFS-DEVICE-MISMATCH"
+   ],
+   "order": 74,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random1",
+   "family": "PREC-NOHIB",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash hibernate=noresume rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94 hibernate=no",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 75,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "host",
+   "family": "HR-NO-RESUME-HOOK",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "order": 76,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "HR-SWAPFILE-COW",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "--------------",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "order": 77,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 nohibernate zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795098,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:15",
+    "sys_power_resume_offset": 3795585,
+    "sys_power_state": "mem"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED",
+     "HR-NO-DISK-STATE",
+     "HR-OFFSET-MISMATCH",
+     "HR-SYSFS-DEVICE-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 78,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE",
+     "HR-OFFSET-MISMATCH",
+     "HR-SYSFS-DEVICE-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random4",
+   "family": "HR-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "order": 79,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash hibernate=no quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3342598,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3342292,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "resume",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none [integrity] confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED",
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-OFFSET-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 80,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-OFFSET-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "--------------",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:236",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-SWAPFILE-COW",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 81,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "HR-HIBERNATE-DISABLED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw hibernate=no quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 82,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random1",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw hibernate=noresume root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:206",
+    "sys_power_resume_offset": 19591216,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 46859093980,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none [integrity] confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-RESUME-HOOK",
+     "HR-NORESUME-ARG",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 83,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "HR-SYSFS-DEVICE-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:194",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 84,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "HR-SYSFS-OFFSET-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590871,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 85,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "HR-NO-RESUME-HOOK",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "order": 86,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "HR-NORESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw hibernate=noresume quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NORESUME-ARG"
+    ]
+   ],
+   "order": 87,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "HR-HOOK-BEFORE-ENCRYPT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "resume",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "order": 88,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1 nohibernate",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "-------------",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 19899410224,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED",
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "order": 89,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL",
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "HR-NORESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 hibernate=noresume resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NORESUME-ARG"
+    ]
+   ],
+   "order": 90,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random4",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "hibernate=noresume quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:46",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "mem",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 32243467433,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "resume",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-NO-DISK-STATE",
+     "HR-NORESUME-ARG",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 91,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT",
+     "HR-NO-DISK-STATE",
+     "HR-SWAP-TOO-SMALL",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "HR-SWAP-TOO-SMALL",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 17725730836,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "order": 92,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "HR-SWAP-TOO-SMALL",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 31641625669,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "order": 93,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "POSITIVE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 94,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "HR-LOCKDOWN-BLOCKS",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "none integrity [confidentiality]",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS"
+    ]
+   ],
+   "order": 95,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "host",
+   "family": "HR-SWAP-TOO-SMALL",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 21154843269,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "order": 96,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAP-TOO-SMALL"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "POSITIVE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 97,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "HR-SYSFS-OFFSET-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48648432,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 98,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "HR-OFFSET-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3342129,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 99,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "HR-HOOK-BEFORE-ENCRYPT",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "resume",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "order": 100,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HOOK-BEFORE-ENCRYPT"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48648268,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647837,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-OFFSET-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 101,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH",
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random4",
+   "family": "HR-NO-ACTIVE-SWAP",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "order": 102,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-ACTIVE-SWAP"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "PREC-NOHIB",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 hibernate=no quiet rw dnxryz=39 hibernate=noresume resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 103,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "HR-SWAPFILE-COW",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "--------------",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "order": 104,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "PREC-DECOYS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resumewait resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet hibernate.compressor=lzo szbdf.noresume=1 hibernate=nocompress",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 105,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "HR-SWAPFILE-COW",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------------",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "order": 106,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SWAPFILE-COW"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "POSITIVE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 107,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "PREC-DECOYS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 cwgyl.nohibernate=1 iajzr.noresume=1 resumewait hibernate.compressor=lz4 splash resume_offset=78738767 rw hibernate=nocompress quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 108,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "none integrity confidentiality"
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "lockdown-unbracketed",
+   "order": 109,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random2",
+   "family": "HR-NORESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 noresume splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NORESUME-ARG"
+    ]
+   ],
+   "order": 110,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "HR-SYSFS-OFFSET-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78739346,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 111,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": true
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "lockdown-type",
+   "order": 112,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random1",
+   "family": "HR-SYSFS-DEVICE-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:231",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 113,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "HR-OFFSET-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19591124,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 114,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "HR-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "order": 115,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "HR-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "order": 116,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random1",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "freeze mem disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "none integrity confidentiality"
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "lockdown-unbracketed",
+   "order": 117,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "HR-LOCKDOWN-BLOCKS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS"
+    ]
+   ],
+   "order": 118,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random4",
+   "family": "HR-LOCKDOWN-BLOCKS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none [integrity] confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS"
+    ]
+   ],
+   "order": 119,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random3",
+   "family": "POSITIVE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 120,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random3",
+   "family": "HR-NO-RESUME-HOOK",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 splash resume_offset=78738767 rw quiet cxrsjj=9 resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/fbjwcv/swapfile",
+      "type": "file",
+      "size_kib": 18874368,
+      "used_kib": 1597878
+     }
+    ],
+    "resume_swapfile": "/fbjwcv/swapfile",
+    "map_swapfile_offset": 78738767,
+    "swapfile_attrs": "------------C-",
+    "resume_dev_majmin": "155:182",
+    "sys_power_resume": "155:182",
+    "sys_power_resume_offset": 78738767,
+    "sys_power_state": "mem disk",
+    "sys_power_disk": "platform [shutdown] reboot",
+    "image_size": 4743336593,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "order": 121,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-HOOK"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "HR-SYSFS-OFFSET-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 resume_offset=3341793 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3342407,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "order": 122,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-OFFSET-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random4",
+   "family": "HR-SYSFS-DEVICE-MISMATCH",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:32",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": null
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 123,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "POSITIVE",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 124,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet rw dnxryz=39 resume_offset=48647596 splash resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": "base udev resume",
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "hooks-type",
+   "order": 125,
+   "got": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "HR-HIBERNATE-DISABLED",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": "resume=/dev/mapper/root resume_offset=3795013 quiet splash loglevel=0 hibernate=no systemd.show_status=false rd.udev.log_level=0 vt.global_cursor_default=0 cryptdevice=PARTUUID=cf3d875f-72a4-4468-9795-015c9e953618:root:allow-discards,no-read-workqueue,no-write-workqueue root=/dev/mapper/root zswap.enabled=1 zswap.max_pool_percent=25 rootflags=subvol=@ rw rootfstype=btrfs",
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-HIBERNATE-DISABLED"
+    ]
+   ],
+   "order": 126,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random4",
+   "family": "MULTI-FAULT",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:20",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "none integrity [confidentiality]"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-LOCKDOWN-BLOCKS",
+     "HR-NO-DISK-STATE",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "order": 127,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE",
+     "HR-SYSFS-DEVICE-MISMATCH"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random0",
+   "family": "PREC-NO-RESUME-ARG",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume_offset=3341793 pvzhxd=60 rw hibernate=noresume root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:8",
+    "sys_power_resume_offset": 3342392,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG",
+     "HR-NORESUME-ARG"
+    ]
+   ],
+   "suppressed": [
+    "HR-SYSFS-DEVICE-MISMATCH",
+    "HR-SYSFS-OFFSET-MISMATCH"
+   ],
+   "order": 128,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-RESUME-ARG"
+    ]
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random4",
+   "family": "MALFORMED",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "cmdline": "quiet rw yhabez=14 splash resume=/dev/mapper/mxdysp root=/dev/mapper/mxdysp",
+    "swaps": [
+     {
+      "path": "/dev/orfhp9",
+      "type": "partition",
+      "size_kib": 38797312,
+      "used_kib": 8069972
+     }
+    ],
+    "resume_swapfile": null,
+    "map_swapfile_offset": null,
+    "swapfile_attrs": null,
+    "resume_dev_majmin": "127:254",
+    "sys_power_resume": "127:254",
+    "sys_power_resume_offset": 0,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 12472193598,
+    "hooks": [
+     "base",
+     "udev",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "resume",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": true
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "lockdown-type",
+   "order": 129,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": false
+  },
+  {
+   "base": "random1",
+   "family": "HR-NO-DISK-STATE",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-06-01T00:00:00Z",
+    "cmdline": "resume_offset=19590587 splash rw root=/dev/sdc1 quiet resume=/dev/sdc1 gsgjyc=94",
+    "swaps": [
+     {
+      "path": "/wvjanf/swapfile",
+      "type": "file",
+      "size_kib": 52428800,
+      "used_kib": 7485178
+     }
+    ],
+    "resume_swapfile": "/wvjanf/swapfile",
+    "map_swapfile_offset": 19590587,
+    "swapfile_attrs": "-------------C-----",
+    "resume_dev_majmin": "166:204",
+    "sys_power_resume": "166:204",
+    "sys_power_resume_offset": 19590587,
+    "sys_power_state": "mem",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 35738170319,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "resume",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "order": 130,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-NO-DISK-STATE"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random2",
+   "family": "PREC-DECOYS",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "root=/dev/sda1 quiet hibernate=nocompress eelqe.noresume=1 rw npodj.nohibernate=1 dnxryz=39 resume_offset=48647596 splash hibernate.compressor=lzo resume=/dev/sda1",
+    "swaps": [
+     {
+      "path": "/hyzkor/swapfile",
+      "type": "file",
+      "size_kib": 19922944,
+      "used_kib": 1392560
+     }
+    ],
+    "resume_swapfile": "/hyzkor/swapfile",
+    "map_swapfile_offset": 48647596,
+    "swapfile_attrs": "--------C----",
+    "resume_dev_majmin": "87:167",
+    "sys_power_resume": "87:167",
+    "sys_power_resume_offset": 48647596,
+    "sys_power_state": "disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 7845563431,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "resume"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "order": 131,
+   "got": [
+    0,
+    "HEALTHY",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "host",
+   "family": "MALFORMED",
+   "facts": {
+    "captured_at": "2026-11-06T15:44:21-03:00",
+    "cmdline": 1,
+    "hooks": [
+     "base",
+     "udev",
+     "plymouth",
+     "keyboard",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keymap",
+     "consolefont",
+     "block",
+     "encrypt",
+     "filesystems",
+     "fsck",
+     "btrfs-overlayfs",
+     "resume"
+    ],
+    "image_size": 12835467264,
+    "lockdown": "[none] integrity confidentiality",
+    "map_swapfile_offset": 3795013,
+    "resume_dev_majmin": "253:0",
+    "resume_swapfile": "/swap/swapfile",
+    "schema": "resume-facts/2",
+    "swapfile_attrs": "---------------C------",
+    "swaps": [
+     {
+      "path": "/swap/swapfile",
+      "size_kib": 31722876,
+      "type": "file",
+      "used_kib": 11942400
+     }
+    ],
+    "sys_power_disk": "[platform] shutdown reboot suspend test_resume",
+    "sys_power_resume": "253:0",
+    "sys_power_resume_offset": 3795013,
+    "sys_power_state": "freeze mem disk"
+   },
+   "want": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "malformed": "cmdline-type",
+   "order": 132,
+   "got": [
+    2,
+    "CANNOT-EVALUATE",
+    []
+   ],
+   "why": "ok",
+   "passed": true
+  },
+  {
+   "base": "random0",
+   "family": "HR-OFFSET-MISSING",
+   "facts": {
+    "schema": "resume-facts/2",
+    "captured_at": "2026-08-01T00:00:00Z",
+    "cmdline": "resume=/dev/sdc9 pvzhxd=60 rw root=/dev/sdc9 splash quiet",
+    "swaps": [
+     {
+      "path": "/egjucy/swapfile",
+      "type": "file",
+      "size_kib": 22020096,
+      "used_kib": 1543104
+     }
+    ],
+    "resume_swapfile": "/egjucy/swapfile",
+    "map_swapfile_offset": 3341793,
+    "swapfile_attrs": "-----------C--",
+    "resume_dev_majmin": "43:214",
+    "sys_power_resume": "43:214",
+    "sys_power_resume_offset": 3341793,
+    "sys_power_state": "freeze disk",
+    "sys_power_disk": "[platform] shutdown reboot",
+    "image_size": 9708413809,
+    "hooks": [
+     "base",
+     "systemd",
+     "autodetect",
+     "microcode",
+     "modconf",
+     "kms",
+     "keyboard",
+     "sd-vconsole",
+     "block",
+     "sd-encrypt",
+     "filesystems",
+     "fsck"
+    ],
+    "lockdown": "[none] integrity confidentiality"
+   },
+   "want": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "order": 133,
+   "got": [
+    1,
+    "DEGRADED",
+    [
+     "HR-OFFSET-MISSING"
+    ]
+   ],
+   "why": "ok",
+   "passed": true
+  }
+ ]
+}

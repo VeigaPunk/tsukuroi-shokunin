@@ -7233,3 +7233,44 @@ rows 335 → 342 (+7 tier A: S336–S342), 52 W04 warnings both ends, no E code.
 
 Axes now: depth8, coverage9, operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row
 enters. No retirement. Not admitted: C2 does not verify. No axis harmed.
+
+## Round 85 — declaration (frozen before any candidate file is authored)
+
+Fresh-start reads (run-15 Amendment 46/47): MANIFEST `rounds[]` tsukuroi r82, r83, r84 (all `rejected-honest-stop`)
+and their non-author spot-checks `corpus/lessons/round-82-verifier-spotcheck.md`, `round-83-verifier-spotcheck.md`,
+`round-84-verifier-spotcheck.md`. Root failures: r82 a frozen target unreachable by construction; r83 a battery a
+fixture-path sniff passed in full; r84 a battery with a fixed case order and single-fault families that an
+order-replay forger (never opens its input), a signature forger and a first-fault forger each passed 13/13. This
+declaration answers r84 routed defect 3 directly: the new battery meets QUALITY 117/119 and its candidate-free
+forgers, including the three r84 forgers, were run and committed below target in this freeze commit, before the
+candidate gate exists.
+
+Surface (new ground): hibernation *availability* on this host, the precondition the r84 resume chain never read —
+the kernel's `hibernation_available()` conjunction (`nohibernate == 0 && !security_locked_down(LOCKDOWN_HIBERNATION)
+&& !secretmem_active() && !cxl_mem_active()`, Linux v7.2 `kernel/power/hibernate.c` raw 109-113), the `nohibernate`
+/ `noresume` / `hibernate=` parse (raw 1424-1465, 1518-1524; `hibernate=nocompress` is matched before the `no`
+prefix), and kernel lockdown ordering (`include/linux/security.h` raw 128-158: `LOCKDOWN_HIBERNATION` precedes
+`LOCKDOWN_INTEGRITY_MAX`, so `integrity` mode already blocks hibernation; `security/lockdown/lockdown.c` raw 65).
+`grep -rli 'lockdown_hibernation\|nohibernate\|hibernation_available' corpus/knowledge` at `3ed94533` → empty.
+Host (2026-11-06T16:48:31-03:00, `.ufo/waves/round-85/before/host/receipt.txt`): `/sys/kernel/security/lockdown`
+= `[none] integrity confidentiality`; cmdline carries none of `nohibernate`, `noresume`, `hibernate=`.
+
+Inputs pinned in this commit: upstream snapshots `.ufo/waves/round-85/before/src/` (`URLS.txt`, `SHA256SUMS`
+sha256 `af40e46d3e37c0b2381d5b41bb4eb2f2df0bdb696f6d615865cadc227135f284`; the kernel-parameters.txt snapshot is
+byte-identical to S336's r84 pin `23b1a690…340c`); host base `.ufo/waves/round-85/before/host/facts-v2.json`
+(r84 host facts with schema `resume-facts/2` and the measured lockdown string; sha256 `496156f6…79cc`); freeze
+manifest `.ufo/waves/round-85/before/freeze-manifest.sha256` (sha256 `c8bb73d5…7bcb`).
+Instrument: `tools/resume-gate-battery-r85.py` sha256 `b30a7c1ed8fca5fa9c30fb3f4b221ccae11137f688bffc47844b16f0a117ba21`.
+
+| Claim | Axis | Predicate (same sentence in the battery docstring and the receipt) | Target | Kill rule | Counting command | Do-nothing and forgery controls (committed receipts, run at freeze) |
+|---|---|---|---|---|---|---|
+| C2 (measured, sourced S343–S345) | operability 9 | `tools/check-hibernate-resume.py --facts FILE` implements the frozen resume-facts/2 rule set in the battery docstring (availability rules A1–A3 plus round-84 rules 1–8 with rule 1 no longer suppressing A1–A3): for each of 20 families (POSITIVE, MALFORMED, 14 finding IDs, MULTI-FAULT, PREC-NOHIB, PREC-DECOYS, PREC-NO-RESUME-ARG), on the committed host base and five OS-entropy random bases, with the whole case list shuffled per run, every case returns exactly the expected (rc, verdict, sorted findings) within 20 s | 20 of 20 families (`verdict: met`, rc 0) in each of three consecutive runs at the landed lane tip | unmet if any run reads below 20/20; void if the battery bytes differ from sha256 `b30a7c1e…ba21`; void if any freeze control K0–K6 reads `met` when re-run at the landed tip | `python3 tools/resume-gate-battery-r85.py --gate tools/check-hibernate-resume.py` | `.ufo/waves/round-85/before/controls/controls-receipt.txt` + `receipts/*.json`: K0 gate absent 0/20; **K1 the committed r84 gate (the do-nothing candidate) 0/20**; K2 r84 rules with the v2 schema accepted 13/20 ×3; K3a/b/c the r84 forgers f1-signature, f2-replay, f4-firstfault unchanged 0/20 each; K3d/e f1/f4 with the v2 schema 13/20 each; K4 constant-HEALTHY 2/20; K5 v2 order-replay (never opens its input) 0/20 ×3; K6 substring sniffer on K2 14/20, 14/20, 15/20 |
+| C1 (exploratory, sourced S343–S345 + S336) | depth 8 (tied lowest) | none (exploratory): a hibernation-availability entry `corpus/knowledge/hibernation-availability-r85.md` holds sourced, host-measured rows on ground no entry held (the `hibernation_available()` conjunction, the `hibernate=` prefix parse, lockdown ordering, the secretmem/CXL blockers and what this host shows for each) | named non-author `unprovable-but-better` judgment with reasons (the hyaku closure; a wave seat is the lane, LEARNING.md §Discernment) | lands `unprovable` without that judgment | none | prior state: no knowledge entry names `hibernation_available`, `nohibernate` or `LOCKDOWN_HIBERNATION` (grep above) |
+
+C2 before at the freeze: the do-nothing candidate (r84 gate, K1) reads 0/20 — it refuses the v2 schema and answers a
+v1 document as HEALTHY; the strongest candidate-free forger (K6) reads 15/20. A gate that reaches 20/20 must read the
+lockdown string, parse `hibernate=` by the kernel's prefix order, suppress `noresume` under `nohibernate`, report every
+fault of a multi-fault case, and keep availability findings when `resume=` is absent. Post-freeze mutation of the
+candidate (each rule deleted or inverted) is attack evidence in the wave, not a predicate change. Operability stays 9:
+a new runnable arm, not an ordinal move. C1 claims no ordinal uplift; depth stays 8 unless the closure endorses one.
+C1 and C2 are causally separable: the battery reads only the gate; the entry is judged on its rows and sources.
