@@ -1,0 +1,80 @@
+2026-11-06T20:53:09-03:00
+$ sudo -n find /boot -type f -print0 | sudo -n xargs -0 b2sum | sort -k2  (read-only, before)
+16
+0f6acc28a3f9f4e3448fa2e9813dc61fb13f18c5d7a0fee6c5c21774e3560028  boot-b2-before.txt
+34b864f337e34bc5a0d220176917b00284f131caecb8816ba45266b48187605a  limine.conf.copy
+2026-11-06 20:27:30.000000000 -0300 /boot/limine.conf
+
+## UKI and history b2sums (from the read-only list)
+28329122…  /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0
+822299bb…  /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8
+6c1893df…  /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8
+681843b9…  /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/snapshots.json
+37d2ac8d…  /boot/432d02b544a5459ebbff9c42ec68334d/limine_history/snapshots.json.old
+57f5eb94…  /boot/EFI/Linux/omarchy_linux.efi
+eff78d32…  /boot/EFI/Linux/omarchy_linux-lts.efi
+
+## limine.conf pin lines (copy via sudo -n cat, read-only)
+8:hash_mismatch_panic: no
+21:/+Omarchy
+25:  //linux
+30:  path: boot():/EFI/Linux/omarchy_linux.efi#b990d8c6…
+33:  //linux-lts
+38:  path: boot():/EFI/Linux/omarchy_linux-lts.efi#a68c281d…
+41:     //Snapshots
+44:     ///2026-10-20 09:29:19
+46:     ////linux
+50:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd9cf731d94e8bf079fe8#822299bb…
+52:     ////linux-lts
+56:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d820604bfedc945c4ce97a8b8#6c1893df…
+58:     ///2026-10-20 09:03:02
+60:     ////linux
+64:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d45805c8850d9bfbdef0#28329122…
+67:/EFI fallback
+72:path: boot():/EFI/BOOT/BOOTX64.EFI
+
+## effective limine-entry-tool config (ConfigReader 1.40.0 load order)
+-- /usr/share/limine-entry-tool.d: ls: cannot access '/usr/share/limine-entry-tool.d': No such file or directory
+-- /etc/limine-entry-tool.conf: /etc/limine-entry-tool.conf
+-- /etc/limine-entry-tool.d: /etc/limine-entry-tool.d
+-- /etc/default/limine: /etc/default/limine
+/etc/limine-entry-tool.conf:84:ENABLE_VERIFICATION=yes
+/etc/limine-entry-tool.conf:168:ENABLE_UKI=no
+/etc/default/limine:3:ESP_PATH="/boot"
+/etc/default/limine:8:ENABLE_UKI=yes
+ls: cannot access '/usr/share/limine-entry-tool.d': No such file or directory
+/etc/limine-entry-tool.d:
+resume.conf
+
+## installed vs upstream 1.40.0 bytes
+55b7d578fbc104f875ff0acf1093f5fab18f4e51fffb2e8110a0f58420e34ecf  /usr/bin/limine-update
+55b7d578fbc104f875ff0acf1093f5fab18f4e51fffb2e8110a0f58420e34ecf  /fast/scratch/hyaku/tsukuroi-r88/L1/src-let/limine-update
+44207b64dc87d60df2fe400072677acc56dfa1b9e749402240476212a1581f3c  /etc/limine-entry-tool.conf
+44207b64dc87d60df2fe400072677acc56dfa1b9e749402240476212a1581f3c  /fast/scratch/hyaku/tsukuroi-r88/L1/src-let/limine-entry-tool.conf
+conf: same active lines
+b2sum
+/usr/bin/b2sum is owned by coreutils 9.12-2
+
+## journal: limine writers since 2026-11-06 17:00
+2026-11-06T18:53:42-03:00 plazir27 sudo[59066]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin ; USER=root ; COMMAND=/usr/bin/grep -o omarchy_linux\\.efi#[0-9a-f]*\\|omarchy_linux-lts\\.efi#[0-9a-f]* /boo
+2026-11-06T18:54:14-03:00 plazir27 sudo[945208]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/grep -n # /boot/limine.conf
+2026-11-06T18:58:29-03:00 plazir27 sudo[3406191]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/grep -n b2sum\\|# /boot/limine.conf
+2026-11-06T19:01:44-03:00 plazir27 sudo[637799]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin ; USER=root ; COMMAND=/usr/bin/cat /boot/limine.conf
+2026-11-06T19:02:29-03:00 plazir27 sudo[854977]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/grep -n -i -E hash_mismatch|panic|^[a-z_]+: /boot/limine.conf
+2026-11-06T19:04:36-03:00 plazir27 sudo[1240032]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-87/before/host ; USER=root ; COMMAND=/usr/bin/grep -nE ^\\s*(hash_mismatch_panic|path|modu
+2026-11-06T19:04:44-03:00 plazir27 sudo[1264708]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-87/before/host ; USER=root ; COMMAND=/usr/bin/grep -nE ^\\s*(hash_mismatch_panic|path|modu
+2026-11-06T19:04:49-03:00 plazir27 sudo[1284318]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/cat /boot/limine.conf
+2026-11-06T19:05:50-03:00 plazir27 sudo[1527188]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/grep -nE 'hash_mismatch_panic|^ *(image_path|path|kernel_path|protocol).*#|#[0-9a-f]{16,}' /bo
+2026-11-06T19:05:50-03:00 plazir27 sudo[1527228]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/ls -la --time-style=full-iso /boot/EFI/Linux/ /boot/limine.conf
+2026-11-06T19:05:55-03:00 plazir27 sudo[1551887]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/stat -c '%n %y %z' /boot/limine.conf
+2026-11-06T19:06:06-03:00 plazir27 sudo[1612887]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/cat /boot/limine.conf.old
+2026-11-06T19:06:06-03:00 plazir27 sudo[1613207]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/cat /boot/limine.conf
+2026-11-06T19:06:06-03:00 plazir27 sudo[1613375]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin ; USER=root ; COMMAND=/usr/bin/stat -c '%n %y' /boot/limine.conf.old
+2026-11-06T19:13:01-03:00 plazir27 sudo[2765997]:    vgpnk : PWD=/home/vgpnk/Projects/shokunin/tsukuroi-shokunin ; USER=root ; COMMAND=/usr/bin/python3 tools/check-limine-pins.py --live
+2026-11-06T19:27:27-03:00 plazir27 limine-snapper-sync[1569483]: Updated: /boot/limine.conf
+2026-11-06T20:27:30-03:00 plazir27 limine-snapper-sync[2245020]: Updated: /boot/limine.conf
+2026-11-06T20:30:25-03:00 plazir27 sudo[3033637]:    vgpnk : PWD=/fast/scratch/hyaku/tsukuroi-r87/L1a2/lane ; USER=root ; COMMAND=/usr/bin/python3 tools/check-limine-pins.py --live
+2026-11-06T20:53:10-03:00 plazir27 sudo[2393061]:    vgpnk : PWD=/fast/scratch/hyaku/tsukuroi-r88/L1/host ; USER=root ; COMMAND=/usr/bin/cat /boot/limine.conf
+2026-11-06T20:53:10-03:00 plazir27 sudo[2393321]:    vgpnk : PWD=/fast/scratch/hyaku/tsukuroi-r88/L1/host ; USER=root ; COMMAND=/usr/bin/stat -c '%y %n' /boot/limine.conf /boot/EFI/Linux/*.efi
+boot list cmp identical before/after (0f6acc28a3f9f4e3)
+2026-11-06T20:53:36-03:00
