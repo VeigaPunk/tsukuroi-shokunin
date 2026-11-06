@@ -1,5 +1,7 @@
 # Hibernate-resume plane (round 84)
 
+source: S336, S337, S338, S339, S340, S341 (all `mined`, tier A; Gate in `corpus/lessons/round-84.md`); header lines added round 85 (r84 spot-check routed defect 1)
+recheck: `python3 tools/check-hibernate-resume.py --live`, cadence 30d and on any kernel, btrfs-progs, mkinitcpio or swap-file change
 verified-at: 2026-11-06
 host capture: `.ufo/waves/round-84/before/host/receipt.txt` (2026-11-06T15:44:21-03:00, `tools/capture-resume-facts-r84.py`, read-only)
 machine-readable rows: `corpus/knowledge/hibernate-resume-plane-r84.json` (counted by `tools/count-resume-rows-r84.py`)
@@ -64,9 +66,14 @@ The mkinitcpio `hooks/resume` and `install/resume` files are byte-identical to t
 
 ## Review record
 
-Non-author per-row review: `.ufo/waves/round-84/w1/ReviewEntry.md` and `ReviewEntry/verdict.json` (seat
+Lane-seat per-row review (advisory): `.ufo/waves/round-84/w1/ReviewEntry.md` and `ReviewEntry/verdict.json` (seat
 ReviewEntry, 8 supports, 2 partial, 0 does-not-support, claim `unprovable-but-better`) on the text at
 `c6ee78b2`. The two partials were reworded at landing: HR4 no longer asserts a mount option the receipt does
 not capture; HR9 no longer asserts which writer set `/sys/power/resume`. The reviewer's further remark that
 this initramfs is systemd-based is not adopted: the effective HOOKS (receipt :60-75) carry `base`, `udev` and
 `encrypt` and no `systemd` hook.
+
+Round-85 correction (r84 spot-check routed defect 2): seat ReviewEntry is the lane, not a non-author reviewer
+(LEARNING.md §Discernment: a subagent the lane dispatched is still the lane); this record first said otherwise.
+The non-author judgment of this entry is the hyaku closure's, `corpus/lessons/round-84-verifier-spotcheck.md`
+§2 C1 (`unprovable-but-better`).

@@ -899,3 +899,25 @@ QUALITY 119 carries the fix to the next freeze.
   17–18 million KiB within the hour (§3d); lockdown `none`, no `noresume`/`nohibernate`, one swap area and no
   zram (§3a, §3f, §3g); the swap file lives in its own subvolume `swap` (ID 262) and is absent from the snapper
   snapshot roots (§3j).
+
+### Round 85 — hibernation availability (`knowledge/hibernation-availability-r85.md`)
+
+New ground: at the pre-round tip `3ed94533`, `git grep -il 'lockdown_hibernation\|nohibernate\|hibernation_available'
+3ed94533 -- corpus/knowledge` exits 1. The entry reads the precondition the round-84 resume chain assumed: the
+kernel's `hibernation_available()` conjunction (cmdline disable, lockdown at `integrity` or above, secretmem, CXL),
+the `hibernate=` prefix parse, `noresume` against `nohibernate`, and the `/sys/power/disk` `[disabled]` witness,
+with this host's values (lockdown `none`, no disabling token, `/sys/power/disk` not disabled). Sources S343–S345
+(Linux v7.2 code, byte-identical in the cited regions at the host's 7.2.11) and S336. C1 is exploratory; its
+non-author judgment is the closure's. The gate gained three availability findings (C2); its measured outcome is
+owned by `SCORECARD.md`.
+
+### Frontier (round-85 addition)
+
+- The gate's availability rules match whole tokens; the kernel's `__setup` prefix matching also honours
+  `noresume=1`, `noresumefoo`, `nohibernate=1` (entry Limits; `.ufo/waves/round-85/w1/ReviewGate.md` L1).
+- secretmem/CXL are seen only through `/sys/power/disk`; the gate does not read it. A rule "`/sys/power/disk` is
+  `[disabled]` → DEGRADED" is the obvious next arm.
+- The r85 battery certifies a strict subset of its rule sentence: exact-token availability, first-token
+  `resume_offset=`, the `<=` headroom boundary, first-swap-only sums and a probabilistic MALFORMED kind each pass
+  20/20 (`corpus/lessons/round-85.md` M3, M4; QUALITY 122). A successor battery enumerates MALFORMED kinds and
+  carries one near-miss control per asserted property.

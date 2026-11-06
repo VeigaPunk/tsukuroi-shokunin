@@ -1,0 +1,74 @@
+[
+ {
+  "id": "HA1",
+  "statement": "hibernation_available() is a four-way conjunction: hibernation not disabled on the command line, lockdown not covering LOCKDOWN_HIBERNATION, no live secretmem, no active CXL memory.",
+  "source": "S343",
+  "raw_lines": "109-113",
+  "quote": "return nohibernate == 0 && !security_locked_down(LOCKDOWN_HIBERNATION) && !secretmem_active() && !cxl_mem_active();",
+  "host_value": null
+ },
+ {
+  "id": "HA2",
+  "statement": "hibernate(), the resume initcall and the /sys/power/disk and /sys/power/resume stores all check hibernation_available().",
+  "source": "S343",
+  "raw_lines": "766-769, 1111, 1211-1212, 1269-1270",
+  "quote": "if (!hibernation_available()) { pm_pr_dbg(\"Hibernation not available.\\n\"); return -EPERM;",
+  "host_value": null
+ },
+ {
+  "id": "HA3",
+  "statement": "nohibernate sets both noresume and nohibernate: it disables hibernation and resume.",
+  "source": "S343; S336",
+  "raw_lines": "1461-1465; 4479",
+  "quote": "noresume = 1; nohibernate = 1;",
+  "host_value": "token absent"
+ },
+ {
+  "id": "HA4",
+  "statement": "hibernate= tests its value by prefix in the order noresume, nocompress, no, protect_image: hibernate=nocompress only stops compression; any other value starting no disables hibernation and resume.",
+  "source": "S343; S336",
+  "raw_lines": "1424-1438; 1962-1969",
+  "quote": "if (!strncmp(str, \"noresume\", 8)) { noresume = 1; } else if (!strncmp(str, \"nocompress\", 10)) { nocompress = 1; } else if (!strncmp(str, \"no\", 2))",
+  "host_value": "no hibernate= token"
+ },
+ {
+  "id": "HA5",
+  "statement": "noresume sets only noresume: hibernation stays available but the resume initcall bails out, so the last image is not read at boot.",
+  "source": "S343; S336",
+  "raw_lines": "1440-1444, 1106-1112; 4593",
+  "quote": "If the user said \"noresume\".. bail out early.",
+  "host_value": "token absent"
+ },
+ {
+  "id": "HA6",
+  "statement": "LOCKDOWN_HIBERNATION precedes LOCKDOWN_INTEGRITY_MAX, integrity is level LOCKDOWN_INTEGRITY_MAX, and a reason is refused when kernel_locked_down >= what: integrity lockdown already blocks hibernation.",
+  "source": "S344; S345",
+  "raw_lines": "104-110, 128-149; 20-22, 65-70",
+  "quote": "Lockdown reasons that protect kernel integrity (ie, the ability for userland to modify kernel code) are placed before LOCKDOWN_INTEGRITY_MAX.",
+  "host_value": null
+ },
+ {
+  "id": "HA7",
+  "statement": "This host's kernel lockdown level is none.",
+  "source": "host",
+  "raw_lines": ".ufo/waves/round-85/before/host/receipt.txt ### /sys/kernel/security/lockdown",
+  "quote": null,
+  "host_value": "[none] integrity confidentiality"
+ },
+ {
+  "id": "HA8",
+  "statement": "secretmem and CXL blockers are not in the gate's facts; /sys/power/disk prints [disabled] whenever hibernation_available() is false at read time.",
+  "source": "S343",
+  "raw_lines": "1162-1169",
+  "quote": "if (!hibernation_available()) return sysfs_emit(buf, \"[disabled]\\n\");",
+  "host_value": "[platform] shutdown reboot suspend test_resume; CONFIG_SECRETMEM=y, 0 secretmem mappings (root scan of /proc/*/maps); CONFIG_CXL_MEM=m, no CXL module/device/iomem range"
+ },
+ {
+  "id": "HA9",
+  "statement": "lockdown= takes integrity or confidentiality; the effective level is the bracketed word of /sys/kernel/security/lockdown.",
+  "source": "S336",
+  "raw_lines": "3538-3545",
+  "quote": "Enable the kernel lockdown feature. If set to integrity, kernel features that allow userland to modify the running kernel are disabled.",
+  "host_value": "no lockdown= token"
+ }
+]
