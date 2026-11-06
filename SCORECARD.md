@@ -7287,3 +7287,47 @@ defects 1–2); `tools/check-knowledge-header.py --revision ffae885f` rc 0 (101/
 PASS 135/135; `tools/tsukuroi-census.sh --selftest` PASS 218/218 (no harm); sources census exit 0, rows 342 → 345.
 Axes now: depth8, coverage9, operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row enters.
 No retirement. No axis harmed.
+
+## Round 86 — declaration (frozen before the candidate gate is scored)
+
+Inputs read first: round-85 closure (MANIFEST `rounds[]` tsukuroi r85, `admitted`) and its non-author spot-check
+`corpus/lessons/round-85-verifier-spotcheck.md` §5 routed defects 1-5. This round answers routed defects 2 and 4 as
+its measured claim, 5 as the source base of both claims, and 1 and 3 as uncredited repairs.
+
+Surface: how the kernel *parses* the hibernation boot options. Linux v7.2 `init/main.c` `obsolete_checksetup`
+(raw 201-228) calls a `__setup` handler for every token whose first `strlen(str)` characters equal the setup string
+(`kernel/params.c` `parameqn`, raw 86-95, compares with `-` read as `_`), and passes the rest of the token, value
+included. `noresume_setup` and `nohibernate_setup` ignore that rest (`kernel/power/hibernate.c` raw 1440-1465), so
+`noresume=1`, `noresume=0` and `nohibernate=1` all take effect; the round-85 gate matched only the bare tokens and
+answered HEALTHY (spot-check §5 defect 4, ReviewGate L1). `resume_setup` copies its rest verbatim (raw 1402-1409),
+so an empty `resume=` leaves `resume_file` empty and `find_resume_device` returns -ENOENT (raw 982-985): no resume,
+which the round-85 gate also answered HEALTHY (L3). `resume_offset_setup` keeps the previous offset unless
+`sscanf("%llu")` converts (raw 1411-1422; `lib/vsprintf.c` vsscanf needs a leading digit), where the round-85 gate
+answered CANNOT-EVALUATE. Pinned this commit: `.ufo/waves/round-86/before/src/` (5 files, `URLS.txt`, `SHA256SUMS`;
+`kernel_power_hibernate.c` byte-identical to the r85 pin `ae3dbeb6…86c1`).
+
+Instrument: `tools/resume-gate-battery-r86.py` sha256 recorded in `.ufo/waves/round-86/before/freeze-manifest.sha256`
+and `controls/controls-receipt.txt` (the r85 battery plus 10 families; its docstring is the frozen rule set and
+says exactly which round-85 token tests the r86 parse supersedes). Base: the unchanged r85 host base
+`.ufo/waves/round-85/before/host/facts-v2.json` plus five OS-entropy random bases; case list shuffled per run.
+`--selftest` PASS 4/4 rc 0 (absent gate, constant-HEALTHY gate, non-JSON gate, unreadable base).
+
+| Claim | Axis | Predicate (same sentence in the battery docstring and the receipt) | Target | Kill rule | Counting command | Controls (committed receipts, run at freeze, 3 runs each) |
+|---|---|---|---|---|---|---|
+| C1 (measured, sourced S346–S349) | operability 9 | `tools/check-hibernate-resume.py --facts FILE` implements the frozen resume-facts/2 rule set with the round-86 parse in the r86 battery docstring: for each of 30 families (the 20 round-85 families plus NORESUME-VALUED, NOHIB-VALUED, EMPTY-RESUME, OFFSET-DUP, OFFSET-SSCANF, HIBERNATE-NOX, SWAP-BOUNDARY, MULTI-SWAP, BOOL-FOR-INT, DECOYS-R86), on the host base and five random bases, every case returns exactly the expected (rc, verdict, sorted findings) within 20 s | 30 of 30 families (`verdict: met`, rc 0) in each of three consecutive runs at the landed lane tip | unmet if any of the three runs reads below 30/30; void if the battery bytes differ from the freeze manifest | `python3 tools/resume-gate-battery-r86.py --gate tools/check-hibernate-resume.py` (cwd lane root) | do-nothing K1 (the r85 gate at `3f567898`) 26/26/26 — fails NORESUME-VALUED, NOHIB-VALUED, EMPTY-RESUME, OFFSET-SSCANF; near-miss N01–N12 (candidate draft minus one property each) 26–29 of 30, each failing exactly its property's family; r85 forgers f1–f10 0–25, r85 MutGate M26–M28 25–26, r85 controls k1–k6 0–21 (`before/controls/controls-summary.txt`) |
+| C2 (exploratory, sourced S346–S349) | depth 8 (tied lowest) | none (exploratory): a knowledge entry `corpus/knowledge/hibernation-boot-parse-r86.md` (+ `.json`) holds sourced, host-measured rows on ground no entry held: the `__setup` prefix match and its value-blindness for `noresume`/`nohibernate`, `-`/`_` equivalence, last-token-wins for `resume=`/`resume_offset=`, the sscanf skip, empty `resume=` and `CONFIG_PM_STD_PARTITION`, and the order effect the gate does not model (a `noresume` before `resume=` makes `resume_setup` return early) | named non-author `unprovable-but-better` with reasons (the hyaku closure; a wave seat is the lane) | lands `unprovable` without that judgment | none | prior state: `git grep -n -i 'obsolete_checksetup\|parameqn' 3f567898 -- corpus/knowledge` → one hit, `hibernation-availability-r85.md:56`, a Limits line naming the prefix behaviour as resting on a source *outside* the pinned set; no row, no `parameqn`, no sscanf, no empty-`resume=` source |
+
+Discrimination properties certified at the freeze, each by a committed near-miss control below target (QUALITY 122):
+a 30/30 gate matches `noresume`/`nohibernate` with any suffix (N01, N02), treats an empty last `resume=` as absent
+(N03), lets the last `resume_offset=` win (N04), skips a non-digit offset instead of refusing (N05), reads
+`resume-offset=` (N06), tests `hibernate=` values by prefix (N07), keeps `<` at the headroom boundary (N08), sums all
+swaps (N09), refuses bool for int (N10), and matches by prefix, not substring (N11) or a shortened prefix (N12).
+Not certified (no control): `sys_power_resume` whitespace handling (r85 M28 survives as a mutant of the r85 gate only
+on r86 families; the battery never draws whitespace there). Limits frozen as rules, not defects: the gate does not
+model token order (a `noresume` before `resume=` makes `resume_setup` skip, raw 1404-1405; the gate already reports
+HR-NORESUME-ARG there), quoted values, or tokens after `--`.
+
+C1 and C2 are causally separable: the battery reads only the gate; the entry is judged on its rows and sources.
+Operability stays 9 (a corrected runnable arm, no ordinal move); depth stays 8 unless the closure endorses one.
+Uncredited repairs this round: `--selftest` for `hibernate-resume`, `nonauthor-label` and the r86 battery (routed 1;
+the r85 battery is retired as a probe superseded by r86); K1 r85 stated as the range 0–1/20 (routed 3).

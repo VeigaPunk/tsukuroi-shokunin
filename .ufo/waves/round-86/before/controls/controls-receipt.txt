@@ -1,0 +1,13 @@
+Round-86 freeze controls (TsukuroiR86, 2026-11-06T17:53:38-03:00), host 7.2.11-arch1-1, python Python 3.14.8
+Instrument: tools/resume-gate-battery-r86.py sha256 a49a18aa21322579f723cbddd38f0fcdff686cde85f525a9a81976ef176fbc21
+Command per control (cwd lane root, TMPDIR=/fast/scratch/hyaku/tsukuroi-r86/L1), three runs each:
+  python3 tools/resume-gate-battery-r86.py --gate <control> --out .ufo/waves/round-86/before/controls/receipts/<name>-run<i>.json
+Summary (families_passed of 30 per run, failed families when >= 15 passed): controls-summary.txt
+Battery selftest: python3 tools/resume-gate-battery-r86.py --selftest -> PASS 4/4, rc 0 (receipts/battery-selftest.txt)
+K1 = do-nothing: tools/check-hibernate-resume.py at pre-round tip 3f567898 (byte copy K1-r85-gate-do-nothing.py).
+N01-N12 = near-miss controls: each is the L1's candidate DRAFT (scratch, not committed, never run against
+this battery before this freeze) minus ONE property, named in its docstring. Each fails exactly the family
+that property serves (N11 also PREC-DECOYS; N12 also the resume=-dependent families), so every declared
+"a 30/30 gate must X" sentence has a committed control lacking X below target (QUALITY 122).
+r85-carried/ = round-85 freeze controls k1-k6, CriticClaims forgers f1-f10, MutGate M26-M28 (byte copies).
+Best candidate-free control: K1 26/30; best near-miss: 29/30. Target 30/30.
