@@ -7189,3 +7189,26 @@ operability stays 9. C1 claims no ordinal uplift: depth stays 8 unless the closu
 Controls are candidate-free; C2's target is untested against any gate that implements the rules, so a battery
 expectation defect would surface as an honest miss, not a re-declared target. Planner seat: the L1 holds it (the
 wave validator forbids the role; disclosed per the r83 routed defect 3). Wave: one v1 wave, attack share ≥ 25 %.
+
+## Round 84 — C1 withdrawn as a measured claim, re-declared exploratory (before any seat runs)
+
+Found by the L1 after the candidate commit `c6ee78b2d4184ace3c6d01116190729f0f7c2c31`, before the wave: the frozen
+C1 counter's own positive control P1 (`before/controls/c1-controls.txt`, three runs) builds seven rows from random
+spans of the pinned snapshots and receipts with a boilerplate statement, and it reads `met`. That control is also the
+cheapest control that skips the claimed work (prompt §9), so the frozen C1 counter cannot tell the entry from junk: it
+measures provenance shape (pinned digest, exact span, distinctness), not whether a quote supports its statement.
+The frozen predicate is not amended (the candidate exists and was counted, 10/10, so any new predicate would be
+declared after data). Instead:
+
+- C1 is withdrawn as a measured claim. Its counter stays committed as a provenance gate, not a measurement; its
+  10/10 reading is reported as such and earns nothing.
+- C1 is re-declared **exploratory** (depth, the tied-lowest axis; sourced on S336–S341): the new hibernate-resume
+  plane improves the lane's depth on host ground no entry held — the prior state printed `resume_offset=3795013`
+  twice (`journal-boot-plane.md:62`, `systemd-user-plane.md:218`) without reading whether it points at the swap
+  header, and held no rule separating `map-swapfile` from `filefrag` (HR3: 3530821 versus 3795013 on this host).
+  It verifies only as `unprovable-but-better` on a named non-author reviewer's per-row judgment with reasons
+  (wave seat ReviewEntry); otherwise it lands `unprovable`. No ordinal move.
+- C2 is unchanged and remains the round's measured claim.
+
+Mistake mined into `corpus/lessons/round-84.md` (M3): a positive control that needs no domain work and meets the
+target is a do-nothing reaching the target, not a passing selftest case.
