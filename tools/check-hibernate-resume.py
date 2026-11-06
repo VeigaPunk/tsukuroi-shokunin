@@ -124,6 +124,23 @@ def emit(verdict, findings, rc, **extra):
     return rc
 
 
+def failed_probes(receipt):
+    """Labels of capture probes whose recorded rc is not 0 (receipt `### label` then `rc=N`)."""
+    failed, label = [], None
+    try:
+        with open(receipt, encoding="utf-8") as fh:
+            for line in fh:
+                if line.startswith("### "):
+                    label = line[4:].strip()
+                elif label is not None and line.startswith("rc="):
+                    if line.strip() != "rc=0":
+                        failed.append(label)
+                    label = None
+    except OSError:
+        return ["receipt-unreadable"]
+    return failed
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
@@ -138,6 +155,11 @@ def main(argv=None):
             p = subprocess.run([sys.executable, CAPTURE, "--out", tmp], capture_output=True, text=True, timeout=120)
             if p.returncode != 0:
                 return emit("CANNOT-EVALUATE", [], 2, error=f"capture-rc{p.returncode}")
+            failed = failed_probes(os.path.join(tmp, "receipt.txt"))
+            if failed:
+                # round-84 ReviewGate F1: a failed probe leaves a null/-1 field the rules would read as
+                # "not applicable"; the live path fails closed instead of reporting HEALTHY.
+                return emit("CANNOT-EVALUATE", [], 2, error="probe-failed", failed=failed)
             path = os.path.join(tmp, "facts.json")
         try:
             with open(path, encoding="utf-8") as fh:

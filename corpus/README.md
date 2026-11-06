@@ -843,3 +843,59 @@ examined 80 / clean` rc 0).
 - Git subprocess environment inheritance (`SentinelGate.md` check 3); proposal in `.ufo/waves/round-83/w1/proposals/`.
 - Patch-offset host-build check (considerthese/2026-10-26.md #22, partial): needs a host-build measurement outside the frozen legs.
 - Operator decision requested: in-place `used-by` (CORPUS rule 2) versus QUALITY 60/99 (see `.ufo/l0-questions.md`).
+
+## Round 84 — hibernate-resume plane
+
+| Note | Holds | Sources |
+|---|---|---|
+| `knowledge/hibernate-resume-plane-r84.md` and `.json` | Ten sourced rows (HR1–HR10) on the chain that decides whether this host returns from hibernation to the image it wrote: `resume_offset=` is the swap header's place inside the `resume=` partition in PAGE_SIZE units and is needed only for swap files; on btrfs that offset is `btrfs inspect-internal map-swapfile -r` (host `3795013`), never `filefrag`, whose first extent physical column reads `3530821` here; the swap file must be NODATACOW (`lsattr` → `---------------C------`) and active in `/proc/swaps`; recreating it can move its header, so birth time `1791060333` (2026-10-03 17:45:33 -03) is the recheck trigger; `systemd-hibernate-resume` writes the device's major:minor to `/sys/power/resume` (`253:0` here, `fd 0` for `/dev/mapper/root`); `/sys/power/resume_offset` overrides the command line (`3795013`); mkinitcpio v42.2's `install/resume` adds that binary at systemd ≥ 255 (`systemd 262` here) and the booted UKI initramfs carries it; `/sys/power/image_size` is an upper limit in bytes (`12835467264`) against (31722876 − 11942400) KiB of free swap. Host values are from the pinned capture of 2026-11-06T15:44:21-03:00. Limits: the plane is read-only, no resume was exercised, and HR7 reads the value the kernel holds without showing which writer set it | S336–S341; `lessons/round-84.md` Gate |
+
+This deepens an existing `PROVINCE.md` area rather than opening a new one: the plane sits on the Core
+boot-health surface and on the owned "Initramfs v42 and boot recovery" surface, whose boundary already
+covers reading effective mkinitcpio hooks and recovery stages. `PROVINCE.md` and the coverage frontier are
+unchanged. It is new ground in the corpus, though. At the pre-round tip `64f45b79`,
+`git grep -c 'map-swapfile' 64f45b79 -- corpus/knowledge` exits 1 with no output, and the two entries that
+had already printed the token (`journal-boot-plane.md:62`, `systemd-user-plane.md:218`) read out
+`resume_offset=3795013` without asking whether it points at the swap header and held no rule separating
+`map-swapfile` from `filefrag` (HR3: `3530821` against `3795013` on this host). C1 is exploratory, not
+measured: it was withdrawn before the wave because the frozen counter's own positive control P1 builds seven
+boilerplate rows from random snapshot spans and reads `met`, so `tools/count-resume-rows-r84.py` measures
+provenance shape and its 10/10 reading earns nothing (`SCORECARD.md`, "Round 84 — C1 withdrawn as a measured
+claim"). The entry verifies only as `unprovable-but-better` on a named non-author reviewer's per-row judgment
+(wave seat `ReviewEntry`), otherwise `unprovable`, and claims no ordinal move. The round's measured claim is
+the gate `tools/check-hibernate-resume.py`, scored by `tools/resume-gate-battery-r84.py` over 13 families
+(POSITIVE, MALFORMED and the eleven finding IDs) on the committed host base plus five unseeded random bases
+per run, target 13 of 13, with the four candidate-free controls committed under `before/controls/` reading
+gate absent 0/13, blanket HEALTHY 1/13, all-IDs 0/13 and committed-base memoriser 0/13. Its measured outcome
+is owned by `SCORECARD.md`, not by this row.
+
+Wave findings at landing: the non-author per-row review (`.ufo/waves/round-84/w1/ReviewEntry/verdict.json`) reads
+8 supports, 2 partial (HR4, HR9; both reworded at landing), 0 does-not-support, claim `unprovable-but-better`;
+every source re-fetched live byte-identical to its pin and every quote and host value re-located
+(`w1/ScoutSources.md`). The C2 battery reads 13/13 on the candidate, but a gate that never opens its input
+also reads 13/13 by replaying the fixed case order (`w1/CriticClaims.md` F-C2-1), so C2 is not verified;
+QUALITY 119 carries the fix to the next freeze.
+
+### Frontier (round-84 addition)
+
+- No resume was exercised. The only runtime trace is the kernel's per-boot image lookup
+  (`PM: Image not found (code -22)` on the 2026-11-02 boot) and no `hibernation entry|exit` line in the retained
+  journal (`knowledge/journal-boot-plane.md:249-252`). The plane is verified against a chain that has never
+  carried an image.
+- Which writer sets `/sys/power/resume` (kernel `resume=` parsing or the initramfs `systemd-hibernate-resume`
+  binary) is not shown (entry Limits, HR7, HR9).
+- `HR-OFFSET-MISMATCH` is silent when `map_swapfile_offset` is null; the `--live` path now fails closed on a
+  failed probe (ReviewGate F1 repair), but a `--facts` document with a null offset is still read as "not
+  applicable" by the frozen rules.
+- `HR-SWAP-TOO-SMALL` compares free swap with `image_size`, an upper limit; it is a bound, not a prediction.
+  Free swap as image fit is this lane's; free swap as capacity stays mori's (`w1/ConnectorOverlap.md` H5/H6).
+- The C2 battery's composition gaps (multi-fault, rule-1 precedence, partition antecedent, boundary, multi-swap,
+  duplicate tokens) are routed to the next freeze (`corpus/lessons/round-84.md`, Routed).
+- From ScoutHost (`.ufo/waves/round-84/w1/ScoutHost.md` §3), preconditions the plane and the gate do not read:
+  `systemd-hibernate.service` carries the NVIDIA drop-in `SYSTEMD_SLEEP_FREEZE_USER_SESSIONS=false` (user sessions
+  are not frozen before an image is written) while `nvidia-hibernate`/`nvidia-resume` are disabled and
+  `NVreg_PreserveVideoMemoryAllocations=1` is set (§3c, the strongest gap: an image-consistency hazard, not a
+  resume-chain break); zswap is on (`zstd`, 25 %) and live free swap drifted from 19 780 476 KiB at capture to
+  17–18 million KiB within the hour (§3d); lockdown `none`, no `noresume`/`nohibernate`, one swap area and no
+  zram (§3a, §3f, §3g); the swap file lives in its own subvolume `swap` (ID 262) and is absent from the snapper
+  snapshot roots (§3j).

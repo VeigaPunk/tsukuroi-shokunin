@@ -1,0 +1,40 @@
+--- a/corpus/knowledge/oom-event-plane.md
++++ b/corpus/knowledge/oom-event-plane.md
+@@ -497,3 +497,17 @@
+ [R29-OWED-O01] verdict: corrected | original: "exactly the band the kernel scans first" | now: No band is scanned: oom_badness scores every eligible task as resident pages plus swap entries plus page-table pages plus oom_score_adj times totalpages over 1000, and select_bad_process keeps the single highest value; +200 adds 3,381,800 points, about 12.9 GiB, at event A's 64.5 GiB RAM plus swap, or 3,172,200 points, 12.1 GiB, at the live 60.5 GiB, and the 53.7 GiB victim wins either way. | basis: S149 (mm/oom_kill.c lines 228-233, 263, 340, 359-377) and S148 (/proc/<pid>/oom_score_adj, lines 1777-1789)
+ 
+ [R29-OWED-O02] verdict: corrected | original: "the +200 band is chosen first" | now: The killer walks each task once and retains the maximum points, so no adjustment band is ordered at all; the +200 credit is 3.17 million points live, about 12.1 GiB, against the victim's own 14.08 million points from 53.7 GiB of footprint, so the adjustment was roughly a quarter of the evidence and not the reason for the pick. | basis: S149 (mm/oom_kill.c lines 228-233, 340, 359-377) and S148 (/proc/<pid>/oom_score_adj, lines 1777-1789)
++
++
++## R84-FRESHNESS — oom-event-plane line 348 zram clause (2026-11-06)
++
++Appended 2026-11-06 by the tsukuroi round-84 ScoutHost seat (read-only host scan); earlier bytes
++unchanged. The zram clauses of line 348 (`/dev/zram0` 4 G, prio 100) describe the 2026-10-14/20
++captures and stay dated. They are superseded for current use only. Now: this host has no zram
++device — `ls /dev/zram*` -> "No such file or directory", the zram module is not loaded
++(`lsmod | grep -i zram` -> no match), and `swapon --show` lists exactly one area: `/swap/swapfile`
++file 30.3 G prio 0. The zswap clause of the same row is separately refreshed by R18-FRESHNESS
++(line 384). This notice does not date or explain any historical kill event (event A 2026-10-13,
++event B 2026-10-14) and does not attribute any pressure history to the current state. Read-only
++scope: nothing here clears a package, reboots, or services a device. Capture: round-84 ScoutHost
++seat, 2026-11-06 16:2x-03:00; `ls /dev/zram*`, `lsmod`, `swapon --show`.
+--- a/corpus/knowledge/kill-event-deep-r8.md
++++ b/corpus/knowledge/kill-event-deep-r8.md
+@@ -400,3 +400,17 @@
+ [R29-OWED-O03] verdict: qualified | original: "under a kernel OOM the scan prefers the higher-scored, larger-RSS tasks first" | now: The rule is a single argmax over eligible tasks of resident pages plus swap entries plus page-table pages plus the adjustment term; higher-scored and larger-RSS tasks do win, but nothing is visited first, ties fall to iteration order, and the allocating-task, free-memory and origin bypasses can skip the comparison entirely. | basis: S149 (mm/oom_kill.c lines 306-377, 1122, 1145-1151) and S148 (/proc/<pid>/oom_score_adj, lines 1761-1789)
+ 
+ [R29-OWED-O04] verdict: corrected | original: "the +200 band is scanned first" | now: There is no ordered band walk: select_bad_process keeps one maximum over every eligible task, and for a cgroup OOM it scans only that cgroup's tasks, which is how a +100 manager can be chosen while other scopes' +200 clients never enter the comparison; the steering lever survives because the adjustment is additive. | basis: S149 (mm/oom_kill.c lines 362-377) and S148 (/proc/<pid>/oom_score_adj, lines 1777-1789)
++
++
++## R84-FRESHNESS — kill-event-deep-r8 line 259 zram clause (2026-11-06)
++
++Appended 2026-11-06 by the tsukuroi round-84 ScoutHost seat (read-only host scan); earlier bytes
++unchanged. The zram clauses of line 259 (`/dev/zram0` 4 GiB prio 100, used ~1.0 GiB) describe the
++2026-10-13/14 captures and stay dated. They are superseded for current use only. Now: this host has
++no zram device — `ls /dev/zram*` -> "No such file or directory", the zram module is not loaded
++(`lsmod | grep -i zram` -> no match), and `swapon --show` lists exactly one area: `/swap/swapfile`
++file 30.3 G prio 0 (swap used is volatile: 13.1-14.5 GiB across the round-84 window). The zswap
++clause of the same row is separately refreshed by R18-FRESHNESS (line 306). This notice does not
++date or explain either kill wave and does not attribute any pressure history to the current state.
++Read-only scope: nothing here clears a package, reboots, or services a device. Capture: round-84
++ScoutHost seat, 2026-11-06 16:2x-03:00; `ls /dev/zram*`, `lsmod`, `swapon --show`.

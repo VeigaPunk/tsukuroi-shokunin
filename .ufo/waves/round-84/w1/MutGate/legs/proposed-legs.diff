@@ -1,0 +1,117 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/resume-gate-battery-r84.py	2026-11-06 15:47:21.887046093 -0300
++++ /fast/scratch/hyaku/tsukuroi-r84/MutGate/legs/resume-gate-battery-r84-legs.py	2026-11-06 16:02:33.561725461 -0300
+@@ -145,9 +145,17 @@
+     return f
+ 
+ 
+-def malformed(f, rng):
++MALFORMED_KINDS = ["drop", "schema", "cmdline-type", "swaps-type", "hooks-type", "bool-int"]
++SYSTEMD_HOOKS = ["base", "systemd", "autodetect", "microcode", "modconf", "kms", "keyboard", "sd-vconsole",
++                 "block", "sd-encrypt", "filesystems", "fsck"]
++
++
++def free_bytes(f):
++    return sum((s["size_kib"] - s["used_kib"]) * 1024 for s in f["swaps"])
++
++
++def malformed(f, kind, rng):
+     f = copy.deepcopy(f)
+-    kind = rng.choice(["drop", "schema", "cmdline-type", "swaps-type", "hooks-type"])
+     if kind == "drop":
+         del f[rng.choice(REQUIRED)]
+     elif kind == "schema":
+@@ -156,9 +164,58 @@
+         f["cmdline"] = rng.randint(0, 9)
+     elif kind == "swaps-type":
+         f["swaps"] = "none"
+-    else:
++    elif kind == "hooks-type":
+         f["hooks"] = "base udev resume"
+-    return f, kind
++    else:  # bool-int: JSON true is an int subclass; rule set requires a wrong type -> rc2
++        f["swaps"][0]["size_kib"] = True
++    return f
++
++
++def positive_boundary(f):
++    """free == image_size: rule 7 is strict `<`, so HEALTHY."""
++    f = copy.deepcopy(f)
++    f["image_size"] = free_bytes(f)
++    return f
++
++
++def positive_systemd(f):
++    """The `systemd` hook alternative, deterministic (no sd-* aliasing)."""
++    f = copy.deepcopy(f)
++    f["hooks"] = list(SYSTEMD_HOOKS)
++    return f
++
++
++def positive_dup_token(f):
++    """Two resume_offset= tokens: the kernel honours the last, which is the correct one."""
++    f = copy.deepcopy(f)
++    o = offset(f)
++    f["cmdline"] = set_token(f["cmdline"], "resume_offset", o + 1) + f" resume_offset={o}"
++    return f
++
++
++def positive_multiswap(f):
++    """Total free covers image_size while the first swap alone does not."""
++    f = copy.deepcopy(f)
++    free0 = (f["swaps"][0]["size_kib"] - f["swaps"][0]["used_kib"]) * 1024
++    f["image_size"] = free0 + 1
++    f["swaps"].append({"path": "/dev/zram-leg", "type": "partition", "size_kib": 1000, "used_kib": 0})
++    return f
++
++
++def no_resume_combined(f, rng):
++    """resume= absent with other rules also violated: rule 1 still reports exactly one ID."""
++    f = copy.deepcopy(f)
++    f["cmdline"] = set_token(f["cmdline"], "resume", None)
++    f["hooks"] = busybox_hooks(rng, with_resume=False)
++    f.update(swaps=[], resume_swapfile=None, map_swapfile_offset=None, swapfile_attrs=None)
++    return f
++
++
++def partition_offset(f, rng):
++    """o set on a partition base: rule 4 is unconditional on the swap type."""
++    f = copy.deepcopy(f)
++    f["cmdline"] = set_token(f["cmdline"], "resume_offset", f["sys_power_resume_offset"] + rng.randint(1, 1000))
++    return f
+ 
+ 
+ def call(gate, facts, tmp, rng):
+@@ -205,18 +262,29 @@
+         for name, b in bases:
+             file_base = b.get("resume_swapfile") is not None
+             plan = [("POSITIVE", b, (0, "HEALTHY", []))]
+-            m, kind = malformed(b, rng)
+-            plan.append(("MALFORMED", m, (2, "CANNOT-EVALUATE", [])))
++            plan.append(("POSITIVE", positive_boundary(b), (0, "HEALTHY", [])))
++            plan.append(("POSITIVE", positive_systemd(b), (0, "HEALTHY", [])))
++            if file_base:
++                plan.append(("POSITIVE", positive_dup_token(b), (0, "HEALTHY", [])))
++                plan.append(("POSITIVE", positive_multiswap(b), (0, "HEALTHY", [])))
++            for kind in MALFORMED_KINDS:
++                plan.append(("MALFORMED", malformed(b, kind, rng), (2, "CANNOT-EVALUATE", []), kind))
++            plan.append(("HR-NO-RESUME-ARG", no_resume_combined(b, rng), (1, "DEGRADED", ["HR-NO-RESUME-ARG"])))
+             for fid in IDS:
+                 if fid in FILE_ONLY and not file_base:
+                     continue
+                 plan.append((fid, perturb(b, fid, rng), (1, "DEGRADED", [fid])))
+-            for fam, facts, want in plan:
++            if not file_base:
++                plan.append(("HR-SYSFS-OFFSET-MISMATCH", partition_offset(b, rng),
++                             (1, "DEGRADED", ["HR-SYSFS-OFFSET-MISMATCH"])))
++            for item in plan:
++                fam, facts, want = item[:3]
++                label = item[3] if len(item) > 3 else None
+                 got, why = call(gate, facts, tmp, rng)
+                 ok = why == "ok" and tuple(got) == (want[0], want[1], want[2])
+                 fams.setdefault(fam, []).append(ok)
+                 cases.append({"base": name, "family": fam, "want": list(want), "got": list(got), "why": why,
+-                              "pass": ok, **({"malformed": kind} if fam == "MALFORMED" else {})})
++                              "pass": ok, **({"malformed": label} if fam == "MALFORMED" else {})})
+     finally:
+         shutil.rmtree(tmp, ignore_errors=True)
+     passed = sorted(f for f, v in fams.items() if all(v))

@@ -1,0 +1,16 @@
+# concrete commands (S=/fast/scratch/hyaku/tsukuroi-r84/MutGate, cwd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin)
+
+## baseline (x2)
+TMPDIR=$S python3 tools/resume-gate-battery-r84.py --gate $S/orig.py   # rc=0, "13 13 met []", 74 cases
+
+## mutants (each x2, driver harness/run_mutants.py -> runs/*.json)
+TMPDIR=$S python3 tools/resume-gate-battery-r84.py --gate $S/mutants/<Mxx>.py
+
+## strengthened prototype (each x2, driver harness/run_legs.py -> legs-runs/*.json)
+TMPDIR=$S python3 $S/legs/resume-gate-battery-r84-legs.py --gate <orig|$S/mutants/Mxx.py>   # 133 cases, 13 families
+
+## distinguishing inputs
+python3 $S/discriminate.py; python3 $S/discriminate_m14.py   # -> discriminating/*-evidence.json
+
+## generation
+python3 harness/gen_mutants.py   # writes mutants/M01..M22.py, asserts each literal occurs once

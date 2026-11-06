@@ -1,0 +1,43 @@
+--- tools/count-resume-rows-r84.py	2026-11-06 15:46:37.402910158 -0300
++++ .ufo/waves/round-84/w1/ExecProvenanceC1/count-resume-rows-r84.patched.py	2026-11-06 16:02:58.101042495 -0300
+@@ -111,14 +111,16 @@
+ 
+ 
+ def evaluate(reader, entry_path=ENTRY):
+-    manifests = {}
++    manifests, by_kind = {}, {}
+     for mpath, pin in MANIFEST_PINS.items():
+         data = reader.get(mpath)
+         if data is None:
+             raise CannotEvaluate(f"manifest-absent:{mpath}")
+         if sha(data) != pin:
+             raise CannotEvaluate(f"manifest-pin-mismatch:{mpath}")
+-        manifests.update(parse_manifest(data, os.path.dirname(mpath)))
++        parsed = parse_manifest(data, os.path.dirname(mpath))
++        by_kind["snapshot" if mpath == SRC_MANIFEST else "receipt"] = parsed
++        manifests.update(parsed)
+     raw = reader.get(entry_path)
+     if raw is None:
+         raise CannotEvaluate(f"entry-absent:{entry_path}")
+@@ -141,9 +143,10 @@
+         path, declared = d["path"], d.get("sha256")
+         if kind == "snapshot" and not str(d.get("url", "")).startswith("https://"):
+             return None, "snapshot-url-not-https"
+-        if manifests.get(path) is None:
++        kind_manifest = by_kind[kind]
++        if kind_manifest.get(path) is None:
+             return None, f"{kind}-not-in-frozen-manifest"
+-        if declared != manifests[path]:
++        if declared != kind_manifest[path]:
+             return None, f"{kind}-declared-sha-differs-from-manifest"
+         if path not in cache:
+             data = reader.get(path)
+@@ -151,7 +154,7 @@
+         data = cache[path]
+         if data is None:
+             return None, f"{kind}-absent"
+-        if sha(data) != manifests[path]:
++        if sha(data) != kind_manifest[path]:
+             return None, f"{kind}-bytes-differ-from-manifest"
+         return data.decode("utf-8", "replace").split("\n"), "ok"
+ 

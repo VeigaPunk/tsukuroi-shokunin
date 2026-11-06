@@ -1,0 +1,41 @@
+Proposed docstring amendment for tools/resume-gate-battery-r84.py — NOT applied this round.
+
+Status: the file is frozen and sha256-pinned (00310ac205f07f396bc4a7a0406f1c0d4baf74c7ab30e27245bbc89d8ce00964) in the
+round-84 declaration, so this patch must not land inside round 84. It is a next-round / declaration-wording repair.
+
+Defect D1 (measured): the MALFORMED family expects rc2 for "drop" of ANY key in REQUIRED (battery:52-54), which
+includes the four nullable fields (resume_swapfile, map_swapfile_offset, swapfile_attrs, resume_dev_majmin). A gate
+that reads the docstring's "a missing required key" (battery:26) as "a field that is nullable may be absent, absent
+means null" returns HEALTHY for a dropped nullable key and loses MALFORMED on 4 of 6 runs (see ExecBatteryC2.md §5).
+
+Defect D2 (wording): "swaps empty -> HR-NO-ACTIVE-SWAP" (battery:18) sits inside rule 2's block (battery:14); read as
+nested under "a file-type swap is active", a rule-faithful gate emits nothing when resume_swapfile is null, and the
+perturbed family (perturb:129-130 nulls resume_swapfile and map_swapfile_offset) fails on EVERY base — measured
+12/13, failcases on host + random0..random4.
+
+--- a/tools/resume-gate-battery-r84.py
++++ b/tools/resume-gate-battery-r84.py
+@@ -14,8 +14,9 @@
+   2 a file-type swap is active (resume_swapfile not null):
+       o is None                     -> HR-OFFSET-MISSING
+       o, map_swapfile_offset set, differ -> HR-OFFSET-MISMATCH
+       swapfile_attrs set, no 'C'    -> HR-SWAPFILE-COW
+-    swaps empty                     -> HR-NO-ACTIVE-SWAP
++  2b swaps empty, on EVERY base (file or partition) -> HR-NO-ACTIVE-SWAP
++     (not conditional on rule 2's precondition)
+@@ -24,8 +25,12 @@
+   8 'disk' not a word of sys_power_state           -> HR-NO-DISK-STATE
+   HEALTHY rc0 iff no finding, else DEGRADED rc1 with the sorted finding list;
+   schema != resume-facts/1, a missing required key or a wrong type -> rc2
+   CANNOT-EVALUATE with findings [].
++  "required" is exactly the twelve keys the gate must consume: cmdline, swaps,
++  resume_swapfile, map_swapfile_offset, swapfile_attrs, resume_dev_majmin,
++  sys_power_resume, sys_power_resume_offset, sys_power_state, image_size,
++  hooks. A nullable field is still a required key: its ABSENCE is rc2, only an
++  explicit null is legal.
+
+Alternative if the L1 prefers not to change the required set: restrict the
+`drop` arm (battery:151-152) to the eight non-nullable keys
+{cmdline, swaps, sys_power_resume, sys_power_resume_offset, sys_power_state,
+image_size, hooks, schema}. That changes generated inputs, so it belongs in a
+fresh freeze, not in round 84.

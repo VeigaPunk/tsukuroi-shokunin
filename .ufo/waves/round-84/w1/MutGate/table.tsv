@@ -1,0 +1,23 @@
+mutant	change	run1	run2	verdict	killed_by	Hunks	sha256
+M01	return ["HR-NO-RESUME-ARG"] -> return []	12/13	12/13	KILLED	HR-NO-RESUME-ARG	1	97d4ba395f8328ea01f20cd25e6a248b9e465c22950b0782907c00b043fb8efc
+M02	found.add("HR-OFFSET-MISSING") -> pass	12/13	12/13	KILLED	HR-OFFSET-MISSING	1	a43e23e4fa6f246c0a267a7d9e4701d76e8ba4178a0409b6ec514dd0ac504f38
+M03	found.add("HR-OFFSET-MISMATCH") -> pass	12/13	12/13	KILLED	HR-OFFSET-MISMATCH	1	6b5e191a669da6146071dea1fc80ce08405b198cdad3b5726fb0b00422642b68
+M04	found.add("HR-SWAPFILE-COW") -> pass	12/13	12/13	KILLED	HR-SWAPFILE-COW	1	b66f2b7e5e8df8ac3efb2160eaef1a6b4057b03ee94337dd67de16b399e2344f
+M05	found.add("HR-NO-ACTIVE-SWAP") -> pass	12/13	12/13	KILLED	HR-NO-ACTIVE-SWAP	1	50fe3b8e1f4bffab19cba006499d3e8d00e6cab6da7d56aa2544e18de21256ac
+M06	found.add("HR-SYSFS-DEVICE-MISMATCH") -> pass	12/13	12/13	KILLED	HR-SYSFS-DEVICE-MISMATCH	1	059f346c1a265eb750e599537ce9a2ea731f3609e1a86e565c928bea7a0d9cb8
+M07	found.add("HR-SYSFS-OFFSET-MISMATCH") -> pass	12/13	12/13	KILLED	HR-SYSFS-OFFSET-MISMATCH	1	74feb3587114ce637ab2c1ffe1d7d416c147e74a871b66d28bfbf73726c6b265
+M08	found.add("HR-NO-RESUME-HOOK") -> pass	12/13	12/13	KILLED	HR-NO-RESUME-HOOK	1	3a1f04e27e32ceff08753a782350c09582eff2d22921a6eb3417345930c0be41
+M09	found.add("HR-HOOK-BEFORE-ENCRYPT") -> pass	12/13	12/13	KILLED	HR-HOOK-BEFORE-ENCRYPT	1	2a64a92a1b36144673f093b38b1f161c5e6d8b7960c908c34153e913ce5f7d96
+M10	found.add("HR-SWAP-TOO-SMALL") -> pass	12/13	12/13	KILLED	HR-SWAP-TOO-SMALL	1	b07b5a12629408e89c79e8222a60207e8dd2821afd50b5a237641aa9685cd509
+M11	found.add("HR-NO-DISK-STATE") -> pass	12/13	12/13	KILLED	HR-NO-DISK-STATE	1	bb5d0a2b2b28d7c5973902c53127bd5bac1f36c47e7d933026e48c0f47b6c962
+M12	if free < f["image_size"] -> if free <= f["image_size"]	13/13	13/13	SURVIVED	-	1	3753bd7f057958e23b8ae6639420a0012e74af72452b4d6703e32a043e5f9425
+M13	hooks.index("resume") < hooks.index("encrypt") -> >	3/13	3/13	KILLED	POSITIVE (host); also HR-HOOK-BEFORE-ENCRYPT and 8 more	1	5786c58856cf9d33b6b17f43ddfdfc5957ab4b868ef1d016469710189cffaee2
+M14	if tok.startswith(key+"="): -> if tok.startswith(key+"=") and val is None: (first wins)	13/13	13/13	SURVIVED	-	1	daf25b5cf8ca44a864aa01c755b95fe977272786b82baaa913220f1f0df8b2c1
+M15	"C" not in f["swapfile_attrs"] -> "C" in f["swapfile_attrs"]	3/13	3/13	KILLED	POSITIVE (host); also HR-SWAPFILE-COW and 8 more	1	751e76461daf5fb7cd1cd7277d2d29652fcb8877201322a3638eb412e421f930
+M16	rule-1 early return -> no_resume flag + prepopulated found (2 hunks, one behaviour)	13/13	13/13	SURVIVED	-	2	a5f3cfbd3cc7a32bf4db3c2b4771dd2b9de548c30263e5018a496a4a35018475
+M17	cmdline = need(f,"cmdline",str) -> coerce non-str to str	12/13	12/13	KILLED	MALFORMED (random1, cmdline-type drawn)	1	db529eb8c255421a9b9ea3d791998495a5eac0dadf28ef2c177dfa8a3b1dcb77
+M18	if not f["swaps"]: -> if not f["swaps"] or f["resume_swapfile"] is None:	7/13	7/13	KILLED	POSITIVE (random4 partition base)	1	3d6c461d825c0c1679218a906813d2ed6ff760ca4062fe073eb0200305faea07
+M19	if "resume" not in hooks and "systemd" not in hooks: -> if "resume" not in hooks:	4/13	4/13	KILLED	POSITIVE (systemd-hooks base drawn)	1	b3385dd46a098eb2998a495cc821f69085f1da68cefb2f0e0a34df59710f31c2
+M20	sysfs-offset compare -> only when f["resume_swapfile"] is not None	13/13	13/13	SURVIVED	-	1	4e4521d8c4aaf97f04519a3e394ff908ea40794057a111d8fd9861119a2d8116
+M21	free = sum(all swaps) -> first swap only	13/13	13/13	SURVIVED	-	1	23b37d00bff689180676b883996ff5cb06da3b627647bb124f1d5949c7f44601
+M22	swaps[] type check: drop the isinstance(...,bool) rejection	13/13	13/13	SURVIVED	-	1	591a1a2905b360e228ff19c0bf59368a5676f893e7661894d567cd4dd6782c7c

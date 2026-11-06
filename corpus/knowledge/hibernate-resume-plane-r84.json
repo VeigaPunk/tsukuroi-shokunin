@@ -104,7 +104,7 @@
   },
   {
    "id": "HR4",
-   "statement": "A btrfs swap file must be NODATACOW, which also disables checksums and compression even on a compress=zstd mount; lsattr on /swap/swapfile shows the C attribute, so the file meets the requirement on this host.",
+   "statement": "A btrfs swap file must be NODATACOW, which also means no data checksums and no compression for that file; lsattr on /swap/swapfile shows the C attribute, so the file meets the requirement on this host.",
    "source": {
     "snapshot": "S337",
     "lines": [
@@ -204,7 +204,7 @@
   },
   {
    "id": "HR9",
-   "statement": "The mkinitcpio resume hook packs systemd-hibernate-resume into a busybox initramfs only when systemd is at least version 255; this host runs systemd 262, and the booted UKI's initramfs does carry usr/lib/systemd/systemd-hibernate-resume (after/uki-initrd-contents.txt), so resume runs through that binary, not the hook's own resume= parser.",
+   "statement": "The mkinitcpio resume install hook adds systemd-hibernate-resume to the image when systemd is at least version 255; this host runs systemd 262 and the booted UKI's initramfs carries usr/lib/systemd/systemd-hibernate-resume, so this busybox-hook image's resume hook hands off to that binary when it runs; which writer set /sys/power/resume this boot is not shown.",
    "source": {
     "snapshot": "S341",
     "lines": [
