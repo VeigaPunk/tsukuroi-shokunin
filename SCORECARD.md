@@ -7212,3 +7212,24 @@ declared after data). Instead:
 
 Mistake mined into `corpus/lessons/round-84.md` (M3): a positive control that needs no domain work and meets the
 target is a do-nothing reaching the target, not a passing selftest case.
+
+## Round 84 — measured outcome (measured at `2ad4d1efe5bce0588cf6b533bbba3ada138cfed6`; C2 NOT VERIFIED, C1 unprovable-but-better)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C2 (measured) | operability 9 → 9 | `python3 tools/resume-gate-battery-r84.py --gate tools/check-hibernate-resume.py`: gate absent 0/13 (freeze controls) → candidate 13/13 exit 0, three runs at the landed revision | 13/13 | NOT VERIFIED: the order-replay forger `f2-replay.py` (never opens `--facts`), the signature forger `f1-signature.py` and the first-fault forger `f4-firstfault.py` also read 13/13 exit 0 at the landed revision (`.ufo/waves/round-84/after/measured-at-landing.txt`; `w1/CriticClaims.md` F-C2-1..3). Prompt §9: the counter is wrong; the target is not re-declared. |
+| C1 (exploratory, sourced S336–S341) | depth 8 → 8 | no counting command; provenance shape gate `count-resume-rows-r84` reads met 10/10 (earns nothing) | named non-author judgment | `unprovable-but-better` by seat ReviewEntry (`w1/ReviewEntry/verdict.json`: 8 supports, 2 partial, 0 does-not-support, with reasons); HR4/HR9 reworded at landing |
+
+Instrument bytes at the landed revision equal the freeze (battery `00310ac2…0964`, counter `cb70d435…8309`, capture
+`cec27b9d…ea23`). The gate changed after scoring only on its `--live` path (fails closed on a failed probe;
+ReviewGate F1), which the battery does not exercise; the battery reads the same 13/13 after the change.
+
+Repairs, uncredited: operative registry `check-registry-coverage.py --revision` FAIL 4 findings at `64f45b79` →
+PASS 0 findings at `2ad4d1ef` (four round-84 tools and four orphaned round-83 tools registered); the S339/S342
+anchors and the lesson token counts (ScoutSources D1–D3).
+
+Census: `scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi` exit 0 at start and end;
+rows 335 → 342 (+7 tier A: S336–S342), 52 W04 warnings both ends, no E code.
+
+Axes now: depth8, coverage9, operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row
+enters. No retirement. Not admitted: C2 does not verify. No axis harmed.
