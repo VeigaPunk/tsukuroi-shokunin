@@ -1,0 +1,58 @@
+[
+ {
+  "id": "LP1",
+  "statement": "A config key is matched case-insensitively and only at the start of a line, directly followed by `:`. Leading and trailing blanks and CRs are stripped first. A `#` line therefore never holds a key.",
+  "source": "S352 527-551, 798-799",
+  "quote": "\"if (!strncasecmp(&config[i], key, key_len) && config[i + key_len] == ':') { if (i && config[i - 1] != SEPARATOR)\"",
+  "host_value": "keys are lower-case, indented by 2 or 5 spaces"
+ },
+ {
+  "id": "LP2",
+  "statement": "The keys that take a path are `path` and its aliases `kernel_path`/`image_path`, plus `module_path`, `dtb_path`, `global_dtb`, `wallpaper` and `term_font`. A `#...` inside `cmdline` or `comment` is not a pin.",
+  "source": "S350 111-113, 134, 210, 295-308, 330-350",
+  "quote": "\"`kernel_path` - Alias of `path`.\"",
+  "host_value": "only `path:` lines carry pins"
+ },
+ {
+  "id": "LP3",
+  "statement": "The hash is everything after the **last** `#` of the URI, so a `#` inside a file name is part of the path. It must be exactly 128 hex characters, in either case; anything else is a URI error.",
+  "source": "S351 78-101",
+  "quote": "\"for (int i = (int)strlen(uri) - 1; i >= 0; i--) { … if (strlen(uri + i) != 128) {\"",
+  "host_value": "5 pins, all 128 lower-case hex"
+ },
+ {
+  "id": "LP4",
+  "statement": "The hash is BLAKE2b-512 over the file as stored on the partition. For a gzip (`$`) resource it covers the compressed bytes and is checked before decompression.",
+  "source": "S350 446-447, 456-462; S351 344, 403-470",
+  "quote": "\"the hash covers the whole file as stored on disk (its compressed bytes, including anything after the gzip data)\"",
+  "host_value": "no `$` resource"
+ },
+ {
+  "id": "LP5",
+  "statement": "On a mismatch Limine panics unless `hash_mismatch_panic` is `no` (case-insensitive). The value is read from the first occurrence in the file. With `no`, it prints a warning and waits: `Y` boots the file anyway, and any other key returns to the menu.",
+  "source": "S353 1711-1712; S351 301-312",
+  "quote": "\"hash_mismatch_panic = hash_mismatch_panic_str == NULL || strcasecmp(hash_mismatch_panic_str, \"no\") != 0;\"",
+  "host_value": "line 8 `hash_mismatch_panic: no` → prompt"
+ },
+ {
+  "id": "LP6",
+  "statement": "Secure Boot with an enrolled config hash forces panic and turns off the editor. Without an enrolled hash, Limine treats Secure Boot as inactive. A wallpaper or font that fails is skipped (optional resource), in either mode.",
+  "source": "S353 1714-1717; S350 152-156, 451-455; S351 18-26, 302, 696-702",
+  "quote": "\"Forced to `yes` when Secure Boot is active and a config hash is enrolled.\"",
+  "host_value": "SecureBoot efivar data byte 0 (off)"
+ },
+ {
+  "id": "LP7",
+  "statement": "`objcopy` given only an input file rewrites that file. Even `--dump-section`, which only reads a section out, rewrites the UKI it reads, and the BLAKE2b of the whole file changes. Probe with an explicit output file, or not as root on `/boot` at all.",
+  "source": "S354 section `infile outfile` (raw HTML lines 189-190 and 634 of the pinned snapshot)",
+  "quote": "\"If you do not specify outfile, objcopy creates a temporary file and destructively renames the result with the name of infile.\"",
+  "host_value": "r86 ScoutHost 18:11:22 rewrote both UKIs (5 PE header bytes each)"
+ },
+ {
+  "id": "LP8",
+  "statement": "This host's state: both kernel entries (`linux`, `linux-lts`, lines 30 and 38) MISMATCH. Next boot of either shows the Y/any-key prompt, not a panic. The three snapshot-history pins (lines 50, 56, 64) are OK and boot without a prompt. The fallback `/EFI/BOOT/BOOTX64.EFI` has no pin.",
+  "source": "gate `--live` (this round)",
+  "quote": "\"LP-MISMATCH line 30\", \"LP-MISMATCH line 38\"",
+  "host_value": "`57f5eb94…` vs pin `b990d8c6…`; `eff78d32…` vs pin `a68c281d…`"
+ }
+]
