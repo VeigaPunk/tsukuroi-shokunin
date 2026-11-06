@@ -944,3 +944,18 @@ gate's parse change (C1) and its measured outcome are owned by `SCORECARD.md`.
   new kernel tag.
 - secretmem/CXL still have no fact key; with S349 pinned, `/sys/power/disk` `[disabled]` beside `/sys/power/state`
   can name the blocker (carried from round 85).
+
+## Round 87 — Limine path-pin plane
+
+New ground: `knowledge/limine-pin-plane-r87.md` (LP1–LP8, S350–S354) — how Limine v12.9.4 finds a pin, what it
+hashes and what a mismatch does at boot; gate `tools/check-limine-pins.py` hashes the file each pin names (the lane's
+other boot gates read captures only).
+
+### Frontier (round-87 addition)
+
+- Ten R1-R7 clauses have no battery family (lesson M3, R87-R4); the candidate matches an independent base on them
+  only in a one-off probe (`.ufo/waves/round-87/after/residual-diff/`).
+- Battery self-test, fixture answer leaks and delegation (R87-R1..R3); a successor battery is owed before the next
+  claim on this gate.
+- Limine trunk accepts BLAKE3 pins (64/256 hex); the host's 12.9.4 does not. Re-pin S350–S353 on a limine upgrade.
+- Host: pins on lines 30 and 38 still mismatch (operator-owned repair, r86 L0 line).

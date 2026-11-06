@@ -7385,3 +7385,18 @@ absent setting panics (N16), missing ≠ unresolved (N17), unreadable conf rc 2 
 Secure Boot's unhashed-path rule, per-protocol effect of a missing file (frozen as limits in the docstring).
 C1 and C2 are causally separable: the battery reads only the gate; the entry is judged on its rows and sources.
 Operability stays 9 (a new runnable arm, no ordinal move); depth stays 8 unless the closure endorses a move.
+
+## Round 87 — measured outcome (measured at `46d48a7115fd19156f8916e72e8c460968d32f44`; C1 target met, 10 R1-R7 clauses uncertified by the counter; C2 exploratory pending the closure)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured, sourced S350–S353) | operability 9 → 9 | `python3 tools/limine-pin-battery-r87.py --gate tools/check-limine-pins.py`: do-nothing K1 (gate absent) 0/22 ×3 and K2 (lane boot-chain gate) 0/22 ×3 at the freeze `5eb8b157` → candidate 22/22 `met` rc 0 in three consecutive runs at the landed tip, clean `git clone --shared` (`.ufo/waves/round-87/after/measured/c1-receipt.txt`, `c1-run{1,2,3}.json`); battery bytes `f2551c8e…989d` equal the freeze manifest; gate bytes `e3b0fab4…7352` (ESP confinement and UTF-8 hardening at `46d48a71`; the pre-hardening gate `bbcc874a…b73c` read 22/22 ×3 in wave seat ExecReplicate's clean room) | 22/22 ×3 | **met** by the frozen predicate and kill rule. Discrimination partial: wave seat CriticClaims' one-clause forgers g01-g08, g10, g14 also read 22/22 ×3, so 10 written clauses are uncertified by this counter (lesson M3, QUALITY 125, R87-R4). Outside the counter, the candidate equals an independent R1-R7 base on 11 clause-discriminating inputs (`after/residual-diff/`, controls rc 1 for g07/g10/g01) |
+| C2 (exploratory, sourced S350–S354) | depth 8 → 8 | none (exploratory); entry `corpus/knowledge/limine-pin-plane-r87.md` + `.json`, rows LP1–LP8; lane seat ReviewEntry (advisory; a wave seat is the lane): 6 support, 2 partial (LP2 citation, LP5 `y`), anchor gap on LP7/S354 and an unpinned trunk Limits sentence, all four fixed at `46d48a71` | non-author `unprovable-but-better` with reasons | pending the hyaku closure |
+
+Uncredited repairs at `46d48a71`: QUALITY 124 repaired (exit map, committed controls) and QUALITY 125 added (lesson
+M3); registry rows `limine-pins`, `limine-pin-battery-r87` (`check-registry-coverage.py --revision 46d48a71` PASS
+138/138, was 136/138 at `cefb4188`); `R87-REG-1` appended for the r86 battery row (r86 routed 3);
+`check-knowledge-header.py --revision 46d48a71` PASS 103/103; selftests 15/15 (gate) and 5/5 (battery) from an
+unrelated cwd; `--live` at the tip rc 1, lines 30/38 `LP-MISMATCH` `prompt`, `/boot` list `cmp`-identical
+(`after/live-receipt-landed.txt`); census rc 0, rows 349 → 354, 52 W04 both ends. Axes now: depth8, coverage9,
+operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row enters. No retirement. No axis harmed.

@@ -1,0 +1,16 @@
+# live run at landed tip 46d48a71 (read-only), 2026-11-06T20:30:23-03:00, TsukuroiR87a2 (L1). QUALITY 124 receipt.
+$ sudo -n sh -c 'find /boot -type f -print0 | sort -z | xargs -0 b2sum' > before ; sha256sum before
+rc=0
+0f6acc28a3f9f4e3448fa2e9813dc61fb13f18c5d7a0fee6c5c21774e3560028  -
+$ sudo -n python3 tools/check-limine-pins.py --live | (findings, hash_mismatch_panic, per-pin line/status/consequence)
+findings ['LP-MISMATCH line 30', 'LP-MISMATCH line 38']
+hash_mismatch_panic {'line': 8, 'value': 'no'}
+30 linux LP-MISMATCH prompt 57f5eb9420f462c7 b990d8c699ef1987
+38 linux-lts LP-MISMATCH prompt eff78d32b1aed09d a68c281d9e34c1bf
+50 linux OK none 822299bbdaf0d4ed 822299bbdaf0d4ed
+56 linux-lts OK none 6c1893df2144b71b 6c1893df2144b71b
+64 linux OK none 2832912269f8e0f0 2832912269f8e0f0
+rc=1
+$ (same list after) ; sha256sum after ; cmp before after
+0f6acc28a3f9f4e3448fa2e9813dc61fb13f18c5d7a0fee6c5c21774e3560028  -
+cmp: identical (no /boot byte changed by the live run)

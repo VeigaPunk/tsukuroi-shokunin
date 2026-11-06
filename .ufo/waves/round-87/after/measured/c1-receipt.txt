@@ -1,0 +1,21 @@
+# C1 measured at landed tip 46d48a7115fd19156f8916e72e8c460968d32f44 (clean clone --shared at /fast/scratch/hyaku/tsukuroi-r87/L1a2/lane), L1 TsukuroiR87a2, 2026-11-06T20:29:49-03:00
+$ sha256sum tools/limine-pin-battery-r87.py tools/check-limine-pins.py
+f2551c8e8386d599e3c2aca8888d5fbb0351a5a399dc43dc448556e99361989d  tools/limine-pin-battery-r87.py
+e3b0fab4f2d276fe579b64ce5c8741a065bd9afe281257d38aa2209062407352  tools/check-limine-pins.py
+$ head -1 .ufo/waves/round-87/before/freeze-manifest.sha256
+f2551c8e8386d599e3c2aca8888d5fbb0351a5a399dc43dc448556e99361989d  tools/limine-pin-battery-r87.py
+$ python3 tools/limine-pin-battery-r87.py --gate tools/check-limine-pins.py --work /fast/scratch/hyaku/tsukuroi-r87/L1a2/w --json run1.json   # run 1
+families_passed 22/22 verdict met failed -
+rc=0
+$ python3 tools/limine-pin-battery-r87.py --gate tools/check-limine-pins.py --work /fast/scratch/hyaku/tsukuroi-r87/L1a2/w --json run2.json   # run 2
+families_passed 22/22 verdict met failed -
+rc=0
+$ python3 tools/limine-pin-battery-r87.py --gate tools/check-limine-pins.py --work /fast/scratch/hyaku/tsukuroi-r87/L1a2/w --json run3.json   # run 3
+families_passed 22/22 verdict met failed -
+rc=0
+$ (cwd /fast/scratch/hyaku/tsukuroi-r87/L1a2) python3 /fast/scratch/hyaku/tsukuroi-r87/L1a2/lane/tools/limine-pin-battery-r87.py --selftest
+selftest PASS 5/5
+rc=0
+$ (cwd /fast/scratch/hyaku/tsukuroi-r87/L1a2) python3 /fast/scratch/hyaku/tsukuroi-r87/L1a2/lane/tools/check-limine-pins.py --selftest
+selftest PASS 15/15
+rc=0

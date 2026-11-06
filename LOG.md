@@ -3894,3 +3894,15 @@ lines 30/38 mismatch, three snapshot-history pins).
 **Freeze.** Battery `tools/limine-pin-battery-r87.py` (22 families, rules R1-R7 from pinned Limine v12.9.4 sources),
 reference gate + forgers + 18 near-miss controls run 3× each (`.ufo/waves/round-87/before/controls/`), declaration in
 `SCORECARD.md` "Round 87 — declaration".
+
+**Attempt 2 (TsukuroiR87a2).** Attempt 1 ended mid-wave (orchestrator kernel restart; watchdog 20:22:42). Wave w1
+(12 seats, attack 6/12) settled with no seat output in `w1-results.json`; finals recovered into `w1/finals/`. Six
+seats reported (ExecReplicate 22/22 ×3 and 25/25 controls; ExecLints registry gap; MutGate 26/30; MutBattery
+selftest/fixture/delegation defects; ReviewEntry 6+2 partial; ScribeLesson drafts); CriticClaims, ReviewGate and
+ConnectorOverlap left receipts only; CriticLimine, ScoutSources, ScoutRepair left nothing.
+
+**Landing `46d48a71`.** Gate ESP confinement + UTF-8 + usage 64 (ReviewGate patch), entry LP2/LP5/LP7/Limits fixes,
+S350/S354 anchors, registry rows + R87-REG-1, QUALITY 124 repaired, w1 evidence, residual clause probe (candidate =
+independent base 11/11). Measured at the tip: C1 22/22 ×3, selftests 15/15 and 5/5, registry 138/138, header
+103/103, census rc 0 (rows 354), `--live` rc 1 lines 30/38 with `/boot` unchanged. Outcome in `SCORECARD.md`
+"Round 87 — measured outcome"; lesson M1-M3, QUALITY 125, routed R87-R1..R6.
