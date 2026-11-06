@@ -1,0 +1,392 @@
+{
+ "schema": "tsukuroi-battery-roster-r88-v1",
+ "gates": [
+  {
+   "id": "P-landed-gate",
+   "file": "pos-landed-gate-3ba37eb0.py",
+   "expect": "met",
+   "basis": "tools/check-limine-pins.py at 3ba37eb0 (r87 landed gate, admitted)",
+   "sha256": "e3b0fab4f2d276fe579b64ce5c8741a065bd9afe281257d38aa2209062407352"
+  },
+  {
+   "id": "P-g00-base",
+   "file": "g00-base.py",
+   "expect": "met",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "r87 CriticClaims docstring-only reimplementation, no deviation (independent of the gate bytes)",
+   "sha256": "1c2238087c6808ee5fa45e54ac8182320d3739b0b9e981e383eb10a6d6b309f3"
+  },
+  {
+   "id": "P-m01-comment-not-skipped",
+   "file": "m01-comment-not-skipped.py",
+   "expect": "met",
+   "basis": "r87 MutGate equivalent mutant: a # line cannot pass the key-char scan, so dropping the # test changes nothing",
+   "sha256": "14b9908d834dd93beaa52bc07ab1b588da45fe6c379a473fc8b88675d9ff3de1"
+  },
+  {
+   "id": "N-g01-loose-key",
+   "file": "g01-loose-key.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g01-loose-key: R1 clause 'followed directly by :' and key charset [A-Za-z_]: this forger accepts blanks",
+   "sha256": "e90a81881a9586b953a7f7e2dedacfdcb8ee5c871a546d6d2bf2466aa9cde7ce"
+  },
+  {
+   "id": "N-g02-no-paren",
+   "file": "g02-no-paren.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g02-no-paren: R2 clause 'a ( then, later, ):/': this forger accepts any value containing ':/' and '#'.",
+   "sha256": "efcff4ed8091f20971669d5f057d3c4bf0f40291134a16bdfb26b6fb2264eb05"
+  },
+  {
+   "id": "N-g03-format-after-resolve",
+   "file": "g03-format-after-resolve.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g03-format-after-resolve: R3 clause 'checked before resolution': this forger resolves first, then checks the hash format.",
+   "sha256": "2764b2e69775a21f60000a1677f64c0810d88e5b5d21b9528f0a526948e0ce76"
+  },
+  {
+   "id": "N-g04-hashformat-optional-panic",
+   "file": "g04-hashformat-optional-panic.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g04-hashformat-optional-panic: R6 clause 'for LP-MISMATCH and LP-HASH-FORMAT: key wallpaper/term_font -> skip': this forger",
+   "sha256": "858dfb5a2d06008e6afce8f7c17b9c7f7100f86e05bd5a297e0a8dd7b43a345a"
+  },
+  {
+   "id": "N-g05-last-uri-sep",
+   "file": "g05-last-uri-sep.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g05-last-uri-sep: R2 clause 'the text between the FIRST ):/ and that #': this forger splits at the last '):/'.",
+   "sha256": "308001eba9768c5e994b9c3cfe171a25e911e45449e6f08259b1af568c0ef32f"
+  },
+  {
+   "id": "N-g06-any-empty-root",
+   "file": "g06-any-empty-root.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g06-any-empty-root: R4 clause 'Any other resource ... -> LP-UNRESOLVED': this forger resolves ANY resource with an",
+   "sha256": "e29fdba88b61f1fb170ab9695c5c3d85fe18960b4b9a4c8b705fd650d7b0ffdc"
+  },
+  {
+   "id": "N-g07-panic-key-case",
+   "file": "g07-panic-key-case.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g07-panic-key-case: R1/R6 clause that key matching (also for hash_mismatch_panic) is case-insensitive: this forger",
+   "sha256": "877e82fcd20e60506ecafcb7a8d4d0440524f180740adbefe28bcc5bf08e8652"
+  },
+  {
+   "id": "N-g08-sb-presence",
+   "file": "g08-sb-presence.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g08-sb-presence: R6 clause 'when --secure-boot-enforced 1': this forger panics whenever the flag is present.",
+   "sha256": "6500f0a0c2c63a8fd3ee7983eac253a9e6591c42f8de7bf509b2f900082ad0c5"
+  },
+  {
+   "id": "N-g09-nohash",
+   "file": "g09-nohash.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g09-nohash: R5 BLAKE2b-512 comparison entirely: this forger checks format, resolution and existence only and",
+   "sha256": "2221874e989fd22cb861b1370eefd602eb7daed6bac085eeabad2a73c080b7b8"
+  },
+  {
+   "id": "N-g10-raw-panic-scan",
+   "file": "g10-raw-panic-scan.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g10-raw-panic-scan: R6 clause 'the FIRST hash_mismatch_panic KEY LINE in the whole file (R1 rules)': this forger",
+   "sha256": "131d56ed466c44d6db568e3072bc54a3baf908538f5637446bc37867321fbc03"
+  },
+  {
+   "id": "N-g11-first-hash-control",
+   "file": "g11-first-hash-control.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g11-first-hash-control: CONTROL (expected under 22): R2 'hash is the text after the LAST #'. Bends to the first '#'.",
+   "sha256": "3a1b4afae1a77ecdc7acf75980d24a72da4bad0480e698c2268de1e21b763516"
+  },
+  {
+   "id": "N-g12-any-non-yes-control",
+   "file": "g12-any-non-yes-control.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g12-any-non-yes-control: CONTROL (expected under 22): R6 'only no prompts'. Treats any value but yes as prompt.",
+   "sha256": "78eedb5eb58ab8c077a3a22f525d08613d304ba6b6d5bc6129b308dbded59be2"
+  },
+  {
+   "id": "N-g13-constant-panic-control",
+   "file": "g13-constant-panic-control.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g13-constant-panic-control: CONTROL (expected under 22): R6 consequence table flattened to 'mismatch always panics'.",
+   "sha256": "f3e54d8011acc62cbaa48ba0f2041d7726db58c0d57b68bda7a3f18fb4577fa4"
+  },
+  {
+   "id": "N-g14-eacces-rc1",
+   "file": "g14-eacces-rc1.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g14-eacces-rc1: R7 clause 'An unreadable --conf -> CANNOT-EVALUATE rc 2': this forger only handles ENOENT; any",
+   "sha256": "82155b970bf3c65ed9fdfa2285dc9dc1516c509c93641d948bab8052f10779a4"
+  },
+  {
+   "id": "N-g15-no-cr-strip",
+   "file": "g15-no-cr-strip.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g15-no-cr-strip: R1 clause 'trailing spaces/tabs/CR removed': this forger never strips a trailing CR.",
+   "sha256": "5abe34f7499637f381d8d8d7e029939c8660a8237c285f5a5c9226ce570c9584"
+  },
+  {
+   "id": "N-g16-drop-global-dtb",
+   "file": "g16-drop-global-dtb.py",
+   "expect": "unmet",
+   "support": [
+    "_lib.py"
+   ],
+   "basis": "\"\"\"Round-87 CriticClaims forger g16-drop-global-dtb: R2 pin-key set: this forger omits `global_dtb`, a plausible implementation slip (it is the",
+   "sha256": "4c2f9748551e1814ed2e3b143943d807348e5ad03e28a0d6a20929729832300a"
+  },
+  {
+   "id": "N-m02-no-blank-strip",
+   "file": "m02-no-blank-strip.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "ae25f5ef7604a5dc4b1d4f154c1885c680d28c2578b970c2c48fd40bffe47d51"
+  },
+  {
+   "id": "N-m03-key-case-sensitive",
+   "file": "m03-key-case-sensitive.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "fe4268fac28f2b3821166dbb64cfbe1ceb9f39e5a18e0d215ecc631089e5163b"
+  },
+  {
+   "id": "N-m04-first-hash",
+   "file": "m04-first-hash.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "ff5a4af3c4bf663e657361450ae35cb28e97653ad2e14b65ae569d6d07792349"
+  },
+  {
+   "id": "N-m05-last-open-paren",
+   "file": "m05-last-open-paren.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "2e2ee9c04b64a059a223ea460495f02d9590874326b1284899b75b265d61d24b"
+  },
+  {
+   "id": "N-m06-hash-127",
+   "file": "m06-hash-127.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "191d854da62d58d217b854b6005121a95e2f23f082b2cc7f4935bf31e6c13a46"
+  },
+  {
+   "id": "N-m07-hash-129",
+   "file": "m07-hash-129.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "8063e40ab96779305cfceeba57020ef013fcaf9c77df558e56615624e52d7522"
+  },
+  {
+   "id": "N-m08-hex-lowercase-only",
+   "file": "m08-hex-lowercase-only.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "0e875eb82984605f15c798669e33c5ac41286add279e72763d2aa8aa5a6a818c"
+  },
+  {
+   "id": "N-m09-any-resource-resolves",
+   "file": "m09-any-resource-resolves.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "304ccc0e9d65905aad63dc972066193cefd63c81fa1fee0b49f2c5afb8ab6ffb"
+  },
+  {
+   "id": "N-m10-root-ignored",
+   "file": "m10-root-ignored.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "b3a5f773d4acdab1c1b5d8f6370814d818697c6fc45bd60d9cdb789d56a41226"
+  },
+  {
+   "id": "N-m11-gzip-decompress",
+   "file": "m11-gzip-decompress.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "60acbd11a75ce8baf6e1e753c2c21238e339def1c4426fa4bde5bada758c3903"
+  },
+  {
+   "id": "N-m12-missing-as-unresolved",
+   "file": "m12-missing-as-unresolved.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "e60f206ec4844cdcb71ef6434749ae3107ab26d053e4566f1d008dc480350410"
+  },
+  {
+   "id": "N-m13-missing-as-ok",
+   "file": "m13-missing-as-ok.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "db4e4381fe397f273d8d2dcdd77ad84b58ccc9e76e7123efee8e896e28efefbb"
+  },
+  {
+   "id": "N-m14-panic-last-wins",
+   "file": "m14-panic-last-wins.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "72cf166892bb9cf80e1ccbaee0a796a9575981503065d98b6fa9e8f68dc28aa8"
+  },
+  {
+   "id": "N-m15-panic-default-prompt",
+   "file": "m15-panic-default-prompt.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "285fc95fa431fa9895b2b8c8f4ae3dcb55d02c3bb96ae135bac0855680960269"
+  },
+  {
+   "id": "N-m16-panic-no-inverted",
+   "file": "m16-panic-no-inverted.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "b835fce1a57b18b2594dfbfc2c049cc9b2db247685cc4db2dd82bc438d4608b1"
+  },
+  {
+   "id": "N-m17-secureboot-ignored",
+   "file": "m17-secureboot-ignored.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "bb6838bbdd3a9695233f98b2e42d9f6a9b44fc490823789500cff47f5deb9f77"
+  },
+  {
+   "id": "N-m18-optional-no-skip",
+   "file": "m18-optional-no-skip.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "0b73ae96346f594eee3c47c3183bb0cd9d72e25cac1d3c4c58096f9083097a55"
+  },
+  {
+   "id": "N-m19-degraded-only-mismatch",
+   "file": "m19-degraded-only-mismatch.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "e64bc65059ee5319e7d697535539212beedec4d9e7385ddcc560bc9be6396db4"
+  },
+  {
+   "id": "N-m20-unresolved-precedence-first",
+   "file": "m20-unresolved-precedence-first.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "8aacabc6bb3041b3564dc3cd51cebac0b76f1f895e4fc6d592b390a6add8990d"
+  },
+  {
+   "id": "N-m21-lines-0-based",
+   "file": "m21-lines-0-based.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "c6403d92529648c9a4b16df2f33f39ff20a45fe7e5e4ba12437d03fc39a18d61"
+  },
+  {
+   "id": "N-m22-cr-not-stripped",
+   "file": "m22-cr-not-stripped.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "4613905b128caa569a06513090eb679d400c74e706e98c65db84d3739bef73d0"
+  },
+  {
+   "id": "N-m23-value-not-lstripped",
+   "file": "m23-value-not-lstripped.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "8858ac6ff1d419bd087f8a71df9eff19359d53ef332c8dd9abb169f7579af533"
+  },
+  {
+   "id": "N-m24-entry-not-tracked",
+   "file": "m24-entry-not-tracked.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "f5a4643b78f4aec7d7ce2b046c056bad4752c8b7f25d3529e92acf8270744c24"
+  },
+  {
+   "id": "N-m25-panic-line-metadata-zero",
+   "file": "m25-panic-line-metadata-zero.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "b5e566b730a146f4072cb6bf7914ceb9bd623db6c9d2214435a80a06ad461ae7"
+  },
+  {
+   "id": "N-m26-pin-keys-path-only",
+   "file": "m26-pin-keys-path-only.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "3cee2999bc3a967853f05c0a43342ccb493c509a1832a5147a4e1985c70926d7"
+  },
+  {
+   "id": "N-m27-optional-wallpaper-dropped",
+   "file": "m27-optional-wallpaper-dropped.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "df9285b75596e541683a3ad796e8fb3b3b0d3b4b23907b6bc005472703221eca"
+  },
+  {
+   "id": "N-m28-hash-case-sensitive-compare",
+   "file": "m28-hash-case-sensitive-compare.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "e86293b88f94f1e59768687cb73c067bc1b1f45192f00391bd0b8deb87f850b4"
+  },
+  {
+   "id": "N-m29-sha256-instead-of-blake2b",
+   "file": "m29-sha256-instead-of-blake2b.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "d1e3f4d669992af2b8b51d7aad89f30e44740af473759e3e3acb13d24deae817"
+  },
+  {
+   "id": "N-m30-last-pin-only",
+   "file": "m30-last-pin-only.py",
+   "expect": "unmet",
+   "basis": "r87 MutGate single-point mutant, see .ufo/waves/round-87/w1/MutGate.md table",
+   "sha256": "1944a822d0db114479d491f10e1f1047c34973911d3032f4cce5edc2844feb5b"
+  }
+ ]
+}

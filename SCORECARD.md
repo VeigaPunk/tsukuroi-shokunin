@@ -7400,3 +7400,27 @@ M3); registry rows `limine-pins`, `limine-pin-battery-r87` (`check-registry-cove
 unrelated cwd; `--live` at the tip rc 1, lines 30/38 `LP-MISMATCH` `prompt`, `/boot` list `cmp`-identical
 (`after/live-receipt-landed.txt`); census rc 0, rows 349 → 354, 52 W04 both ends. Axes now: depth8, coverage9,
 operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row enters. No retirement. No axis harmed.
+
+## Round 88 — declaration (frozen before the candidate battery exists; controls committed with it)
+
+Inputs read first: the round-87 closure (MANIFEST `rounds[]` tsukuroi r87, `admitted`) and its non-author spot-check
+`corpus/lessons/round-87-verifier-spotcheck.md` §5 routed defects 1-6, and the round-87 lesson's routed R87-R1..R6.
+Routed 2 (C1 discrimination gap: ten uncertified R1-R7 clauses, m05/m24/m25, sampling of `global_dtb`) is this
+round's C1 surface; routed 6 (the operator-owned host incident) is C2's surface: who writes the pins, when they are
+recomputed, and why the incident's stale pins spread. Routed 1, 3, 4, 5 are uncredited repairs this round.
+
+| Claim | Axis | Predicate (same sentence in the counter docstring and the receipt) | Target | Kill rule | Counting command | Do-nothing and forgery controls (committed receipts, run at freeze, 3 runs each) |
+|---|---|---|---|---|---|---|
+| C1 (measured) | operability 9 (assurance arm of the `limine-pins` gate) | The battery under test, driven by this counter over the frozen roster `.ufo/waves/round-88/before/roster/roster-r88.json`, reads `met` (exit 0 and JSON verdict "met") for every POSITIVE gate and `unmet` (exit 1 and JSON verdict "unmet") for every NEGATIVE gate, in each of three runs, with every gate handed to the battery as a freshly renamed, nonce-perturbed copy inside a sandbox that hides the lane repository. | positives 3/3 and negatives 45/45 in each of three runs (`verdict met`, exit 0), battery `tools/limine-pin-battery-r88.py` at the landed tip | unmet if any run reads below 3/3 or 45/45; void if the counter or any roster file differs from `.ufo/waves/round-88/before/freeze-manifest.sha256` | `python3 tools/battery-discrimination-r88.py --battery tools/limine-pin-battery-r88.py --runs 3` | K1 do-nothing (the frozen r87 battery, unchanged): positives 3/3 ×3, negatives 29/45, 32/45, 30/45 → unmet. Forgers: always-met 3/3, 0/45 ×3; always-unmet (blanket refusal) 0/3, 45/45 ×3; digest identity with the landed gate 0/3, 45/45 ×3; embedded NEGATIVE digest list 3/3, 0/45 ×3; roster-label oracle 0/3, 0/45 ×3 (cannot read the hidden lane) — all unmet (`.ufo/waves/round-88/before/controls/controls-summary.txt`, `*.receipt.txt`, `*.json`) |
+| C2 (exploratory, sourced, new S-rows opened this round) | depth 8 (tied lowest) | none (exploratory): an entry `corpus/knowledge/limine-pin-writers-r88.md` (+ `.json`) holds sourced, host-measured rows on ground no entry holds: which installed component writes a `#hash` pin and under which setting, how the hash is computed, which command recomputes the main-entry pins, and whether limine-snapper-sync copies a main entry's pin text into new snapshot entries (so a stale main pin spreads) | named non-author `unprovable-but-better` with reasons (the hyaku closure; a wave seat is the lane) | lands `unprovable` without that judgment | none | prior state: `corpus/knowledge/limine-pin-plane-r87.md` Limits "The repair command of the host's limine-entry-tool hook was not opened this round"; `git grep -n -i 'ENABLE_VERIFICATION\|computeBlake2\|blake2IntegrityCheck' 3ba37eb0 -- corpus/knowledge` → empty |
+
+Roster (frozen, 48 gates; digests in `roster-r88.json`): POSITIVE — the landed r87 gate (`tools/check-limine-pins.py` at
+`3ba37eb0`, copied), CriticClaims' docstring-only reimplementation g00 (independent of the gate bytes, so digest identity
+cannot pass), and MutGate's equivalent mutant m01. NEGATIVE — CriticClaims forgers g01-g16 (each bends one written
+R1-R7 clause; g11-g13 were r87 controls) and MutGate's single-point mutants m02-m30. The r87 battery's survivors are the
+claim's ground: g01-g08, g10, g14, g16 (sampled), m05, m24, m25 (and m10 in one run).
+Isolation is part of the predicate: a battery that answers from the roster, the forger sources or stored digests fails
+(controls above). Not certified: a gate that behaves differently on its own bytes or file name; a battery that
+recognises roster gates by behaviour-preserving normalisation of their source text (left to the non-author review).
+C1 and C2 are causally separable: the counter reads only the battery; the entry is judged on its rows and sources.
+Operability stays 9 (an assurance move, no ordinal claim); depth stays 8 unless the closure endorses a move.
