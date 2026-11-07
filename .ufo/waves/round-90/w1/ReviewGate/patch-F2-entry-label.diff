@@ -1,0 +1,15 @@
+F2 (low, R8): `"entry"` for a pin under an entry line whose label is empty, or whose label ends
+with a vertical tab/form feed, must be the line's own label ("" / "...\v"); today the `or entry`
+fallback reports the previous entry's label and `.strip()` trims characters R8 keeps.
+
+--- a/tools/check-limine-pins.py
++++ b/tools/check-limine-pins.py
+@@ -136,7 +136,7 @@
+     for lineno, raw in enumerate(text.split("\n"), 1):
+         stripped = raw.replace("\r", "").strip(" \t")
+         if stripped.startswith("/"):
+-            entry = sanitize(stripped.lstrip("/").lstrip("+").strip()) or entry
++            entry = sanitize(stripped.lstrip("/").lstrip("+").strip(" \t"))
+             body = {}
+             bodies.append(body)
+             continue

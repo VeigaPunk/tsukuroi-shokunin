@@ -3992,6 +3992,6 @@ CriticClaims: an oracle-import gate also reads 73/73 (channel unnamed); map cove
 ReviewGate F1-F4; ExecLints registry 143/143, headers 105/105, census rc 0; ConnectorOverlap no sibling conflict,
 considerthese none fits; ScribeLesson mined R89-EMPTY-RUNS-MET.
 
-**Landing.** C2 entry `limine-tpm-volume-r90` TV1-TV9 (S365-S372), S364 for C1, LP5 erratum with carrier sweep,
+**Landing.** C2 entry `limine-tpm-volume-r90` TV1-TV9 (S365-S373), S364 for C1, LP5 erratum with carrier sweep,
 QUALITY 130-131, lesson M1-M2 and routed R90-R1..R4, README r90 frontier, registry row and R90-REG-1, SCORECARD measured
 outcome.

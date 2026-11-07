@@ -1,0 +1,31 @@
+ReviewSource — pin fidelity (round 90, wave w1)
+================================================
+Lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin (branch master, jj-colocated)
+Lane revision measured: ce89df93e5f576c5c236d4547299e9ea954e8853 (== candidate commit)
+Pinned set: .ufo/waves/round-90/before/src (6 files, SHA256SUMS)
+Clone: git clone --depth 1 --branch v12.9.4 https://github.com/limine-bootloader/limine.git
+       HEAD 8ad14430bc9f2c24679cda558981ef53e6e3b18c, describe --tags --exact-match = v12.9.4
+       (matches before/src/cmp-pins.txt: "tag v12.9.4 commit 8ad14430bc9f2c24679cda558981ef53e6e3b18c")
+
+$ for each pinned file: cmp -s "$B/<pin>" "$L/<repo path>" && echo IDENTICAL ...
+IDENTICAL common/lib/config.c
+IDENTICAL common/lib/gterm.c
+IDENTICAL common/lib/panic.s2.c
+IDENTICAL common/lib/uri.c
+IDENTICAL common/menu.c
+IDENTICAL common/protos/chainload.c
+
+SHA-256 of the clone's files (identical to .ufo/waves/round-90/before/src/SHA256SUMS):
+aafc9c410a250efc9674e3c93e839d32ae2731ba2ca60bb7f5edd7ad5828fba8  common/lib/config.c
+af161f01095e8ec8bb930b942b9f08051b0ea5d48154e889f83773f9c532b76d  common/lib/gterm.c
+0233d557db8fdf96918350a305cde91a8a4aca33216d2ac8c712cf47c79a3ff1  common/lib/panic.s2.c
+e06cac1212fec55150c109843e22dfe01cd618d4e81235e357d9a256e2a2ed6f  common/lib/uri.c
+628001e88564525f8d1e0e6193ea86145e5613eaea97c04110545cd182168f95  common/menu.c
+316eb17df996f91252791b1351e8f88c027ceeb8535becc1a247d614d8b5e1a7  common/protos/chainload.c
+
+Files the r90 clauses cite that are NOT pinned (see finding F3):
+common/lib/tpm.c  d6892d0b430c7639ad7e10d98715d4953892e81e9bfe9d7381c366cf0743f090  (v12.9.4 clone)
+common/protos/efi_boot_entry.c (consulted only to answer the efi_boot_entry question; not pinned)
+
+Verdict: 6/6 pinned files byte-identical to the v12.9.4 clone; pinned set is sound as far as it
+goes, and incomplete for R10 (tpm_present) and for the efi_boot_entry question.

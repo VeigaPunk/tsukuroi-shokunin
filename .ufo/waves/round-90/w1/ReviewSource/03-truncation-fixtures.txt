@@ -1,0 +1,82 @@
+ReviewSource — F1 receipts: the "whole file" scan vs config.c 643-650
+=====================================================================
+Claim under test (battery docstring R10 and R6/R8; battery families MEASURED-IN-ENTRY,
+PANIC-AFTER-PIN): `measured_boot` / `hash_mismatch_panic` are read over the WHOLE file.
+
+Gate: tools/check-limine-pins.py (landed tip ce89df93), run --tpm-present 1 on fixtures under
+/fast/scratch/hyaku/tsukuroi-r90/ReviewSource/fx-trunc (ESP with EFI/x.efi and EFI/y.efi).
+
+A_measured_in_entry_with_header  (battery shape: a non-entry line precedes the first entry)
+  timeout: 3
+  /abc
+    protocol: efi
+    measured_boot: yes
+    path: boot():/EFI/x.efi#<good>
+  $ check-limine-pins.py --conf A --esp esp --tpm-present 1
+  rc=0 verdict=HEALTHY on_panic=halt measured={'line': 4, 'value': 'yes'} panic=None
+  pins=[(5, 'OK', 'none')]
+
+B_measured_in_entry_file_starts_with_entry  (no line before the first entry)
+  /abc
+    protocol: efi
+    measured_boot: yes
+    path: boot():/EFI/x.efi#<good>
+  rc=0 verdict=HEALTHY on_panic=halt measured={'line': 3, 'value': 'yes'} panic=None
+  pins=[(4, 'OK', 'none')]
+
+C_panic_no_in_entry_with_header
+  timeout: 3
+  /a
+    protocol: efi
+    path: boot():/EFI/x.efi#<bad>
+  /b
+    protocol: efi
+    path: boot():/EFI/y.efi#<good>
+    hash_mismatch_panic: no
+  rc=1 verdict=DEGRADED on_panic=menu measured=None panic={'line': 8, 'value': 'no'}
+  pins=[(4, 'LP-MISMATCH', 'prompt'), (7, 'OK', 'none')]
+
+D_panic_no_in_entry_file_starts_with_entry  (same lines, no header)
+  rc=1 verdict=DEGRADED on_panic=menu measured=None panic={'line': 7, 'value': 'no'}
+  pins=[(3, 'LP-MISMATCH', 'prompt'), (6, 'OK', 'none')]
+
+The gate answers A like B and C like D. The pinned source distinguishes them:
+
+config.c 638-651
++638|     config_ready = true;
++640|     menu_tree = create_menu_tree(NULL, 1, 0);
++642|     size_t s;
++643|     char *c = config_get_entry(&s, 0);
++644|     if (c != NULL) {
++645|         while (*c != '/' && c > config_addr) {
++646|             c--;
++647|         }
++648|         if (*c == '/' && c > config_addr) {
++649|             c[-1] = 0;
++650|         }
++651|     }
+
+config_get_entry returns a pointer to the '\n' that ends entry 0's line (config.c 704-720), so the
+walk-back at 645-647 lands on entry 0's leading '/'. Line 649 then NULs the character before that
+'/', i.e. the newline that ends the last global line. Every later config_get_value(NULL, ...) scan
+(menu.c 1711 hash_mismatch_panic, menu.c 1720 measured_boot) therefore stops at that NUL and sees
+the global section only — UNLESS entry 0 starts at offset 0, where the `c > config_addr` guard at
+648 skips the write and the whole file (entry bodies included) remains visible to the scan.
+
+config.c 786-793 (the scan target):
++786|     if (!config) {
++787|         config = config_addr;
++788|     }
+...
++797|     for (size_t i = 0; config[i]; i++) {
+
+menu.c 1638-1654 runs init_config_smbios/init_config_disk inside _menu() before 1711/1720; every
+reload ends with the truncation above.
+
+Consequence for the frozen battery (which always writes a `timeout: N` header first, battery 205-209):
+  MEASURED-IN-ENTRY (battery 1211-1220) expects on_panic=halt; Limine reads no measured_boot key and
+  answers menu. PANIC-AFTER-PIN (battery 1251-1259) expects `prompt`; Limine sees no
+  hash_mismatch_panic key, defaults to panic and does not prompt.
+
+Mode: source-derived line-by-line trace; no Limine boot was run (read-only host bounds). Fixtures and
+gate outputs above are observed.

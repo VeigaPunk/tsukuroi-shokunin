@@ -1,0 +1,17 @@
+# Receipt: GUID byte-order harness
+# built from the pinned upstream common/lib/guid.c (sha256 ae18e678...), compiled with the host gcc 16.2.1
+# digit_to_int copied verbatim from common/lib/misc.s2.c:42-54
+
+mixed round-trip: "b80445be-18ee-45e6-9a30-14339ea785a7" -> "b80445be-18ee-45e6-9a30-14339ea785a7" IDENTICAL
+mixed round-trip identity: 50000/50000 ok (failures 0)
+mixed bytes: be 45 04 b8 ee 18 e6 45 9a 30 14 33 9e a7 85 a7
+be    bytes: b8 04 45 be 18 ee 45 e6 9a 30 14 33 9e a7 85 a7
+memcmp(mixed,be,16)=6 -> a BE-stored GUID is a different 16 bytes, so the retry is a genuine second try
+uppercase "B80445BE-18EE-45E6-9A30-14339EA785A7" parses ok=1, same bytes=1
+string_to_guid_mixed("86D8-C3F6") ok=0
+
+== inverse property (string_to_guid_mixed(guid_to_string(x)) == x) and injectivity ==
+mixed(esp)     be 45 04 b8 ee 18 e6 45 9a 30 14 33 9e a7 85 a7
+guid_to_string(mixed(esp)) = "b80445be-18ee-45e6-9a30-14339ea785a7"  IDENTICAL to the host text
+string_to_guid_mixed(guid_to_string(x)) == x for 50000/50000 random 16-byte guids (failures 0)
+distinct-byte collisions in the mixed round-trip: 0/20000

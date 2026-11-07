@@ -1,0 +1,11 @@
+--- gate.py
++++ m06-empty-resource-unresolved/gate.py
+@@ -168,7 +168,7 @@
+             pins.append(rec)
+             continue
+         resource = uri["resource"][1:] if uri["resource"].startswith("$") else uri["resource"]
+-        if resource not in RESOURCES:
++        if resource and resource not in RESOURCES:
+             rec.update(status="LP-BAD-RESOURCE", consequence="skip" if optional else "panic",
+                        detail="resource `%s` is not valid (uri.c 364)" % sanitize(resource))
+             pins.append(rec)

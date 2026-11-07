@@ -1,0 +1,11 @@
+--- gate.py
++++ m15-measured-and-sb/gate.py
+@@ -112,7 +112,7 @@
+ 
+ def on_panic_of(measured_setting, secure_boot, tpm):
+     """menu.c 1719-1728: requested by `measured_boot: yes` (strcmp) or Secure Boot; forced off without a TPM."""
+-    requested = (measured_setting is not None and measured_setting[1] == "yes") or secure_boot
++    requested = (measured_setting is not None and measured_setting[1] == "yes") and secure_boot
+     if not requested:
+         return "menu"
+     if tpm is None:

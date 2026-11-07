@@ -1,0 +1,64 @@
+{
+ "m05-image-path-key-case": {
+  "case": [
+   "/probe-entry",
+   "protocol: efi",
+   "IMAGE_PATH: boot():/missing-image.efi#00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  ],
+  "pristine": {
+   "exit": 1,
+   "verdict": "DEGRADED",
+   "on_panic": "menu",
+   "pins": [
+    [
+     3,
+     "LP-MISSING",
+     "panic"
+    ]
+   ]
+  },
+  "mutant": {
+   "exit": 1,
+   "verdict": "DEGRADED",
+   "on_panic": "menu",
+   "pins": [
+    [
+     3,
+     "LP-MISSING",
+     "not-modelled"
+    ]
+   ]
+  }
+ },
+ "m20-measured-value-strip": {
+  "case": [
+   "measured_boot: yes\u000b",
+   "/probe-entry",
+   "path: boot():/present.efi#e604204bcdff34f43101f033309648b632ba731172bcef333b5146c15f663c4adf2d269092f3fa55cf151b434c23d02ca1c8f437ec1e3d3ea6621eab938523fd"
+  ],
+  "pristine": {
+   "exit": 0,
+   "verdict": "HEALTHY",
+   "on_panic": "menu",
+   "pins": [
+    [
+     3,
+     "OK",
+     "none"
+    ]
+   ]
+  },
+  "mutant": {
+   "exit": 0,
+   "verdict": "HEALTHY",
+   "on_panic": "halt",
+   "pins": [
+    [
+     3,
+     "OK",
+     "none"
+    ]
+   ]
+  }
+ }
+}

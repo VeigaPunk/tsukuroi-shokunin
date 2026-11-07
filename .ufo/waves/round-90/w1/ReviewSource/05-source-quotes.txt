@@ -1,0 +1,139 @@
+ReviewSource — clause-by-clause source quotes (round 90, Limine v12.9.4 @ 8ad14430)
+==================================================================================
+All quotes are from the clone of v12.9.4 (6/6 pinned files byte-identical, see 01-pin-cmp.txt).
+"raw N" numbers below are file line numbers.
+
+R1-adjacent (used by R6/R8/R10) — config.c 527-552
++527|     // remove windows carriage returns and spaces at the start and end of lines, if any
++530|         if (config_addr[i] == ' ' || config_addr[i] == '\t') {
++534|             if (i + skip < config_size && config_addr[i + skip] == '\n') {
++535|                 goto skip_loop;
++539|         while (i + skip < config_size
++540|             && ((config_addr[i + skip] == '\r')
++541|                 || ((!i || config_addr[i - 1] == '\n') && (config_addr[i + skip] == ' ' || config_addr[i + skip] == '\t')))
+(config_get_value raw 778-818: key at a line start, case-insensitive, ':' directly after the key,
+blanks skipped after ':', value to the newline)
+
+R4 — uri.c 339-366
++339|     if (resource == NULL) {
++340|         URI_ERROR("No resource specified for URI `%#`.", uri);
++341|         return NULL;
++342|     }
++344|     bool gz_compressed = *resource == '$';
++345|     if (gz_compressed) {
++346|         resource++;
++347|     }
++349|     if (!strcmp(resource, "hdd")) {
+...
++363|     } else {
++364|         URI_ERROR("Resource `%s` not valid.", resource);
++365|         return NULL;
++366|     }
+URI_ERROR (uri.c 18-26): panic(true, ...) unless optional_resource; then print and return.
+uri_resolve (uri.c 47-57): resource is the text before the FIRST '('; it is set to the empty string
+(non-NULL) when '(' is the first character; there is no '(' -> uri_resolve false -> uri_open NULL
+with no message. Note: the empty-name case reaches line 364, not 340.
+
+R6 — uri.c 300-318
++301| static bool uri_hash_mismatch(const char *uri) {
++302|     if (hash_mismatch_panic || optional_resource) {
++303|         URI_ERROR("Blake2b hash for URI `%#` does not match!", uri);
++304|         return false;
++305|     }
++307|     print("WARNING: Blake2b hash for URI `%#` does not match!\n"
++308|           "         Press Y to continue, press any other key to return to menu...", uri);
++310|     char ch = getchar();
++311|     if (ch != 'Y' && ch != 'y') {
++313|         term_notready();
++314|         menu(false);
++315|     }
++317|     return true;
+menu.c 1711-1717
++1711|     char *hash_mismatch_panic_str = config_get_value(NULL, 0, "HASH_MISMATCH_PANIC");
++1712|     hash_mismatch_panic = hash_mismatch_panic_str == NULL || strcasecmp(hash_mismatch_panic_str, "no") != 0;
++1714|     if (secure_boot_active) {
++1715|         hash_mismatch_panic = true;
+Optional opens: gterm.c 625 (wallpaper) and 706 (term_font) call uri_open_optional; uri.c 696-709
+sets optional_resource = true around uri_open and clears it after.
+
+R7 — no Limine source: the verdict/rc taxonomy is the gate's own contract
+(tools/check-limine-pins.py 209-215, 127-129, 349). Nothing in the pinned source maps to it.
+
+R9 — config.c 686-722 (entry body), config.c 376-380 (per-entry copy), menu.c 2429-2468,
+chainload.c 414-435
++693|     for (size_t i = 0; i <= index; i++) {
++694|         while (*p != '/') {
++695|             if (!*p)
++696|                 return NULL;
++697|             p++;
++698|         }
++699|         p++;
++700|         if ((p - 1) != config_addr && *(p - 2) != '\n')
++701|             i--;
++702|     }
++704|     do {
++705|         p++;
++706|     } while (*p != '\n' && *p != '\0');
++708|     ret = p;
++710| cont:
++711|     while (*p != '/' && *p)
++712|         p++;
++714|     if (*p && *(p - 1) != '\n') {
++715|         p++;
++716|         goto cont;
++717|     }
++719|     *size = p - ret;
+config.c 376-380
++376|         size_t entry_size;
++377|         char *config_entry = config_get_entry(&entry_size, i);
++378|         entry->body = ext_mem_alloc(entry_size + 1);
++379|         memcpy(entry->body, config_entry, entry_size);
++380|         entry->body[entry_size] = 0;
+menu.c 2429-2461, 2463-2465
++2429|     char *proto = config_get_value(config, 0, "PROTOCOL");
++2430|     if (proto == NULL) {
++2431|         panic(true, "Boot protocol not specified for this entry");
++2434|     if (!strcmp(proto, "limine")) {
++2436|     } else if (!strcmp(proto, "linux")) {
++2438|     } else if (!strcmp(proto, "multiboot1") || !strcmp(proto, "multiboot")) {
++2445|     } else if (!strcmp(proto, "multiboot2")) {
++2456|     } else if (!strcmp(proto, "efi_chainload")
++2457|             || !strcmp(proto, "efi")
++2458|             || !strcmp(proto, "uefi")) {
++2460|         chainload(config, cmdline);
++2463|     else if (!strcmp(proto, "efi_boot_entry")) {
++2464|         efi_boot_entry(config);
++2468|     panic(true, "Unsupported protocol specified.");
+efi_boot_entry.c 107-112 reads ENTRY, not PATH (`char *boot_entry = config_get_value(config, 0,
+"ENTRY");` then panic "efi_boot_entry: No entry specified"), so it is not a chainload entry and an
+unrelated PATH pin on it is not an image line.
+
+R10 — menu.c 1719-1728, panic.s2.c 18-29, 71-111
++1719| #if defined (UEFI)
++1720|     char *measured_boot_str = config_get_value(NULL, 0, "MEASURED_BOOT");
++1721|     measured_boot = measured_boot_str != NULL && strcmp(measured_boot_str, "yes") == 0;
++1722|     if (secure_boot_active) {
++1723|         measured_boot = true;
++1724|     }
++1726|     if (!tpm_present()) {
++1727|         measured_boot = false;
++1728|     }
+panic.s2.c
++26|     if (measured_boot) {
++27|         allow_menu = false;
++28|     }
++71|     if (
++75|       efi_boot_services_exited == false &&
++77|       allow_menu == true) {
++78|         print("Press a key to return to %s.", booting_from_editor ? "editor" : "menu");
++80|         getchar();
++85|         menu(false);
++93|     } else {
++98|         print("System halted.");
++99|         for (;;) {
+tpm.c 113-115 (NOT pinned)
++113| bool tpm_present(void) {
++114|     return tcg2 != NULL || cc != NULL;
++115| }
+(tpm.c 74-111: tcg2 set only when the TCG2 protocol's GetCapability reports TPMPresentFlag; cc set
+when the CC measurement protocol exists. sha256 d6892d0b430c7639ad7e10d98715d4953892e81e9bfe9d7381c366cf0743f090)

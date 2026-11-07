@@ -1,0 +1,53 @@
+# MutGate r90 receipts (mutation-tester seat, wave w1)
+
+## Environment
+lane root: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+lane master at sweep start (asserted by runmut.py): ce89df93e5f576c5c236d4547299e9ea954e8853
+lane master at report time: 587234994bbea98559daa5f92b01e7fe6f01a492 (C1 measured commit; 0 lines of tools/ changed between the two)
+gate measured: tools/check-limine-pins.py sha256 4780da83ba411db1dc6afc250b618edc336a42790d79578018b40a2d7593a332
+battery: tools/limine-pin-battery-r90.py sha256 8f0daee82b9d487b5412a45ec1b8cf74c4e037e87d67213f756f1f850fb303e5
+scratch: /fast/scratch/hyaku/tsukuroi-r90/MutGate (removed after this copy)
+host writes: none; sudo: none; lane writes: none; tool installs: none
+
+## Pristine baseline before the sweep (gate copied byte-identical into scratch)
+$ sha256sum $S/gate.py
+4780da83ba411db1dc6afc250b618edc336a42790d79578018b40a2d7593a332  /fast/scratch/hyaku/tsukuroi-r90/MutGate/gate.py
+$ python3 <lane>/tools/limine-pin-battery-r90.py --gate $S/gate.py --runs 3 --work "$S/work-base" --json "$S/base.json"
+families_passed 73/73 verdict met failed -
+families_passed 73/73 verdict met failed -
+families_passed 73/73 verdict met failed -
+EXIT=0   (wall time 53.57 s)
+
+## Mutant sweep (29 single-point mutants, each battery --runs 3, JOBS=4)
+command per mutant: python3 <lane>/tools/limine-pin-battery-r90.py --gate $S/mutants/<id>/gate.py --runs 3 --work "$S/work/<id>" --json <id>/result.json
+total elapsed 651.3 s; counts {"killed": 26, "survived": 3}
+survivors: m05-image-path-key-case, m08-bad-only-rc2, m20-measured-value-strip
+no mutant source is byte-identical to any of the 27 near-miss controls (sha256 check: 0 collisions)
+every mutant patch anchors exactly once in the pristine gate (29/29), each py_compile clean
+
+## Follow-up probe m08b (not part of the 29 held-out mutants; 30th source, same battery, --runs 3)
+purpose: show the R7 rc clause is exercised when the fault set is bad-only but an OK pin exists
+$ python3 <lane>/tools/limine-pin-battery-r90.py --gate $S/mutants/m08b-faultonly-rc2/gate.py --runs 3 --work "$S/work/m08b" --json .../result.json
+families_passed 68/73 verdict unmet failed BAD-OVER-UNRESOLVED,BAD-RESOURCE,BAD-RESOURCE-OPTIONAL,DOUBLE-DOLLAR,RESOURCE-CASE
+families_passed 67/73 verdict unmet failed BAD-OVER-UNRESOLVED,BAD-RESOURCE,BAD-RESOURCE-OPTIONAL,DOUBLE-DOLLAR,EMPTY-ROOT-RESOURCE,RESOURCE-CASE
+families_passed 67/73 verdict unmet failed BAD-OVER-UNRESOLVED,BAD-RESOURCE,BAD-RESOURCE-OPTIONAL,DOUBLE-DOLLAR,EMPTY-ROOT-RESOURCE,RESOURCE-CASE
+exit 1, 42.2 s
+
+## Survivor probes (rule-shaped cases run against pristine and mutant bytes, cwd $S)
+probe.json holds the full command output; summary:
+m05: conf `/probe-entry`, `protocol: efi`, `IMAGE_PATH: boot():/missing-image.efi#<128x0>`
+  pristine: rc 1 DEGRADED pins [[3,"LP-MISSING","panic"]]
+  mutant:   rc 1 DEGRADED pins [[3,"LP-MISSING","not-modelled"]]
+m20: conf `measured_boot: yes<0x0b>`, `/probe-entry`, `path: boot():/present.efi#<blake2b>`, --tpm-present 1
+  pristine: rc 0 HEALTHY on_panic "menu"
+  mutant:   rc 0 HEALTHY on_panic "halt"
+
+## Restoration evidence (after the sweep)
+$ sha256sum $S/gate.py <lane>/tools/check-limine-pins.py
+4780da83ba411db1dc6afc250b618edc336a42790d79578018b40a2d7593a332  /fast/scratch/hyaku/tsukuroi-r90/MutGate/gate.py
+4780da83ba411db1dc6afc250b618edc336a42790d79578018b40a2d7593a332  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-limine-pins.py
+$ git -C <lane> status --porcelain tools/check-limine-pins.py tools/limine-pin-battery-r90.py
+(no output: both files unmodified)
+$ python3 <lane>/tools/limine-pin-battery-r90.py --gate $S/gate.py --runs 1 --work "$S/work-restore"
+families_passed 73/73 verdict met failed -
+RESTORE_EXIT=0   (19.45 s for hashes + battery run)

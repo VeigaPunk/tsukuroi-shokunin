@@ -1,0 +1,11 @@
+--- gate.py
++++ m28-sb-flag-truthiness/gate.py
+@@ -341,7 +341,7 @@
+         if sb is None:
+             r["secure_boot_source"] = "efivar unreadable; treated as not enforced"
+     elif a.conf and a.esp:
+-        r = check(a.conf, a.esp, a.secure_boot_enforced == "1", tpm)
++        r = check(a.conf, a.esp, bool(a.secure_boot_enforced), tpm)
+     else:
+         ap.print_usage(sys.stderr)
+         return 64

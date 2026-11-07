@@ -29,8 +29,8 @@
  },
  {
   "id": "TV5",
-  "statement": "[src] `guid(X)` and `uuid(X)` are the same dispatcher: X is parsed as a mixed-endian GUID, looked up, then retried big-endian; a text that is not a GUID returns NULL with no message. The lookup matches a volume's filesystem GUID or its GPT unique partition GUID, and in v12.9.4 `fs_get_guid` returns false for every filesystem, so only the GPT partition GUID can match.",
-  "source": "S351 uri.c 172-190; S366 part.s2.c 597-598, 1035-1047; S367 file.s2.c 27-31",
+  "statement": "[src] `guid(X)` and `uuid(X)` are the same dispatcher: X is parsed as a mixed-endian GUID, looked up, then retried big-endian; a text that is not a GUID returns NULL with no message. The lookup compares a volume's `guid` and its GPT unique partition GUID. A partition's `guid` comes from `fs_get_guid`, which returns false for every filesystem in v12.9.4; only a whole-medium volume carries one, the GPT header's disk GUID. So no filesystem UUID ever matches: a `guid()` URI names a partition by its GPT unique partition GUID, or a whole disk by its GPT disk GUID (corrected at landing on wave seat ScoutVolume's finding 1).",
+  "source": "S351 uri.c 172-190; S366 part.s2.c 488-497, 597-598, 1035-1047; S367 file.s2.c 27-31; S373 disk.s2.c 986-988",
   "quote": "\"bool fs_get_guid(struct guid *guid, struct volume *part) { (void)guid; (void)part; return false;\" (lines 27-30, abridged across lines)",
   "host_value": "ESP `nvme0n1p1` PARTUUID `b80445be-18ee-45e6-9a30-14339ea785a7`, vfat serial `86D8-C3F6`"
  },
@@ -50,8 +50,8 @@
  },
  {
   "id": "TV8",
-  "statement": "[src] `boot()` opens the partition Limine booted from; `boot(N)` opens partition N on the same drive, and GPT partitions are numbered from 1 (`partition + 1`), so `boot(1)` is the first GPT partition. [obs] Limine's own `LoaderDevicePartUUID` names `b80445be-…`, the ESP, which is partition 1 of `nvme0n1`. [inf] So `boot()` and `boot(1)` name the same volume here. `hdd(d:p)` needs Limine's firmware drive index, which Linux does not show; no `hdd()` URI is mapped.",
-  "source": "S351 uri.c 220-243; S366 part.s2.c 575; S368 bli.c 110-124; S371",
+  "statement": "[src] `boot()` opens the partition Limine booted from; `boot(N)` opens partition N on the same drive. A GPT partition's number is its entry slot plus 1 (`partition + 1`), and empty slots are skipped without renumbering, so N is a slot number with gaps, not a count of partitions (wave seat ScoutVolume's finding 2). [obs] Limine's own `LoaderDevicePartUUID` names `b80445be-…`, the ESP, which Linux numbers partition 1 of `nvme0n1` (Linux numbers GPT slots the same way). [inf] So `boot()` and `boot(1)` name the same volume here. `hdd(d:p)` needs Limine's firmware drive index, which Linux does not show; no `hdd()` URI is mapped.",
+  "source": "S351 uri.c 220-243; S366 part.s2.c 575; S373 disk.s2.c 1004-1016; S368 bli.c 110-124; S371",
   "quote": "\"ret->partition   = partition + 1;\" (part.s2.c line 575)",
   "host_value": "`LoaderDevicePartUUID` = `b80445be-18ee-45e6-9a30-14339ea785a7`; ESP PARTN 1"
  },

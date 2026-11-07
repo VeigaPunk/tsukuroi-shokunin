@@ -1,0 +1,18 @@
+F3 (low, output contract): the unreadable-conf object is a different schema from every other
+result — `findings`, `schema`, `hash_mismatch_panic`, `measured_boot`, `tpm_present`,
+`secure_boot_enforced` are absent, so a consumer that reads `findings` raises KeyError exactly on
+the rc=2 path. R10 does not require `on_panic` here, so it stays null (measured boot is unknown,
+not absent); the rest is synthesised as for a readable conf.
+
+--- a/tools/check-limine-pins.py
++++ b/tools/check-limine-pins.py
+@@ -127,5 +127,7 @@
+     except OSError as e:
+-        return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "on_panic": None,
+-                "error": "conf unreadable: %s" % sanitize(str(e))}
++        return {"schema": "tsukuroi-limine-pins-v2", "verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [],
++                "hash_mismatch_panic": None, "measured_boot": None, "tpm_present": tpm,
++                "on_panic": None, "secure_boot_enforced": secure_boot, "findings": [],
++                "error": "conf unreadable: %s" % sanitize(str(e))}
+     panic_setting = None
+     measured_setting = None

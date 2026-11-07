@@ -1013,7 +1013,7 @@ answered by these two files except for that leak.
 
 ## Round 90 — Limine consequence modelling; TPM presence and volume lookup
 
-New ground: `knowledge/limine-tpm-volume-r90.md` (TV1–TV9, S365–S372) — what Limine v12.9.4's `tpm_present()` asks
+New ground: `knowledge/limine-tpm-volume-r90.md` (TV1–TV9, S365–S373) — what Limine v12.9.4's `tpm_present()` asks
 (TCG2 with `TPMPresentFlag`, else CC), how this host answers the gate's new `--tpm-present` (systemd 262.1's stub
 writes `LoaderTpm2ActivePcrBanks` = `0x00000000` each boot, the TCG spec's no-TPM reply; `systemd-analyze has-tpm2`
 reads `-firmware`; no TPM device or ACPI table), and how `guid()`/`uuid()`

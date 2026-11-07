@@ -1,0 +1,11 @@
+--- gate.py
++++ m09-unreadable-conf-degraded/gate.py
+@@ -125,7 +125,7 @@
+         with open(conf, "rb") as f:
+             text = f.read().decode("utf-8", "surrogateescape")
+     except OSError as e:
+-        return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "on_panic": None,
++        return {"verdict": "DEGRADED", "rc": 1, "pins": [], "on_panic": None,
+                 "error": "conf unreadable: %s" % sanitize(str(e))}
+     panic_setting = None
+     measured_setting = None

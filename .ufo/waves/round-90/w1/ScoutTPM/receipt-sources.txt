@@ -1,0 +1,54 @@
+# ScoutTPM source receipts, round-90 w1, 2026-11-07T00:45:51-03:00
+
+## clones
+$ git clone --depth 1 --branch v12.9.4 https://github.com/limine-bootloader/limine.git $S/limine
+8ad14430bc9f2c24679cda558981ef53e6e3b18c  (grafted, HEAD, tag: v12.9.4)
+$ git clone --depth 1 --filter=blob:none --sparse --branch v262.1 https://github.com/systemd/systemd.git $S/systemd2621
+73612ea502d53baf9b0df4336cfc296a7ee0d524  (grafted, HEAD, tag: v262.1)
+$ git clone --depth 1 https://github.com/PicoEFI/PicoEFI.git $S/picoefi ; git checkout 0515ccde7a3ac9c52e32c9c21c924a8d50d3261e
+0515ccde7a3ac9c52e32c9c21c924a8d50d3261e  (grafted, HEAD)
+
+## sha256 of every quoted file
+d6892d0b430c7639ad7e10d98715d4953892e81e9bfe9d7381c366cf0743f090  common/lib/tpm.c
+628001e88564525f8d1e0e6193ea86145e5613eaea97c04110545cd182168f95  common/menu.c
+9aef63d37c750fdb316bf5739d618d1f00abd12179d8ad59121fb5936ed83732  common/entry.s3.c
+316eb17df996f91252791b1351e8f88c027ceeb8535becc1a247d614d8b5e1a7  common/protos/chainload.c
+9fb49c513e8a411ee596b0844c86e264e8be4995381b3a6464356d7b45284c7a  common/lib/bli.c
+34e3a81fee89f045f76b01029440ed92fc03836179e8b9f3e6f721c7f5b799d2  common/drivers/disk.s2.c
+70ec629297dc96a2d40e861ec052345c84bc1b45fab03f79a2fa5cb95476061f  common/lib/part.s2.c
+8792c3a92960f7e2b6d28fe062565fed4e7d3d7385af0123447c8b626c50691d  common/fs/file.s2.c
+c5cec8ff6cc488a29e3b695bfab832358e903ec978ea5878074922212b1b54c6  src/boot/measure.c
+d540e62739897486305298dc39eb8ad9a95384bd8492bbc8f2420a4f3d3c34ec  src/boot/export-vars.c
+c7bb6617250b13aae986f44c75ea558bb5155dc0a6fc738baf457d5d92f4501a  src/boot/stub.c
+f66975c01a94588ddb00b8c7a71cd378bf8777b2f7ba08eab26dd8a36685df96  src/boot/boot.c
+695b4e0391cbaedf83b7ad1a188ed4731386fc430f2666b7a0b11fa3a3649148  src/shared/efi-api.c
+b2c4b041aeab2ff97a59cb3bffc27a8749b722c2ac01f2376f186ee86a7591f3  src/shared/tpm2-util.c
+549aa7765c2f8ac46393ba41cbba2e4aa758d227b84e3ba42e01d0be7c8492db  src/shared/tpm2-util.h
+40114b1da10065176918ab9d6384dad2012347ffcf4f2b1be87349ee41b632b7  picoefi inc/efi/efitcg2.h @0515ccde
+e68d7c75cf6880d77ace9a4ea9126a8500f423672e9823904afbd0fbd2286ef6  picoefi inc/efi/eficc.h @0515ccde
+0a95b6e5a545347e43f2d6dfd57ef91547789c690382802ef4094924ddea3fcd  edk2 MdePkg/Include/Protocol/Tcg2Protocol.h @edk2-stable202511
+0d192475bafdfcb3cef9ef54e9499fdf96d0a648a5a1ec738d9c24f05a2faa0e  edk2 MdePkg/Include/Uefi/UefiMultiPhase.h @edk2-stable202511
+40a2568e99bc110c10c551ab921be8aaeb784da017b045090f0e5630d3f9ddc3  TCG EFI Protocol Specification rev13 PDF
+
+## Limine v12.9.4 bootstrap pins picoefi (bootstrap 72-75)
+    clone_repo_commit \
+        https://github.com/PicoEFI/PicoEFI.git \
+        picoefi \
+        0515ccde7a3ac9c52e32c9c21c924a8d50d3261e
+
+
+## picoefi header layout measured by compiling it (gcc 16.2.1)
+$ gcc -I picoefi/inc -o off off.c ; ./off
+sizeof(EFI_TCG2_BOOT_SERVICE_CAPABILITY)=36
+offsetof TPMPresentFlag=16
+offsetof ActivePcrBanks=32
+
+## systemd src/boot/proto/tcg.h layout, same compile
+sizeof=36 offsetof TPMPresentFlag=16 offsetof ActivePcrBanks=32
+
+## strtoul round trip of the stub's own hex string (gcc 16.2.1)
+strtoul("0x00000000",16) = 0 consumed=10 rest="" errno=0
+strtoul("0xffffffff",16) = 4294967295 (== UINT32_MAX? 1)
+
+## spec page anchors (pdftotext -layout)
+p.24 Table 4 (GetActivePcrBanks note); p.27 6.4.3 struct; p.28 Table 6 (TPMPresentFlag row); p.29 6.4.4 item 5; p.37 6.8.3

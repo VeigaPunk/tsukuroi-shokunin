@@ -1,0 +1,88 @@
+ReviewGate — round-90 w1 receipts (verbatim tool output; scratch /fast/scratch/hyaku/tsukuroi-r90/ReviewGate)
+
+LANE
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse master
+ce89df93e5f576c5c236d4547299e9ea954e8853
+$ sha256sum tools/check-limine-pins.py
+4780da83ba411db1dc6afc250b618edc336a42790d79578018b40a2d7593a332  tools/check-limine-pins.py
+$ sha256sum <clone>/tools/check-limine-pins.py
+4780da83ba411db1dc6afc250b618edc336a42790d79578018b40a2d7593a332  <clone>/tools/check-limine-pins.py
+(clone of 6511437e... at ce89df93, identical bytes)
+
+SELFTEST (candidate)
+$ python3 tools/check-limine-pins.py --selftest     # tail
+conf-absent      PASS rc=2 []
+selftest PASS 25/25
+EXIT=0
+
+BATTERY (candidate, my own scratch)
+$ python3 tools/limine-pin-battery-r90.py --gate tools/check-limine-pins.py --runs 1 --work "$S/work"
+families_passed 73/73 verdict met failed -
+EXIT=0
+
+MUTANTS (clone copy; each replacement asserted unique before writing)
+m1 R4 dropped     `if resource not in RESOURCES:` -> `if False:`
+   bad-resource     FAIL rc=2 [(3, 'LP-UNRESOLVED', 'not-modelled'), ('on_panic', 'menu')]
+   bad-resource-font FAIL rc=2 [(1, 'LP-UNRESOLVED', 'not-modelled'), ('on_panic', 'menu')]
+   selftest FAIL 23/25
+m2 R9 panic dropped  `if lineno in image_lines:` -> `if False:`
+   efi-image-missing FAIL rc=1 [(3, 'LP-MISSING', 'not-modelled'), ('on_panic', 'menu')]
+   measured-halt    FAIL rc=1 [(4, 'LP-MISSING', 'not-modelled'), ('on_panic', 'halt')]
+   selftest FAIL 23/25
+m3 R10 tpm ignored   `return "halt" if tpm else "menu"` -> `return "halt-if-tpm"`
+   measured-halt    FAIL rc=1 [(4, 'LP-MISSING', 'panic'), ('on_panic', 'halt-if-tpm')]
+   measured-no-tpm  FAIL rc=0 [(4, 'OK', 'none'), ('on_panic', 'halt-if-tpm')]
+   selftest FAIL 23/25
+m4 image-line precedence swapped  `b.get("path", b.get("image_path"))` -> `b.get("image_path", b.get("path"))`
+   image-path-shadowed FAIL rc=1 [(3, 'LP-MISSING', 'panic'), (4, 'OK', 'none'), ('on_panic', 'menu')]
+   selftest FAIL 24/25
+m5 R4 '$' strip dropped  `resource = uri["resource"][1:] if uri["resource"].startswith("$") else uri["resource"]` -> `resource = uri["resource"]`
+   selftest PASS 25/25          <-- NOT caught by the selftest
+   battery: families_passed 69/73 verdict unmet failed DOUBLE-DOLLAR,GZ-RAW,ROOT-ON-BOOT,VALID-RESOURCES
+
+EDGE PROBES (candidate)
+(a) empty entry label inherits previous:
+   conf `/alpha\npath:...#H\n/\npath:...#H\n`
+   -> {"entry": "alpha", line 2} ... {"entry": "alpha", line 4}   [R8 wants "alpha", ""]
+(b) unreadable conf:
+   {"error": "conf unreadable: [Errno 2] No such file or directory: 'p/nope.conf'", "on_panic": null,
+    "pins": [], "rc": 2, "verdict": "CANNOT-EVALUATE"}   EXIT=2      [no findings/schema/... keys]
+(c) non-UTF-8 measured_boot value (raw 0xff):
+   {"measured_boot": {"line": 2, "value": "ye\udcffs"}, ...}          EXIT=0
+   stdout is ascii: True
+   consumer re-encode utf-8: UnicodeEncodeError 'utf-8' codec can't encode character '\udcff' in position 87: surrogates not allowed
+(d) efi image line names a directory:  DEGRADED 1 [(3, 'LP-MISSING', 'panic')]
+(g) protocol: efi + pin before any entry line:  DEGRADED 1 [(2, 'LP-MISSING', 'not-modelled', None), (4, 'OK', 'none', 'e')]
+(h) measured_boot inside an entry body: on_panic halt (tpm 1); entry label for `/a\x0b`: 'a'   [R8 wants 'a\x0b']
+(e) usage: --conf without --esp -> EXIT=64; --tpm-present 2 -> EXIT=64
+(f) TMPDIR: gettempdir /fast/scratch/.../ReviewGate/td ; selftest EXIT=0 ; cwd untouched ; leftover mkdtemp dirs: 0
+(i) write-capable calls: only 238 mkdtemp, 242 makedirs, 244 open(...,"wb"), 251 open(...,"w"), 308 rmtree — all under mkdtemp
+(j) efi image line that is not a pin, file absent: {"verdict": "HEALTHY", "rc": 0, "pins": []}  EXIT=0
+(k) same with --secure-boot-enforced 1: HEALTHY 0 pins []
+(l) clone == lane (sha256 above)
+(m) escape on an efi image line: CANNOT-EVALUATE 2 [(3, 'LP-UNRESOLVED', 'not-modelled')] ['LP-UNRESOLVED line 3']
+
+PATCHED CLONE (F2 + F3 + F1 applied in that order)
+$ git apply --check -v <each>   -> "Checking patch tools/check-limine-pins.py..." (all three)
+$ git apply F2 F3 F1            -> APPLIED rc=0 ; syntax OK
+$ python3 tools/check-limine-pins.py --selftest | tail -1 -> selftest PASS 25/25
+$ python3 tools/limine-pin-battery-r90.py --gate tools/check-limine-pins.py --runs 1 -> families_passed 73/73 verdict met failed -
+F2: entries ['alpha', ''] ; vt entry 'a\x0b'
+F3: {"error": ..., "findings": [], "hash_mismatch_panic": null, "measured_boot": null, "on_panic": null,
+     "pins": [], "rc": 2, "schema": "tsukuroi-limine-pins-v2", "secure_boot_enforced": false,
+     "tpm_present": null, "verdict": "CANNOT-EVALUATE"}  EXIT=2
+F1: HEALTHY 0 [3]   (unverified_image_lines)
+no regression: DEGRADED 1 [] [(2, 'LP-MISSING', None), (4, 'OK', 'e')]
+
+PINNED SOURCES READ (round-90/before/src, Limine v12.9.4)
+- common/lib/uri.c 20-25 URI_ERROR panics unless optional_resource; 339-366 gz_compressed = *resource=='$'
+  then strcmp over hdd/odd/boot/guid/uuid/fslabel/tftp else "Resource `%s` not valid."; 368-372 unhashed +
+  secure boot panics (not modelled by R2/R6, as stated).
+- common/lib/config.c 686-720 entry scan accepts '/' only at column 0 or after '\n' (body = up to the next
+  such '/'), 778-818 config_get_value: key at line start (or after SEPARATOR), ':' directly, blanks skipped.
+- common/protos/chainload.c 414-435: PATH then IMAGE_PATH, then panic "efi: Failed to open image with path
+  `%s`. Is the path correct?" on uri_open == NULL.
+- common/menu.c 2429-2468: config_get_value(config,0,"PROTOCOL") then strcmp; efi_chainload/efi/uefi -> chainload.
+- common/menu.c 1712-1724: hash_mismatch_panic = strcasecmp(...,"no")!=0, forced true by Secure Boot;
+  measured_boot = strcmp(...,"yes")==0, forced true by Secure Boot, forced false by !tpm_present().
+- common/lib/panic.s2.c 24-28, 70-78, 98: measured_boot => allow_menu=false; else menu / "System halted."

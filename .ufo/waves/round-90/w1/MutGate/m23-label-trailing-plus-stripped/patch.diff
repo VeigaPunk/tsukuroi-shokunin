@@ -1,0 +1,11 @@
+--- gate.py
++++ m23-label-trailing-plus-stripped/gate.py
+@@ -136,7 +136,7 @@
+     for lineno, raw in enumerate(text.split("\n"), 1):
+         stripped = raw.replace("\r", "").strip(" \t")
+         if stripped.startswith("/"):
+-            entry = sanitize(stripped.lstrip("/").lstrip("+").strip()) or entry
++            entry = sanitize(stripped.lstrip("/").lstrip("+").strip().rstrip("+")) or entry
+             body = {}
+             bodies.append(body)
+             continue

@@ -1,0 +1,11 @@
+--- gate.py
++++ m08-bad-only-rc2/gate.py
+@@ -208,7 +208,7 @@
+         pins.append(rec)
+     statuses = {p["status"] for p in pins}
+     if statuses & set(FAULTS):
+-        verdict, rc = "DEGRADED", 1
++        verdict, rc = "DEGRADED", (2 if statuses == {"LP-BAD-RESOURCE"} else 1)
+     elif "LP-UNRESOLVED" in statuses:
+         verdict, rc = "CANNOT-EVALUATE", 2
+     else:

@@ -1,0 +1,49 @@
+ReviewSource — F2 receipts: an efi image line that is not a pin still panics
+===========================================================================
+Gate: tools/check-limine-pins.py (landed tip ce89df93), fixtures under
+/fast/scratch/hyaku/tsukuroi-r90/ReviewSource/fx-nonpin-image (ESP with EFI/x.efi).
+
+E_nonURI_image_line
+  /e
+  protocol: efi
+  path: /EFI/x.efi
+  $ check-limine-pins.py --conf E --esp esp
+  rc=0 verdict=HEALTHY on_panic=menu pins=[]
+
+F_empty_path_shadows_image_path
+  /e
+  protocol: efi
+  path:
+  image_path: boot():/EFI/x.efi#<good>
+  $ check-limine-pins.py --conf F --esp esp
+  rc=0 verdict=HEALTHY on_panic=menu pins=[(4, 'OK', 'none')]
+
+The pinned source (chainload.c 414-435) does not care whether the value is a pin:
++414| noreturn void chainload(char *config, char *cmdline) {
++415|     char *image_path = config_get_value(config, 0, "PATH");
++416|     if (image_path == NULL) {
++417|         image_path = config_get_value(config, 0, "IMAGE_PATH");
++418|     }
++419|     if (image_path == NULL) {
++420|         panic(true, "efi: Image path not specified");
++421|     }
+...
++429|     struct file_handle *image;
++430|     if ((image = uri_open(image_path, MEMMAP_RESERVED, false
+...
++434|     )) == NULL)
++435|         panic(true, "efi: Failed to open image with path `%s`. Is the path correct?", image_path);
+
+uri.c 332-336: uri_resolve failure is a silent NULL (no URI_ERROR):
++332|     char *resource = NULL, *root = NULL, *path = NULL, *hash = NULL;
++333|     if (!uri_resolve(uri, &resource, &root, &path, &hash)) {
++334|         return NULL;
++335|     }
+uri_resolve (uri.c 47-57) returns false when the value holds no '(' at all; uri_resolve (uri.c 73-75)
+returns false for an empty string. Both reach chainload.c 435 (panic), not a no-op.
+
+Config_get_value returns "" (not NULL) for `path:` with an empty value, so IMAGE_PATH is never
+consulted (chainload.c 415-418): F panics on the empty PATH even though image_path is a valid pin.
+
+Gate behaviour: no pin -> no record -> verdict HEALTHY. Observed above. So the gate can read HEALTHY
+on a conf that panics at boot on the efi image line (an operability false green, not a false alarm).

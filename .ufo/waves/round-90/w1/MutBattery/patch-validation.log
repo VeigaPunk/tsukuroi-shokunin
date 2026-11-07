@@ -1,0 +1,30 @@
+# Patch-validation receipts (scratch /fast/scratch/hyaku/tsukuroi-r90/MutBattery, removed after this copy)
+# Pristine battery = tools/limine-pin-battery-r90.py @ 8f0daee82b9d48...; candidate gate @ 4780da83ba41...
+# "patched" = pristine + w1/MutBattery/proposed-battery-patch.diff (applies cleanly: `patch -p0 --dry-run` rc=0)
+# Demonstrator gates (copies of the candidate with one clause weakened):
+#   gate-chainload-blind.py         EFI_PROTOCOLS = frozenset({"efi", "uefi"})
+#   gate-blank-protocol-blind.py    body[key] = (value or "efi") if key == "protocol" else lineno
+
+[pristine battery vs gate-chainload-blind]
+families_passed 72/73 verdict unmet failed EFI-IMAGE-MISSING
+
+[patched battery vs gate-chainload-blind]
+families_passed 72/73 verdict unmet failed EFI-IMAGE-MISSING
+
+[patched battery vs candidate]
+families_passed 73/73 verdict met failed -
+
+[pristine battery vs gate-blank-protocol-blind]      # the uninstrumented property (M16)
+families_passed 73/73 verdict met failed -
+
+[patched battery vs gate-blank-protocol-blind]       # patch 2 closes it
+families_passed 72/73 verdict unmet failed PROTOCOL-DECOY
+
+[M19 mutant (EFI_PROTOCOLS reduced, unpatched) vs candidate]   # silent: property vanishes
+families_passed 73/73 verdict met failed -
+
+[patched battery with the same constant reduction and its assert removed, vs candidate]  # loud
+families_passed 72/73 verdict unmet failed EFI-IMAGE-MISSING
+
+[M10 (EFI-IMAGE-MISSING deleted) vs gate-chainload-blind]     # the family is that gate's only killer
+families_passed 72/72 verdict met failed -

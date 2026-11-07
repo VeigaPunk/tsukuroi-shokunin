@@ -1,0 +1,11 @@
+--- gate.py
++++ m22-prompt-ignores-sb/gate.py
+@@ -156,7 +156,7 @@
+                 raw_pins.append((lineno, key, written, entry, value, uri))
+     image_lines = {b.get("path", b.get("image_path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}
+     image_lines.discard(None)
+-    prompt = (panic_setting is not None and panic_setting[1].lower() == "no" and not secure_boot)
++    prompt = (panic_setting is not None and panic_setting[1].lower() == "no")
+     pins = []
+     for lineno, key, written, entry_name, value, uri in raw_pins:
+         rec = {"line": lineno, "key": written, "entry": entry_name, "uri": sanitize(value)}

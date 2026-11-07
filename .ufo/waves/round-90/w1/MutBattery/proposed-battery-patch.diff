@@ -1,0 +1,27 @@
+--- tools/limine-pin-battery-r90.py	(r90 frozen 8f0daee8…)
++++ tools/limine-pin-battery-r90.py	(proposed)
+@@ -973,10 +973,12 @@
+     """R6/R9: a missing pin on the image line of an efi chainload entry is `panic`; every case writes
+     all three chainload protocol names and the IMAGE_PATH-only form."""
+     c.header()
+-    for proto in EFI_PROTOCOLS:
++    chainload = ("efi", "uefi", "efi_chainload")
++    assert chainload == EFI_PROTOCOLS, (chainload, EFI_PROTOCOLS)
++    for proto in chainload:
+         efi_entry(c, proto)
+         c.pin("LP-MISSING")
+-    efi_entry(c, c.rng.choice(EFI_PROTOCOLS))
++    efi_entry(c, c.rng.choice(chainload))
+     c.pin("LP-MISSING", key="image_path")
+     efi_entry(c)
+     c.pin("OK")
+@@ -1076,6 +1078,9 @@
+     c.add("  protocol = efi")
+     c.add("  protocol : efi")
+     c.pin("LP-MISSING")
++    efi_entry(c, None)
++    c.add("  protocol:")
++    c.pin("LP-MISSING")
+     efi_entry(c)
+     c.pin("LP-MISSING")
+ 

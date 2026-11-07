@@ -1,0 +1,11 @@
+--- gate.py
++++ m27-hash-length-below-128/gate.py
+@@ -162,7 +162,7 @@
+         rec = {"line": lineno, "key": written, "entry": entry_name, "uri": sanitize(value)}
+         optional = key in OPTIONAL_KEYS
+         h = uri["hash"]
+-        if len(h) != 128 or not set(h) <= HEXDIGITS:
++        if len(h) < 128 or not set(h) <= HEXDIGITS:
+             rec.update(status="LP-HASH-FORMAT", consequence="skip" if optional else "panic",
+                        detail="hash must be 128 hex characters (got %d)" % len(h))
+             pins.append(rec)

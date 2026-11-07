@@ -1,0 +1,11 @@
+--- gate.py
++++ m14-measured-key-case/gate.py
+@@ -146,7 +146,7 @@
+         key, written, value = kv
+         if key == "hash_mismatch_panic" and panic_setting is None:
+             panic_setting = (lineno, value)
+-        if key == "measured_boot" and measured_setting is None:
++        if written == "measured_boot" and measured_setting is None:
+             measured_setting = (lineno, value)
+         if body is not None and key in ("protocol", "path", "image_path") and key not in body:
+             body[key] = value if key == "protocol" else lineno

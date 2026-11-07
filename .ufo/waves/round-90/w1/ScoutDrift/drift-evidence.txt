@@ -1,0 +1,99 @@
+=== A. strip-loop differential (verbatim upstream 12.9.4 raw 528-551 vs 12.9.6 raw 551-580), 300000 random buffers, upstream layout (file bytes + \n + \0) ===
+TRIALS 300000  DIFF 11182  class=12.9.4-keeps-trailing-blanks-before-CR 11182  class=other 0
+
+=== B. key-line VALUE differential, r90 R1 model vs each upstream, 200000 trials ===
+r90 R1 model vs upstream, key-line VALUE (after ':'), 200000 trials:
+  LF  lines : 100383   model!=12.9.4 : 0 (0.000%)   model!=12.9.6 : 0 (0.000%)
+  CRLF lines: 99617   model!=12.9.4 : 74780 (75.068%)   model!=12.9.6 : 0 (0.000%)
+
+=== C. global-option scope: upstream 12.9.4 vs 12.9.6 (verbatim config_get_entry / config_get_value / init_config tail / create_menu_tree) ===
+error: command not found: /fast/scratch/hyaku/tsukuroi-r90/ScoutDrift/scope_final
+=== D. upstream 12.9.4 global region after init_config (byte-level) ===
+  A) global line then entry
+    config_addr after init_config (upstream v12.9.4) = "timeout:_5\nhash_mismatch_panic:_no"
+  B) FIRST LINE is an entry
+    config_addr after init_config (upstream v12.9.4) = "/entry1\nprotocol:_efi\nhash_mismatch_panic:_no\n\n"
+  C) global line, option inside entry
+    config_addr after init_config (upstream v12.9.4) = "timeout:_5"
+=== E. R4 'No resource specified' branch reachability in v12.9.4 (verbatim uri_resolve) ===
+  uri_resolve("boot():/x#H           ") -> true   resource="boot"
+  uri_resolve("():/x#H               ") -> true   resource=""
+  uri_resolve("hdd(0:1):/x#H         ") -> true   resource="hdd"
+  uri_resolve("bogus:/x#H            ") -> false  resource=(NULL)
+  uri_resolve("$boot():/x#H          ") -> true   resource="$boot"
+  uri_resolve("$$boot():/x#H         ") -> true   resource="$$boot"
+  uri_resolve("BOOT():/x#H           ") -> true   resource="BOOT"
+  uri_resolve("boot(2):/x#H          ") -> true   resource="boot"
+  uri_resolve("boot():/x#H           ") -> true   resource="boot"
+  uri_resolve("Boot():/x#H           ") -> true   resource="Boot"
+  => successful resolves: 9 ; resource==NULL among them: 0  => "No resource specified" branch UNREACHABLE (dead code) in v12.9.4
+=== F. global-option scope: r90 'whole file' model vs upstream v12.9.4 vs v12.9.6 ===
+  A) global option BEFORE the first entry (ordinary config)
+    r90 model (whole file)      : no
+    upstream v12.9.4 (global)   : no
+    upstream v12.9.6 (global)   : no
+    model==12.9.4: YES   model==12.9.6: YES   upstream12.9.4==12.9.6: YES
+
+  B) FIRST LINE IS an entry; the option sits inside that entry
+    r90 model (whole file)      : no
+    upstream v12.9.4 (global)   : no
+    upstream v12.9.6 (global)   : (absent)
+    model==12.9.4: YES   model==12.9.6: NO    upstream12.9.4==12.9.6: NO 
+
+  C) option ONLY inside an entry (a global line precedes it)
+    r90 model (whole file)      : no
+    upstream v12.9.4 (global)   : (absent)
+    upstream v12.9.6 (global)   : (absent)
+    model==12.9.4: NO    model==12.9.6: NO    upstream12.9.4==12.9.6: YES
+
+=== G. upstream 12.9.6 vs 12.9.4 for the seven r90-clause files (sha256) ===
+common/lib/uri.c               94=e06cac1212 96=6f6642f138 CHANGED
+common/lib/config.c            94=aafc9c410a 96=a940acae3a CHANGED
+common/menu.c                  94=628001e885 96=de1f7cc7b0 CHANGED
+common/protos/chainload.c      94=316eb17df9 96=68d56ee4f3 CHANGED
+common/lib/panic.s2.c          94=0233d557db 96=f7c13b9f9f CHANGED
+common/lib/gterm.c             94=af161f0109 96=f440a921ae CHANGED
+common/lib/tpm.c               94=d6892d0b43 96=c91734237c CHANGED
+
+=== H. verbatim block equality for the r90-cited regions (12.9.4 vs 12.9.6) ===
+-- uri.c uri_resolve (R2/R3): 12.9.4 raw 32-104 vs 12.9.6 raw 33-105
+   IDENTICAL
+-- uri.c R4 dispatch: 12.9.4 raw 349-366 vs 12.9.6 raw 375-392
+   IDENTICAL
+-- uri.c URI_ERROR macro: 12.9.4 raw 21-27 vs 12.9.6 raw 22-28
+   IDENTICAL
+-- config.c config_get_value (R1): 12.9.4 raw 778-818 vs 12.9.6 raw 727-767
+   IDENTICAL
+-- menu.c hash_mismatch_panic+measured_boot (R6/R10): 12.9.4 raw 1711-1730 vs 12.9.6 raw 1789-1808
+   IDENTICAL
+-- menu.c protocol dispatch (R9): 12.9.4 raw 2429-2468 vs 12.9.6 raw 2498-2537
+   IDENTICAL
+-- chainload.c image path (R9): 12.9.4 raw 414-437 vs 12.9.6 raw 429-452
+   IDENTICAL
+-- panic.s2.c measured_boot->allow_menu (R10): 12.9.4 raw 26-28 vs 12.9.6 raw 26-28
+   IDENTICAL
+-- tpm.c tpm_present (C2): 12.9.4 raw 113-115 vs 12.9.6 raw 113-115
+   IDENTICAL
+
+=== I. r90 pin set vs upstream v12.9.6 (sha256, for a future re-pin) ===
+6f6642f138b6d0cda765870f95b8d7ef423419bd019447ab792a9739d1999a89  common/lib/uri.c
+a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60  common/lib/config.c
+de1f7cc7b03869df63a5db3d38e0ff0c926f58dfc757794af1666373bc78851c  common/menu.c
+68d56ee4f3aedd2bcef604bb1331a05988b53a08f416254f12f5f514c465c5b3  common/protos/chainload.c
+f7c13b9f9f709fb44444dec15ae104a6b91eb158592eeedfd205a60197a2825d  common/lib/panic.s2.c
+f440a921aeb67f7fda0fa7c31315dc49019fffc5831c9e7c1452ca05476a565b  common/lib/gterm.c
+c91734237cb2583f33d8beddf9fc0bd87392cc5c684f8a51c79fe367ac127898  common/lib/tpm.c
+
+=== J. upstream 12.9.6 CONFIG.md global-options paragraph ===
+
+Some *options* are part of an entry (*local*), some other options are *global*.
+*Global options* must come before the first *menu entry*. Any that come after
+it are part of an entry, where they are ignored.
+Some *local options* work the same between entries using any *protocol*, while
+
+=== K. upstream 12.9.4 CONFIG.md global-options paragraph ===
+
+Some *options* are part of an entry (*local*), some other options are *global*.
+*Global options* can appear anywhere in the file and are not part of an entry,
+although usually one would put them at the beginning of the config.
+Some *local options* work the same between entries using any *protocol*, while

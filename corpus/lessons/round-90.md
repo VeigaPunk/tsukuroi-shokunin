@@ -39,11 +39,12 @@ https://github.com/limine-bootloader/limine.git` (HEAD `8ad14430bc9f2c24679cda55
 | S370 (new, code/A) | https://raw.githubusercontent.com/systemd/systemd/v262.1/src/boot/measure.c, 2026-11-07, raw 153-183, 194-216 | "if (!capability.TPMPresentFlag)" (raw 177) | ADMIT, TV2/TV4: what a zero bank mask means. Flip: as S369. |
 | S371 (new, own-work/A) | `.ufo/waves/round-90/after/host-c2-receipt.txt` (2026-11-07T00:02:54-03:00; `systemd-analyze has-tpm2` appended 00:47) and `.ufo/waves/round-90/before/host/receipt.txt` | "LoaderTpm2ActivePcrBanks attrs: 06 00 00 00 value:0x00000000" (host-c2-receipt line 3) | ADMIT, TV3/TV6/TV7/TV8/TV9 host values. Flip: any boot after a firmware TPM or disk change (recheck event). |
 | S372 (new, spec/A) | https://www.trustedcomputinggroup.org/wp-content/uploads/EFI-Protocol-Specification-rev13-160330final.pdf, 2026-11-07, p. 29 §6.4.4 item 5 (L1 `curl`, sha256 `40a2568e…`, the same digest wave seat ScoutTPM recorded) | "If the platform does not have a TPM then the following values SHALL be returned:" (p. 29) | ADMIT, TV2: the normative meaning of a zero `ActivePcrBanks`, which systemd's code alone does not give. Flip: a later TCG revision that changes the no-TPM reply. |
-| REJECTED (this round): ScoutTPM rows A2, A6, A7, A11-A13 (PicoEFI headers, systemd `efi-api.c`/`tpm2-util.c`, edk2 `UefiMultiPhase.h`, Limine `disk.s2.c`) | `.ufo/waves/round-90/w1/ScoutTPM/proposed-sources.md` | — | NOT ADMITTED: not re-opened by the L1 this round (CORPUS.md rule 1); TV9 therefore states only the tool's output. Flip: a round that opens them. |
+| REJECTED (this round): ScoutTPM rows A2, A6, A7, A11, A12 (PicoEFI headers, systemd `efi-api.c`/`tpm2-util.c`, edk2 `UefiMultiPhase.h`); ScoutVolume SV rows beyond its findings 1-2 and its draft rows S373-S376 | `.ufo/waves/round-90/w1/ScoutTPM/proposed-sources.md`, `.ufo/waves/round-90/w1/ScoutVolume/proposed-sources.md` | — | NOT ADMITTED: not re-opened by the L1 this round (CORPUS.md rule 1); TV9 therefore states only the tool's output. `disk.s2.c` (ScoutTPM A13, ScoutVolume) was re-opened and admitted as S373. Flip: a round that opens them. |
+| S373 (new, code/A) | https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.4/common/drivers/disk.s2.c, 2026-11-07, raw 986-988, 1004-1016 | "if (ret == NO_PARTITION)" (raw 1012) | ADMIT, TV5/TV8 corrections on wave seat ScoutVolume's findings 1-2: only a whole disk carries a GPT disk GUID; partition numbers keep slot gaps. Flip: as S364. |
 | REJECTED: `hdd(1:1)` as this host's ESP (wave seat ConnectorOverlap §4 proposal) | Limine `volume_get_by_coord` drive index (`part.s2.c` 1064-1074) | — | REJECT for the entry: the drive index is Limine's firmware enumeration order, which Linux does not expose; three disks are present (`before/host/receipt.txt` 26-41). Flip: a Limine verbose boot log that names the index. |
 | REJECTED: `systemctl --version` `+TPM2` as a TPM-presence signal (sibling capture, ConnectorOverlap §2) | mori-shokunin capture line 10 | — | REJECT: a compile-time feature list, not firmware state (TV1). |
 
-Registry changes, old→new: S364-S372 absent → `mined` (opened 2026-11-06/07; recheck `on-release` for S364-S370,
+Registry changes, old→new: S364-S373 absent → `mined` (opened 2026-11-06/07; recheck `on-release` for S364-S370 and S373,
 `30d` for S371, `365d` for S372). No existing row's status changed; S351, S352, S353, S361, S362 are cited by the new entry and keep their
 rows (used-by not widened this round: the census does not require it, and their anchors are unchanged).
 
@@ -82,3 +83,34 @@ Assimilation: none (no `merge/tsukuroi/` theme taken). considerthese: none fits 
   selftest case; `--runs 0` control in the next freeze (QUALITY 130 residual).
 - **R90-R4**: the remainder of r89 routed 1 and 3 (counter successor and its docstring) — open only if a counter is
   used again.
+- **R90-R5** (ScoutDrift): Arch carries limine 12.9.6-1 (the host runs 12.9.4-1; the local sync DB predates it).
+  Between the pins and 12.9.6: R1's strip loop now removes blanks before CRLF (the r90 R1 text matches 12.9.6, not
+  12.9.4 — the r89 R89-R2 finding from the other side), a conf whose first line is an entry has no global options
+  since 12.9.5 (CONFIG.md and the v12.9.6 changelog say so), `guid()`/`fslabel()` retry after connecting all disks,
+  and the R9 entry-body code moved (`config_get_entry` deleted; rule unchanged). Re-pin the rule set on the host
+  upgrade and freeze the visibility families against the version the host runs.
+
+## Wave w1 (13 seats; attack 6/13; 0 dead)
+
+Shape: one v1 wave, 13 seats (executor 2, mutation-tester 2, critic 2, reviewer 2, scout 3, connector 1, scribe 1),
+validated under `scripts/hyaku/ufo-wave-policy.json` (`.ufo/waves/round-90/w1-validate.err` empty), dispatched by the
+orchestrator from `w1.ready` (marker `w1.ready.dispatched` 2026-11-06T23:50:50); all 13 reports present
+(`w1-results.json`). The L1 holds the planner seat. No residual call.
+
+- ExecReplicate: 73/73 ×3 clone and canonical at `ce89df93`; manifest 40/40; selftests 25/25 and 18/18.
+- ExecLints: registry 143/143, headers 105/105, census rc 0, no hardcoded `/tmp`.
+- MutGate: 26 of 29 held-out gate mutants killed; survivors m05 (`image_path` key case), m08 (LP-BAD-RESOURCE-only
+  file rc 2), m20 (`.strip()` on the measured value) are roster gaps routed with R90-R3 (`w1/MutGate.md`).
+- MutBattery: 21 of 43 battery mutants detected by the committed controls (`w1/MutBattery.md`).
+- CriticForgers: docstring-only `base.py` met 73/73 ×3; 28 of 31 one-clause forgers killed (G1-G3 roster gaps).
+- CriticClaims: oracle-import forgery 73/73 (channel unnamed), docstring post-pass 73/73, QUALITY 104/125/126 gaps,
+  QUALITY 114 order deviation (disclosed draft), R9/R10 source-backed except the visibility point.
+- ReviewSource: F1 visibility (C1 honest stop), F2 unhashed image lines, F3 `tpm.c` unpinned for C1 (pinned for C2),
+  F4 R8 label, F5 wallpaper read globally.
+- ReviewGate: F1 unhashed image lines, F2 label edge cases, F3 unreadable-conf shape, F4 selftest `$boot()` blind
+  spot; N2 (indented entry lines) refuted by `config.c` 527-551, which strips leading blanks before `/` is tested.
+- ScoutTPM: `--tpm-present 0`, TCG spec, `systemd-analyze has-tpm2`; A1/A7/A8 integrated as TV2/TV4/TV9.
+- ScoutVolume: TV5/TV8 corrections (disk GUID arm, slot gaps); 50 000-text GUID round-trip harness.
+- ScoutDrift: R90-R5; confirms the visibility divergence independently (its §3-B shape C).
+- ConnectorOverlap: no sibling conflict; considerthese none fits; `hdd(1:1)` and `+TPM2` proposals rejected (Gate).
+- ScribeLesson: M1 drafted with shown-able-to-fail receipts; QUALITY 130.

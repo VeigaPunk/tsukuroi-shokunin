@@ -1,0 +1,11 @@
+--- gate.py
++++ m24-entry-empty-not-null/gate.py
+@@ -159,7 +159,7 @@
+     prompt = (panic_setting is not None and panic_setting[1].lower() == "no" and not secure_boot)
+     pins = []
+     for lineno, key, written, entry_name, value, uri in raw_pins:
+-        rec = {"line": lineno, "key": written, "entry": entry_name, "uri": sanitize(value)}
++        rec = {"line": lineno, "key": written, "entry": entry_name if entry_name is not None else "", "uri": sanitize(value)}
+         optional = key in OPTIONAL_KEYS
+         h = uri["hash"]
+         if len(h) != 128 or not set(h) <= HEXDIGITS:

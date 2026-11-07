@@ -1,0 +1,11 @@
+--- gate.py
++++ m16-directory-exists/gate.py
+@@ -185,7 +185,7 @@
+             pins.append(rec)
+             continue
+         rec["file"] = sanitize(target)
+-        if not os.path.isfile(target):
++        if not os.path.exists(target):
+             if lineno in image_lines:
+                 rec.update(status="LP-MISSING", consequence="panic",
+                            detail="image of an efi chainload entry: efi: Failed to open image (chainload.c 435)")

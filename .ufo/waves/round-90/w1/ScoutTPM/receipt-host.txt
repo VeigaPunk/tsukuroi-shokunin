@@ -1,0 +1,80 @@
+# ScoutTPM read-only host receipt, round-90 w1, 2026-11-07T00:45:01-03:00
+# no sudo; no writes to /boot, /efi, /etc, /usr, /var; only reads
+
+$ od -An -tx1 -N4 /sys/firmware/efi/efivars/LoaderTpm2ActivePcrBanks-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f
+ 06 00 00 00
+rc=0
+
+$ python3: decode UTF-16LE value of LoaderTpm2ActivePcrBanks / LoaderInfo / StubInfo / LoaderImageIdentifier / StubImageIdentifier / LoaderDevicePartUUID
+LoaderTpm2ActivePcrBanks   attrs=06000000 value='0x00000000\x00'
+LoaderInfo                 attrs=06000000 value='Limine 12.9.4\x00'
+StubInfo                   attrs=06000000 value='systemd-stub 262.1-1-arch\x00'
+LoaderImageIdentifier      attrs=06000000 value='EFI\\Linux\\omarchy_linux.efi\x00'
+StubImageIdentifier        attrs=06000000 value='EFI\\Linux\\omarchy_linux.efi\x00'
+LoaderDevicePartUUID       attrs=06000000 value='b80445be-18ee-45e6-9a30-14339ea785a7\x00'
+
+$ ls -la /sys/class/tpm/
+total 0
+drwxr-xr-x  2 root root 0 Nov  3 16:39 .
+drwxr-xr-x 73 root root 0 Nov  3 16:39 ..
+rc=0
+
+$ ls -la /sys/class/tpmrm/
+total 0
+drwxr-xr-x  2 root root 0 Nov  3 16:46 .
+drwxr-xr-x 73 root root 0 Nov  3 16:39 ..
+rc=0
+
+$ ls /dev/tpm*
+ls: cannot access '/dev/tpm*': No such file or directory
+rc=2
+
+$ journalctl -k -b --no-pager | grep -i -m5 tpm
+rc=1
+
+$ ls /sys/firmware/acpi/tables | grep -i -e TPM2 -e TCPA
+rc=1
+
+$ ls /sys/kernel/security/
+lockdown
+lsm
+rc=0
+
+$ systemd-analyze has-tpm2
+partial
+-firmware
+-driver
++system
++subsystem
++libraries
+  +libtss2-esys.so.0
+  +libtss2-rc.so.0
+  +libtss2-mu.so.0
+rc=3
+
+$ zgrep -E '^CONFIG_(TCG_TPM|TCG_TIS|TCG_CRB)=' /proc/config.gz
+CONFIG_TCG_TPM=y
+CONFIG_TCG_TIS=y
+CONFIG_TCG_CRB=y
+rc=0
+
+$ blkid -o full /dev/nvme0n1p1
+/dev/nvme0n1p1: UUID="86D8-C3F6" BLOCK_SIZE="512" TYPE="vfat" PARTUUID="b80445be-18ee-45e6-9a30-14339ea785a7"
+rc=0
+
+$ blkid -o value -s LABEL /dev/nvme0n1p1 ; blkid -o value -s PARTLABEL /dev/nvme0n1p1
+LABEL rc=0
+PARTLABEL rc=0
+
+$ ls /dev/sev* /dev/tpm* 2>&1
+ls: cannot access '/dev/sev*': No such file or directory
+ls: cannot access '/dev/tpm*': No such file or directory
+rc=2
+
+$ grep -o -m1 sev /proc/cpuinfo | head -1
+rc=0
+
+$ pacman -Q systemd limine
+systemd 262.1-1
+limine 12.9.4-1
+rc=0

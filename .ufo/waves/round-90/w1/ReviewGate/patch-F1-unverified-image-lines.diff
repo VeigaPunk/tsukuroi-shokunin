@@ -1,0 +1,26 @@
+F1 (medium, false green — needs an L1 rule decision before it lands): an efi chainload entry whose
+image line is not a pin (no `#hash`, the common real-world shape) is reported HEALTHY rc 0 even
+when the file is absent, because R2 makes a hashless value not a pin and R6 keys the panic on a pin
+on the image line. Limine v12.9.4 chainload.c 426-435 calls uri_open on that path regardless and
+panics "Failed to open image". Adding a pin would break the frozen 73-family pins lists; an additive
+top-level key is allowed by the GATE OUTPUT CONTRACT ("Other extra keys are allowed and ignored") and
+changes no existing field. The docstring's Output line should gain the key if this lands.
+
+--- a/tools/check-limine-pins.py
++++ b/tools/check-limine-pins.py
+@@ -156,5 +156,7 @@
+                 raw_pins.append((lineno, key, written, entry, value, uri))
+     image_lines = {b.get("path", b.get("image_path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}
+     image_lines.discard(None)
++    pin_lines = {r[0] for r in raw_pins}
++    unverified = sorted(n for n in image_lines if n not in pin_lines)
+     prompt = (panic_setting is not None and panic_setting[1].lower() == "no" and not secure_boot)
+     pins = []
+@@ -216,4 +218,5 @@
+     else:
+         verdict, rc = "HEALTHY", 0
+     return {"schema": "tsukuroi-limine-pins-v2", "verdict": verdict, "rc": rc,
++            "unverified_image_lines": unverified,
+             "hash_mismatch_panic": None if panic_setting is None else
+             {"line": panic_setting[0], "value": panic_setting[1]},
+             "measured_boot": None if measured_setting is None else

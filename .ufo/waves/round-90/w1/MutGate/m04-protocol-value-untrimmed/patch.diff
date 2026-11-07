@@ -1,0 +1,11 @@
+--- gate.py
++++ m04-protocol-value-untrimmed/gate.py
+@@ -149,7 +149,7 @@
+         if key == "measured_boot" and measured_setting is None:
+             measured_setting = (lineno, value)
+         if body is not None and key in ("protocol", "path", "image_path") and key not in body:
+-            body[key] = value if key == "protocol" else lineno
++            body[key] = (raw[raw.find(":") + 1:] if raw.find(":") >= 0 else value) if key == "protocol" else lineno
+         if key in PIN_KEYS:
+             uri = parse_uri(value)
+             if uri is not None:

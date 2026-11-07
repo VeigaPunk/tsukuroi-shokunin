@@ -1,0 +1,11 @@
+--- gate.py
++++ m10-optional-missing-skip/gate.py
+@@ -190,7 +190,7 @@
+                 rec.update(status="LP-MISSING", consequence="panic",
+                            detail="image of an efi chainload entry: efi: Failed to open image (chainload.c 435)")
+             else:
+-                rec.update(status="LP-MISSING", consequence="not-modelled")
++                rec.update(status="LP-MISSING", consequence="skip" if optional else "not-modelled")
+             pins.append(rec)
+             continue
+         try:

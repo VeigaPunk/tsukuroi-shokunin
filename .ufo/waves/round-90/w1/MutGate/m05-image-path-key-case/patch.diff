@@ -1,0 +1,11 @@
+--- gate.py
++++ m05-image-path-key-case/gate.py
+@@ -148,7 +148,7 @@
+             panic_setting = (lineno, value)
+         if key == "measured_boot" and measured_setting is None:
+             measured_setting = (lineno, value)
+-        if body is not None and key in ("protocol", "path", "image_path") and key not in body:
++        if body is not None and key in ("protocol", "path", "image_path") and key not in body and (key != "image_path" or written == "image_path"):
+             body[key] = value if key == "protocol" else lineno
+         if key in PIN_KEYS:
+             uri = parse_uri(value)

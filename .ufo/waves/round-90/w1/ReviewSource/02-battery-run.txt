@@ -1,0 +1,19 @@
+ReviewSource — C1 mechanical check (supporting evidence, not my mandate)
+=======================================================================
+Lane revision: ce89df93e5f576c5c236d4547299e9ea954e8853 (master)
+Gate: tools/check-limine-pins.py  sha256 4780da83ba411db1dc6afc250b618edc336a42790d79578018b40a2d7593a332
+Frozen battery: tools/limine-pin-battery-r90.py
+
+$ S=/fast/scratch/hyaku/tsukuroi-r90/ReviewSource; export TMPDIR="$S" PYTHONDONTWRITEBYTECODE=1
+$ python3 tools/limine-pin-battery-r90.py --gate tools/check-limine-pins.py --runs 1 --work "$S/work2"
+families_passed 73/73 verdict met failed -
+BATTERY_EXIT=0
+
+(NB: C1 claims `--runs 3`; this seat ran `--runs 1` only. The 3-run claim is the battery seat's;
+what matters here: the gate and the frozen battery agree, 73/73, at the landed tip.)
+
+Gate selftest: `python3 tools/check-limine-pins.py --selftest` — see 05-selftest.txt if present.
+
+The point of the source review: agreement between the gate and the battery does NOT establish that
+the battery's expected answers are Limine's. Two r90 families encode a rule that contradicts the
+pinned source (see 03-truncation-fixtures.txt and the report, finding F1).

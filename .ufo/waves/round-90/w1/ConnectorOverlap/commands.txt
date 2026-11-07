@@ -1,0 +1,18 @@
+# ConnectorOverlap seat commands and exit codes (read-only scan)
+# Measured at lane revision ce89df93e5f576c5c236d4547299e9ea954e8853
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse master
+ce89df93e5f576c5c236d4547299e9ea954e8853
+rc=0
+
+$ for r in /home/vgpnk/Projects/shokunin/*-shokunin; do [ "$r" = "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin" ] && continue; git -C "$r" grep -n -i -e limine -e measured_boot -e tpm2 -e LoaderTpm2 -- corpus tools; done
+(mori-shokunin: 5 hits; tabi-shokunin: 2 hits; 18 other sibling lanes: 0 hits)
+rc=0
+
+$ for r in /home/vgpnk/Projects/shokunin/*-shokunin; do [ "$r" = "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin" ] && continue; git -C "$r" grep -n -i -E "limine\.conf|/sys/class/tpm|has-tpm2|LoaderTpm2ActivePcrBanks|measured.?boot|fslabel" -- corpus tools; done
+(0 hits across all 20 sibling repos)
+rc=0
+
+$ ls -lt /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/considerthese/
+2026-10-26.md (latest)
+rc=0
