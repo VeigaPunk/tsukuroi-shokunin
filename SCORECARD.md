@@ -7530,3 +7530,56 @@ on CR-INTERNAL) and `drop-exitcode-compare` (no roster gate lies about its exit 
 10/10 (`w1/MutBattery.md` §4-5). Wave seat ScoutSources: all pins byte-identical to the v12.9.4 tag and the raw URLs;
 UF7/UF8 narrowed at landing on its SR4/SR11/SR18/SR21 (S352 anchor `488-492` added); SR1-SR3, SR5-SR10, SR12-SR17,
 SR19, SR20, SR22 not admitted (lesson R89-R6). C2's verdict cell is unchanged (pending the closure).
+
+## Round 90 — declaration (frozen before the candidate gate is committed or scored; controls committed with it)
+
+Inputs read first: the round-89 closure (MANIFEST `rounds[]` index 1471, tsukuroi r89, `rejected-honest-stop`) and its
+non-author spot-check `corpus/lessons/round-89-verifier-spotcheck.md` §5 routed 1-5, and the round-89 lesson's
+R89-R1..R6. Two rejections in a row (r88, r89) came from meta-instruments (a counter judging a battery) that the
+wave falsified; this round moves C1 back to the gate surface the lane can verify directly. Routed 4 / R89-R5 (whether
+the gate should report what Limine does where it says `not-modelled`) is C1's surface. Routed 2 (uncertified
+clauses: `path =`, files > 1 MiB, panic-after-pin, empty resource, non-UTF-8 confs) is repaired inside the r90
+battery with one near-miss control each (N24-N27; empty resource is enumerated by BAD-RESOURCE). Routed 1 (successor
+counter) and 3 (counter docstring) are not this round's instrument: no counter is used; they stay routed (lesson).
+
+Surface (C1): the r87 gate answers `not-modelled` for every LP-MISSING and LP-UNRESOLVED pin and treats an invalid
+resource name (`BOOT()`, `$$boot()`, `bootx()`) like a valid unresolvable one; it says nothing about what a panic does
+on screen. `git grep -n -i -e 'LP-BAD-RESOURCE' -e 'on_panic' -e 'tpm-present' c0f91856 -- tools corpus` → rc 1
+(`.ufo/waves/round-90/before/new-ground-sweep.txt`). Rules frozen as R4/R6/R7 (r90), R9 and R10 in the battery
+docstring, each from pinned Limine v12.9.4 lines: `uri.c` 344-366 (`URI_ERROR("Resource ... not valid")`),
+`chainload.c` 414-435 (PATH then IMAGE_PATH; "efi: Failed to open image"), `menu.c` 2429-2468 (strcmp protocol
+dispatch) and 1719-1728 (measured boot: `strcmp(... "yes")`, Secure Boot forces it, no TPM forces it off),
+`config.c` 686-720 (entry body) and 778-818 (first key wins), `panic.s2.c` 24-28/70-78/98 (menu return vs "System
+halted."), `gterm.c` 625/706 (wallpaper and font are `uri_open_optional`). Pinned this commit:
+`.ufo/waves/round-90/before/src/` (6 files from the v12.9.4 tag clone `8ad14430`; 5 `cmp`-identical to the r87/r89
+pins, `gterm.c` new; `cmp-pins.txt`, `URLS.txt`, `SHA256SUMS`); host runs limine 12.9.4-1 (`before/host/receipt.txt`).
+
+Instrument: `tools/limine-pin-battery-r90.py` sha256 `8f0daee82b9d487b5412a45ec1b8cf74c4e037e87d67213f756f1f850fb303e5`
+(`.ufo/waves/round-90/before/freeze-manifest.sha256`, 40 lines); 73 families (the r89 50 with r90 expectations, 20 for
+R4/R6/R7/R9/R10, 3 for routed 2), 4 cases each, fresh OS-entropy fixtures, case list shuffled per run; `--runs` < 1 is a
+usage error. `--selftest` (no reference) PASS 5/5 rc 0 from an unrelated cwd (`before/controls/battery-selftest-noref.txt`).
+Disclosure: the candidate was drafted alongside the battery, because each near-miss control is that draft with ONE
+r90 clause bent; its bytes are committed here as `before/controls/candidate-draft.py` (sha256 `4780da83…`) and no
+score of it is a receipt. The landed gate is committed and scored only after this freeze.
+
+| Claim | Axis | Predicate (same sentence in the battery docstring and the receipt) | Target | Kill rule | Counting command | Do-nothing and near-miss controls (committed receipts, 3 runs each, before the candidate is committed) |
+|---|---|---|---|---|---|---|
+| C1 (measured; surface: consequence modelling of the `limine-pins` gate; sourced S364 opened this round, S350-S353/S361/S362 re-opened from the v12.9.4 tag clone) | operability 9 | `tools/check-limine-pins.py --conf FILE --esp DIR [--secure-boot-enforced 0\|1] [--tpm-present 0\|1]` follows the Limine v12.9.4 pin rule set R1-R7 and R9-R10 and the reporting contract R8 of the r90 battery docstring: for each of the 73 families, on fixtures generated fresh per run, every case returns exactly the expected (rc, verdict, sorted per-pin (line, status, consequence), on_panic) within 20 s. | 73 of 73 families (`verdict met`, rc 0) in each of three consecutive runs at the landed lane tip, in the canonical lane and in a clean `git clone --shared` | unmet if any of the three runs reads below 73/73; void if the battery bytes differ from the freeze manifest | `python3 tools/limine-pin-battery-r90.py --gate tools/check-limine-pins.py --runs 3` | `.ufo/waves/round-90/before/controls/summary-canonical.txt`: K1 (landed r87 gate) 0/0/0 of 73 (603 error cases: it refuses `--tpm-present`, rc 64); K2 (landed gate + accepts `--tpm-present`, on_panic always `menu`) 51/50/51; N01-N27 each 67-72 of 73 in every run, each killed in all three runs by the family named in `gates/INDEX.tsv`; N26 is killed by crash rows (12 error cases), counted as errors, not as a computed verdict (QUALITY 126) |
+| C2 (exploratory, sourced, new S-rows opened this round) | depth 8 (tied lowest) | none (exploratory): an entry `corpus/knowledge/limine-tpm-volume-r90.md` (+ `.json`) holds sourced, host-measured rows on ground no entry holds: what Limine v12.9.4's `tpm_present()` checks, how an operator answers the gate's new `--tpm-present` on this host (Linux-side and firmware-side signals, and who writes `LoaderTpm2ActivePcrBanks`), and how `guid()`/`uuid()`/`fslabel()`/`hdd()`/`odd()`/`boot(N)` find a volume and which of them would name this host's ESP | named non-author `unprovable-but-better` with reasons (the hyaku closure; a wave seat is the lane) | lands `unprovable` without that judgment | none | prior state: `before/new-ground-sweep.txt` — `tpm_present`/`volume_get_by` occur only in `limine-uri-failure-r89.md` Limits lines 52-55 ("not opened by the L1 … not admitted") and two UF quote cells |
+
+Clause map (QUALITY 125) for the r90 clauses — clause → near-miss control → killing family (all three runs):
+R4 strcmp → N01 → BAD-RESOURCE/RESOURCE-CASE; R4 invalid name → N02 → BAD-RESOURCE, BAD-OVER-UNRESOLVED; R4 one `$` →
+N06 → DOUBLE-DOLLAR; R3 before R4 → N04 → FORMAT-BEFORE-BAD; R6 optional bad resource skip → N03 →
+BAD-RESOURCE-OPTIONAL; R7 bad resource is a fault → N05 → BAD-OVER-UNRESOLVED; R9 image line only → N07 →
+PATH-PRECEDENCE/FIRST-PATH; R9 chainload protocols only → N08, N15 → NON-EFI-MISSING; R9 protocol strcmp → N09 →
+NON-EFI-MISSING; R9 first protocol → N10 → FIRST-PROTOCOL; R9 PATH before IMAGE_PATH → N11 → PATH-PRECEDENCE; R9 first
+path → N12 → FIRST-PATH; R9 body scope → N13, N14 → ENTRY-SCOPE; R9 key lines only → N22 → PROTOCOL-DECOY; R10
+strcmp `yes` → N16 → MEASURED-VALUE-CASE; R10 first key → N17 → MEASURED-FIRST; R10 TPM forces off → N18 →
+MEASURED-TPM0/-TPM-ABSENT; R10 absent flag → N19 → MEASURED-TPM-ABSENT; R10 Secure Boot requests → N20 → MEASURED-SB;
+R10 whole file → N21 → MEASURED-IN-ENTRY; R10 key lines only → N23 → MEASURED-DECOY. Routed-2 repairs: N24 → KEY-SPACING,
+N25 → LARGE-FILE, N26 → NON-UTF8 (crash rows), N27 → PANIC-AFTER-PIN. R1-R8 as r89 stated them keep their r89
+certification record (r89 roster and survivor lists); r90 adds no claim about them beyond N24-N27.
+Uncertified r90 clause count: 0 of the 21 listed; limits frozen as rules, not defects (docstring "Not modelled"): a
+missing file on any non-image line, whether a valid non-`boot()` resource resolves, menu hierarchy validity, BIOS.
+C1 and C2 are causally separable: the battery reads only the gate; the entry is judged on its rows and sources.
+Operability stays 9 (a sharper runnable arm, no ordinal claim); depth stays 8 unless the closure endorses a move.

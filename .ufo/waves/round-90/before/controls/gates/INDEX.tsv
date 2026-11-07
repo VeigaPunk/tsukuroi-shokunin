@@ -1,0 +1,30 @@
+name	clause	expected_killers
+K1-landed-gate	do-nothing (r87 gate as landed)	all r90 families
+K2-landed-adapter	do-nothing + accepts --tpm-present, on_panic always menu	r90 families
+N01-resource-casefold	R4 strcmp	BAD-RESOURCE RESOURCE-CASE
+N02-no-bad-resource	R4 invalid name is LP-BAD-RESOURCE	BAD-RESOURCE BAD-OVER-UNRESOLVED
+N03-bad-optional-panics	R6 optional bad resource -> skip	BAD-RESOURCE-OPTIONAL
+N04-resource-before-format	R3 before R4	FORMAT-BEFORE-BAD
+N05-bad-not-fault	R7 LP-BAD-RESOURCE is a fault	BAD-OVER-UNRESOLVED BAD-RESOURCE
+N06-strip-all-dollars	R4 one '$' dropped	DOUBLE-DOLLAR
+N07-any-key-panics	R9 only the image line	PATH-PRECEDENCE FIRST-PATH
+N08-any-protocol-panics	R9 efi protocols only	NON-EFI-MISSING
+N09-protocol-casefold	R9 protocol strcmp	NON-EFI-MISSING
+N10-protocol-last-wins	R9 first protocol line	FIRST-PROTOCOL
+N11-image-path-first	R9 PATH before IMAGE_PATH	PATH-PRECEDENCE
+N12-path-last-wins	R9 first path line	FIRST-PATH
+N13-protocol-leaks	R9 body ends at the next entry line	ENTRY-SCOPE
+N14-global-is-entry	R9 lines before the first entry belong to no entry	ENTRY-SCOPE
+N15-boot-entry-is-efi	R9 efi_boot_entry is not chainload	NON-EFI-MISSING
+N16-measured-casefold	R10 strcmp yes	MEASURED-VALUE-CASE
+N17-measured-last-wins	R10 first measured_boot line	MEASURED-FIRST
+N18-tpm-ignored	R10 no TPM forces measured boot off	MEASURED-TPM0 MEASURED-TPM-ABSENT
+N19-tpm-absent-menu	R10 absent flag -> halt-if-tpm	MEASURED-TPM-ABSENT
+N20-sb-not-measured	R10 Secure Boot requests measured boot	MEASURED-SB
+N21-measured-global-only	R10 key read over the whole file	MEASURED-IN-ENTRY
+N22-protocol-raw-scan	R9 with R1: only key lines set the protocol	PROTOCOL-DECOY
+N23-measured-raw-scan	R10 with R1: only key lines set measured_boot	MEASURED-DECOY
+N24-equals-separator	R1 key followed directly by ':' (blank then '=')	KEY-SPACING
+N25-hash-first-mib	R5 every stored byte hashed	LARGE-FILE
+N26-strict-utf8	R1/R7 non-UTF-8 conf is read (killed by a crash row: error, QUALITY 126)	NON-UTF8
+N27-panic-before-pins	R6 first hash_mismatch_panic anywhere in the file	PANIC-AFTER-PIN
