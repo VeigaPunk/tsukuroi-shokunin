@@ -1,0 +1,18 @@
+2026-11-06T21:52:29-03:00
+$ sudo -n grep -n -i -E "^[[:space:]]*(measured_boot|hash_mismatch_panic|protocol)[[:space:]]*:" /boot/limine.conf  (read-only)
+8:hash_mismatch_panic: no
+29:  protocol: efi
+37:  protocol: efi
+49:     protocol: efi
+55:     protocol: efi
+63:     protocol: efi
+71:protocol: efi
+rc=0
+$ ls -la /sys/class/tpm/
+total 0
+drwxr-xr-x  2 root root 0 Nov  3 16:39 .
+drwxr-xr-x 73 root root 0 Nov  3 16:39 ..
+$ od -An -tx1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+ 06 00 00 00 00
+$ pacman -Q limine
+limine 12.9.4-1

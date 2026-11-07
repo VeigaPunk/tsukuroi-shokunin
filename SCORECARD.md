@@ -7452,3 +7452,47 @@ nothing above): the CR clause of C1 is certified by chance — `WHITESPACE-CRLF`
 (`w1/MutBattery.md` §3 note 1). All 15 C1 runs on record read 45/45 (L1 12, ExecReplicate 3). The
 `hash_mismatch_panic.value` check has no detector (M18). Routed R88-R2/R3. ScoutSources found nothing contradicting
 PW5–PW8; PW6–PW8 were sharpened from its tag clones (lesson Gate addendum 2).
+
+## Round 89 — declaration (frozen before the candidate battery is scored; controls run with the frozen counter before it)
+
+Inputs read first: the round-88 closure (MANIFEST `rounds[]` tsukuroi r88, `rejected-honest-stop`) and its non-author
+spot-check `corpus/lessons/round-88-verifier-spotcheck.md` §5 routed defects 1-5, and the round-88 lesson's R88-R1..R6.
+Routed 2 and 5 (successor counter; deterministic CR; `hash_mismatch_panic.value` detector; docstring forgers and held-out
+mutants as committed negatives) are C1. Routed 1 (stale README Round-88 Frontier sentence) is this round's mined mistake
+(lesson M1). Routed 3 and 4 are report-text items (the CR flake is cited as the seat's 2/24; the report is committed
+with a current author date). R88-R5's ReviewBattery F1/F3 (what `boot(N)` and a URI-less path do in Limine) is C2's
+ground. R88-R6: C1 is named by its surface — **battery calibration of the `limine-pins` gate**.
+
+Surface (C1): the r88 counter let a battery read the roster through a clone origin (bwrap bound `/` and masked only the
+invoking copy), let a nonce-stripping digest table read `met` (the gate's bytes were handed over), counted crash rows as
+`unmet`, promised a manifest void it never checked and accepted `--roster`. The r88 battery left 15 written clauses
+uncertified (CriticForgers f01, f03, f06, f07, f08, f12, f14, f16, f18, f19; MutHeldOut h01, h10, h11, h19, h20), drew
+CRLF by chance (p 0.6/case) and never checked the reported panic value against a lying gate.
+
+Instrument: `tools/battery-discrimination-r89.py` (sha256 in `.ufo/waves/round-89/before/freeze-manifest.sha256`, which
+also pins the roster, every roster gate, the probe and the controls). What changed against r88, each in code: the
+battery gets an opaque launcher (gate bytes stay in an unmounted directory; a counter thread runs the gate on the
+launcher's argv/cwd over a Unix socket); the sandbox is an allowlist (`/usr`, `/etc`, fresh `/dev` `/proc` `/tmp`, the
+case directory; `--unshare-all`, `--clearenv`) with a preflight that voids the count if the lane, its tools, the roster,
+the manifest, any non-allowlisted root entry, or any sibling of an ancestor of the case directory is visible; error rows
+are counted separately and make the count `could-not-evaluate` (exit 3); the manifest is read and voids on any mismatch
+or unlisted roster file; `--roster` is gone.
+
+Roster (frozen, 65 gates; `.ufo/waves/round-89/before/roster/roster-r89.json`): POSITIVE 3 — the landed r87 gate, MutGate
+m01 (equivalent), CriticForgers' r88 docstring-only reimplementation `base.py`. NEGATIVE 62 — the r88 45, r88 positive
+g00 relabelled (it strips only a trailing CR while `config.c` raw 527-551 removes every CR, and it hashes the ESP
+directory on an empty path), the 15 r88 survivors above, and `m31-panic-value-untrimmed` (landed gate reporting the raw
+text after ':' as `hash_mismatch_panic.value`; consequences unchanged). Admission of every r89 roster change rests on
+`.ufo/waves/round-89/before/roster-probe/probe-receipt.txt` (16 hand-written fixtures under the r88 R1-R8 text: the 3
+positives exact on 16/16; every r89 negative wrong on at least one named witness), run before the freeze.
+
+| Claim | Axis | Predicate (same sentence in the counter docstring and the receipt) | Target | Kill rule | Counting command | Do-nothing and forgery controls (committed receipts, 3 runs each, canonical lane and `git clone --shared` layouts, before the candidate is scored) |
+|---|---|---|---|---|---|---|
+| C1 (measured; surface: battery calibration of the `limine-pins` gate; rule set sourced S350-S353, re-opened this round from the v12.9.4 tag clone) | operability 9 (assurance arm) | The battery under test, driven by this counter over the frozen roster `.ufo/waves/round-89/before/roster/roster-r89.json`, reads `met` (exit 0 and JSON verdict "met") for every POSITIVE gate and `unmet` (exit 1 and JSON verdict "unmet") for every NEGATIVE gate, with zero error rows, in each of three runs; the battery sees each gate only as an opaque launcher that forwards its argv to the gate run outside the battery's sandbox, and the sandbox exposes only /usr, /etc and the per-case directory. | positives 3/3 and negatives 62/62 with 0 error rows in each of three runs (`verdict met`, exit 0), battery `tools/limine-pin-battery-r89.py` at the landed lane tip | unmet if any run reads below 3/3 or 62/62; could-not-evaluate (never met) if any error row; void if the counter, roster or any roster gate differs from the freeze manifest or the isolation preflight fails | `python3 tools/battery-discrimination-r89.py --battery tools/limine-pin-battery-r89.py --runs 3 --scratch "$S/work"` (cwd: the lane or a clean `git clone --shared` of it) | K1 do-nothing = the r88 battery (`tools/limine-pin-battery-r88.py`, pre-round); F1 always-met; F2 always-unmet; F3 roster oracle (walks every reachable root for `roster-r89.json` and answers its label; never crashes; hit marked families_passed 999); F4 source-fingerprint oracle (all 65 normalised gate digests embedded; never crashes); F5 crash battery (must read could-not-evaluate). Potency of F3/F4 outside the counter recorded by `controls/potency.py`. Each must read below target. |
+| C2 (exploratory, sourced, new S-rows opened this round) | depth 8 (tied lowest) | none (exploratory): an entry `corpus/knowledge/limine-uri-failure-r89.md` (+ `.json`) holds sourced, host-measured rows on ground no entry holds: what each Limine v12.9.4 URI resource resolves to (`boot()`/`boot(N)`, hdd/odd, guid/uuid, fslabel, tftp), what an unknown resource, an unresolvable volume or a URI-less `path:` does to an `efi` entry, what a `panic` consequence does on screen (return to menu vs halt under measured boot), and why the Secure Boot no-hash rule does not fire for `efi` chainload paths | named non-author `unprovable-but-better` with reasons (the hyaku closure; a wave seat is the lane) | lands `unprovable` without that judgment | none | prior state: `git grep -n -i 'boot_dispatch\|uri_hdd\|fslabel_dispatch\|allow_menu\|measured_boot' dfeaab29 -- corpus/knowledge` → empty |
+
+Not certified by C1 (frozen as limits): a battery that recognises a gate by timing or by its answers (behavioural testing
+is the measured thing); the rule set's own fidelity to Limine where the r88 text models a branch as `not-modelled`
+(`boot(N)`, hdd/odd/guid/fslabel) — C2 documents those branches, C1 does not change R1-R8.
+C1 and C2 are causally separable: the counter reads only the battery; the entry is judged on its rows and sources.
+Operability stays 9 (an assurance move, no ordinal claim); depth stays 8 unless the closure endorses a move.
