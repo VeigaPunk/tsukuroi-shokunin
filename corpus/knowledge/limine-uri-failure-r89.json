@@ -43,14 +43,14 @@
  },
  {
   "id": "UF7",
-  "statement": "[src] Every panic above is `panic(true, …)`: it prints `PANIC`, then \"Press a key to return to menu\", and the menu comes back, so another entry (a snapshot entry, the fallback) can be chosen. Under measured boot the menu return is refused and the machine prints \"System halted.\" Measured boot is on only when the config says `measured_boot: yes` or Secure Boot is active, and is forced off without a TPM/CC measurement interface.",
-  "source": "S362 panic.s2.c 18-29, 70-100; S353 menu.c 1719-1730; S350 CONFIG.md 157-160",
+  "statement": "[src] Every panic above is `panic(true, …)`: it prints `PANIC`, then \"Press a key to return to menu\", and the menu comes back, so another entry (a snapshot entry, the fallback) can be chosen — on UEFI only while the firmware's boot services are still up (`efi_boot_services_exited == false`, lines 71-77), which holds for a path that fails to open. Under measured boot the menu return is refused and the machine prints \"System halted.\" (UEFI; a BIOS build prints a CTRL+ALT+DEL line instead). Measured boot is on only when the config says exactly `measured_boot: yes` or Secure Boot is active, and is forced off when the firmware exposes no TPM/CC measurement interface. Limine's \"Secure Boot active\" is itself narrower than the firmware flag: `init_config` clears it when no config checksum is enrolled (config.c 488-492). Narrowing from wave seat ScoutSources (SR11, SR18, SR21).",
+  "source": "S362 panic.s2.c 18-29, 70-100; S353 menu.c 1719-1730; S350 CONFIG.md 157-160; S352 config.c 488-492",
   "quote": "\"print(\\\"Press a key to return to %s.\\\", booting_from_editor ? \\\"editor\\\" : \\\"menu\\\");\" (panic.s2.c line 78)",
   "host_value": "[obs] no `measured_boot` key in `/boot/limine.conf`; Secure Boot off; `/sys/class/tpm/` empty"
  },
  {
   "id": "UF8",
-  "statement": "[inf] On this host, therefore: the gate's `not-modelled` rows cannot come from a resource (every URI is `boot():/`), and an `LP-MISSING` main `path:` would be a panic that returns to the menu after a key press — the snapshot entries and `EFI fallback` stay selectable. The round-86 incident's mismatches stay `prompt` (`hash_mismatch_panic: no`, r87 LP5). The firmware's own TPM state was not read: an empty `/sys/class/tpm/` shows Linux has no TPM device — evidence (not a firmware probe) that Limine's `tpm_present()` would also come up empty; not executed at boot.",
+  "statement": "[inf] On this host, therefore: the gate's `not-modelled` rows cannot come from a resource (every URI is `boot():/`), and an `LP-MISSING` main `path:` would be a panic that returns to the menu after a key press — the snapshot entries and `EFI fallback` stay selectable. The round-86 incident's mismatches stay `prompt` (`hash_mismatch_panic: no`, r87 LP5). Measured boot is off here whatever the firmware's TPM state: the config has no `measured_boot` key and Secure Boot is off (UF7's two switches). The firmware's TPM protocol was not probed; an empty `/sys/class/tpm/` is a Linux-side signal only and does not answer `tpm_present()` (wave seat ScoutSources SR4). Not executed at boot.",
   "source": "UF2, UF5, UF7; S363",
   "quote": "—",
   "host_value": "[obs] host receipt above"

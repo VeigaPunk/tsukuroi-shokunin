@@ -1,0 +1,31 @@
+--- a/tools/battery-discrimination-r89.py
++++ b/tools/battery-discrimination-r89.py
+@@ POOL - sandbox_argv: normalize prog name
+@@
+-LAUNCHER = '''import json, os, socket, sys
++LAUNCHER = '''import json, os, socket, sys
++sys.argv[0] = "gate"
+ s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+ s.connect(%r)
+ s.sendall(json.dumps({"argv": sys.argv[1:], "cwd": os.getcwd()}).encode() + b"\\n")
+@@ serve: restrict argv to conf/esp/sb only
+-                p = subprocess.run([PYTHON, gate_path] + [str(x) for x in req["argv"]], cwd=cwd,
++                allowed = []
++                argv = req["argv"]
++                # allowlist: --conf V --esp V [--secure-boot-enforced 0|1] (values opaque, case dir not required for values)
++                i = 0
++                ok = True
++                while i < len(argv):
++                    a = str(argv[i])
++                    if a in ("--conf", "--esp", "--secure-boot-enforced") and i+1 < len(argv):
++                        allowed += [a, str(argv[i+1])]
++                        i += 2
++                    else:
++                        ok = False
++                        break
++                if not ok or "--conf" not in allowed:
++                    raise ValueError("argv not allowlisted")
++                p = subprocess.run([PYTHON, "-c", "import sys; sys.argv[0]=\\"gate\\"; exec(open(GATE_PATH).read())"] + allowed, cwd=cwd,
+@@ one: rename copied gate to fixed name
+-        gate_path = os.path.join(gd, os.path.basename(gate["abs"]))
++        gate_path = os.path.join(gd, "gate.py")

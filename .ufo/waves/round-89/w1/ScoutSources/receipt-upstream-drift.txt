@@ -1,0 +1,98 @@
+# Upstream drift receipt — ScoutSources, round-89 w1
+date: 2026-11-06T23:06:20-03:00
+
+## remote refs (git ls-remote)
+89a9512c623a4779cc73e3869383876d54264b28	HEAD
+31e8865c9545c337982f05415c30a8bc80055d07	refs/heads/trunk
+89a9512c623a4779cc73e3869383876d54264b28	refs/heads/v12.x
+7cd83664576b895fda088d6a582b46c24b284cb7	refs/tags/v12.9.0
+34fe53c3d27d229ea25c28fc3e04db362543715b	refs/tags/v12.9.0^{}
+8fc5c6bbfe93a190173ab500bf15ad028f7b664a	refs/tags/v12.9.1
+c82c3708b3304be806b2492dc2ce34e219c6f989	refs/tags/v12.9.1^{}
+a5ac37696333dc0f3a1bc408bd2c35f334a95223	refs/tags/v12.9.2
+69792f200e9085e09552cf99660780a71cfd37dd	refs/tags/v12.9.2^{}
+ea3cc04b5f7b2278c511e8ea566d4b10a1569123	refs/tags/v12.9.3
+e3aa138d383ca4fe061f05931b5a54497cd502f2	refs/tags/v12.9.3^{}
+1e512b2b71845073f2d0c923157baf29368175aa	refs/tags/v12.9.4
+8ad14430bc9f2c24679cda558981ef53e6e3b18c	refs/tags/v12.9.4^{}
+c427781c6624b24eb6d6d6258fc19f1c5e24eabb	refs/tags/v12.9.5
+55a93085435aa1b8f91054df3794b2a43fb7984a	refs/tags/v12.9.5^{}
+54727fd1c0d58f54e615fc6e1e72e38f4b635455	refs/tags/v12.9.6
+89a9512c623a4779cc73e3869383876d54264b28	refs/tags/v12.9.6^{}
+
+## release dates (GitHub API)
+v12.9.4 Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys;d=json.load(sys.stdin);print(d.get('published_at'))
+                      ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/__init__.py", line 298, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "/usr/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+v12.9.5 Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys;d=json.load(sys.stdin);print(d.get('published_at'))
+                      ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/__init__.py", line 298, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "/usr/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+v12.9.6 Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,sys;d=json.load(sys.stdin);print(d.get('published_at'))
+                      ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/__init__.py", line 298, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "/usr/lib/python3.14/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+## chainload.c: v12.9.4 raw 414-437 vs v12.9.6 raw 429-452 (diff of the two ranges)
+IDENTICAL
+exit=0
+
+## panic.s2.c: v12.9.4 raw 71-92 vs v12.9.6 raw 79-100
+IDENTICAL
+exit=0
+
+## chainload.c / panic.s2.c: default branch (v12.x) vs refs/heads/trunk
+IDENTICAL common/protos/chainload.c
+IDENTICAL common/lib/panic.s2.c
+
+## files changed v12.9.4 -> v12.9.6 that the entry cites
+CHANGED   common/lib/uri.c
+CHANGED   common/menu.c
+CHANGED   common/lib/config.c
+CHANGED   common/lib/tpm.c
+CHANGED   CONFIG.md
+CHANGED   common/protos/chainload.c
+CHANGED   common/lib/panic.s2.c

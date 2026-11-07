@@ -1,0 +1,48 @@
+# M1 sweep receipt — the r88 README frontier bullet vs the entry's corrected Limits
+# lane: 665408cc45a88ed49717e22f4593e8e6152ac665  (lane root /home/vgpnk/Projects/shokunin/tsukuroi-shokunin)
+# written 2026-11-06T22:27:44-03:00 by seat ScribeLesson; all commands read-only
+
+$ git -C <lane> show dfeaab29:corpus/README.md | sed -n "977,978p"
+- `limine-install`'s body (run by `limine-update`, PW5) is unread; the upstream tag copies of the mkinitcpio scripts
+  returned HTTP 429, so PW5 rests on the installed bytes (S360).
+
+$ git grep -c -F "returned HTTP 429, so PW5 rests" dfeaab29 -- corpus/
+dfeaab29:corpus/README.md:1
+rc=0
+
+$ git grep -n -F "returned HTTP 429, so PW5 rests" dfeaab29 -- corpus/README.md
+dfeaab29:corpus/README.md:978:  returned HTTP 429, so PW5 rests on the installed bytes (S360).
+rc=0
+
+# scope sweep: corpus/knowledge corpus/README.md tools SCORECARD.md LOG.md
+$ git grep -n -F "returned HTTP 429, so PW5 rests" dfeaab29 -- corpus/knowledge corpus/README.md tools SCORECARD.md LOG.md
+dfeaab29:corpus/README.md:978:  returned HTTP 429, so PW5 rests on the installed bytes (S360).
+rc=0
+
+$ git grep -n -F "returned HTTP 429, so PW5 rests" master -- corpus/knowledge corpus/README.md tools SCORECARD.md LOG.md
+rc=1
+
+$ git grep -n -F "returned HTTP 429, so PW5 rests" master        # whole tracked tree
+rc=1
+
+$ git grep -n -F "\`limine-install\`'s body" dfeaab29
+dfeaab29:corpus/README.md:977:- `limine-install`'s body (run by `limine-update`, PW5) is unread; the upstream tag copies of the mkinitcpio scripts
+dfeaab29:corpus/lessons/round-88-verifier-spotcheck.md:129:1. `corpus/README.md` Round-88 Frontier still says "`limine-install`'s body … is unread; the upstream tag copies … returned
+rc=0
+
+$ git grep -n -F "\`limine-install\`'s body" master
+master:corpus/lessons/round-88-verifier-spotcheck.md:129:1. `corpus/README.md` Round-88 Frontier still says "`limine-install`'s body … is unread; the upstream tag copies … returned
+rc=0
+
+# the corrected bullet as landed at 81f68d00 / master:
+$ sed -n "974,983p" corpus/README.md
+
+- PW8 (stale pins copied into new snapshot entries) is source inference; no snapshot was created on the host.
+  The next snapshot after the incident, read by `check-limine-pins.py --live`, confirms or refutes it.
+- (Corrected round 89; spot-check r88 routed 1, lesson r89 M1.) PW5's flow was read from the installed bytes (S360),
+  and wave seat ScoutSources' `git clone --branch 1.40.0` found the upstream `limine-mkinitcpio`, `limine-install`
+  and `limine-mkinitcpio-install` byte-identical to them (raw URLs alone returned HTTP 429); `limine-install` writes
+  no `path:` pin (seat's reading of its body, not re-checked by the L1) — entry Limits, `limine-pin-writers-r88.md`
+  lines 58-62. Open: an L1 re-read of `limine-install`.
+- Counter successor owed: mask the clone origin and every host root that can hold a roster copy, read the freeze
+  manifest and void, drop `--roster`, record per-row `error:` counts (patches in `.ufo/waves/round-88/w1/ExecReplicate/`

@@ -1,0 +1,29 @@
+# Host read-only re-check receipt — ScoutSources, round-89 w1
+date: 2026-11-06T23:09:43-03:00
+
+$ pacman -Q limine
+limine 12.9.4-1
+exit=0
+
+$ pacman -Si limine   (repo version; read-only, no transaction)
+Repository      : extra
+Name            : limine
+Version         : 12.9.4-1
+Description     : An advanced, portable, multiprotocol bootloader
+Architecture    : x86_64
+URL             : https://github.com/Limine-Bootloader/Limine
+
+$ ls -A /sys/class/tpm/
+exit=0 (empty => no TPM device node)
+
+$ od -An -tx1 -v /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+ 06 00 00 00 00
+exit=0
+
+$ od -An -tx1 -v /sys/firmware/efi/efivars/SetupMode-8be4df61-93ca-11d2-aa0d-00e098032b8c
+ 06 00 00 00 00
+exit=0
+
+$ grep -n -i -E 'measured_boot|hash_mismatch_panic|protocol' /boot/limine.conf
+grep: /boot/limine.conf: Permission denied (os error 13)
+exit=2 (Permission denied: /boot/limine.conf is root-only; no sudo used)

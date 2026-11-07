@@ -1,0 +1,878 @@
+{
+ "schema": "tsukuroi-heldout-mutants-r89-v1",
+ "base": ".ufo/waves/round-89/before/roster/pos-landed-gate-3ba37eb0.py",
+ "base_sha256": "e3b0fab4f2d276fe579b64ce5c8741a065bd9afe281257d38aa2209062407352",
+ "count": 23,
+ "mutants": [
+  {
+   "id": "h25-traversal-uncontained",
+   "clause": "R4 path containment (`..` leaves the ESP -> LP-UNRESOLVED)",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "5c0c5a5899656d0c50040e501d39f6b666759568a57f74a1f41063c6a2eead51",
+   "diff": "mutants/h25-traversal-uncontained.diff",
+   "probe": "probes/h25-traversal-uncontained.json",
+   "probe_receipt": "probes/h25-traversal-uncontained.out.json",
+   "pristine_answer": [
+    2,
+    "CANNOT-EVALUATE",
+    [
+     [
+      2,
+      "LP-UNRESOLVED",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h26-symlink-abspath",
+   "clause": "R4 a symlink pointing outside the ESP -> LP-UNRESOLVED",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "aeacf4754d252f7256d6a80750de56e2cfaf054bc7d43b683c139668fa9e77f1",
+   "diff": "mutants/h26-symlink-abspath.diff",
+   "probe": "probes/h26-symlink-abspath.json",
+   "probe_receipt": "probes/h26-symlink-abspath.out.json",
+   "pristine_answer": [
+    2,
+    "CANNOT-EVALUATE",
+    [
+     [
+      2,
+      "LP-UNRESOLVED",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h27-contain-prefix-only",
+   "clause": "R4 containment is a path-component test, not a string prefix",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "e54e797bd8f81cf3784b31d8c597f822c1918d23794a7f3869b2f1f9609ed32d",
+   "diff": "mutants/h27-contain-prefix-only.diff",
+   "probe": "probes/h27-contain-prefix-only.json",
+   "probe_receipt": "probes/h27-contain-prefix-only.out.json",
+   "pristine_answer": [
+    2,
+    "CANNOT-EVALUATE",
+    [
+     [
+      2,
+      "LP-UNRESOLVED",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h28-bare-key-line-crash",
+   "clause": "R1 a line of key characters with no ':' is not a key line (must not crash)",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "9b3fef1db15ba365efd4442260d05f9644779f506fa486359b673a64857b5554",
+   "diff": "mutants/h28-bare-key-line-crash.diff",
+   "probe": "probes/h28-bare-key-line-crash.json",
+   "probe_receipt": "probes/h28-bare-key-line-crash.out.json",
+   "pristine_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      3,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "3": "e"
+    }
+   ],
+   "mutant_answer": [
+    1,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "id": "h29-hash-first-mib",
+   "clause": "R5 BLAKE2b-512 over ALL raw stored bytes (no size truncation)",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "86c70e3d298d96971b064c5ba4737c9fdf2f5d67cc9fc18aa388c9fef7ea07f7",
+   "diff": "mutants/h29-hash-first-mib.diff",
+   "probe": "probes/h29-hash-first-mib.json",
+   "probe_receipt": "probes/h29-hash-first-mib.out.json",
+   "pristine_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h30-panic-after-pin",
+   "clause": "R6 the prompt rule reads the FIRST hash_mismatch_panic key line in the WHOLE file",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "d3cfd58a3f94d2fd1b194ab3575dd04ec1f87dd80b369cc324b755c0a89380f7",
+   "diff": "mutants/h30-panic-after-pin.diff",
+   "probe": "probes/h30-panic-after-pin.json",
+   "probe_receipt": "probes/h30-panic-after-pin.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "prompt"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h31-any-hex-char",
+   "clause": "R3 the hash must be ENTIRELY [0-9a-fA-F]",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "19fcf5103fb15258f43eb76f0026c412560b20fd58a64b7ef776f284e5ce44ee",
+   "diff": "mutants/h31-any-hex-char.diff",
+   "probe": "probes/h31-any-hex-char.json",
+   "probe_receipt": "probes/h31-any-hex-char.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-HASH-FORMAT",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h32-len-at-most",
+   "clause": "R3 the hash must be EXACTLY 128 characters",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "1611bf90af1db9f8daf3119d6d2af67e67248a29e265c17524d15cd76f5dd863",
+   "diff": "mutants/h32-len-at-most.diff",
+   "probe": "probes/h32-len-at-most.json",
+   "probe_receipt": "probes/h32-len-at-most.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-HASH-FORMAT",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h33-exit-zero",
+   "clause": "R7/output contract the process exit code equals rc",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "f7b9ea9f8e91c7f979602bd89d8bbbf632295abf66d1d973e02337c4795054b9",
+   "diff": "mutants/h33-exit-zero.diff",
+   "probe": "probes/h33-exit-zero.json",
+   "probe_receipt": "probes/h33-exit-zero.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h34-sb-absent-enforced",
+   "clause": "R7 `--secure-boot-enforced 0` and an absent flag both mean not enforced",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "233a78ab40698d86d34b5785fb0539a03850fdbb9a9b34cec53f017abab86c7f",
+   "diff": "mutants/h34-sb-absent-enforced.diff",
+   "probe": "probes/h34-sb-absent-enforced.json",
+   "probe_receipt": "probes/h34-sb-absent-enforced.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "prompt"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h35-missing-consequence-skip",
+   "clause": "R6 LP-MISSING consequence is `not-modelled`",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "f9600dc4398082bed05135da5983efc53434c6b54b963c4de58c322fb38d1e1d",
+   "diff": "mutants/h35-missing-consequence-skip.diff",
+   "probe": "probes/h35-missing-consequence-skip.json",
+   "probe_receipt": "probes/h35-missing-consequence-skip.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISSING",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISSING",
+      "skip"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h36-unresolved-consequence-none",
+   "clause": "R6 LP-UNRESOLVED consequence is `not-modelled`",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "2b864c9e88c17baf9c91d73ba18f244089f5f15af192205a99c320e2ef4a2ade",
+   "diff": "mutants/h36-unresolved-consequence-none.diff",
+   "probe": "probes/h36-unresolved-consequence-none.json",
+   "probe_receipt": "probes/h36-unresolved-consequence-none.out.json",
+   "pristine_answer": [
+    2,
+    "CANNOT-EVALUATE",
+    [
+     [
+      2,
+      "LP-UNRESOLVED",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    2,
+    "CANNOT-EVALUATE",
+    [
+     [
+      2,
+      "LP-UNRESOLVED",
+      "none"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h37-dir-as-file",
+   "clause": "R5 a path naming a directory is LP-MISSING, not an error",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "426b79b1c44dc12707a697bbe053f3e661fa8f4bfa5073af07f0870e5d5620c1",
+   "diff": "mutants/h37-dir-as-file.diff",
+   "probe": "probes/h37-dir-as-file.json",
+   "probe_receipt": "probes/h37-dir-as-file.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISSING",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    2,
+    "CANNOT-EVALUATE",
+    [
+     [
+      2,
+      "LP-UNRESOLVED",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h38-optional-dtb",
+   "clause": "R6 only wallpaper/term_font are optional (dtb_path is not)",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "43c34f3d48d4c8175ae1618fcd1bdb4821e091cc5cb0c612f9c0919ff4b48901",
+   "diff": "mutants/h38-optional-dtb.diff",
+   "probe": "probes/h38-optional-dtb.json",
+   "probe_receipt": "probes/h38-optional-dtb.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "skip"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h39-hash-prefix-compare",
+   "clause": "R5 the WHOLE 128-hexdigit digest is compared",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "6ade391cdf62dea7608c5b6a22701797eb55548945b905f792039f1ca3ba0abe",
+   "diff": "mutants/h39-hash-prefix-compare.diff",
+   "probe": "probes/h39-hash-prefix-compare.json",
+   "probe_receipt": "probes/h39-hash-prefix-compare.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISMATCH",
+      "panic"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h40-entry-first-sticks",
+   "clause": "R8 the entry label is the NEAREST preceding entry line",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "3991cd9c352b96e8434eba43e1cec0dadb8d36ddaf7a91be4f0622f2f34edae2",
+   "diff": "mutants/h40-entry-first-sticks.diff",
+   "probe": "probes/h40-entry-first-sticks.json",
+   "probe_receipt": "probes/h40-entry-first-sticks.out.json",
+   "pristine_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ],
+     [
+      4,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "alpha",
+     "4": "beta"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ],
+     [
+      4,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "alpha",
+     "4": "alpha"
+    }
+   ]
+  },
+  {
+   "id": "h41-root-whitespace",
+   "clause": "R4 a NON-empty root (blank) does not resolve",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "58f7a4d505b91339a4a90a7c2a7ef549bec8b2e540fb7582f416637c8ee78fa7",
+   "diff": "mutants/h41-root-whitespace.diff",
+   "probe": "probes/h41-root-whitespace.json",
+   "probe_receipt": "probes/h41-root-whitespace.out.json",
+   "pristine_answer": [
+    2,
+    "CANNOT-EVALUATE",
+    [
+     [
+      2,
+      "LP-UNRESOLVED",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h42-plus-slash-lstrip",
+   "clause": "R8 label = strip the leading '/' run, THEN one leading '+'",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "691e01aebe3b0f37219c4d2c0f5af421aee22d4a1a6e3b0bfd46ef28010cf18f",
+   "diff": "mutants/h42-plus-slash-lstrip.diff",
+   "probe": "probes/h42-plus-slash-lstrip.json",
+   "probe_receipt": "probes/h42-plus-slash-lstrip.out.json",
+   "pristine_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "/alpha"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "alpha"
+    }
+   ]
+  },
+  {
+   "id": "h43-empty-label-entry",
+   "clause": "R8 an entry line with an empty label keeps the previous label",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "b3f9882033d8927b5d683169fa5a816800c9429b58eb7f6fca256ac2115b622c",
+   "diff": "mutants/h43-empty-label-entry.diff",
+   "probe": "probes/h43-empty-label-entry.json",
+   "probe_receipt": "probes/h43-empty-label-entry.out.json",
+   "pristine_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      3,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "3": "alpha"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      3,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "3": ""
+    }
+   ]
+  },
+  {
+   "id": "h44-empty-resource-boot",
+   "clause": "R4 only resource `boot` resolves (the empty resource does not)",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "0af90cd2c8fb43b73a6b874f39d1767b20864aa8e1c6c40eb783babcfb7c11f6",
+   "diff": "mutants/h44-empty-resource-boot.diff",
+   "probe": "probes/h44-empty-resource-boot.json",
+   "probe_receipt": "probes/h44-empty-resource-boot.out.json",
+   "pristine_answer": [
+    2,
+    "CANNOT-EVALUATE",
+    [
+     [
+      2,
+      "LP-UNRESOLVED",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h45-isdir-check",
+   "clause": "R5 an absent file is LP-MISSING (not an unreadable/UNRESOLVED error)",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "8ae9a80acfc853a83572e9bff871d598734e7416dbc60d76d15a9b0e439a362c",
+   "diff": "mutants/h45-isdir-check.diff",
+   "probe": "probes/h45-isdir-check.json",
+   "probe_receipt": "probes/h45-isdir-check.out.json",
+   "pristine_answer": [
+    1,
+    "DEGRADED",
+    [
+     [
+      2,
+      "LP-MISSING",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ],
+   "mutant_answer": [
+    2,
+    "CANNOT-EVALUATE",
+    [
+     [
+      2,
+      "LP-UNRESOLVED",
+      "not-modelled"
+     ]
+    ],
+    {
+     "2": "e"
+    }
+   ]
+  },
+  {
+   "id": "h46-conf-decode-strict",
+   "clause": "R1/R7 a readable conf with non-UTF-8 bytes still parses (surrogateescape)",
+   "equivalent": false,
+   "differs": true,
+   "sha256": "cb70a4c8e0edd696cd044f0c0ac213bac58da1daf181cc21f4f5fe6758e01fe2",
+   "diff": "mutants/h46-conf-decode-strict.diff",
+   "probe": "probes/h46-conf-decode-strict.json",
+   "probe_receipt": "probes/h46-conf-decode-strict.out.json",
+   "pristine_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      3,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "3": "e"
+    }
+   ],
+   "mutant_answer": [
+    1,
+    null,
+    null,
+    null
+   ]
+  },
+  {
+   "id": "h47-entry-trim-redundant",
+   "clause": "R8 trim of the label is redundant (R1 already stripped the line)",
+   "equivalent": true,
+   "differs": false,
+   "sha256": "3ff8bf9c7932f7350067b26aa495927d7f02fb7227f8a1c5192d6e5be3bc793d",
+   "diff": "mutants/h47-entry-trim-redundant.diff",
+   "probe": "probes/h47-entry-trim-redundant.json",
+   "probe_receipt": "probes/h47-entry-trim-redundant.out.json",
+   "pristine_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "alpha"
+    }
+   ],
+   "mutant_answer": [
+    0,
+    "HEALTHY",
+    [
+     [
+      2,
+      "OK",
+      "none"
+     ]
+    ],
+    {
+     "2": "alpha"
+    }
+   ]
+  }
+ ]
+}

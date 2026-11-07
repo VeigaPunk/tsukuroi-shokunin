@@ -3933,3 +3933,36 @@ conflict.
 **Landing.** Entry fixes, S360 and the S355 Main.java anchor, lesson M1-M3 + errata + provenance, QUALITY 126,
 README frontier. Outcome in `SCORECARD.md` "Round 88 — measured outcome": C1 target met on the frozen counter, not
 verified as forgery-resistant; C2 exploratory pending the closure.
+
+## Round 89 — battery r89, counter r89 and the Limine URI-failure plane (2026-11-06, TsukuroiR89)
+
+**Inputs.** Round-88 closure (`rejected-honest-stop`) and `corpus/lessons/round-88-verifier-spotcheck.md` §5 routed
+1-5; the round-88 lesson's R88-R1..R6. Motivating evidence: the r88 counter's isolation was falsified by its own wave
+(roster readable from a clone origin, nonce-stripping digest table `met`, crash-passed control), 15 written clauses
+survived the r88 battery (CriticForgers, MutHeldOut), CRLF was drawn with p 0.6, and ReviewBattery F1/F3 said the
+gate's `LP-UNRESOLVED`/"ignored" words hide Limine behaviour. Host receipt `.ufo/waves/round-89/before/host/receipt.txt`
+(read-only): six `protocol: efi` entries, `hash_mismatch_panic: no`, no `measured_boot`, Secure Boot off, no TPM device.
+
+**Freeze `fba764ca`.** Counter `tools/battery-discrimination-r89.py` (opaque launcher over a Unix socket, allowlist
+bwrap + preflight, error rows → exit 3, manifest void, no `--roster`) over a 65-gate roster (3 positive; 62 negative:
+r88's 45, g00 relabelled on `config.c` 527-551 and a probe witness, the 15 r88 survivors, m31 value lie), roster probe
+(16 fixtures). **Controls `dddc82c6`** (both layouts, before any candidate score): K1 r88 battery 45-46/62; always-met,
+always-unmet, roster oracle, fingerprint oracle below target with 0 hits (65/65 potent outside); crash rc 3.
+**Candidate `81f68d00`.** Battery r89 (50 families, CRLF every case, panic-value lie selftest 15/15); first
+uncommitted candidate read 61/62 in one run on a random `KEY-EQUALS` draw (dev receipt), fixed before commit; entry
+`limine-uri-failure-r89` UF1-UF8 with S361-S363. **C1 measured `665408cc`**: 3/3, 62/62, 0 errors ×3 (clone at
+`81f68d00`; canonical at `665408cc`).
+
+**Wave w1** (13 seats; attack 7/13: 3 mutation-testers, 2 critics, 2 reviewers). ExecIsolation and CriticClaims
+falsified the counter's anti-oracle sentence: the gate runs under its roster file name and its usage text returns it;
+a name/usage oracle reads 3/3, 62/62 `met` on the frozen counter (L1 re-run 3 runs, `after/forgeries/`). CriticClaims
+also found the AF_UNIX path-length crash (exit 1), `--runs 0` `met`, extra roster files not voided, and that the
+r89 `KEY-EQUALS` fix left `path =` uncertified. MutCounter: 4 of 11 counter mutants killed by committed controls.
+CriticForgers 37/38 docstring forgers killed; MutHeldOut r88 10/22 → r89 11/22 held-out mutants. ReviewBattery: 11/12
+families sound (modelling notes), R1 wrong for blanks before CRLF (F1). ReviewEntry 7 support + 2 partial (fixed at
+landing). ScoutSources: pins byte-identical to the tag; v12.9.5/v12.9.6 exist upstream. ConnectorOverlap: 17 sibling
+hits, no conflict. ExecLints: registry 142/142, headers 105/105, census rc 0, selftests 15/15 and 14/14.
+
+**Landing.** Entry fixes, QUALITY 127-129, lesson M1-M3, errata, README r89 frontier, measured outcome in
+`SCORECARD.md` "Round 89 — measured outcome": C1 target met on the frozen counter, NOT VERIFIED (falsified instrument;
+honest stop); C2 exploratory pending the closure.

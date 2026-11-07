@@ -1,0 +1,89 @@
+diff --git a/tools/battery-discrimination-r89.py b/tools/battery-discrimination-r89.py
+index d8011254..5aeb76d8 100755
+--- a/tools/battery-discrimination-r89.py
++++ b/tools/battery-discrimination-r89.py
+@@ -30,9 +30,10 @@ What each clause is made of (code, not promise; r88 lesson M2):
+     /boot, /efi) is absent, so no lane, clone origin or scratch roster copy is reachable
+     (r88 CriticClaims F1/F3, ExecReplicate D1). Namespaces are unshared (`--unshare-all`), the
+     environment is cleared. The preflight runs a probe inside the same sandbox and voids the
+-    count if the lane, its tools, the roster directory or the manifest is visible, if the root
+-    holds any entry beyond the allowlist, or if any ancestor of the case directory lists a
+-    sibling (so no other scratch, clone or home content is reachable).
++    count if the lane, its tools, the roster directory or the manifest is visible, or if the
++    sandbox mount table lists any mount point outside /usr, /etc, /dev, /proc, /tmp and the case
++    directory (r89 CriticClaims: the ancestor directories bwrap auto-creates are empty wrappers,
++    so listing their entries proves nothing).
+   * error rows: a battery crash, timeout, missing or malformed JSON, or an exit code that does not
+     match its verdict is an `error:` row; it is never a verdict, never counted as `unmet`, and it
+     makes the whole count could-not-evaluate (QUALITY 126, r88 lesson M1).
+@@ -90,11 +91,9 @@ d, hidden = sys.argv[1], sys.argv[2:]
+ bad = ["visible:" + p for p in hidden if os.path.exists(p)]
+ allowed_root = {"usr", "bin", "lib", "lib64", "sbin", "etc", "dev", "proc", "tmp", d.strip("/").split("/")[0]}
+ bad += ["root:" + n for n in sorted(set(os.listdir("/")) - allowed_root)]
+-parts = d.strip("/").split("/")
+-for i in range(1, len(parts)):
+-    anc = "/" + "/".join(parts[:i])
+-    extra = sorted(set(os.listdir(anc)) - {parts[i]})
+-    bad += ["sibling:" + os.path.join(anc, n) for n in extra]
++allowed_mount = {"/usr", "/etc", "/proc", "/tmp", d}
++bad += ["mount:" + m for m in (l.split()[1] for l in open("/proc/self/mounts") if l.strip())
++        if m not in allowed_mount and not m.startswith("/dev") and m != "/"]
+ print(json.dumps(bad) if bad else "isolated")
+ sys.exit(1 if bad else 0)
+ '''
+@@ -201,14 +200,15 @@ def serve(sock, gate_path, gate_dir, d, stop):
+                 pass
+ 
+ 
+-def one(battery, gate, scratch):
++def _one(battery, gate, scratch):
+     """Run the battery once on one opaque gate; return 'met', 'unmet' or 'error:<why>'."""
+-    d = os.path.realpath(tempfile.mkdtemp(prefix="bd-", dir=scratch))
++    # Short prefix: the launcher socket lives inside d and AF_UNIX caps the path at 107 bytes.
++    d = os.path.realpath(tempfile.mkdtemp(prefix="d", dir=scratch))
+     gd = tempfile.mkdtemp(prefix="gd-", dir=scratch)  # never mounted in the sandbox
+     stop = threading.Event()
+     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+     try:
+-        gate_path = os.path.join(gd, os.path.basename(gate["abs"]))
++        gate_path = os.path.join(gd, "gate.py")  # neutral name: the gate's file name must not leak
+         shutil.copy(gate["abs"], gate_path)
+         for extra in gate.get("support", []):
+             shutil.copy(os.path.join(ROSTER_DIR, extra), os.path.join(gd, extra))
+@@ -251,6 +251,14 @@ def one(battery, gate, scratch):
+         shutil.rmtree(gd, ignore_errors=True)
+ 
+ 
++def one(battery, gate, scratch):
++    """Contain every per-case failure: a counter-side exception is an error row (QUALITY 126)."""
++    try:
++        return _one(battery, gate, scratch)
++    except Exception as e:  # noqa: BLE001 - must read could-not-evaluate, never the counter's own rc 1
++        return "error:counter %s: %s" % (type(e).__name__, e), None
++
++
+ def run_once(battery, roster, scratch, jobs):
+     rows = []
+     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as ex:
+@@ -281,6 +289,9 @@ def main():
+         print("void: bwrap or %s not found" % PYTHON, file=sys.stderr)
+         return 2
+     battery = os.path.abspath(a.battery)
++    if a.runs < 1:
++        print("void: --runs must be >= 1 (the predicate fixes three runs)", file=sys.stderr)
++        return 2
+     if not os.path.isfile(battery):
+         print("void: battery not found: %s" % battery, file=sys.stderr)
+         return 2
+@@ -294,7 +305,10 @@ def main():
+         return 2
+     scratch = a.scratch or tempfile.gettempdir()
+     os.makedirs(scratch, exist_ok=True)
+-    scratch = os.path.realpath(tempfile.mkdtemp(prefix="battery-discrimination-r89-", dir=scratch))
++    # Short prefix: every per-case launcher socket path is built under this directory and
++    # AF_UNIX caps sun_path at 107 bytes (r89 CriticClaims: the wave scratch root plus a
++    # descriptive prefix overflowed it and the counter died with rc 1 = `unmet`).
++    scratch = os.path.realpath(tempfile.mkdtemp(prefix="c", dir=scratch))
+     try:
+         iso, why = preflight(scratch)
+         if not iso:

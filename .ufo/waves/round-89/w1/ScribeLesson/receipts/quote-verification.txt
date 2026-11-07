@@ -1,0 +1,165 @@
+# Quote verification for the r89 Gate rows — seat ScribeLesson, 2026-11-06T22:27:56-03:00
+# lane 665408cc45a88ed49717e22f4593e8e6152ac665; pinned snapshots opened read-only
+316eb17df996f91252791b1351e8f88c027ceeb8535becc1a247d614d8b5e1a7  .ufo/waves/round-89/before/src/limine-v12.9.4-common_protos_chainload.c
+0233d557db8fdf96918350a305cde91a8a4aca33216d2ac8c712cf47c79a3ff1  .ufo/waves/round-89/before/src/limine-v12.9.4-common_lib_panic.s2.c
+e06cac1212fec55150c109843e22dfe01cd618d4e81235e357d9a256e2a2ed6f  .ufo/waves/round-87/before/src/limine-v12.9.4-common_lib_uri.c
+628001e88564525f8d1e0e6193ea86145e5613eaea97c04110545cd182168f95  .ufo/waves/round-87/before/src/limine-v12.9.4-common_menu.c
+c9e8b670d20d839add4f651f8c49e9565302b132f9f86269acbc7cd1e0358923  .ufo/waves/round-87/before/src/limine-v12.9.4-CONFIG.md
+
+## S361 chainload.c raw 414-437 (panic at 435)
+$ sed -n "414,437p" .ufo/waves/round-89/before/src/limine-v12.9.4-common_protos_chainload.c
+noreturn void chainload(char *config, char *cmdline) {
+    char *image_path = config_get_value(config, 0, "PATH");
+    if (image_path == NULL) {
+        image_path = config_get_value(config, 0, "IMAGE_PATH");
+    }
+    if (image_path == NULL) {
+        panic(true, "efi: Image path not specified");
+    }
+
+    // The firmware's LoadImage will verify the Secure Boot signature of the
+    // chainloaded EFI application, so Limine does not need to enforce its
+    // own hash check here.
+    bool saved_secure_boot_active = secure_boot_active;
+    secure_boot_active = false;
+
+    struct file_handle *image;
+    if ((image = uri_open(image_path, MEMMAP_RESERVED, false
+#if defined (__i386__)
+        , NULL, NULL
+#endif
+    )) == NULL)
+        panic(true, "efi: Failed to open image with path `%s`. Is the path correct?", image_path);
+
+    secure_boot_active = saved_secure_boot_active;
+
+## S362 panic.s2.c raw 70-86 (print at 78)
+$ sed -n "70,86p" .ufo/waves/round-89/before/src/limine-v12.9.4-common_lib_panic.s2.c
+
+    if (
+#if defined (BIOS)
+      stage3_loaded == true &&
+#elif defined (UEFI)
+      efi_boot_services_exited == false &&
+#endif
+      allow_menu == true) {
+        print("Press a key to return to %s.", booting_from_editor ? "editor" : "menu");
+
+        getchar();
+
+        // This fixes a crash
+        term_notready();
+
+        menu(false);
+/*
+
+## S350 CONFIG.md 157-160 (measured_boot)
+* `measured_boot` - If set to `yes`, opt in to measured boot. Forced to `yes`
+  when Secure Boot is active and a config hash is enrolled, and forced back to
+  `no` if the firmware does not expose a TPM 2.0/CC measurement interface. See
+  [USAGE.md](USAGE.md#measured-boot).
+
+## S351 uri.c 18-26 / 109-119 / 220-243 / 344-366 (UF1-UF4)
+static bool optional_resource = false;
+
+// Only returns for an optional resource, which the caller then backs out of.
+#define URI_ERROR(FMT, ...) do { \
+    if (!optional_resource) { \
+        panic(true, FMT, ##__VA_ARGS__); \
+    } \
+    print(FMT "\n", ##__VA_ARGS__); \
+} while (0)
+static bool parse_bios_partition(char *loc, int *drive, int *partition) {
+    uint64_t val;
+
+    for (size_t i = 0; ; i++) {
+        if (loc[i] == 0)
+            return false;
+
+        if (loc[i] == ':') {
+            loc[i] = 0;
+            if (*loc == 0) {
+                URI_ERROR("Drive number cannot be omitted for hdd():/ and odd():/");
+                return false;
+            } else {
+static struct file_handle *uri_boot_dispatch(char *s_part, char *path) {
+    if (boot_volume->pxe)
+        return uri_tftp_dispatch(s_part, path);
+
+    int partition;
+
+    if (s_part[0] != '\0') {
+        uint64_t val = strtoui(s_part, NULL, 10);
+        if (val > 256) {
+            URI_ERROR("Partition number outside range 0-256");
+            return NULL;
+        }
+        partition = val;
+    } else {
+        partition = boot_volume->partition;
+    }
+
+    struct volume *volume = volume_get_by_coord(boot_volume->is_optical,
+                                                boot_volume->index, partition);
+    if (volume == NULL)
+        return NULL;
+
+    return fopen(volume, path);
+}
+    bool gz_compressed = *resource == '$';
+    if (gz_compressed) {
+        resource++;
+    }
+
+    if (!strcmp(resource, "hdd")) {
+        raw = uri_hdd_dispatch(root, path);
+    } else if (!strcmp(resource, "odd")) {
+        raw = uri_odd_dispatch(root, path);
+    } else if (!strcmp(resource, "boot")) {
+        raw = uri_boot_dispatch(root, path);
+    } else if (!strcmp(resource, "guid")) {
+        raw = uri_guid_dispatch(root, path);
+    } else if (!strcmp(resource, "uuid")) {
+        raw = uri_guid_dispatch(root, path);
+    } else if (!strcmp(resource, "fslabel")) {
+        raw = uri_fslabel_dispatch(root, path);
+    } else if (!strcmp(resource, "tftp")) {
+        raw = uri_tftp_dispatch(root, path);
+    } else {
+        URI_ERROR("Resource `%s` not valid.", resource);
+        return NULL;
+    }
+
+## S353 menu.c 1719-1730 (measured_boot)
+#if defined (UEFI)
+    char *measured_boot_str = config_get_value(NULL, 0, "MEASURED_BOOT");
+    measured_boot = measured_boot_str != NULL && strcmp(measured_boot_str, "yes") == 0;
+    if (secure_boot_active) {
+        measured_boot = true;
+    }
+    // Cannot do measured boot without a TPM/CC interface.
+    if (!tpm_present()) {
+        measured_boot = false;
+    }
+
+    // Measure the on-disk config bytes now that measured_boot is final.
+
+## S363 host receipt, with line numbers
+     1	2026-11-06T21:52:29-03:00
+     2	$ sudo -n grep -n -i -E "^[[:space:]]*(measured_boot|hash_mismatch_panic|protocol)[[:space:]]*:" /boot/limine.conf  (read-only)
+     3	8:hash_mismatch_panic: no
+     4	29:  protocol: efi
+     5	37:  protocol: efi
+     6	49:     protocol: efi
+     7	55:     protocol: efi
+     8	63:     protocol: efi
+     9	71:protocol: efi
+    10	rc=0
+    11	$ ls -la /sys/class/tpm/
+    12	total 0
+    13	drwxr-xr-x  2 root root 0 Nov  3 16:39 .
+    14	drwxr-xr-x 73 root root 0 Nov  3 16:39 ..
+    15	$ od -An -tx1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c
+    16	 06 00 00 00 00
+    17	$ pacman -Q limine
+    18	limine 12.9.4-1

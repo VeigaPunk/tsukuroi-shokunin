@@ -1,0 +1,46 @@
+ReviewBattery receipt — faithful Python port of the config.c raw 528-551 cleanup pass
+(single pass, left-to-right; trailing-blank run removed only when directly followed by '\n';
+'\r' removed unconditionally at its own position; leading blanks/CRs at line start removed
+together). Source: .ufo/waves/round-87/before/src/limine-v12.9.4-common_lib_config.c:527-551.
+
+Simulation code:
+
+    def limine_clean(data: bytes) -> bytes:
+        buf = bytearray(data); size = len(buf); i = 0
+        while i < size:
+            skip = 0
+            trailing = False
+            if buf[i] in (0x20, 0x09):
+                while i + skip < size and buf[i + skip] in (0x20, 0x09):
+                    skip += 1
+                if i + skip < size and buf[i + skip] == 0x0A:
+                    trailing = True          # goto skip_loop
+                else:
+                    skip = 0
+            if not trailing:
+                while i + skip < size and (buf[i + skip] == 0x0D or
+                      ((i == 0 or buf[i-1] == 0x0A) and buf[i+skip] in (0x20, 0x09))):
+                    skip += 1
+            if skip:
+                for j in range(i, size - skip):
+                    buf[j] = buf[j + skip]
+                size -= skip; del buf[size:]
+                i -= 1
+            i += 1
+        return bytes(buf[:size])
+
+Outputs (verbatim):
+
+    input tail: 'bababab \t \r\n'          # fam_whitespace line shape: hash + " \t " + CRLF
+    cleaned: b'path:\t  boot():/rel123#abab...abab \t \n'
+        -> trailing " \t " blanks SURVIVE (followed by '\r' at test time, not '\n')
+    trailing-blanks+CRLF: b'path: boot():/x#abab...abab   \n'   -> blanks survive
+    trailing-blanks+LF:   b'path: boot():/x#abab...abab\n'     -> blanks removed
+    panic value + blanks + CRLF: b'hash_mismatch_panic: no \n'  -> value would be "no " (trailing blank kept)
+
+Consequence: a line ending "<blanks>\r\n" keeps the blanks in the value. For fam_whitespace
+(r88 family; r89 made eol="\r\n" unconditional, battery line 352) the expected OK pin's hash
+becomes 131 chars and the LP-MISMATCH pin's hash 130 chars under a source-faithful read ->
+LP-HASH-FORMAT, not the battery's OK / LP-MISMATCH. The frozen roster gates implement the
+idealized rule (C1: 3/3 POSITIVE met x3 runs), so the divergence is docstring-vs-source,
+not battery-vs-roster.

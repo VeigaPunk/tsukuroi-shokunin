@@ -1,0 +1,33 @@
+{
+ "clause": "R1/R7 a readable conf with non-UTF-8 bytes still parses (surrogateescape)",
+ "differs": true,
+ "equivalent": false,
+ "id": "h46-conf-decode-strict",
+ "mutant": {
+  "exit": 1,
+  "gate": "h46-conf-decode-strict.py",
+  "parse_error": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)",
+  "spec": "h46-conf-decode-strict.json",
+  "stderr_tail": "w1/MutHeldOut/mutants/h46-conf-decode-strict.py\", line 269, in main\n    r = check(a.conf, a.esp, a.secure_boot_enforced == \"1\")\n  File \"/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-89/w1/MutHeldOut/mutants/h46-conf-decode-strict.py\", line 100, in check\n    text = f.read().decode(\"utf-8\")\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 2: invalid start byte\n",
+  "stdout_head": ""
+ },
+ "pristine": {
+  "entries": {
+   "3": "e"
+  },
+  "exit": 0,
+  "gate": "pos-landed-gate-3ba37eb0.py",
+  "panic": null,
+  "pins": [
+   [
+    3,
+    "OK",
+    "none"
+   ]
+  ],
+  "rc_field": 0,
+  "spec": "h46-conf-decode-strict.json",
+  "stderr_tail": "",
+  "verdict": "HEALTHY"
+ }
+}

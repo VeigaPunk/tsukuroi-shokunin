@@ -1,0 +1,11 @@
+--- pristine/pos-landed-gate-3ba37eb0.py
++++ h39-hash-prefix-compare.py
+@@ -153,7 +153,7 @@
+             pins.append(rec)
+             continue
+         rec["blake2b"] = got
+-        if got == h.lower():
++        if got[:64] == h.lower()[:64]:
+             rec.update(status="OK", consequence="none")
+         else:
+             rec.update(status="LP-MISMATCH",

@@ -1,0 +1,23 @@
+diff --git a/tools/limine-pin-battery-r89.py b/tools/limine-pin-battery-r89.py
+index 89542211..a25866f9 100755
+--- a/tools/limine-pin-battery-r89.py
++++ b/tools/limine-pin-battery-r89.py
+@@ -528,14 +528,16 @@ def decoy(c, fmt):
+ 
+ 
+ def fam_key_spacing(c):
+-    """R1: the key is letters/underscores followed DIRECTLY by ':'; blanks before ':', digits or
+-    '-' make the line a non-key line (r87 forger g01)."""
++    """R1: the key is letters/underscores followed DIRECTLY by ':'; blanks before ':', digits,
++    '-' or '=' make the line a non-key line (r87 forger g01; r89 CriticClaims: KEY-EQUALS no
++    longer draws `path =`, so this family carries that shape)."""
+     c.header()
+     c.entry()
+     decoy(c, "  path : boot():/%s#%s")
+     decoy(c, "  module_path\t: boot():/%s#%s")
+     decoy(c, "  kernel-path: boot():/%s#%s")
+     decoy(c, "  path2: boot():/%s#%s")
++    decoy(c, "  path =boot():/%s#%s")
+     c.pin("OK")
+     c.entry()
+     c.pin("LP-MISMATCH")

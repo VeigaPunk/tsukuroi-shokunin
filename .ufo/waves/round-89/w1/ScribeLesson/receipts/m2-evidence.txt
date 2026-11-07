@@ -1,0 +1,119 @@
+# M2 evidence pointers — seat ScribeLesson, 2026-11-06T22:28:05-03:00
+# lane 665408cc45a88ed49717e22f4593e8e6152ac665
+
+## (a) the first candidate's KEY-EQUALS draw, verbatim (.ufo/waves/round-89/after/dev/README.txt)
+First candidate score (development, uncommitted battery bytes sha256 fae9c65bd8f4ca9ee260138e4d5c6a4fbea6ae469b50c59902d7b986b72d39bb, canonical layout, counter at freeze fba764ca), 2026-11-06T22:15:28-03:00
+selftest PASS 15/15; counter: run1 3/3 62/62; run2 3/3 61/62 failures N-h01-key-sep-equals; run3 3/3 62/62; verdict unmet rc 1
+cause: KEY-EQUALS drew 'path =' (blank before '=') with p 0.5 per case; h01 accepts '=' only when it directly follows the key, so with the blank it behaves correctly and escapes; 0.5^4 = 1/16 per run.
+fix: KEY-EQUALS always writes 'path=' (key touching '='); the blank-before-'=' variant is KEY-SPACING's ground already. Predicate, counter and roster unchanged.
+
+## (b) the landed battery's KEY-EQUALS family and its docstring
+$ sed -n "823,833p" tools/limine-pin-battery-r89.py
+    line (r88 MutHeldOut h01). Every case writes the touching form; `path =` was drawn with p 0.5 in the
+    first candidate and a gate that accepts '=' escaped one run of three (r89 dev receipt), the R88-R2
+    class, so the blank-before-'=' variant is no longer drawn."""
+    c.header()
+    c.entry()
+    rel = c.newfile()
+    c.add("  path=%sboot():/%s#%s" % (c.rng.choice(["", " ", "\t"]), rel, flip_last(b2(c.files[rel]))))
+    c.pin("OK")
+
+
+def fam_empty_path(c):
+
+## (c) the deterministic CRLF fix
+$ sed -n "345,352p" tools/limine-pin-battery-r89.py
+    ln = c.add("\t \tpath:\t  boot():/%s#%s \t " % (rel, b2(c.files[rel])))
+    c.expect.append([ln, "OK", "path"])
+    c.entry()
+    rel2 = c.newfile()
+    ln = c.add("path:boot():/%s#%s  " % (rel2, flip_last(b2(c.files[rel2]))))
+    c.expect.append([ln, "LP-MISMATCH", "path"])
+    c.eol = "\r\n"  # r89: every case (r88 drew CRLF with p 0.6; routed R88-R2)
+
+
+## (d) residual draws that pick WHICH member of a finite set carries the clause
+$ grep -n "c.rng.choice(\[\"path\", \"kernel_path\", \"image_path\"\])" tools/limine-pin-battery-r89.py
+798:    k = c.rng.choice(["path", "kernel_path", "image_path"])
+$ grep -n "c.rng.choice(\[\"path\", \"kernel_path\"\])" tools/limine-pin-battery-r89.py
+838:    ln = c.add("  %s: boot():/#%s" % (c.rng.choice(["path", "kernel_path"]), secrets.token_hex(64)))
+$ grep -n "c.rng.choice(\[\"wallpaper\", \"term_font\"\])" tools/limine-pin-battery-r89.py
+430:    key = c.rng.choice(["wallpaper", "term_font"])
+727:    c.pin("LP-MISSING", key=c.rng.choice(["wallpaper", "term_font"]), indent="")
+735:    c.pin("LP-UNRESOLVED", key=c.rng.choice(["wallpaper", "term_font"]), indent="",
+$ grep -n "c.rng.choice(\[\"WALLPAPER\"" tools/limine-pin-battery-r89.py
+850:    key = c.rng.choice(["WALLPAPER", "Wallpaper", "wallPaper", "TERM_FONT", "Term_Font", "term_FONT"])
+
+## (e) family counts
+$ python3 -c "FAMILIES entries / def fam_ count"
+FAMILIES keys: 50 | def fam_*:  49 | CASES_PER_FAMILY: 4
+non-fam entries: ['MISMATCH-EARLY', 'MISMATCH-LATE']
+
+## (f) the r88 seat's measured CR flake (2 of 24), the three lines the errata cites
+$ sed -n "23p;113p;285p" .ufo/waves/round-88/w1/MutBattery.md
+`N-m22-cr-not-stripped` in 2 of 24 runs — so the frozen counter's three-run predicate carries a measured
+(analytic 0.4⁴ = 2.56%; measured 2/24 runs, section 6). M06's co-failure of `N-m22` is therefore a draw
+  draw findings (CRLF 2/24 met; non-empty root 5/10 met without ROOT-ON-BOOT; `g16` 4/10 met without
+
+## (g) where the r88 report and lesson say 1 of 8
+$ grep -rn "1 of 8" SCORECARD.md corpus/lessons/round-88.md corpus/lessons/round-88-verifier-spotcheck.md
+SCORECARD.md:7451:`N-m22`/`N-g15` escape a run with p ≈ 2.6 %; the seat's pristine battery read `met` on `N-m22` in 1 of 8 runs
+corpus/lessons/round-88.md:115:  probability 0.4⁴ ≈ 2.6 %; the pristine battery read `met` on `N-m22` in 1 of 8 of the seat's runs. Every C1 run this
+corpus/lessons/round-88-verifier-spotcheck.md:48:  a property the battery holds by chance on two gates. (The report's "1 of 8 runs" and the seat's "2 of 24" are two
+corpus/lessons/round-88-verifier-spotcheck.md:135:3. Report text: cite the CR flake as the seat's measured 2/24 (`w1/MutBattery.md` lines 23, 113, 285), not "1 of 8".
+
+## (b2) KEY-EQUALS family, full body (fam_key_equals at line 821)
+$ sed -n "821,830p" tools/limine-pin-battery-r89.py
+def fam_key_equals(c):
+    """R1: a key is followed directly by ':'; `path=` (the key's last letter touching '=') is not a key
+    line (r88 MutHeldOut h01). Every case writes the touching form; `path =` was drawn with p 0.5 in the
+    first candidate and a gate that accepts '=' escaped one run of three (r89 dev receipt), the R88-R2
+    class, so the blank-before-'=' variant is no longer drawn."""
+    c.header()
+    c.entry()
+    rel = c.newfile()
+    c.add("  path=%sboot():/%s#%s" % (c.rng.choice(["", " ", "\t"]), rel, flip_last(b2(c.files[rel]))))
+    c.pin("OK")
+
+## (h) EMPTY-PATH records the key as the literal "path" although the line's key is drawn (:833-841)
+def fam_empty_path(c):
+    """R2/R5: `boot():/#hash` has an empty path; it is still a pin, and ESP/'' is the ESP directory,
+    not a regular file -> LP-MISSING (r88 MutHeldOut h10, r88 g00)."""
+    c.header()
+    c.entry()
+    ln = c.add("  %s: boot():/#%s" % (c.rng.choice(["path", "kernel_path"]), secrets.token_hex(64)))
+    c.expect.append([ln, "LP-MISSING", "path"])
+    c.entry()
+    c.pin("OK")
+
+## (i) fam_optional_missing / fam_optional_unresolved / fam_optional_key_case bodies
+def fam_optional_missing(c):
+    """R6: LP-MISSING on wallpaper/term_font is `not-modelled`, not `skip` (r88 CriticForgers f03)."""
+    c.header()
+    c.pin("LP-MISSING", key=c.rng.choice(["wallpaper", "term_font"]), indent="")
+    c.entry()
+    c.pin("OK")
+
+
+def fam_optional_unresolved(c):
+    """R6: LP-UNRESOLVED on wallpaper/term_font is `not-modelled`, not `skip` (r88 CriticForgers f16)."""
+    c.header()
+    c.pin("LP-UNRESOLVED", key=c.rng.choice(["wallpaper", "term_font"]), indent="",
+          resource=c.rng.choice(["guid(%s)" % secrets.token_hex(4), "fslabel(%s)" % rname(c.rng, ""),
+                                 "boot(%d)" % c.rng.randint(1, 9), "hdd(1:%d)" % c.rng.randint(1, 4)]))
+    c.entry()
+    c.pin("OK")
+
+def fam_optional_key_case(c):
+    """R6: `WALLPAPER`/`Term_Font` are the optional keys too (keys match case-insensitively), so a
+    mismatch there is `skip` (r88 MutHeldOut h11)."""
+    c.header()
+    if c.rng.random() < 0.5:
+        set_panic(c, c.rng.choice(["yes", "no"]))
+    key = c.rng.choice(["WALLPAPER", "Wallpaper", "wallPaper", "TERM_FONT", "Term_Font", "term_FONT"])
+    rel = c.newfile()
+    ln = c.add("%s: boot():/%s#%s" % (key, rel, flip_last(b2(c.files[rel]))))
+    c.expect.append([ln, "LP-MISMATCH", key])
+    c.entry()
+    c.pin("OK")
+

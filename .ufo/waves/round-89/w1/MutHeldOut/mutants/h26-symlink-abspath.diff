@@ -1,0 +1,11 @@
+--- pristine/pos-landed-gate-3ba37eb0.py
++++ h26-symlink-abspath.py
+@@ -88,7 +88,7 @@
+     symlink pointing outside). Limine resolves the path on the boot volume only."""
+     target = os.path.join(esp, *path.split("/"))
+     root = os.path.realpath(esp)
+-    resolved = os.path.realpath(target)
++    resolved = os.path.abspath(target)
+     if resolved != root and not resolved.startswith(root + os.sep):
+         return None
+     return target

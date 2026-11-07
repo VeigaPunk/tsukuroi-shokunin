@@ -1,0 +1,39 @@
+--- base.py
++++ fx_p01_omit_entry.py
+@@ -153,5 +153,5 @@
+                         cons = "panic"
+                     pins.append({"line": n, "status": status,
+-                                 "consequence": cons, "entry": last_entry})
++                                 "consequence": cons})
+         el = entry_label(line)
+         if el is not None:
+
+--- base.py
++++ fx_p02_omit_hmp.py
+@@ -170,6 +170,4 @@
+         "rc": rc,
+         "pins": pins,
+-        "hash_mismatch_panic": None if first_hmp is None else
+-        {"line": first_hmp[0], "value": first_hmp[1]},
+     }
+     print(json.dumps(out))
+
+--- base.py
++++ fx_p03_reversed_pins.py
+@@ -169,5 +169,5 @@
+         "verdict": verdict,
+         "rc": rc,
+-        "pins": pins,
++        "pins": list(reversed(pins)),
+         "hash_mismatch_panic": None if first_hmp is None else
+         {"line": first_hmp[0], "value": first_hmp[1]},
+
+--- base.py
++++ fx_p04_extra_keys.py
+@@ -169,5 +169,5 @@
+         "verdict": verdict,
+         "rc": rc,
+-        "pins": pins,
++        "pins": [dict(p, ignored_key=1) for p in pins], "ignored_key": {"x": 2},
+         "hash_mismatch_panic": None if first_hmp is None else
+         {"line": first_hmp[0], "value": first_hmp[1]},

@@ -1,0 +1,404 @@
+--- base.py
++++ fx_f01_cr_kept.py
+@@ -118,5 +118,5 @@
+         return 2
+ 
+-    text = raw.decode("utf-8", "surrogateescape").replace("\r", "")
++    text = raw.decode("utf-8", "surrogateescape").replace("\r", "\r")
+     lines = text.split("\n")
+ 
+
+--- base.py
++++ fx_f02_lead_tab_kept.py
+@@ -41,5 +41,5 @@
+ def key_line(line):
+     """R1: line -> (key, value) or None."""
+-    s = line.lstrip(" \t")
++    s = line.lstrip(" ")
+     if not s or s[0] == "#":
+         return None
+
+--- base.py
++++ fx_f03_trail_tab_kept.py
+@@ -49,5 +49,5 @@
+     if j == 0 or j >= len(s) or s[j] != ":":
+         return None
+-    value = s[j + 1:].lstrip(" \t").rstrip(" \t")
++    value = s[j + 1:].lstrip(" \t").rstrip(" ")
+     return s[:j], value
+ 
+
+--- base.py
++++ fx_f04_digits_in_key.py
+@@ -15,5 +15,5 @@
+     "global_dtb", "wallpaper", "term_font",
+ }
+-KEYCHARS = set(string.ascii_letters + "_")
++KEYCHARS = set(string.ascii_letters + "_" + string.digits)
+ HEXCHARS = set("0123456789abcdefABCDEF")
+ 
+
+--- base.py
++++ fx_f05_equals_sep.py
+@@ -47,5 +47,5 @@
+     while j < len(s) and s[j] in KEYCHARS:
+         j += 1
+-    if j == 0 or j >= len(s) or s[j] != ":":
++    if j == 0 or j >= len(s) or s[j] not in ":=":
+         return None
+     value = s[j + 1:].lstrip(" \t").rstrip(" \t")
+
+--- base.py
++++ fx_f06_comment_hash_stripped.py
+@@ -42,6 +42,8 @@
+     """R1: line -> (key, value) or None."""
+     s = line.lstrip(" \t")
+-    if not s or s[0] == "#":
++    if not s:
+         return None
++    if s.startswith("#"):
++        s = s.lstrip("#").lstrip(" \t")
+     j = 0
+     while j < len(s) and s[j] in KEYCHARS:
+
+--- base.py
++++ fx_f07_drop_term_font.py
+@@ -13,5 +13,5 @@
+ PATH_KEYS = {
+     "path", "kernel_path", "image_path", "module_path", "dtb_path",
+-    "global_dtb", "wallpaper", "term_font",
++    "global_dtb", "wallpaper",
+ }
+ KEYCHARS = set(string.ascii_letters + "_")
+
+--- base.py
++++ fx_f08_hash_first_hash.py
+@@ -72,5 +72,5 @@
+     if j < 0:
+         return None
+-    h = value.rfind("#")
++    h = value.find("#")
+     if h < j + 3:
+         return None
+
+--- base.py
++++ fx_f09_empty_path_not_pin.py
+@@ -74,4 +74,6 @@
+     h = value.rfind("#")
+     if h < j + 3:
++        return None
++    if h == j + 3:
+         return None
+     return value[:i], value[i + 1:j], value[j + 3:h], value[h + 1:]
+
+--- base.py
++++ fx_f10_len_ge_128.py
+@@ -79,5 +79,5 @@
+ 
+ def hash_format_ok(h):
+-    return len(h) == 128 and all(c in HEXCHARS for c in h)
++    return len(h) >= 128 and all(c in HEXCHARS for c in h)
+ 
+ 
+
+--- base.py
++++ fx_f11_upper_hex_rejected.py
+@@ -16,5 +16,5 @@
+ }
+ KEYCHARS = set(string.ascii_letters + "_")
+-HEXCHARS = set("0123456789abcdefABCDEF")
++HEXCHARS = set("0123456789abcdef")
+ 
+ 
+
+--- base.py
++++ fx_f12_resource_case_insensitive.py
+@@ -87,5 +87,5 @@
+         return "LP-HASH-FORMAT"
+     res = resource[1:] if resource.startswith("$") else resource
+-    if res != "boot" or root != "":
++    if res.lower() != "boot" or root != "":
+         return "LP-UNRESOLVED"
+     full = esp.rstrip("/") + "/" + path.lstrip("/")
+
+--- base.py
++++ fx_f13_all_dollars_dropped.py
+@@ -86,5 +86,5 @@
+     if not hash_format_ok(h):
+         return "LP-HASH-FORMAT"
+-    res = resource[1:] if resource.startswith("$") else resource
++    res = resource.lstrip("$")
+     if res != "boot" or root != "":
+         return "LP-UNRESOLVED"
+
+--- base.py
++++ fx_f14_root_ignored.py
+@@ -87,5 +87,5 @@
+         return "LP-HASH-FORMAT"
+     res = resource[1:] if resource.startswith("$") else resource
+-    if res != "boot" or root != "":
++    if res != "boot":
+         return "LP-UNRESOLVED"
+     full = esp.rstrip("/") + "/" + path.lstrip("/")
+
+--- base.py
++++ fx_f15_dir_mismatch.py
+@@ -90,6 +90,8 @@
+         return "LP-UNRESOLVED"
+     full = esp.rstrip("/") + "/" + path.lstrip("/")
+-    if not os.path.isfile(full):
++    if not os.path.exists(full):
+         return "LP-MISSING"
++    if os.path.isdir(full):
++        return "LP-MISMATCH"
+     try:
+         with open(full, "rb") as f:
+
+--- base.py
++++ fx_f16_gzip_decompressed.py
+@@ -95,4 +95,7 @@
+         with open(full, "rb") as f:
+             data = f.read()
++        if data[:2] == b"\x1f\x8b":
++            import gzip
++            data = gzip.decompress(data)
+     except OSError:
+         return "LP-MISSING"
+
+--- base.py
++++ fx_f17_hash_case_sensitive_cmp.py
+@@ -98,5 +98,5 @@
+         return "LP-MISSING"
+     digest = hashlib.blake2b(data, digest_size=64).hexdigest()
+-    if digest.lower() == h.lower():
++    if digest.lower() == h:
+         return "OK"
+     return "LP-MISMATCH"
+
+--- base.py
++++ fx_f18_optional_key_case_sensitive.py
+@@ -142,5 +142,5 @@
+                     elif status in ("LP-MISSING", "LP-UNRESOLVED"):
+                         cons = "not-modelled"
+-                    elif klow in ("wallpaper", "term_font"):
++                    elif key in ("wallpaper", "term_font"):
+                         cons = "skip"
+                     elif status == "LP-HASH-FORMAT":
+
+--- base.py
++++ fx_f19_secure_boot_ignored.py
+@@ -105,5 +105,5 @@
+ def main():
+     conf, esp, sbe = parse_args(sys.argv)
+-    enforced = sbe == "1"
++    enforced = False
+     if conf is None or esp is None:
+         print(json.dumps({"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [],
+
+--- base.py
++++ fx_f20_last_hmp_line.py
+@@ -131,5 +131,5 @@
+             key, value = kl
+             klow = key.lower()
+-            if klow == "hash_mismatch_panic" and first_hmp is None:
++            if klow == "hash_mismatch_panic":
+                 first_hmp = (n, value)
+             if klow in PATH_KEYS:
+
+--- base.py
++++ fx_f21_no_value_case_insensitive.py
+@@ -148,5 +148,5 @@
+                     elif enforced:
+                         cons = "panic"
+-                    elif first_hmp is not None and first_hmp[1].lower() == "no":
++                    elif first_hmp is not None and first_hmp[1] == "no":
+                         cons = "prompt"
+                     else:
+
+--- base.py
++++ fx_f22_unresolved_before_degraded.py
+@@ -159,8 +159,8 @@
+ 
+     statuses = [p["status"] for p in pins]
+-    if any(s in ("LP-MISMATCH", "LP-MISSING", "LP-HASH-FORMAT") for s in statuses):
++    if any(s == "LP-UNRESOLVED" for s in statuses):
++        verdict, rc = "CANNOT-EVALUATE", 2
++    elif any(s in ("LP-MISMATCH", "LP-MISSING", "LP-HASH-FORMAT") for s in statuses):
+         verdict, rc = "DEGRADED", 1
+-    elif any(s == "LP-UNRESOLVED" for s in statuses):
+-        verdict, rc = "CANNOT-EVALUATE", 2
+     else:
+         verdict, rc = "HEALTHY", 0
+
+--- base.py
++++ fx_f23_unreadable_conf_degraded.py
+@@ -114,7 +114,7 @@
+             raw = f.read()
+     except OSError:
+-        print(json.dumps({"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [],
++        print(json.dumps({"verdict": "DEGRADED", "rc": 1, "pins": [],
+                           "hash_mismatch_panic": None}))
+-        return 2
++        return 1
+ 
+     text = raw.decode("utf-8", "surrogateescape").replace("\r", "")
+
+--- base.py
++++ fx_f24_no_plus_removal.py
+@@ -59,6 +59,4 @@
+         return None
+     s = s.lstrip("/")
+-    if s.startswith("+"):
+-        s = s[1:]
+     return s.strip(" \t")
+ 
+
+--- base.py
++++ fx_f25_trailing_plus_dropped.py
+@@ -61,5 +61,8 @@
+     if s.startswith("+"):
+         s = s[1:]
+-    return s.strip(" \t")
++    label = s.strip(" \t")
++    if label.endswith("+"):
++        label = label[:-1]
++    return label
+ 
+ 
+
+--- base.py
++++ fx_f26_entry_untrimmed.py
+@@ -61,5 +61,5 @@
+     if s.startswith("+"):
+         s = s[1:]
+-    return s.strip(" \t")
++    return s
+ 
+ 
+
+--- base.py
++++ fx_f27_path_key_case_sensitive.py
+@@ -130,5 +130,5 @@
+         if kl is not None:
+             key, value = kl
+-            klow = key.lower()
++            klow = key
+             if klow == "hash_mismatch_panic" and first_hmp is None:
+                 first_hmp = (n, value)
+
+--- base.py
++++ fx_f28_optional_hashformat_panic.py
+@@ -142,6 +142,4 @@
+                     elif status in ("LP-MISSING", "LP-UNRESOLVED"):
+                         cons = "not-modelled"
+-                    elif klow in ("wallpaper", "term_font"):
+-                        cons = "skip"
+                     elif status == "LP-HASH-FORMAT":
+                         cons = "panic"
+
+--- base.py
++++ fx_f29_empty_pin_list_cannot.py
+@@ -159,4 +159,6 @@
+ 
+     statuses = [p["status"] for p in pins]
++    if not statuses:
++        statuses = ["LP-UNRESOLVED"]
+     if any(s in ("LP-MISMATCH", "LP-MISSING", "LP-HASH-FORMAT") for s in statuses):
+         verdict, rc = "DEGRADED", 1
+
+--- base.py
++++ fx_f30_vtab_ff_leading.py
+@@ -41,5 +41,5 @@
+ def key_line(line):
+     """R1: line -> (key, value) or None."""
+-    s = line.lstrip(" \t")
++    s = line.lstrip(" \t\v\f")
+     if not s or s[0] == "#":
+         return None
+
+--- base.py
++++ fx_f31_vtab_ff_trailing.py
+@@ -49,5 +49,5 @@
+     if j == 0 or j >= len(s) or s[j] != ":":
+         return None
+-    value = s[j + 1:].lstrip(" \t").rstrip(" \t")
++    value = s[j + 1:].lstrip(" \t").rstrip(" \t\v\f")
+     return s[:j], value
+ 
+
+--- base.py
++++ fx_f32_hash_format_after_resolution.py
+@@ -84,9 +84,9 @@
+ def resolve_status(resource, root, path, h, esp):
+     """R3 before R4, then R5. Returns status string."""
+-    if not hash_format_ok(h):
+-        return "LP-HASH-FORMAT"
+     res = resource[1:] if resource.startswith("$") else resource
+     if res != "boot" or root != "":
+         return "LP-UNRESOLVED"
++    if not hash_format_ok(h):
++        return "LP-HASH-FORMAT"
+     full = esp.rstrip("/") + "/" + path.lstrip("/")
+     if not os.path.isfile(full):
+
+--- base.py
++++ fx_f33_no_dollar_dropped.py
+@@ -86,5 +86,5 @@
+     if not hash_format_ok(h):
+         return "LP-HASH-FORMAT"
+-    res = resource[1:] if resource.startswith("$") else resource
++    res = resource
+     if res != "boot" or root != "":
+         return "LP-UNRESOLVED"
+
+--- base.py
++++ fx_f34_entry_column0.py
+@@ -55,5 +55,5 @@
+ def entry_label(line):
+     """R8: line -> entry label or None."""
+-    s = line.lstrip(" \t")
++    s = line
+     if not s.startswith("/"):
+         return None
+
+--- base.py
++++ fx_f35_one_slash_stripped.py
+@@ -58,5 +58,5 @@
+     if not s.startswith("/"):
+         return None
+-    s = s.lstrip("/")
++    s = s[1:] if s.startswith("/") else s
+     if s.startswith("+"):
+         s = s[1:]
+
+--- base.py
++++ fx_f36_hmp_key_case_sensitive.py
+@@ -131,5 +131,5 @@
+             key, value = kl
+             klow = key.lower()
+-            if klow == "hash_mismatch_panic" and first_hmp is None:
++            if key == "hash_mismatch_panic" and first_hmp is None:
+                 first_hmp = (n, value)
+             if klow in PATH_KEYS:
+
+--- base.py
++++ fx_f37_dir_conf_healthy.py
+@@ -110,4 +110,8 @@
+                           "hash_mismatch_panic": None}))
+         return 2
++    if os.path.isdir(conf):
++        print(json.dumps({"verdict": "HEALTHY", "rc": 0, "pins": [],
++                          "hash_mismatch_panic": None}))
++        return 0
+     try:
+         with open(conf, "rb") as f:
+
+--- base.py
++++ fx_f41_value_lead_blank_kept.py
+@@ -49,5 +49,5 @@
+     if j == 0 or j >= len(s) or s[j] != ":":
+         return None
+-    value = s[j + 1:].lstrip(" \t").rstrip(" \t")
++    value = s[j + 1:].rstrip(" \t")
+     return s[:j], value
+ 

@@ -1,0 +1,780 @@
+[
+ {
+  "id": "h25-traversal-uncontained",
+  "clause": "R4 path containment (`..` leaves the ESP -> LP-UNRESOLVED)",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   2,
+   "CANNOT-EVALUATE",
+   [
+    [
+     2,
+     "LP-UNRESOLVED",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h26-symlink-abspath",
+  "clause": "R4 a symlink pointing outside the ESP -> LP-UNRESOLVED",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   2,
+   "CANNOT-EVALUATE",
+   [
+    [
+     2,
+     "LP-UNRESOLVED",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h27-contain-prefix-only",
+  "clause": "R4 containment is a path-component test, not a string prefix",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   2,
+   "CANNOT-EVALUATE",
+   [
+    [
+     2,
+     "LP-UNRESOLVED",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h28-bare-key-line-crash",
+  "clause": "R1 a line of key characters with no ':' is not a key line (must not crash)",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   0,
+   "HEALTHY",
+   [
+    [
+     3,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "3": "e"
+   }
+  ],
+  "mutant": [
+   1,
+   null,
+   null,
+   null
+  ]
+ },
+ {
+  "id": "h29-hash-first-mib",
+  "clause": "R5 BLAKE2b-512 over ALL raw stored bytes (no size truncation)",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h30-panic-after-pin",
+  "clause": "R6 the prompt rule reads the FIRST hash_mismatch_panic key line in the WHOLE file",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "prompt"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h31-any-hex-char",
+  "clause": "R3 the hash must be ENTIRELY [0-9a-fA-F]",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-HASH-FORMAT",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h32-len-at-most",
+  "clause": "R3 the hash must be EXACTLY 128 characters",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-HASH-FORMAT",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h33-exit-zero",
+  "clause": "R7/output contract the process exit code equals rc",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   0,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h34-sb-absent-enforced",
+  "clause": "R7 `--secure-boot-enforced 0` and an absent flag both mean not enforced",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "prompt"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h35-missing-consequence-skip",
+  "clause": "R6 LP-MISSING consequence is `not-modelled`",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISSING",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISSING",
+     "skip"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h36-unresolved-consequence-none",
+  "clause": "R6 LP-UNRESOLVED consequence is `not-modelled`",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   2,
+   "CANNOT-EVALUATE",
+   [
+    [
+     2,
+     "LP-UNRESOLVED",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   2,
+   "CANNOT-EVALUATE",
+   [
+    [
+     2,
+     "LP-UNRESOLVED",
+     "none"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h37-dir-as-file",
+  "clause": "R5 a path naming a directory is LP-MISSING, not an error",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISSING",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   2,
+   "CANNOT-EVALUATE",
+   [
+    [
+     2,
+     "LP-UNRESOLVED",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h38-optional-dtb",
+  "clause": "R6 only wallpaper/term_font are optional (dtb_path is not)",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "skip"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h39-hash-prefix-compare",
+  "clause": "R5 the WHOLE 128-hexdigit digest is compared",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISMATCH",
+     "panic"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h40-entry-first-sticks",
+  "clause": "R8 the entry label is the NEAREST preceding entry line",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ],
+    [
+     4,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "alpha",
+    "4": "beta"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ],
+    [
+     4,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "alpha",
+    "4": "alpha"
+   }
+  ]
+ },
+ {
+  "id": "h41-root-whitespace",
+  "clause": "R4 a NON-empty root (blank) does not resolve",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   2,
+   "CANNOT-EVALUATE",
+   [
+    [
+     2,
+     "LP-UNRESOLVED",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h42-plus-slash-lstrip",
+  "clause": "R8 label = strip the leading '/' run, THEN one leading '+'",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "/alpha"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "alpha"
+   }
+  ]
+ },
+ {
+  "id": "h43-empty-label-entry",
+  "clause": "R8 an entry line with an empty label keeps the previous label",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   0,
+   "HEALTHY",
+   [
+    [
+     3,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "3": "alpha"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     3,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "3": ""
+   }
+  ]
+ },
+ {
+  "id": "h44-empty-resource-boot",
+  "clause": "R4 only resource `boot` resolves (the empty resource does not)",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   2,
+   "CANNOT-EVALUATE",
+   [
+    [
+     2,
+     "LP-UNRESOLVED",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h45-isdir-check",
+  "clause": "R5 an absent file is LP-MISSING (not an unreadable/UNRESOLVED error)",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   1,
+   "DEGRADED",
+   [
+    [
+     2,
+     "LP-MISSING",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ],
+  "mutant": [
+   2,
+   "CANNOT-EVALUATE",
+   [
+    [
+     2,
+     "LP-UNRESOLVED",
+     "not-modelled"
+    ]
+   ],
+   {
+    "2": "e"
+   }
+  ]
+ },
+ {
+  "id": "h46-conf-decode-strict",
+  "clause": "R1/R7 a readable conf with non-UTF-8 bytes still parses (surrogateescape)",
+  "equivalent": false,
+  "differs": true,
+  "pristine": [
+   0,
+   "HEALTHY",
+   [
+    [
+     3,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "3": "e"
+   }
+  ],
+  "mutant": [
+   1,
+   null,
+   null,
+   null
+  ]
+ },
+ {
+  "id": "h47-entry-trim-redundant",
+  "clause": "R8 trim of the label is redundant (R1 already stripped the line)",
+  "equivalent": true,
+  "differs": false,
+  "pristine": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "alpha"
+   }
+  ],
+  "mutant": [
+   0,
+   "HEALTHY",
+   [
+    [
+     2,
+     "OK",
+     "none"
+    ]
+   ],
+   {
+    "2": "alpha"
+   }
+  ]
+ }
+]

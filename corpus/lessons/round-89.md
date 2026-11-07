@@ -42,8 +42,12 @@ Registry changes, old→new: S361, S362, S363 absent → `mined` (opened 2026-11
 S351 anchor `… 28-104 (uri_resolve: last #, 128 hex), 301-319 …, 344-362 (resource dispatch), …` → adds `46-63 silent
 false on no ( or no ):/`, `109-243 (dispatchers; boot(N) = partition N on the boot drive)`, `344-366 (… unknown
 resource not valid)`, `372-376 (Secure Boot no-hash rule)`; used-by gains the r89 entry. S353 anchor `1711-1717` →
-adds `1719-1730 (measured_boot …)`; used-by gains the r89 entry. No status or recheck of an existing row changed.
-S351/S353/S350 re-opened this round in the tag clone (byte-identical), so their `opened` stays 2026-11-06.
+adds `1719-1730 (measured_boot …)`; used-by gains the r89 entry. At landing (after wave seat ScoutSources' SR11):
+S352 anchor `527-551 …, 778-818 …` → adds `488-492 (init_config clears secure_boot_active without an enrolled config
+checksum)`; used-by gains the r89 entry (UF7 cites it; quote verified by the L1 in the pinned `config.c` 488-492:
+"if (memcmp((void *)config_b2sum, CONFIG_B2SUM_EMPTY, 128) == 0) { secure_boot_active = false;"). No status or
+recheck of an existing row changed. S350-S353 re-opened this round in the tag clone (byte-identical), so their
+`opened` stays 2026-11-06.
 
 Assimilation: none (no `merge/tsukuroi/` theme fits the Limine URI-failure surface; nothing adopted).
 considerthese: latest file `considerthese/2026-10-26.md`, not mined this round.
@@ -71,3 +75,53 @@ hash or `hash_mismatch_panic` value written with trailing blanks on a CRLF line 
 length ≠ 128 → panic; `no ` → panic). Every roster positive and the landed gate implement the idealised rule, and
 `WHITESPACE-CRLF` now exercises it every case. Routed as R89-R2 with the gate; not mined as a fixed mistake here
 because no fix was shown able to fail this round.
+
+## Routed to round 90
+
+- R89-R1 (ExecIsolation (b), CriticClaims §2, MutCounter): a successor counter — copy the gate as `gate.py`; allowlist
+  the launcher argv to `--conf/--esp/--secure-boot-enforced`; one committed oracle control per channel the battery
+  can query (argv/stderr usage text, `/proc`, environment, timing; QUALITY 129) run in both layouts; a socket path
+  that does not depend on `--scratch` length; counter-side exceptions as error rows (exit 3, never 1); refuse
+  `--runs < 1`; void on an extra roster file; replace the vacuous preflight clauses with a `/proc/self/mounts` check;
+  controls that kill MutCounter's survivors (drop `--unshare-all`/`--clearenv`, manifest skip, cwd guard). Patches:
+  `.ufo/waves/round-89/w1/CriticClaims/patch-01-counter.patch`, `w1/ExecIsolation/patch.diff`.
+- R89-R2 (ReviewBattery F1): Limine keeps blanks before `\r\n` (`config.c` 530-538 single pass): a CRLF line's hash
+  or `hash_mismatch_panic` value keeps its trailing blanks. Correct R1, the landed gate and `WHITESPACE-CRLF` together;
+  every current positive implements the idealised rule.
+- R89-R3 (CriticClaims §6, patch-02): `KEY-SPACING` decoy `path =boot():/…` so a gate accepting `path =` is caught.
+- R89-R4 (MutHeldOut §4, CriticForgers): clauses no family draws — ESP containment (`..`, symlinks, prefix), files
+  over 1 MiB, `hash_mismatch_panic` after the pin, `boot( )`, empty resource, empty entry label, `/+/label`,
+  non-UTF-8 conf; f04 (digits in a key) is equivalent for pins, say so in the docstring.
+- R89-R5 (UF5, ReviewBattery F2): the gate could report an `efi` entry's `LP-MISSING` as consequence `panic`
+  (chainload.c 435) instead of `not-modelled`; `boot(N)` is resolvable (UF3).
+- R89-R6 (ScoutSources): upstream has v12.9.5 and v12.9.6 (`w1/ScoutSources/receipt-upstream-drift.txt`); the host
+  runs 12.9.4. Re-pin S350-S353, S361-S362 on a host upgrade. The seat's SR4, SR11, SR18 and SR21 were checked by
+  the L1 against already-pinned files and folded into UF7/UF8 (no new row; UF7/UF8 cite S352, S353, S362; SR4's `tpm.c` is not pinned, so UF8 only says the Linux-side signal does not answer it). SR1-SR3, SR5-SR10,
+  SR12-SR17, SR19, SR20, SR22 (`w1/ScoutSources/proposed-rows.md`: volume layer `part.s2.c`, `tpm.c`, `limine`/`linux`
+  protocol failures, `boot(x)` strtoui, upstream drift) are not admitted this round: they cite files the lane has
+  not pinned and the L1 has not re-opened; flip: pin and re-open them, then admit by document next round.
+- Host repair of lines 30 and 38 stays operator-owned (L0 `tsukuroi | round-86 | HOST INCIDENT`).
+
+## Wave w1 (13 seats; attack 7/13)
+
+Roles: executor 3 (ExecReplicate, ExecIsolation, ExecLints), mutation-tester 3 (MutCounter, MutBattery, MutHeldOut),
+critic 2 (CriticForgers, CriticClaims), reviewer 2 (ReviewBattery, ReviewEntry), scout 1 (ScoutSources), connector 1
+(ConnectorOverlap), scribe 1 (ScribeLesson). All 13 settled (WAVE-DONE); `w1-results.json` holds `output: null` for
+every seat with the note "orchestrator kernel restarted mid-wave"; all 13 wrote their report file in the wave dir, so
+the reports are the seat evidence. No seat died. The §3 planner seat is the L1.
+
+| Seat | Result (report) |
+|---|---|
+| ExecReplicate | C1 replicated 3/3, 62/62, 0 errors ×3 (clone at `665408cc`); selftest 15/15; oracles 0 hits inside; AF_UNIX path crash at the spec's scratch root |
+| ExecIsolation | `/proc` partial (sandbox metadata only), symlink/env blocked, **usage text leaks the roster file name** (full leak), patch proposed |
+| ExecLints | registry 142/142, headers 105/105, census rc 0, r87 gate selftest 15/15, r88 battery selftest 14/14; M1 sweep agrees |
+| MutCounter | 11 counter mutants: 4 killed by committed controls, 1 by the preflight, 6 survive |
+| MutBattery | 19 battery mutants: 16 killed; 62/62 negatives 10/10 over 10 runs |
+| MutHeldOut | held-out gate mutants r88 10/22 → r89 11/22; 11 survivors name undrawn clauses (R89-R4) |
+| CriticForgers | docstring-only forgers 37/38 killed (survivor f04, digits in a key) |
+| CriticClaims | predicate identical; name oracle `met`; preflight clauses vacuous; `--runs 0` `met`; extra roster file not voided; g00 relabel justified; KEY-EQUALS fix left `path =` uncertified |
+| ReviewBattery | 11/12 r89 families sound (modelling notes), R1 wrong for blanks before CRLF (F1) |
+| ReviewEntry | UF2-UF8 support, UF1 + header partial (fixed at landing) |
+| ScoutSources | pins byte-identical; Limits closed by 22 candidate rows; v12.9.5/v12.9.6 exist; 4 rows folded |
+| ConnectorOverlap | 17 sibling hits (mori, tabi, mado, tameshi, kama, kotoba), no conflict with UF1-UF8 or LP1-LP8 |
+| ScribeLesson | Gate/Mistakes/QUALITY 127-128/errata drafts; 128 integrated, 127 kept as the L1's text |

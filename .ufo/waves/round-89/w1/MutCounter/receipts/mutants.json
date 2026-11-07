@@ -1,0 +1,72 @@
+{
+ "lane": "/fast/scratch/hyaku/tsukuroi-r89/MutCounter/lane",
+ "manifest_sha256": "7c05a472f5044f8899c42bac50e59be9f9d7256fce170a764e384d34b7ab9c5e",
+ "mutants": [
+  {
+   "mutant": "m01-bind-root",
+   "path": "tools/m01-bind-root.py",
+   "sha256": "973bbc8c1cbd9e9ebb1b4c18f9295e58c72b8e787539c33cc0a449657f90d780",
+   "desc": "sandbox: bind the whole host root read-only instead of the /usr+/etc allowlist"
+  },
+  {
+   "mutant": "m02-no-unshare",
+   "path": "tools/m02-no-unshare.py",
+   "sha256": "7c1a51a45b6cf789fa0c90a1fe557de4419bd1f6aafd7a29e3e35306b28195de",
+   "desc": "sandbox: drop --unshare-all (net/pid/ipc/uts/cgroup namespaces shared with the host)"
+  },
+  {
+   "mutant": "m03-no-clearenv",
+   "path": "tools/m03-no-clearenv.py",
+   "sha256": "bec99ee995f4bc88c79fc407867b3699981f7e72f21e418532fbd309aaed65a0",
+   "desc": "sandbox: drop --clearenv (host environment inherited by the battery)"
+  },
+  {
+   "mutant": "m04-preflight-true",
+   "path": "tools/m04-preflight-true.py",
+   "sha256": "080630782d54c8a2521c29d64b9f8d5aeb32eb40bcd06fe4c5cd71b4afdc300a",
+   "desc": "preflight: always report isolated (skip the probe's verdict)"
+  },
+  {
+   "mutant": "m05-error-as-wrong",
+   "path": "tools/m05-error-as-wrong.py",
+   "sha256": "1c37f1bed82da0d84cc9daa13e49c5d913c09deb65b8975b4e15280f95c2a8c4",
+   "desc": "error rows: never classified as errors, counted as plain misses (verdict unmet, never exit 3)"
+  },
+  {
+   "mutant": "m06-skip-manifest",
+   "path": "tools/m06-skip-manifest.py",
+   "sha256": "6ff713962b7ad4878c13827ebd046216bdd8d18c4763088c15a82e8073f3e24b",
+   "desc": "freeze: skip check_manifest entirely"
+  },
+  {
+   "mutant": "m07-unlisted-ok",
+   "path": "tools/m07-unlisted-ok.py",
+   "sha256": "78378a87e5e61abcf766fbfa8ef43a98cbef7f49ba9fe32a7751bc7abfade09c",
+   "desc": "freeze: do not require every roster file (counter, roster, gates, support) to be named in the manifest"
+  },
+  {
+   "mutant": "m08-real-gate-path",
+   "path": "tools/m08-real-gate-path.py",
+   "sha256": "97205aaabe82a2356d2a47ef9ba2dabdef7bb0bb37a9bd393522bd47d0cb9c21",
+   "desc": "opaque launcher: hand the battery the real (unmounted) gate path instead of the launcher"
+  },
+  {
+   "mutant": "m09-no-cwd-check",
+   "path": "tools/m09-no-cwd-check.py",
+   "sha256": "f0f613cf333ceceeb382f1e4a3c3e2736d42423e9a6fa9eb01c9f8acbfadd596",
+   "desc": "launcher server: drop the check that the requested cwd lies inside the case directory"
+  },
+  {
+   "mutant": "m10-inverted-verdict",
+   "path": "tools/m10-inverted-verdict.py",
+   "sha256": "88ec102093015c0bd8752d3dea1164f59ce9cd0f7907364b713285e7c5539173",
+   "desc": "verdict mapping: swapped (met<->unmet) when the battery's rc and verdict agree"
+  },
+  {
+   "mutant": "m11-swap-expect",
+   "path": "tools/m11-swap-expect.py",
+   "sha256": "819a48b94a28281fc74add7af42384e7fc2fc1e87d6778b02e3418bbe73e42e8",
+   "desc": "tally: positives and negatives swapped in the met test (P-progress reported against N rows)"
+  }
+ ]
+}
