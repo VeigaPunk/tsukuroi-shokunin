@@ -1,0 +1,23 @@
+# r91 host receipt (read-only), 2026-11-07
+$ pacman -Q limine
+limine 12.9.4-1
+$ ls /sys/class/tpm/ | wc -l
+0
+$ SecureBoot efivar (06 00 00 00 00 = attr 06, data 00: off)
+ 06 00 00 00 00
+$ image lines (protocol: efi entries; r91 C2 subject: line 72 is an unhashed fallback path)
+29:  protocol: efi
+30:  path: boot():/EFI/Linux/omarchy_linux.efi#b990d8c699ef1987c24103770c14e020efc018dbdd7f9437e65ce0d5e7df273be02bbfa86e66ac6955923ccc62ea1
+37:  protocol: efi
+38:  path: boot():/EFI/Linux/omarchy_linux-lts.efi#a68c281d9e34c1bf1bab2400ff27ce373cd305bbde3f875a265ad0e58845c940e26039d5edd9c20e0463d3784
+49:     protocol: efi
+50:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_2e9c9bdc532bff808af24b7c2b896660835ca965d5dcd
+55:     protocol: efi
+56:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux-lts.efi_sha256_2d49da06b20afd09d9ac3d3a6575d85b8977307d8
+63:     protocol: efi
+64:     path: boot():/432d02b544a5459ebbff9c42ec68334d/limine_history/omarchy_linux.efi_sha256_0f1e3c84b2d6db2c2af14cf5f072ab3abdafaeccc883d
+71:protocol: efi
+72:path: boot():/EFI/BOOT/BOOTX64.EFI
+$ /boot file digest list sha256 over sha256sum output (sudo find, read-only)
+52b6cc8305692bd49baaeaf1aa6dbc7925f1ac85ae7e90c53f80e1a1c0660aef  -
+verdict DEGRADED rc 1 on_panic menu findings ['LP-MISMATCH line 30', 'LP-MISMATCH line 38']

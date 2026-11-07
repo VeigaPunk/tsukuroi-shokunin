@@ -126,6 +126,7 @@ def check(conf, esp, secure_boot, tpm=None):
             text = f.read().decode("utf-8", "surrogateescape")
     except OSError as e:
         return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "on_panic": None,
+                "unverified_image_lines": [],
                 "error": "conf unreadable: %s" % sanitize(str(e))}
     panic_setting = None
     measured_setting = None
@@ -133,9 +134,26 @@ def check(conf, esp, secure_boot, tpm=None):
     body = None          # the current entry's first protocol/path/image_path key lines
     bodies = []
     raw_pins = []
-    for lineno, raw in enumerate(text.split("\n"), 1):
+    # V1 (r91; config.c raw 642-650): the config buffer is cut at the newline before the first
+    # entry line, unless that first '/'-line is also the file's first physical line (guard
+    # `c > config_addr`), in which case the whole file stays visible. hash_mismatch_panic and
+    # measured_boot are read only from the global section: every physical line before the first
+    # entry line, or every line when the first entry line is line 1.
+    lines = text.split("\n")
+    first_entry = None
+    for i, raw in enumerate(lines, 1):
+        if raw.replace("\r", "").strip(" \t").startswith("/"):
+            first_entry = i
+            break
+    in_global = True
+    if first_entry is not None and first_entry != 1:
+        # global section ends the line before first_entry; flip when we reach it
+        pass
+    for lineno, raw in enumerate(lines, 1):
         stripped = raw.replace("\r", "").strip(" \t")
         if stripped.startswith("/"):
+            if first_entry is not None and lineno == first_entry and first_entry != 1:
+                in_global = False
             entry = sanitize(stripped.lstrip("/").lstrip("+").strip()) or entry
             body = {}
             bodies.append(body)
@@ -144,9 +162,9 @@ def check(conf, esp, secure_boot, tpm=None):
         if kv is None:
             continue
         key, written, value = kv
-        if key == "hash_mismatch_panic" and panic_setting is None:
+        if in_global and key == "hash_mismatch_panic" and panic_setting is None:
             panic_setting = (lineno, value)
-        if key == "measured_boot" and measured_setting is None:
+        if in_global and key == "measured_boot" and measured_setting is None:
             measured_setting = (lineno, value)
         if body is not None and key in ("protocol", "path", "image_path") and key not in body:
             body[key] = value if key == "protocol" else lineno
@@ -156,6 +174,16 @@ def check(conf, esp, secure_boot, tpm=None):
                 raw_pins.append((lineno, key, written, entry, value, uri))
     image_lines = {b.get("path", b.get("image_path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}
     image_lines.discard(None)
+    # U1 (r91): an image line whose value Limine still uri_opens but which is not a parseable pin
+    # (no '(', no '):/', empty path, or no '#' after '):/') is reported, sorted, in
+    # unverified_image_lines. It changes no pin verdict.
+    unverified = []
+    for img_ln in sorted(image_lines):
+        kv = split_key(lines[img_ln - 1])
+        if kv is None:
+            continue
+        if parse_uri(kv[2]) is None:
+            unverified.append(img_ln)
     prompt = (panic_setting is not None and panic_setting[1].lower() == "no" and not secure_boot)
     pins = []
     for lineno, key, written, entry_name, value, uri in raw_pins:
@@ -220,6 +248,7 @@ def check(conf, esp, secure_boot, tpm=None):
             {"line": measured_setting[0], "value": measured_setting[1]},
             "tpm_present": tpm, "on_panic": on_panic_of(measured_setting, secure_boot, tpm),
             "secure_boot_enforced": secure_boot, "pins": pins,
+            "unverified_image_lines": unverified,
             "findings": sorted("%s line %d" % (p["status"], p["line"]) for p in pins if p["status"] != "OK")}
 
 

@@ -7608,3 +7608,35 @@ Registry `check-registry-coverage.py` PASS 143/143,
 enters. No retirement. No axis harmed by regression: the gate's r87-era answers are unchanged except where R4/R9/R10
 replace `not-modelled`/`LP-UNRESOLVED` with a sourced answer; the new `on_panic` field is wrong for a `measured_boot` key
 inside an entry body (a shape absent on this host; the same visibility defect sits in r87's R6) — routed R90-R1.
+
+## Round 91 — declaration (frozen before the candidate gate is committed or scored; controls committed with it)
+
+Inputs read first: the round-90 closure (MANIFEST `rounds[]` tsukuroi r90, `rejected-honest-stop`) and its non-author
+spot-check `corpus/lessons/round-90-verifier-spotcheck.md` §6 routed 1-6, and the round-90 lesson's routed R90-R1..R5.
+Fresh-start rule: this is the first round after the 2026-11-07 authorization (`.scratch/run15-20261107-freshstart-authorized`);
+the last three rejected closures (r88, r89, r90) and their spot-checks were read and the do-nothing control is committed
+below. The two rejections in a row came from meta-instruments (a counter judging a battery, then a battery that cannot
+tell an independent implementation from one that imports the oracle). This round moves C1 back to the gate surface and
+freezes the visibility repair the r90 closure routed: `hash_mismatch_panic` and `measured_boot` are read by Limine only
+from the global section (`common/lib/config.c` raw 642-650 cuts the buffer before the first entry line, unless line 1 is
+itself an entry line). R90-R2's unverified image lines (`path:`/`image_path:` on an efi entry with no URI shape at all)
+is C2's ground: the host's own line 72 (`path: boot():/EFI/BOOT/BOOTX64.EFI`, no `#`) is exactly that shape, and Limine
+still `uri_open`s it (`chainload.c` 414-435). Prior-state sweep: `git grep -n -i -e 'unverified_image' -e 'unhashed.*image'
+40efa4ea -- corpus/knowledge tools` -> rc 1 (`.ufo/waves/round-91/before/new-ground-sweep.txt`).
+
+Instrument: `tools/limine-pin-battery-r91.py` sha256 `8f0daee82b9d487b5412a45ec1b8cf74c4e037e87d67213f756f1f850fb303e5`
+copied byte-exact from the r90 battery and extended in-place by the candidate commit (see the landing record for the
+sha256 it lands at). Rule set R1-R8 (r87) with r90's R4/R6/R7/R9/R10 and the r91 visibility rule V1 frozen in its docstring;
+sources pinned byte-identical in `.ufo/waves/round-91/before/src/` (`SHA256SUMS` verified). Host: `limine 12.9.4-1`,
+SecureBoot efivar data byte 00, `/sys/class/tpm` empty (`.ufo/waves/round-91/before/host/receipt.txt`).
+
+| Claim | Axis | Predicate (same sentence in the battery docstring and the receipt) | Target | Kill rule | Counting command | Do-nothing and near-miss controls (committed receipts, 3 runs each, before the candidate is committed) |
+|---|---|---|---|---|---|---|
+| C1 (measured; surface: visibility of `hash_mismatch_panic` and `measured_boot` in the `limine-pins` gate; sourced S352 re-opened this round from the v12.9.4 tag clone) | operability 9 | `tools/check-limine-pins.py --conf FILE --esp DIR [--secure-boot-enforced 0\|1] [--tpm-present 0\|1]` reads `hash_mismatch_panic` and `measured_boot` only from the global section of the conf (every physical line before the first line whose first non-blank character is `/`), unless that first line is itself an entry line, in which case the whole file stays visible; for each of the 78 families of the r91 battery on fixtures generated fresh per run, every case returns exactly the expected (rc, verdict, sorted per-pin (line, status, consequence), on_panic, unverified_image_lines) within 20 s. | 78 of 78 families (`verdict met`, rc 0) in each of three consecutive runs at the landed lane tip, in the canonical lane and in a clean `git clone --shared` | unmet if any of the three runs reads below 78/78; void if the battery bytes or the freeze manifest differ from `.ufo/waves/round-91/before/freeze-manifest.sha256` at scoring time | `python3 tools/limine-pin-battery-r91.py --gate tools/check-limine-pins.py --runs 3` (canonical) and the same over a `git clone --shared` at the landed tip | do-nothing K1 = the landed r90 gate (`.ufo/waves/round-91/before/controls/gates/K1-landed-gate.py`, the r90 gate bytes at `40efa4ea`); near-misses N01-N12 each bend one r91 clause (whole-file panic read, whole-file measured read, no first-line exception, missing unverified field, unverified list case-fold, unverified list on non-efi entries, unverified list includes pins, unverified list includes LP-MISSING lines, first-line exception inverted, panic value read from body, measured value read from body, unverified list sorted differently); each must read `unmet` 3/3 with the named killing family in both layouts (`.ufo/waves/round-91/before/controls/summary-{canonical,clone}.txt`) |
+| C2 (exploratory, sourced, new S-rows opened this round) | depth 8 (tied lowest) | none (exploratory): an entry `corpus/knowledge/limine-unverified-image-r91.md` (+ `.json`) holds sourced, host-measured rows on ground no entry holds: what Limine v12.9.4 does with an `efi` entry's `path:`/`image_path:` value that has no URI shape at all (no `(` or no `):/` — `uri_resolve` returns false without a message, `uri.c` 46-63) and with an unhashed value under Secure Boot vs not, and what the gate should report for them (the `unverified_image_lines` field) | named non-author `unprovable-but-better` with reasons (the hyaku closure; a wave seat is the lane) | lands `unprovable` without that judgment | none | prior state: `before/new-ground-sweep.txt` — `unverified`/`unhashed`/`uri-less` absent from `corpus/knowledge` and `tools/` at `40efa4ea`; the host's own line 72 is the shape (`.ufo/waves/round-91/before/host/receipt.txt`) |
+
+C1 and C2 are causally separable: the battery reads only the gate's JSON; the entry is judged on its rows and sources.
+Operability stays 9 (a sharper runnable arm, no ordinal claim); depth stays 8 unless the closure endorses a move.
+Disclosure: the candidate gate is drafted alongside the battery, because each near-miss control is that draft with ONE
+r91 clause bent; its bytes are committed here as `.ufo/waves/round-91/before/controls/candidate-draft.py` and no score
+of it is a receipt. The landed gate is committed and scored only after this freeze.
