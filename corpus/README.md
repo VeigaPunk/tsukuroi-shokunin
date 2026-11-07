@@ -1010,3 +1010,27 @@ answered by these two files except for that leak.
 - UF1's `kernel_path:`/`module_path:` clause is `[inf]`: the `linux`/`limine` protocol `uri_open` failure sites are not
   opened; the gate could report an `efi` `LP-MISSING` as `panic` instead of `not-modelled` (UF5) — a gate change for a
   later round.
+
+## Round 90 — Limine consequence modelling; TPM presence and volume lookup
+
+New ground: `knowledge/limine-tpm-volume-r90.md` (TV1–TV9, S365–S372) — what Limine v12.9.4's `tpm_present()` asks
+(TCG2 with `TPMPresentFlag`, else CC), how this host answers the gate's new `--tpm-present` (systemd 262.1's stub
+writes `LoaderTpm2ActivePcrBanks` = `0x00000000` each boot, the TCG spec's no-TPM reply; `systemd-analyze has-tpm2`
+reads `-firmware`; no TPM device or ACPI table), and how `guid()`/`uuid()`
+(GPT partition GUID only; `fs_get_guid` is a stub), `fslabel()` (case-insensitive; this ESP has no label) and `boot(N)`
+(GPT partitions from 1; `LoaderDevicePartUUID` names the ESP) find a volume. Gate `tools/check-limine-pins.py` now
+reports an invalid resource name as `LP-BAD-RESOURCE`, a missing image of an efi chainload entry as `panic`, and
+`on_panic` (menu / halt / halt-if-tpm), under the frozen battery `tools/limine-pin-battery-r90.py` (73 families). The
+r89 frontier bullets "Held-out clauses" (except containment and the empty label) and "UF1 … report an `efi`
+`LP-MISSING` as `panic`" are answered by those two files.
+
+### Frontier (round-90 addition)
+
+- Visibility (R90-R1, QUALITY 131): `hash_mismatch_panic` and `measured_boot` are read only from the global section
+  unless line 1 is an entry (`config.c` 642-650); the gate, R6/R10 and two r90 families say "whole file"
+  (`.ufo/waves/round-90/w1/ReviewSource.md` F1, `after/visibility-probe.txt`). LP5 carries an erratum.
+- Unhashed efi image lines (R90-R2): a non-pin `path:` that cannot be opened panics, and the gate reads HEALTHY
+  (`w1/ReviewSource.md` F2, `w1/ReviewGate.md` F1).
+- Battery roster gaps (R90-R3): IMAGE-PATH-NOT-PIN, BLANK-IN-BODY, MEASURED-NON-YES (`w1/CriticForgers.md` G1-G3);
+  R8 text versus the battery oracle for a bare `/` line and `\v` label ends (`w1/ReviewGate.md` F2).
+- Still open from r89: blanks before `\r\n` (R89-R2), ESP containment and empty labels (R89-R4).

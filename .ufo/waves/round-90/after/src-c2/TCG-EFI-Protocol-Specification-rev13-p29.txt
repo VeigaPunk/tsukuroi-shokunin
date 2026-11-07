@@ -1,0 +1,48 @@
+TCG                                                                     EFI Protocol Specification
+
+
+   3. If the input ProtocolCapability.Size <
+      sizeof(EFI_TCG2_BOOT_SERVICE_CAPABILITY) the function will initialize the
+      fields included in ProtocolCapability.Size. The values of the remaining fields will
+      be undefined.
+
+   4. The following return values SHALL be set:
+        ProtocolCapability.StructureVersion.Major = 1
+        ProtocolCapability.StructureVersion.Minor = 1
+        ProtocolCapability.ProtocolVersion.Major = 1
+        ProtocolCapability.ProtocolVersion.Minor = 1
+
+   5. If the platform does not have a TPM then the following values SHALL be
+        returned:
+        ProtocolCapability.SupportedEventLogs = 0
+        ProtocolCapability.HashAlgorithmBitmap = 0
+        ProtocolCapability.TPMPresentFlag = FALSE
+        ProtocolCapability.MaxCommandSize = 0
+        ProtocolCapability.MaxResponseSize = 0
+        ProtocolCapability.ManufacturerID = 0
+        ProtocolCapability.NumberOfPcrBanks = 0
+        ProtocolCapability.ActivePcrBanks = 0
+
+6.4.5    Status Codes Returned:
+                          Table 7: GetCapability Return Values
+
+ Return Code                   Description
+
+ EFI_SUCCESS                   Operation completed successfully.
+
+ EFI_DEVICE_ERROR              The command was unsuccessful. The ProtocolCapability
+                               variable will not be populated.
+
+ EFI_INVALID_PARAMETER One or more of the parameters are incorrect. The
+                       ProtocolCapability variable will not be populated.
+
+ EFI_BUFFER_TOO_SMALL          The ProtocolCapability variable is too small to hold the
+                               smallest sized response. The capability structure argument
+                               will be partially populated (required Size field will be set).
+
+
+
+
+Family “2.0”                           TCG Published                                    Page 29
+Level 00 Revision 00.13             Copyright © TCG 2016                          March 30, 2016
+

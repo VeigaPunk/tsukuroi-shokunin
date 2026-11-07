@@ -7583,3 +7583,28 @@ Uncertified r90 clause count: 0 of the 21 listed; limits frozen as rules, not de
 missing file on any non-image line, whether a valid non-`boot()` resource resolves, menu hierarchy validity, BIOS.
 C1 and C2 are causally separable: the battery reads only the gate; the entry is judged on its rows and sources.
 Operability stays 9 (a sharper runnable arm, no ordinal claim); depth stays 8 unless the closure endorses a move.
+
+## Round 90 — measured outcome (measured at `ce89df93e5f576c5c236d4547299e9ea954e8853`; C1 target met on the frozen battery, one rule-set sub-clause contradicted by the pinned source — NOT VERIFIED as declared; C2 exploratory pending the closure)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: consequence modelling of the `limine-pins` gate) | operability 9 → 9 | `python3 tools/limine-pin-battery-r90.py --gate tools/check-limine-pins.py --runs 3`: do-nothing K1 (landed r87 gate) 0/0/0 of 73 canonical, 1/0/0 clone; K2 adapter 51/50/51 and 51/51/50 → candidate 73/73 `met` rc 0 in each of three runs from a clean `git clone --shared` at `ce89df93` and in the canonical lane (`.ufo/waves/round-90/after/measured/c1-receipt-clone-ce89df93.txt`, `c1-receipt-canonical-ce89df93.txt`); freeze manifest `sha256sum -c` OK; battery `8f0daee8…` = freeze; `--selftest --reference` 18/18, gate `--selftest` 25/25. Replicated 3/3 by wave seats ExecReplicate (clone + canonical), CriticForgers (black box) and MutGate (baseline). | 73/73 ×3 | **target met; NOT VERIFIED as declared** (honest stop, QUALITY 106). The predicate names "the Limine v12.9.4 pin rule set"; wave seat ReviewSource F1, re-read by the L1 at the pinned bytes, shows `init_config` cuts the global config string before the first entry line (`config.c` raw 642-650), so `measured_boot` (R10) and `hash_mismatch_panic` (R6, inherited from r87) are read only from the global section unless line 1 is an entry. R10's "first key line in the whole file" is therefore not Limine's rule, and families MEASURED-IN-ENTRY (r90 clause map, N21) and PANIC-AFTER-PIN (routed-2 repair, N27) certify Limine-false answers (`.ufo/waves/round-90/after/visibility-probe.txt`: fixture A, landed gate `halt`, global-only probe `menu`). The other 20 of the 21 mapped r90 clauses are confirmed against the pinned sources by ReviewSource and CriticClaims §8. |
+| C2 (exploratory, sourced S365-S372 opened this round, + S351/S352/S353/S361/S362) | depth 8 → 8 | none (exploratory); entry `corpus/knowledge/limine-tpm-volume-r90.md` + `.json`, rows TV1-TV9 (TV2/TV4 strengthened and TV9 added from wave seat ScoutTPM's A1/A7/A8 after the L1 re-opened the TCG spec, the chainload lines and `systemd-analyze has-tpm2`); prior state `before/new-ground-sweep.txt` (`tpm_present`/`volume_get_by` only in r89 Limits) | non-author `unprovable-but-better` with reasons | pending the hyaku closure |
+
+Evidence outside the frozen predicate (recorded, not credited): wave seat CriticClaims §1 — a gate that parses pins and
+imports the battery's own oracle (`Case.finish`, `want_on_panic`, `r9_image_lines`) reads 73/73 ×3 in both layouts, so
+the battery cannot tell independent modelling from reuse of the judge (a channel the docstring does not name; the
+landed gate imports nothing from the battery: `grep -n 'import' tools/check-limine-pins.py`); §2 — a docstring-only
+post-pass on the r87 gate reads 73/73 (an independent implementation of the rule text); §3-§5 — the QUALITY 125 map
+covers the 21 r90 clauses, not R1/R2/R5/R8; N26's kill is crash rows only (QUALITY 126); some declaration counts lack a
+receipt line (QUALITY 104). CriticForgers: 28 of 31 docstring forgers killed; survivors G1-G3 are roster gaps.
+MutGate: 26 of 29 held-out gate mutants killed. MutBattery: 21 of 43 battery mutants detected by the committed
+controls. ReviewGate F1-F4 and ReviewSource F2-F5: routed (lesson R90-R2, R90-R3).
+Uncredited repairs this round: LP5 erratum with carrier sweep (`after/erratum-sweep.txt`), QUALITY 130-131, r89 routed 2
+clauses certified by N24-N26 (N27's PANIC-AFTER-PIN encodes the wrong visibility rule, R90-R1), `--runs < 1` refused.
+Registry `check-registry-coverage.py` PASS 143/143,
+`check-knowledge-header.py` PASS 106/106, `check-knowledge-refs-r68.py` 0 dangling at `b380483e`; census rc 0, rows
+363 → 372. Axes now: depth8, coverage9, operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row
+enters. No retirement. No axis harmed by regression: the gate's r87-era answers are unchanged except where R4/R9/R10
+replace `not-modelled`/`LP-UNRESOLVED` with a sourced answer; the new `on_panic` field is wrong for a `measured_boot` key
+inside an entry body (a shape absent on this host; the same visibility defect sits in r87's R6) — routed R90-R1.

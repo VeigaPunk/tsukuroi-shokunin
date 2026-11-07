@@ -8,9 +8,9 @@
  },
  {
   "id": "TV2",
-  "statement": "[src] Limine v12.9.4 itself writes `LoaderInfo` and `LoaderDevicePartUUID` (the GPT unique partition GUID of the volume it booted from) but no TPM variable. [src] systemd's UKI stub (v262.1) writes `LoaderTpm2ActivePcrBanks` once per boot when no earlier stage set it, as `0x%08x` of `tpm_get_active_pcr_banks()`, which returns 0 when the TCG2 protocol is missing, `GetCapability` fails, `TPMPresentFlag` is clear, or `GetActivePcrBanks` fails; `0xffffffff` for a TCG2 protocol older than 1.1.",
-  "source": "S368 bli.c 92, 110-124; S369 export-vars.c 57-63; S370 measure.c 153-183, 194-216",
-  "quote": "\"if (!capability.TPMPresentFlag)\" (measure.c line 177)",
+  "statement": "[src] Limine v12.9.4 itself writes `LoaderInfo` and `LoaderDevicePartUUID` (the GPT unique partition GUID of the volume it booted from) but no TPM variable. [src] systemd's UKI stub (v262.1) writes `LoaderTpm2ActivePcrBanks` once per boot when no earlier stage set it, as `0x%08x` of `tpm_get_active_pcr_banks()`, which returns 0 when the TCG2 protocol is missing, `GetCapability` fails, `TPMPresentFlag` is clear, or `GetActivePcrBanks` fails; `0xffffffff` for a TCG2 protocol older than 1.1. [src] The TCG EFI Protocol Specification makes a zero mask the defined reply of a platform without a TPM: `TPMPresentFlag = FALSE`, `ActivePcrBanks = 0`.",
+  "source": "S368 bli.c 92, 110-124; S369 export-vars.c 57-63; S370 measure.c 153-183, 194-216; S372 p. 29 §6.4.4(5)",
+  "quote": "\"If the platform does not have a TPM then the following values SHALL be returned:\" (S372 p. 29)",
   "host_value": "—"
  },
  {
@@ -22,8 +22,8 @@
  },
  {
   "id": "TV4",
-  "statement": "[inf] So on this host `--tpm-present 0` is the answer for the current boot: the stub's `tcg2_interface_check` is the same LocateProtocol + `GetCapability` + `TPMPresentFlag` test Limine's TCG2 leg makes (TV1, TV2), and it found no present TPM; Limine's CC leg does not apply to a bare-metal AMI board. Two gaps keep this an inference: a TPM with the flag set whose `GetActivePcrBanks` fails would also read 0, and the stub ran after Limine, not inside it. With 0 (or with no `measured_boot` key and Secure Boot off, as here) measured boot is off and every `panic` consequence returns to the menu: the live gate reads `on_panic: menu` without the flag.",
-  "source": "TV1-TV3; S353 menu.c 1719-1728; S362",
+  "statement": "[inf] So on this host `--tpm-present 0` is the answer for the current boot: the stub's `tcg2_interface_check` is the same LocateProtocol + `GetCapability` + `TPMPresentFlag` test Limine's TCG2 leg makes (TV1, TV2), and it found no present TPM; Limine's CC leg does not apply to a bare-metal AMI board. The stub runs as an image Limine itself started (`LoadImage`/`StartImage`, chainload.c 505-541) while boot services are still up, so it asked the same firmware session. One gap keeps this an inference: a TPM with the flag set whose `GetActivePcrBanks` fails would also read 0. With 0 (or with no `measured_boot` key and Secure Boot off, as here) measured boot is off and every `panic` consequence returns to the menu: the live gate reads `on_panic: menu` without the flag.",
+  "source": "TV1-TV3, TV9; S361 chainload.c 505-541; S353 menu.c 1719-1728; S362",
   "quote": "—",
   "host_value": "live gate at `ce89df93`: `on_panic menu`, `measured_boot None` (`.ufo/waves/round-90/after/live-receipt.txt`)"
  },
@@ -54,5 +54,12 @@
   "source": "S351 uri.c 220-243; S366 part.s2.c 575; S368 bli.c 110-124; S371",
   "quote": "\"ret->partition   = partition + 1;\" (part.s2.c line 575)",
   "host_value": "`LoaderDevicePartUUID` = `b80445be-18ee-45e6-9a30-14339ea785a7`; ESP PARTN 1"
+ },
+ {
+  "id": "TV9",
+  "statement": "[obs] An operator check that needs no root: `systemd-analyze has-tpm2` prints `partial` with `-firmware` and `-driver` and exits 3 on this host (its `+system`, `+subsystem`, `+libraries` lines only say the OS could use a TPM). The tool's meaning of `-firmware` was not opened here (wave seat ScoutTPM traced it to the same `LoaderTpm2ActivePcrBanks` variable, `.ufo/waves/round-90/w1/ScoutTPM.md` check 5); read it as a second view of TV3, not an independent probe.",
+  "source": "S371 (after/host-c2-receipt.txt lines 28-38)",
+  "quote": "—",
+  "host_value": "`partial`, `-firmware`, `-driver`, rc 3"
  }
 ]

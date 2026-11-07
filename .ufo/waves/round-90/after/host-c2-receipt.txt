@@ -25,3 +25,14 @@ nvme0n1p1 1 b80445be-18ee-45e6-9a30-14339ea785a7  vfat 86D8-C3F6
 # measured_boot in /boot/limine.conf: none — before/host/receipt.txt lines 48-70 are the full output of
 # `sudo -n grep -n -i -e '^ *protocol' -e measured_boot -e hash_mismatch_panic -e 'path:' -e '^ */' /boot/limine.conf`
 # and contain no measured_boot line (the only hit for the word in that receipt is the command line itself).
+$ systemd-analyze has-tpm2
+partial
+-firmware
+-driver
++system
++subsystem
++libraries
+  +libtss2-esys.so.0
+  +libtss2-rc.so.0
+  +libtss2-mu.so.0
+rc=3

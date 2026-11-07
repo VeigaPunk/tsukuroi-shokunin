@@ -3966,3 +3966,32 @@ hits, no conflict. ExecLints: registry 142/142, headers 105/105, census rc 0, se
 **Landing.** Entry fixes, QUALITY 127-129, lesson M1-M3, errata, README r89 frontier, measured outcome in
 `SCORECARD.md` "Round 89 — measured outcome": C1 target met on the frozen counter, NOT VERIFIED (falsified instrument;
 honest stop); C2 exploratory pending the closure.
+
+## Round 90 — limine-pins consequence modelling (battery r90) and the TPM/volume plane (2026-11-07, TsukuroiR90)
+
+**Inputs.** Round-89 closure (`rejected-honest-stop`, second in a row) and `corpus/lessons/round-89-verifier-spotcheck.md`
+§5 routed 1-5. Motivating evidence: two rejections came from meta-instruments the wave falsified, and r89 routed 4
+(R89-R5) asked whether the gate should say what Limine does where it says `not-modelled`. Host receipts (read-only):
+`.ufo/waves/round-90/before/host/receipt.txt` (limine 12.9.4-1, six efi entries, `hash_mismatch_panic: no`, no
+`measured_boot`, Secure Boot off, `/sys/class/tpm` empty, `/boot` digest list identical before/after the one
+`sudo -n grep`) and `after/host-c2-receipt.txt` (`LoaderTpm2ActivePcrBanks` = `0x00000000`, `LoaderDevicePartUUID` = the
+ESP's partition GUID).
+
+**Freeze `6511437e`.** Battery `tools/limine-pin-battery-r90.py` (73 families: r89's 50 with r90 expectations, 20 for
+R4/R6/R7 invalid resource, R9 efi image line, R10 `on_panic`, 3 for r89 routed 2), 29 controls (K1 landed gate, K2
+adapter, N01-N27 one-clause bends of the disclosed candidate draft) ×3 canonical; clone layout `cd165cf2`. **Candidate
+`ce89df93`**: gate r90 (`--tpm-present`, `LP-BAD-RESOURCE`, efi image missing → `panic`, `on_panic`; selftest 25/25).
+**C1 measured** 73/73 ×3 clone and canonical (`after/measured/`); live read-only run: lines 30/38 `LP-MISMATCH`
+`prompt`, `on_panic menu` (`after/live-receipt.txt`).
+
+**Wave w1** (13 seats; attack 6/13). ReviewSource F1: Limine reads `hash_mismatch_panic`/`measured_boot` only from the
+global section unless line 1 is an entry (`config.c` 642-650) — R10's "whole file" and r87's R6 are not Limine's rule;
+L1 re-read the bytes and probed it (`after/visibility-probe.txt`). C1 is filed target met, NOT VERIFIED (QUALITY 106).
+CriticClaims: an oracle-import gate also reads 73/73 (channel unnamed); map covers r90 clauses only. ExecReplicate 73/73
+×3 both layouts; CriticForgers 28/31 forgers killed, base reimplementation met; MutGate 26/29; MutBattery 21/43 detected;
+ReviewGate F1-F4; ExecLints registry 143/143, headers 105/105, census rc 0; ConnectorOverlap no sibling conflict,
+considerthese none fits; ScribeLesson mined R89-EMPTY-RUNS-MET.
+
+**Landing.** C2 entry `limine-tpm-volume-r90` TV1-TV9 (S365-S372), S364 for C1, LP5 erratum with carrier sweep,
+QUALITY 130-131, lesson M1-M2 and routed R90-R1..R4, README r90 frontier, registry row and R90-REG-1, SCORECARD measured
+outcome.
