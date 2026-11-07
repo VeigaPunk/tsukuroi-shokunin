@@ -1,0 +1,27 @@
+# r90 C2 host receipt (read-only, no sudo), 2026-11-07T00:02:54-03:00
+$ od -An -tx1 -N4 /sys/firmware/efi/efivars/LoaderTpm2ActivePcrBanks-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f (attributes); tail -c +5 ... | iconv -f UTF-16LE
+LoaderTpm2ActivePcrBanks attrs: 06 00 00 00 value:0x00000000
+$ od -An -tx1 -N4 /sys/firmware/efi/efivars/LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f (attributes); tail -c +5 ... | iconv -f UTF-16LE
+LoaderDevicePartUUID attrs: 06 00 00 00 value:b80445be-18ee-45e6-9a30-14339ea785a7
+$ od -An -tx1 -N4 /sys/firmware/efi/efivars/LoaderInfo-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f (attributes); tail -c +5 ... | iconv -f UTF-16LE
+LoaderInfo attrs: 06 00 00 00 value:Limine 12.9.4
+$ od -An -tx1 -N4 /sys/firmware/efi/efivars/LoaderImageIdentifier-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f (attributes); tail -c +5 ... | iconv -f UTF-16LE
+LoaderImageIdentifier attrs: 06 00 00 00 value:EFI\Linux\omarchy_linux.efi
+$ od -An -tx1 -N4 /sys/firmware/efi/efivars/LoaderFirmwareInfo-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f (attributes); tail -c +5 ... | iconv -f UTF-16LE
+LoaderFirmwareInfo attrs: 06 00 00 00 value:American Megatrends 5.41
+$ pacman -Q systemd limine
+systemd 262.1-1
+limine 12.9.4-1
+$ grep -c -a "L.o.a.d.e.r.T.p.m.2.A.c.t.i.v.e.P.c.r.B.a.n.k.s" /usr/lib/systemd/boot/efi/linuxx64.efi.stub
+1
+$ pacman -Qo /usr/lib/systemd/boot/efi/linuxx64.efi.stub
+/usr/lib/systemd/boot/efi/linuxx64.efi.stub is owned by systemd 262.1-1
+$ ls /sys/class/tpm/ | wc -l
+0
+$ ls /sys/firmware/acpi/tables/ | grep -c -i -e TPM2 -e TCPA
+0
+$ lsblk -no NAME,PARTN,PARTUUID,LABEL,FSTYPE,UUID /dev/nvme0n1p1
+nvme0n1p1 1 b80445be-18ee-45e6-9a30-14339ea785a7  vfat 86D8-C3F6
+# measured_boot in /boot/limine.conf: none — before/host/receipt.txt lines 48-70 are the full output of
+# `sudo -n grep -n -i -e '^ *protocol' -e measured_boot -e hash_mismatch_panic -e 'path:' -e '^ */' /boot/limine.conf`
+# and contain no measured_boot line (the only hit for the word in that receipt is the command line itself).

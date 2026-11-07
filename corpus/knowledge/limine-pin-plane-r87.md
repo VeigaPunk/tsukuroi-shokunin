@@ -59,3 +59,15 @@ lines). Raw line numbers refer to the pinned files.
   `LP-UNRESOLVED` rc 2 and never hashes the outside file (hardening at landing, wave seat ReviewGate; not a Limine
   rule taken from a source).
 - The repair command of the host's limine-entry-tool hook was not opened this round.
+
+## Erratum (round 90)
+
+LP5's "The value is read from the first occurrence in the file" is too wide. Limine reads `hash_mismatch_panic`
+(and `measured_boot`) with `config_get_value(NULL, …)` after `init_config` has cut the global config string at the
+newline before the first entry line (`common/lib/config.c` raw 642-650, S352; reads at `common/menu.c` 1711 and 1720,
+S353), so only the lines before the first `/` entry line are seen — unless the file's first line is itself an entry
+line, when the guard `c > config_addr` skips the cut and the whole file stays visible. A `hash_mismatch_panic: no`
+inside an entry body is therefore ignored on a conf with any global line. Found by round-90 wave seat ReviewSource
+(`.ufo/waves/round-90/w1/ReviewSource.md` F1), re-read by the L1 at the pinned bytes. Host value unchanged: line 8 is
+global. The gate (`tools/check-limine-pins.py` at `ce89df93`) and the battery docstrings r87-r90 carry the wider
+rule; correction routed (round-90 lesson R90-R1). Sweep receipt: `.ufo/waves/round-90/after/erratum-sweep.txt`.

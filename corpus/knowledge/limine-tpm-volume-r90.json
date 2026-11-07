@@ -1,0 +1,58 @@
+[
+ {
+  "id": "TV1",
+  "statement": "[src] Limine's `tpm_present()` is true when `tpm_init` found either an EFI TCG2 protocol whose `GetCapability` succeeds with `TPMPresentFlag` set, or (only if that failed) an EFI CC measurement protocol (TDX/SEV-SNP confidential computing). Nothing else counts: not a Linux driver, not a firmware setup variable.",
+  "source": "S365 tpm.c 68-115",
+  "quote": "\"return tcg2 != NULL || cc != NULL;\" (line 114)",
+  "host_value": "—"
+ },
+ {
+  "id": "TV2",
+  "statement": "[src] Limine v12.9.4 itself writes `LoaderInfo` and `LoaderDevicePartUUID` (the GPT unique partition GUID of the volume it booted from) but no TPM variable. [src] systemd's UKI stub (v262.1) writes `LoaderTpm2ActivePcrBanks` once per boot when no earlier stage set it, as `0x%08x` of `tpm_get_active_pcr_banks()`, which returns 0 when the TCG2 protocol is missing, `GetCapability` fails, `TPMPresentFlag` is clear, or `GetActivePcrBanks` fails; `0xffffffff` for a TCG2 protocol older than 1.1.",
+  "source": "S368 bli.c 92, 110-124; S369 export-vars.c 57-63; S370 measure.c 153-183, 194-216",
+  "quote": "\"if (!capability.TPMPresentFlag)\" (measure.c line 177)",
+  "host_value": "—"
+ },
+ {
+  "id": "TV3",
+  "statement": "[obs] This boot: `LoaderTpm2ActivePcrBanks` = `0x00000000`, attributes `06` (boot-service + runtime access, not non-volatile, so it does not survive a reboot and is written again each boot); `LoaderInfo` = `Limine 12.9.4`; `LoaderImageIdentifier` = `EFI\\Linux\\omarchy_linux.efi`; `systemd 262.1-1` ships `/usr/lib/systemd/boot/efi/linuxx64.efi.stub`, whose bytes contain the variable name. [inf] The UKI Limine chainloaded was built on that stub (mkinitcpio's UKI build); its bytes were not read. [obs] Linux side agrees: `/sys/class/tpm/` is empty although `CONFIG_TCG_TIS=y` and `CONFIG_TCG_CRB=y` are built in, no `TPM2`/`TCPA` ACPI table is exposed, and the kernel log has no `tpm` line. [obs] The AMI firmware keeps TCG setup variables (`AMITCGPPIVAR`, `TPMPERBIOSFLAGS`); what they encode was not read.",
+  "source": "S371 (after/host-c2-receipt.txt lines 2-21; before/host/receipt.txt lines 4-25, 73-77, 91-94)",
+  "quote": "—",
+  "host_value": "`0x00000000`; 0 TPM devices; 0 TPM ACPI tables"
+ },
+ {
+  "id": "TV4",
+  "statement": "[inf] So on this host `--tpm-present 0` is the answer for the current boot: the stub's `tcg2_interface_check` is the same LocateProtocol + `GetCapability` + `TPMPresentFlag` test Limine's TCG2 leg makes (TV1, TV2), and it found no present TPM; Limine's CC leg does not apply to a bare-metal AMI board. Two gaps keep this an inference: a TPM with the flag set whose `GetActivePcrBanks` fails would also read 0, and the stub ran after Limine, not inside it. With 0 (or with no `measured_boot` key and Secure Boot off, as here) measured boot is off and every `panic` consequence returns to the menu: the live gate reads `on_panic: menu` without the flag.",
+  "source": "TV1-TV3; S353 menu.c 1719-1728; S362",
+  "quote": "—",
+  "host_value": "live gate at `ce89df93`: `on_panic menu`, `measured_boot None` (`.ufo/waves/round-90/after/live-receipt.txt`)"
+ },
+ {
+  "id": "TV5",
+  "statement": "[src] `guid(X)` and `uuid(X)` are the same dispatcher: X is parsed as a mixed-endian GUID, looked up, then retried big-endian; a text that is not a GUID returns NULL with no message. The lookup matches a volume's filesystem GUID or its GPT unique partition GUID, and in v12.9.4 `fs_get_guid` returns false for every filesystem, so only the GPT partition GUID can match.",
+  "source": "S351 uri.c 172-190; S366 part.s2.c 597-598, 1035-1047; S367 file.s2.c 27-31",
+  "quote": "\"bool fs_get_guid(struct guid *guid, struct volume *part) { (void)guid; (void)part; return false;\" (lines 27-30, abridged across lines)",
+  "host_value": "ESP `nvme0n1p1` PARTUUID `b80445be-18ee-45e6-9a30-14339ea785a7`, vfat serial `86D8-C3F6`"
+ },
+ {
+  "id": "TV6",
+  "statement": "[inf] On this host `guid(b80445be-18ee-45e6-9a30-14339ea785a7)` and `uuid(b80445be-18ee-45e6-9a30-14339ea785a7)` name the ESP (Linux prints PARTUUID in the canonical mixed-endian text the parser expects); `uuid(86D8-C3F6)` — the \"UUID\" `lsblk` shows for the vfat ESP — names nothing, so on an `efi` entry's `path:` it is a \"Failed to open image\" panic (UF5).",
+  "source": "TV5; S371",
+  "quote": "—",
+  "host_value": "ESP has no partition GUID duplicate on the other disks (`lsblk`, before/host/receipt.txt lines 26-41)"
+ },
+ {
+  "id": "TV7",
+  "statement": "[src] `fslabel(L)` compares filesystem labels case-insensitively (`strcasecmp`). [obs] The ESP's vfat label is empty, so no `fslabel()` URI names it on this host.",
+  "source": "S366 part.s2.c 1050-1061; S371",
+  "quote": "\"&& strcasecmp(volume_index[i]->fslabel, fslabel) == 0) {\" (line 1056)",
+  "host_value": "ESP label empty"
+ },
+ {
+  "id": "TV8",
+  "statement": "[src] `boot()` opens the partition Limine booted from; `boot(N)` opens partition N on the same drive, and GPT partitions are numbered from 1 (`partition + 1`), so `boot(1)` is the first GPT partition. [obs] Limine's own `LoaderDevicePartUUID` names `b80445be-…`, the ESP, which is partition 1 of `nvme0n1`. [inf] So `boot()` and `boot(1)` name the same volume here. `hdd(d:p)` needs Limine's firmware drive index, which Linux does not show; no `hdd()` URI is mapped.",
+  "source": "S351 uri.c 220-243; S366 part.s2.c 575; S368 bli.c 110-124; S371",
+  "quote": "\"ret->partition   = partition + 1;\" (part.s2.c line 575)",
+  "host_value": "`LoaderDevicePartUUID` = `b80445be-18ee-45e6-9a30-14339ea785a7`; ESP PARTN 1"
+ }
+]
