@@ -44,7 +44,8 @@ because wave seat ReviewEntry found PW5's option-list clause uncited and its own
 
 Census (`sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi`): round start rc 0, 354 rows,
 52 W04, `tsukuroi ok` (`.ufo/waves/round-88/before/census-before.txt`) → round end in
-`.ufo/waves/round-88/after/census-after.txt`. Rows added by tier: A +5 (S355–S359).
+`.ufo/waves/round-88/after/census-after.txt` (rc 0, 360 rows, 52 W04). Rows added by tier: A +6 (S355–S359 code,
+S360 own-work; S360 is in the Gate addendum below).
 Assimilation: none (no `merge/tsukuroi/` theme fits a Limine-writer surface; nothing adopted). considerthese: latest
 file `considerthese/2026-10-26.md`, not mined this round.
 
@@ -123,3 +124,19 @@ findings (ReviewBattery F1-F5, MutBattery, MutHeldOut, CriticForgers).
   resources halt) and F3 (a URI-less path is an entry failure, not "ignored").
 - R88-R6 (CriticClaims F4): name C1-class claims by their surface — battery calibration — in the declaration.
 - Host repair of lines 30 and 38 stays operator-owned; PW5/Operator action 2 now say what `limine-update` does.
+
+### Gate addendum 2 (wave seat ScoutSources, integrated at landing)
+
+ScoutSources re-opened all 14 pinned files through `git clone --depth 1 --branch <tag>` (raw URLs HTTP 429
+host-wide; 6 of 14 also live HTTP 200): byte-identical to the tags (1.40.0 `35dab4b7`, 1.32.1 `b4c0da2d`), and the
+upstream `limine-mkinitcpio`, `limine-install` and `limine-mkinitcpio-install` byte-identical to the installed copies
+behind S360 (`w1/ScoutSources.md`, `w1/ScoutSources/receipts/upstream-tag-vs-installed.txt`). Nothing contradicts
+PW5-PW8. Integrated from its `proposed-entry-patch.md`: P1 (PW8 scoped to entries created after the incident), P2
+(PW6 copy site `SnapshotManager.java` 212-243 and path-line writer `ImageDetail.java` 47-50, pinned by the L1 from a
+tag clone at landing; "cannot recompute": `Hash.java` 9-12; the first-`#` vs last-`#` divergence named), P3 (PW7: two
+hashes on one line), P5 (Limits: enrolled-config `b2sum` surface inactive on this host, `/etc/limine-entry-tool.conf:151`
+`#ENABLE_ENROLL_LIMINE_CONFIG=no`, re-read by the L1). Not integrated: P4 (PW2 host value wording; the row already
+names `/usr/bin/b2sum`). Registry change old→new: S359 anchor gains `Hash.java 9-12`, `SnapshotManager.java 212-243`,
+`ImageDetail.java 47-50` and their digests; `teaches` narrowed to "every snapshot entry created while it is stale".
+Its eight candidate rows are not appended: the two that change the evidence base are folded into S359 by document,
+the rest restate pinned files.

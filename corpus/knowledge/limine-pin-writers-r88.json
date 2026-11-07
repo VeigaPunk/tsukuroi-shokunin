@@ -36,21 +36,21 @@
  },
  {
   "id": "PW6",
-  "statement": "[src] limine-snapper-sync builds a snapshot entry from the main entry's `path:` line: it cuts the first `#hex` run off that line and appends that same text to the history-file path it writes. It never recomputes the BLAKE2b.",
-  "source": "S359 KernelReader.java 154-157, 175-179, 196-213; Limine.java 28",
+  "statement": "[src] limine-snapper-sync builds a snapshot entry from the main entry's `path:` line: it cuts the first `#hex` run off that line (pattern `#[a-fA-F0-9]*`) and appends that same text to the history-file path it writes; the history file itself is a plain byte copy of the live ESP file, and the snapshot path line is emitted from that stored text. It never recomputes the BLAKE2b, and cannot: its hash set is sha1, sha256, blake3 and xxhash, no BLAKE2b. Its \"first `#`, any length\" cut differs from Limine's own \"last `#`, exactly 128 hex\" (r87 LP3); on this host every path carries one `#`, so the two agree.",
+  "source": "S359 KernelReader.java 154-157, 175-179, 196-213; Limine.java 28; Hash.java 9-12; SnapshotManager.java 212-243; ImageDetail.java 47-50",
   "quote": "\"String snapshotPathValue = Utility.buildPath(config.machineID(), Config.HISTORY_FOLDER, fileHashName + blake2sum);\"",
   "host_value": "[obs] existing history pins (lines 50, 56, 64) date from 2026-10-20, before the incident; r87 read them OK"
  },
  {
   "id": "PW7",
-  "statement": "[src] The history file is named after the current file's content hash (`HASH_FUNCTION`, default SHA-256), computed fresh at sync time. Its integrity check compares that name suffix with the content, never the `#` pin.",
-  "source": "S359 KernelReader.java 196-209; Hash.java 60-66; Config.java 46",
+  "statement": "[src] The history file is named after the current file's content hash (`HASH_FUNCTION`, default SHA-256), computed fresh at sync time. Its integrity check compares that name suffix with the content, never the `#` pin. One snapshot path line therefore carries two different hashes: a 64-hex SHA-256 inside the file name (fresh, of the bytes just copied) and a 128-hex BLAKE2b after `#` (copied text, never recomputed), which Limine reads as the pin.",
+  "source": "S359 KernelReader.java 196-209; Hash.java 60-66; Config.java 46; SnapshotManager.java 212-243",
   "quote": "\"return !hashedFilePath.endsWith(hashSum);  // true = corrupted\"",
-  "host_value": "[obs] history names end `_sha256_<64 hex>`"
+  "host_value": "[obs] history names end `_sha256_<64 hex>`; line 50 reads `…omarchy_linux.efi_sha256_2e9c9bdc…#822299bb…`"
  },
  {
   "id": "PW8",
-  "statement": "[inf] Consequence on this host: until the main pins are recomputed (PW5), every snapshot entry limine-snapper-sync adds for `linux` or `linux-lts` carries the stale main pin (`b990d8c6…`/`a68c281d…`, PW6) next to a history copy of the rewritten UKI (`57f5eb94…`/`eff78d32…`, PW7), so it reads `LP-MISMATCH` (`prompt` under `hash_mismatch_panic: no`). The stale pin spreads with each new snapshot; the \"Updated\" runs (observed 19:27 and 20:27) leave the main pins as they are. Not executed: no snapshot was created this round.",
+  "statement": "[inf] Consequence on this host: while the main pins are stale (until the repair of PW5), each snapshot entry limine-snapper-sync creates for `linux` or `linux-lts` after the incident carries the stale main pin (`b990d8c6…`/`a68c281d…`, PW6) next to a history copy of the rewritten UKI (`57f5eb94…`/`eff78d32…`, PW7), so it reads `LP-MISMATCH` (`prompt` under `hash_mismatch_panic: no`). Entries created before the incident keep the pin they were born with and still verify (lines 50/56/64). The stale pin spreads with each new snapshot; the \"Updated\" runs (observed 19:27 and 20:27) leave the main pins as they are. Not executed: no snapshot was created this round.",
   "source": "PW6, PW7; r87 LP5/LP8",
   "quote": "—",
   "host_value": "[obs] journal: limine-snapper-sync \"Updated: /boot/limine.conf\" at 19:27:27 and 20:27:30; main pins unchanged at 20:53 (lines 30/38 still `b990d8c6…`/`a68c281d…`)"
