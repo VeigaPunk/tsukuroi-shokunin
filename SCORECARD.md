@@ -7496,3 +7496,29 @@ is the measured thing); the rule set's own fidelity to Limine where the r88 text
 (`boot(N)`, hdd/odd/guid/fslabel) — C2 documents those branches, C1 does not change R1-R8.
 C1 and C2 are causally separable: the counter reads only the battery; the entry is judged on its rows and sources.
 Operability stays 9 (an assurance move, no ordinal claim); depth stays 8 unless the closure endorses a move.
+
+## Round 89 — measured outcome (measured at `81f68d0053213400a5495b5fb5722c4dcb1cfc53`; C1 target met on the frozen counter, the counter's anti-oracle property falsified by a file-name oracle; C2 exploratory pending the closure)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: battery calibration of the `limine-pins` gate) | operability 9 → 9 (assurance arm, no ordinal claim) | `python3 tools/battery-discrimination-r89.py --battery <battery> --runs 3`: do-nothing K1 (r88 battery) 3/3 with negatives 46, 46, 45 of 62 (canonical) and 46, 46, 46 (clone) at the freeze → r89 battery 3/3, 62/62, 0 error rows in each of three runs at candidate `81f68d00` from a clean `git clone --shared` (`.ufo/waves/round-89/after/measured/c1-receipt-81f68d00.txt`) and in the canonical lane at `665408cc` (`c1-receipt-canonical.txt`); battery `3bae11e9…`, counter `c666323a…` = freeze manifest; wave seats ExecReplicate (1 run, short scratch), CriticClaims and MutCounter (1 run each, clones) reproduced 3/3, 62/62 | 3/3 and 62/62, 0 errors ×3 | **Target met by the frozen predicate; NOT VERIFIED as a discrimination measurement.** A battery that evaluates no rule reads the same target: it sends `--help` (or no argv) through the launcher, the counter runs the roster gate under its roster file name, argparse prints that name, and the battery maps it to the public roster label — 3/3, 62/62, `verdict met` rc 0 in three runs on the frozen counter (`.ufo/waves/round-89/after/forgeries/usage-oracle.receipt.txt`; found by wave seats ExecIsolation (b) and CriticClaims §2-a). The counter's docstring sentence "No source text, digest or file name … is visible … closes it by construction" is false (lesson M3, QUALITY 129). Same precedent as r88: a lane-disclosed falsified instrument is an honest stop. |
+| C2 (exploratory, sourced S361-S363 + S350/S351/S353 anchors) | depth 8 → 8 | none (exploratory); entry `corpus/knowledge/limine-uri-failure-r89.md` + `.json`, rows UF1-UF8; wave seat ReviewEntry (advisory; a wave seat is the lane): 7 support, UF1 and the header `source:` line partial — UF1, UF3, UF6, UF8 and the header reworded at landing on its P1-P5 | non-author `unprovable-but-better` with reasons | pending the hyaku closure |
+
+Behavioural evidence outside the frozen predicate (recorded, not credited): CriticClaims' patched counter (gate copied
+as `gate.py`, counter exceptions as error rows, short socket prefixes, `--runs >= 1`) with the candidate battery reads
+3/3, 62/62, 0 errors, `verdict met`, and its name oracle 0/3, 62/62 `unmet` (`w1/CriticClaims/patched-full-run.json`);
+the candidate battery never sends `--help` or an argv without `--conf/--esp` (`run_gate`,
+`tools/limine-pin-battery-r89.py`); 10-run determinism: all 19 probed negatives (the 16 r89 additions, g00, g15, m22)
+killed 10/10 by their families (`after/robustness-r89-negatives.txt`); docstring-only forgers 37/38 killed (wave
+seat CriticForgers; survivor f04 digits in key); held-out gate mutants r88 10/22 → r89 11/22 (MutHeldOut; the 11
+survivors bend containment, >1 MiB files, panic-after-pin, empty resource/label, non-UTF-8 confs — clauses no family
+draws). Instrument defects found by the wave (routed R89-R1): AF_UNIX socket path > 107 bytes crashes the counter
+with exit 1 (its `unmet` code) when `--scratch` exceeds 45 bytes; `--runs 0` reads `met`; an extra unlisted roster
+file does not void; the preflight's sibling/root clauses cannot fire under bwrap (isolation itself holds by the mount
+list); six counter mutants (drop `--unshare-all`, drop `--clearenv`, preflight always true, skip manifest, drop
+unlisted check, drop the cwd guard) survive every committed control (MutCounter).
+Uncredited repairs this round: README r88 frontier bullet (r88 routed 1, sweep receipt `after/m1-sweep.txt`);
+QUALITY 127-129; erratum for the r88 "1 of 8" CR-flake count (lesson Errata). Registry `check-registry-coverage.py`
+PASS 142/142, `check-knowledge-header.py` PASS 105/105 at `81f68d00` (L1) and `665408cc` (ExecLints). Axes now:
+depth8, coverage9, operability9, freshness9, calibration9, adjacency8 (unchanged). No capability row enters. No
+retirement. No axis harmed.

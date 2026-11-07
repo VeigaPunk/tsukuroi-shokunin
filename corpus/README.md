@@ -984,3 +984,29 @@ counter's isolation does not hold (lesson M1/M2, QUALITY 126).
   and `w1/CriticClaims/`). A source-text-fingerprint battery stays outside any sandbox's reach (CriticClaims F2).
 - Clauses r88 leaves uncertified: docstring forgers f01, f03, f06, f07, f08, f12, f14, f16, f18, f19
   (`w1/CriticForgers.md`) and held-out mutants h01, h10, h11, h19, h20 (`w1/MutHeldOut.md`).
+
+## Round 89 — Limine URI failures; battery r89 and counter r89
+
+New ground: `knowledge/limine-uri-failure-r89.md` (UF1–UF8, S361–S363 + S350/S351/S353 anchors) — what each Limine
+v12.9.4 URI resource resolves to (`boot(N)` is partition N on the boot drive, so the gate's `LP-UNRESOLVED` for it is
+a gate limit), what an unopenable `path:` does to an `efi` entry (panic "Failed to open image"), why the Secure Boot
+no-hash rule does not fire for `efi` chainload, and what a `panic` consequence is on screen (key → menu, halt under
+measured boot). Battery `tools/limine-pin-battery-r89.py` (50 families) certifies the 15 r88 survivor clauses, writes
+CRLF every case and lies about the panic value in its selftest; counter `tools/battery-discrimination-r89.py` closed the
+r88 byte/roster channels (opaque launcher, allowlist sandbox) but leaks the gate's file name through its usage text
+(lesson M3, QUALITY 129). The r88 frontier bullets "Counter successor owed" and "Clauses r88 leaves uncertified" are
+answered by these two files except for that leak.
+
+### Frontier (round-89 addition)
+
+- Counter successor (R89-R1): run the gate as `gate.py`, allowlist its argv to `--conf/--esp/--secure-boot-enforced`,
+  a control per channel (argv/stderr, `/proc`, environment, timing; QUALITY 129), short socket path, counter-side
+  exceptions as error rows, `--runs >= 1`, void on extra roster files (`.ufo/waves/round-89/w1/CriticClaims/patch-01-counter.patch`,
+  `w1/ExecIsolation/patch.diff`, `w1/MutCounter.md`).
+- Rule fidelity (R89-R2): Limine keeps blanks before `\r\n` (config.c 530-538 single pass); the landed gate, every
+  roster positive and R1 strip them (`w1/ReviewBattery.md` F1). The gate, R1 and `WHITESPACE-CRLF` move together.
+- Held-out clauses no family draws (R89-R4): ESP containment by `..`/symlink, files over 1 MiB, a panic line after the
+  pin, empty resource, empty entry label, non-UTF-8 confs (`w1/MutHeldOut.md` §4); `path =` (`w1/CriticClaims.md` §6).
+- UF1's `kernel_path:`/`module_path:` clause is `[inf]`: the `linux`/`limine` protocol `uri_open` failure sites are not
+  opened; the gate could report an `efi` `LP-MISSING` as `panic` instead of `not-modelled` (UF5) — a gate change for a
+  later round.
