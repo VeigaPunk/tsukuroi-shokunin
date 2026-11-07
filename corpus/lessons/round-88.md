@@ -86,3 +86,33 @@ Entry fixes from wave seat ReviewEntry (7 support, 2 partial): PW2 source + `S35
 wording ("first hash of that final, mismatched pair"); PW5 rewritten on S360 with split `[src]`/`[obs]` tags; PW8
 "observed 19:27 and 20:27" instead of "hourly"; PW9 adds "and Limine is v12" (range 13-25); Operator action 2 now
 states the rebuild and its wider `/boot` writes.
+
+## Wave w1 (12 seats; seats wrote their own receipts)
+
+executor 3 (ExecReplicate, ExecResidual, ExecLints), mutation-tester 2 (MutBattery, MutHeldOut), critic 2
+(CriticForgers, CriticClaims), reviewer 2 (ReviewBattery, ReviewEntry), scout 1 (ScoutSources), scribe 1
+(ScribeLesson), connector 1 (ConnectorOverlap); attack seats 6/12. Integrated: ReviewEntry's row fixes, ExecResidual's
+landed-bytes re-run, ScribeLesson's drafts (M3, erratum, provenance), ConnectorOverlap's completed scan. Not
+integrated (frozen instruments; routed below): the counter patches (ExecReplicate D1, CriticClaims F1-F3), battery
+findings (ReviewBattery F1-F5, MutBattery, MutHeldOut, CriticForgers).
+
+## Routed to round 89
+
+- R88-R1 (CriticClaims F1-F3, ExecReplicate D1, ExecLints L-1): a successor counter — mask the clone origin and every
+  host root that can hold a roster copy (allowlist root, patches in `w1/ExecReplicate/` and `w1/CriticClaims/`), read
+  the freeze manifest and void, drop `--roster`, count `error:` rows separately, and run each forgery control from
+  both layouts before freezing (QUALITY 126). A source-text-fingerprint battery (F2) is outside any sandbox; certify
+  behavioural batteries only and say so in the predicate.
+- R88-R2 (MutBattery ¹): `WHITESPACE-CRLF` draws CRLF with p 0.6 per case, so `N-m22`/`N-g15` escape a run with
+  probability 0.4⁴ ≈ 2.6 %; the pristine battery read `met` on `N-m22` in 1 of 8 of the seat's runs. Every C1 run this
+  round read 45/45 (12 counter runs by the L1 in four receipts, 3 by ExecReplicate), but the CR clause is certified by chance. Make the
+  CRLF case deterministic.
+- R88-R3 (MutBattery 4.3): `r8_ok`'s `hash_mismatch_panic.value` comparison has no detector (M18 survives both the
+  counter and the selftest); add a value-lie wrapper and a roster gate that lies about the value.
+- R88-R4 (MutBattery 4.1-4.2): 14 redundant lines or families (`ALL-PIN-KEYS` whole, `SB-FLAG-ZERO`, decoys); the
+  selftest kills weakened expectations only through lie wrappers — six counter-killed mutants pass it.
+- R88-R5 (CriticForgers, MutHeldOut): clauses r88 leaves uncertified — f01, f03, f06, f07, f08, f12, f14, f16, f18,
+  f19 and h01, h10, h11, h19, h20; ReviewBattery F1 (Limine resolves `boot(N)` when partition N exists; unknown
+  resources halt) and F3 (a URI-less path is an entry failure, not "ignored").
+- R88-R6 (CriticClaims F4): name C1-class claims by their surface — battery calibration — in the declaration.
+- Host repair of lines 30 and 38 stays operator-owned; PW5/Operator action 2 now say what `limine-update` does.
