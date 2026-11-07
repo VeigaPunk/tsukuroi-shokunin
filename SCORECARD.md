@@ -7424,3 +7424,24 @@ Isolation is part of the predicate: a battery that answers from the roster, the 
 recognises roster gates by behaviour-preserving normalisation of their source text (left to the non-author review).
 C1 and C2 are causally separable: the counter reads only the battery; the entry is judged on its rows and sources.
 Operability stays 9 (an assurance move, no ordinal claim); depth stays 8 unless the closure endorses a move.
+
+## Round 88 — measured outcome (measured at `1fac4195243e55e7d9d8a2eddd653443d8559bff`; C1 target met on the frozen counter, its isolation property falsified by the wave; C2 exploratory pending the closure)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured) | operability 9 → 9 (assurance arm; the surface is calibration of the `limine-pins` gate battery, booked to operability with no ordinal claim) | `python3 tools/battery-discrimination-r88.py --battery <battery> --runs 3`: do-nothing r87 battery positives 3/3, negatives 29/45, 32/45, 30/45 → r88 battery 3/3, 45/45 in each of three runs at candidate `5b98ca98` (clean `clone --shared`, `after/measured/c1-receipt.txt`), at the tip `1fac4195` (clone, `c1-receipt-1fac4195.txt`) and in the canonical lane layout (`c1-receipt-canonical.txt`); battery bytes `ab6c1b33…` in all three; `sha256sum -c` of the freeze manifest OK in each (kill rule not void). Wave seat ExecReplicate reproduced 3/3, 45/45 ×3 independently. | 3/3 and 45/45 ×3 | **Target met by the frozen counter and kill rule. Not verified as a forgery-resistant measurement:** after scoring, wave seats showed (a) from the declared clone layout the counter masks only the clone, and the frozen roster-oracle control reads 3/3, 45/45 `met` (ExecReplicate D1, CriticClaims F1); its freeze-time `unmet` was 144/144 `error:` rows (crash), not a verdict; a roster walker reads `met` from the canonical layout too (F1 `f9`); (b) the nonce is an appended comment, so an embedded-digest battery that strips it reads `met` (F2); (c) the docstring's void-on-manifest clause is not in the code and `--roster` is unguarded (F3, ExecLints L-1). The predicate's isolation sentence therefore does not certify what the declaration said it certifies. Mined as lesson M1/M2 and QUALITY 126; the counter is frozen and is not amended this round. |
+| C2 (exploratory, sourced S355–S360) | depth 8 → 8 | none (exploratory); entry `corpus/knowledge/limine-pin-writers-r88.md` + `.json`, rows PW1–PW9; wave seat ReviewEntry (advisory; a wave seat is the lane): 7 support, 2 partial (PW2 source, PW5 inference), all fixed at landing; PW5 rewritten on S360 (installed `limine-mkinitcpio-install`: the repair rebuilds the UKIs and re-adds them, so new bytes and new pins are written together) | non-author `unprovable-but-better` with reasons | pending the hyaku closure |
+
+Behavioural evidence for the r88 battery outside the counter (reported, not a substitute for C1's predicate): kill map
+of every roster gate under the battery alone, each NEGATIVE killed by the family named for its clause
+(`after/killmap/killmap.txt`); held-out single-point mutants of the landed gate not in the roster: r87 battery kills
+13 of 23 non-equivalent, r88 kills 18 of 23 (MutHeldOut; survivors h01 `=` separator, h10 empty path, h11 optional key
+case, h19 `+` kept in entry label, h20 resource case); docstring-only forgers: faithful reimplementation `met` ×3, 9 of
+19 one-clause forgers killed, 10 survive (CriticForgers: f01, f03, f06, f07, f08, f12, f14, f16, f18, f19 — clauses
+r88 leaves uncertified). Battery `--selftest` 14/14 (eight one-field lies unmet).
+Uncredited repairs: r87 routed 1 — the residual clause probe re-run on the landed gate bytes `e3b0fab4…` at
+`3ba37eb0`: 11/11, rc 0 ×3, negative controls g07/g10 rc 1 (`w1/ExecResidual.md`); routed 3 — sibling-overlap scan
+completed, 20 repos, no conflicting fact (`w1/ConnectorOverlap/sibling-scan.txt`); routed 4/5 — provenance note and
+R87-R6 erratum (lesson). Registry `check-registry-coverage.py` PASS 140/140, `check-knowledge-header.py` PASS 104/104
+at `1fac4195` (ExecLints). Axes now: depth8, coverage9, operability9, freshness9, calibration9, adjacency8
+(unchanged). No capability row enters. No retirement. No axis harmed.

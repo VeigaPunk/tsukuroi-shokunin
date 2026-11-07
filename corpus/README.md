@@ -959,3 +959,25 @@ other boot gates read captures only).
   claim on this gate.
 - Limine trunk accepts BLAKE3 pins (64/256 hex); the host's 12.9.4 does not. Re-pin S350–S353 on a limine upgrade.
 - Host: pins on lines 30 and 38 still mismatch (operator-owned repair, r86 L0 line).
+
+## Round 88 — Limine pin writers; battery r88
+
+New ground: `knowledge/limine-pin-writers-r88.md` (PW1–PW9, S355–S360) — the writer side of the r87 plane: which
+installed component writes a pin and under which setting (limine-entry-tool 1.40.0, `ENABLE_VERIFICATION`), how
+the hash is computed, the packaged repair command (`limine-update`), and limine-snapper-sync 1.32.1 copying a main
+entry's pin text into new snapshot entries, so a stale main pin spreads. Battery `tools/limine-pin-battery-r88.py`
+(38 families) closes the r87 frontier bullets on uncertified clauses, self-test and fixture leaks; it is judged by
+the frozen counter `tools/battery-discrimination-r88.py` over the r87 forgers and mutants; the wave showed that
+counter's isolation does not hold (lesson M1/M2, QUALITY 126).
+
+### Frontier (round-88 addition)
+
+- PW8 (stale pins copied into new snapshot entries) is source inference; no snapshot was created on the host.
+  The next snapshot after the incident, read by `check-limine-pins.py --live`, confirms or refutes it.
+- `limine-install`'s body (run by `limine-update`, PW5) is unread; the upstream tag copies of the mkinitcpio scripts
+  returned HTTP 429, so PW5 rests on the installed bytes (S360).
+- Counter successor owed: mask the clone origin and every host root that can hold a roster copy, read the freeze
+  manifest and void, drop `--roster`, record per-row `error:` counts (patches in `.ufo/waves/round-88/w1/ExecReplicate/`
+  and `w1/CriticClaims/`). A source-text-fingerprint battery stays outside any sandbox's reach (CriticClaims F2).
+- Clauses r88 leaves uncertified: docstring forgers f01, f03, f06, f07, f08, f12, f14, f16, f18, f19
+  (`w1/CriticForgers.md`) and held-out mutants h01, h10, h11, h19, h20 (`w1/MutHeldOut.md`).

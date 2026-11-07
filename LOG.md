@@ -3906,3 +3906,30 @@ S350/S354 anchors, registry rows + R87-REG-1, QUALITY 124 repaired, w1 evidence,
 independent base 11/11). Measured at the tip: C1 22/22 ×3, selftests 15/15 and 5/5, registry 138/138, header
 103/103, census rc 0 (rows 354), `--live` rc 1 lines 30/38 with `/boot` unchanged. Outcome in `SCORECARD.md`
 "Round 87 — measured outcome"; lesson M1-M3, QUALITY 125, routed R87-R1..R6.
+
+## Round 88 — Limine pin battery r88 and the pin-writer plane (2026-11-06, TsukuroiR88)
+
+**Inputs.** Round-87 closure (admitted) and `corpus/lessons/round-87-verifier-spotcheck.md` §5 routed 1-6. Motivating
+evidence: the r87 battery read 22/22 for ten one-clause forgers and three gate mutants (r87 lesson M3, R87-R1..R5),
+and the r86 host incident (stale pins on `/boot/limine.conf` lines 30/38) had no account of who writes the pins or
+how they spread. Host receipt `.ufo/waves/round-88/before/host/receipt.txt` (read-only, `/boot` list `cmp`-identical):
+`ENABLE_VERIFICATION=yes` from `/etc/limine-entry-tool.conf`, limine-snapper-sync "Updated" at 19:27 and 20:27 with the
+main pins unchanged.
+
+**Freeze `01b2a9b0`.** Counter `tools/battery-discrimination-r88.py` over a 48-gate roster (3 positive, 45 negative:
+r87 forgers g01-g16, mutants m02-m30), do-nothing (r87 battery: negatives 29-32/45) and five forgery controls, all
+unmet. **Candidate `5b98ca98`.** Battery `tools/limine-pin-battery-r88.py` (38 families, R8, literal roster, lie
+selftest 14/14); entry `limine-pin-writers-r88` PW1-PW9 with S355-S359. **Registry `1fac4195`.**
+
+**Wave w1** (12 seats, attack 6/12). C1 3/3, 45/45 ×3 (L1 in clone, tip and canonical layouts; ExecReplicate
+independently). The wave falsified the counter's isolation: from a clone the roster-oracle control reads `met`, its
+freeze `unmet` was a crash; nonce-stripping digest batteries and a roster walker read `met`; the manifest void clause is
+not implemented (ExecReplicate D1, CriticClaims F1-F3, ExecLints L-1). Held-out mutants: r87 13/23 → r88 18/23;
+docstring forgers 9/19 killed. ReviewBattery: all 16 new families supported by Limine v12.9.4 source. ReviewEntry 7+2
+partial; the PW5 fix, read from the installed `limine-mkinitcpio-install` (S360), corrects the repair story: the repair
+rebuilds the UKIs. ExecResidual: r87 residual probe on the landed bytes 11/11. ConnectorOverlap: 20 sibling repos, no
+conflict.
+
+**Landing.** Entry fixes, S360 and the S355 Main.java anchor, lesson M1-M3 + errata + provenance, QUALITY 126,
+README frontier. Outcome in `SCORECARD.md` "Round 88 — measured outcome": C1 target met on the frozen counter, not
+verified as forgery-resistant; C2 exploratory pending the closure.

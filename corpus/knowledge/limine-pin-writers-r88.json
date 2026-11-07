@@ -9,7 +9,7 @@
  {
   "id": "PW2",
   "statement": "[src] Pins are written only when `ENABLE_VERIFICATION` is `yes` (case-insensitive) AND the `b2sum` command exists; otherwise the tool writes the path with no `#` at all. The default is off.",
-  "source": "S356 ConfigReader.java 173-177, Config.java 7, 19",
+  "source": "S356 ConfigReader.java 173-177, Config.java 7, 19; S355 LimineManager.java 359-372",
   "quote": "\"Config.ENABLE_VERIFICATION = Utility.isCommandPresent(Config.HASH_COMMAND) && \\\"yes\\\".equalsIgnoreCase(enableVerification);\"",
   "host_value": "[obs] effective `yes` (PW1); `b2sum` is `/usr/bin/b2sum` (coreutils 9.12-2)"
  },
@@ -22,17 +22,17 @@
  },
  {
   "id": "PW4",
-  "statement": "[src] The hash is the `b2sum` command's output (BLAKE2b-512, matching Limine's 128-hex rule), computed twice in parallel; on disagreement it retries, and after the last retry it logs \"Hardware is faulty\" and still returns the first result.",
+  "statement": "[src] The hash is the `b2sum` command's output (BLAKE2b-512, matching Limine's 128-hex rule), computed twice in parallel; on disagreement it retries, and after the last retry it logs \"Hardware is faulty\" and still returns the first hash of that final, mismatched pair.",
   "source": "S357 Utility.java 118-175; S356 Config.java 7",
   "quote": "\"CompletableFuture<String> hashFuture1 = CompletableFuture.supplyAsync(() -> blake2sum(absoluteFilePath));\"",
   "host_value": "—"
  },
  {
   "id": "PW5",
-  "statement": "[src] The packaged repair command is `limine-update`: it runs `limine-install --no-efi-register` and then `limine-mkinitcpio` with the caller's arguments, which is the path that re-adds entries and so rewrites their pins from the files as they are then. limine-entry-tool 1.40.0 has no hash-only refresh option (its `Main.java` options are add/remove/scan/tree/cmdline).",
-  "source": "S358 limine-update 16-28; S355 LimineManager.java 353",
-  "quote": "\"limine-mkinitcpio \\\"$@\\\"\"",
-  "host_value": "[obs] installed `/usr/bin/limine-update` sha256 `55b7d578…` = the 1.40.0 file"
+  "statement": "[src] The packaged repair command is `limine-update`: it runs `limine-install --no-efi-register` and then `limine-mkinitcpio` with the caller's arguments. [obs] On this host, `limine-mkinitcpio` with no arguments pipes `rebuild` into `limine-mkinitcpio-install`, which, with `ENABLE_UKI=yes` on UEFI, builds a NEW UKI per kernel with `/usr/bin/mkinitcpio --uki` and installs it with `limine-entry-tool --add-uki`, the call that writes the pin (PW3); it runs the boot pre/post hooks around that. So the repair replaces the in-place-rewritten UKIs with freshly built ones and pins those; it does not pin the rewritten bytes. [src] limine-entry-tool 1.40.0 has no hash-only refresh option (`Main.java` options: add/remove/scan/tree/get-cmdline and modifiers).",
+  "source": "S358 limine-update 16-28; S360 limine-mkinitcpio 26-27, limine-mkinitcpio-install 166-180, 193-198, 223-236, 296-297, 308-321; S355 LimineManager.java 353, Main.java 45-207",
+  "quote": "\"limine-entry-tool --add-uki \\\"$name\\\" \\\"$file\\\" \\\\\" (S360 limine-mkinitcpio-install 196)",
+  "host_value": "[obs] installed `/usr/bin/limine-update` sha256 `55b7d578…` = the 1.40.0 file; installed `limine-mkinitcpio` `e0c8375b…` and `limine-mkinitcpio-install` `22e44591…` (limine-mkinitcpio-hook 1.40.0-2), copies in `.ufo/waves/round-88/after/host-scripts/`"
  },
  {
   "id": "PW6",
@@ -50,15 +50,15 @@
  },
  {
   "id": "PW8",
-  "statement": "[inf] Consequence on this host: until the main pins are recomputed (PW5), every snapshot entry limine-snapper-sync adds for `linux` or `linux-lts` carries the stale main pin (`b990d8c6…`/`a68c281d…`, PW6) next to a history copy of the rewritten UKI (`57f5eb94…`/`eff78d32…`, PW7), so it reads `LP-MISMATCH` (`prompt` under `hash_mismatch_panic: no`). The stale pin spreads with each new snapshot; the hourly \"Updated\" runs leave the main pins as they are. Not executed: no snapshot was created this round.",
+  "statement": "[inf] Consequence on this host: until the main pins are recomputed (PW5), every snapshot entry limine-snapper-sync adds for `linux` or `linux-lts` carries the stale main pin (`b990d8c6…`/`a68c281d…`, PW6) next to a history copy of the rewritten UKI (`57f5eb94…`/`eff78d32…`, PW7), so it reads `LP-MISMATCH` (`prompt` under `hash_mismatch_panic: no`). The stale pin spreads with each new snapshot; the \"Updated\" runs (observed 19:27 and 20:27) leave the main pins as they are. Not executed: no snapshot was created this round.",
   "source": "PW6, PW7; r87 LP5/LP8",
   "quote": "—",
   "host_value": "[obs] journal: limine-snapper-sync \"Updated: /boot/limine.conf\" at 19:27:27 and 20:27:30; main pins unchanged at 20:53 (lines 30/38 still `b990d8c6…`/`a68c281d…`)"
  },
  {
   "id": "PW9",
-  "statement": "[src] The hook that warns about missing hashes fires only when Secure Boot is on, config enrollment is on, verification is off and UKIs are off; with UKIs on, as here, no such warning is shown.",
-  "source": "S358 89-warn-missing-file-hashes 19-25",
+  "statement": "[src] The hook that warns about missing hashes fires only when Secure Boot is on, config enrollment is on, verification is off, UKIs are off and Limine is v12; with UKIs on, as here, no such warning is shown.",
+  "source": "S358 89-warn-missing-file-hashes 13-25",
   "quote": "\"Limine v12 requires verification hashes for all loaded files except EFI chainload.\"",
   "host_value": "[obs] `/etc/default/limine:8` `ENABLE_UKI=yes`"
  }
