@@ -6285,3 +6285,18 @@ this row. The row's other clauses stand: K1 r85 gate `26 26 26` of 30; the r85-c
 controls `0-25/30`; `--selftest` PASS 4/4. Found by the non-author closure
 (`corpus/lessons/round-86-verifier-spotcheck.md` §5 routed 3); drafted by round-87 wave seat ScribeLesson
 (`.ufo/waves/round-87/w1/ScribeLesson/03-registry-correction-draft.md`), landed by the L1. No row text is edited.
+
+## Round-88 correction — R88-REG-1: the `battery-discrimination-r88` self-check cell
+
+Append-only; the `battery-discrimination-r88` row above stays as written. Its `Self-test` cell says the freeze
+controls "all read unmet", and its `Pinned values` cell says the battery and gate run "with the lane repository
+hidden". Both are true as recorded and do not mean what they suggest. The roster-label oracle's `unmet` at the
+freeze is 144 of 144 rows `error:json FileNotFoundError` — the control crashed, it was not rejected
+(`.ufo/waves/round-88/before/controls/bat-roster-oracle.json`). Only the repository the counter is run from is
+masked: run from a `git clone --shared`, the same unmodified control reads 3/3, 45/45 `met` rc 0
+(`.ufo/waves/round-88/w1/ExecReplicate.md` §5, `w1/CriticClaims/f1-roster-oracle-from-clone.txt`); a roster walker reads
+`met` from either layout (`f8`, `f9`); a battery that strips the appended nonce and looks the digest up reads `met`
+(`f2`, `f3`). The docstring's void-on-manifest clause is not implemented and `--roster` accepts any file (`f5`,
+`w1/ExecLints.md` L-1). Read a `met` from this counter as "the battery separated the 48 gates", never as "the
+battery could not have read the answer". Lesson `corpus/lessons/round-88.md` M1/M2; QUALITY 126. No row text is
+edited.
