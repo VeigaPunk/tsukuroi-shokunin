@@ -65,6 +65,13 @@ file `considerthese/2026-10-26.md`, not mined this round.
   says BLAKE2b-512 (`ScoutHost.md:51-52`, `:82-83`); no value or conclusion changes. Likely origin: the history
   copy's name ends `_sha256_…` (limine-snapper-sync names history files by SHA-256 of content, PW7), a different
   field. Draft: wave seat ScribeLesson (`w1/ScribeLesson/erratum-R87-R6.md`).
+- **R87 report, "Landed byte-identical"** (fleet `.ufo/reports/round-87/tsukuroi.md`, Work performed, ReviewGate
+  bullet; fleet commit `a547d8e1`, not edited): the landed gate was not byte-identical to
+  `w1/ReviewGate/check-limine-pins.proposed.py`. Proposed 12691 B `1b51a68f…`, landed 12821 B `e3b0fab4…`; the delta is
+  one docstring hunk of 5 lines (ESP-confinement clause, "Y or y"), no executable change
+  (`.ufo/waves/round-88/w1/ExecResidual/receipts/diff-prelanding-vs-landed.patch`). Read: "landed with the ReviewGate
+  patch; it differed from the proposed file only in the header docstring". Found by wave seat ExecResidual (§6);
+  same class as M3.
 
 ## Wave provenance (r87 routed 4)
 
