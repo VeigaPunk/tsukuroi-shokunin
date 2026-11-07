@@ -974,8 +974,11 @@ counter's isolation does not hold (lesson M1/M2, QUALITY 126).
 
 - PW8 (stale pins copied into new snapshot entries) is source inference; no snapshot was created on the host.
   The next snapshot after the incident, read by `check-limine-pins.py --live`, confirms or refutes it.
-- `limine-install`'s body (run by `limine-update`, PW5) is unread; the upstream tag copies of the mkinitcpio scripts
-  returned HTTP 429, so PW5 rests on the installed bytes (S360).
+- (Corrected round 89; spot-check r88 routed 1, lesson r89 M1.) PW5's flow was read from the installed bytes (S360),
+  and wave seat ScoutSources' `git clone --branch 1.40.0` found the upstream `limine-mkinitcpio`, `limine-install`
+  and `limine-mkinitcpio-install` byte-identical to them (raw URLs alone returned HTTP 429); `limine-install` writes
+  no `path:` pin (seat's reading of its body, not re-checked by the L1) — entry Limits, `limine-pin-writers-r88.md`
+  lines 58-62. Open: an L1 re-read of `limine-install`.
 - Counter successor owed: mask the clone origin and every host root that can hold a roster copy, read the freeze
   manifest and void, drop `--roster`, record per-row `error:` counts (patches in `.ufo/waves/round-88/w1/ExecReplicate/`
   and `w1/CriticClaims/`). A source-text-fingerprint battery stays outside any sandbox's reach (CriticClaims F2).

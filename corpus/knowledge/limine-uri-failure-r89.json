@@ -1,0 +1,58 @@
+[
+ {
+  "id": "UF1",
+  "statement": "[src] Every URI error goes through `URI_ERROR`, which panics unless the URI was opened through `uri_open_optional` (the optional-resource path); only then does it print and return. So any URI failure on a required key (`path:`, `kernel_path:`, `module_path:`) is a panic, and the same panic carries a hash mismatch under `hash_mismatch_panic: yes`.",
+  "source": "S351 uri.c 18-26, 301-305, 696-708",
+  "quote": "\"// Only returns for an optional resource, which the caller then backs out of.\" (line 20)",
+  "host_value": "—"
+ },
+ {
+  "id": "UF2",
+  "statement": "[src] After one leading `$` is dropped, the resource is compared with `strcmp` (case-sensitive) against `hdd`, `odd`, `boot`, `guid`, `uuid` (same dispatcher as `guid`), `fslabel`, `tftp`; any other name is \"not valid\" and goes to `URI_ERROR`, i.e. a panic for a required key.",
+  "source": "S351 uri.c 344-366",
+  "quote": "\"URI_ERROR(\\\"Resource `%s` not valid.\\\", resource);\" (line 364)",
+  "host_value": "[obs] all six URIs in `/boot/limine.conf` are `boot():/…` (r88 host receipt pin lines 30, 38, 50, 56, 64, 72)"
+ },
+ {
+  "id": "UF3",
+  "statement": "[src] `boot()` with an empty root opens the partition Limine booted from; `boot(N)` opens partition N (0-256, parsed with `strtoui`) on the SAME drive as the boot volume; N > 256 is a `URI_ERROR`; on a PXE boot `boot()` is redirected to `tftp`. So `boot(N)` is resolvable by Limine — the gate's `LP-UNRESOLVED` for it is a gate limit (it hashes only `--esp`), not a Limine verdict.",
+  "source": "S351 uri.c 220-243",
+  "quote": "\"struct volume *volume = volume_get_by_coord(boot_volume->is_optical, boot_volume->index, partition);\" (lines 237-238)",
+  "host_value": "[obs] no `boot(N)` on this host (UF2), so the limit does not fire here"
+ },
+ {
+  "id": "UF4",
+  "statement": "[src] `guid()`/`uuid()` parse the text mixed-endian first and retry big-endian; `fslabel()` looks a volume up by label; `hdd(d:p)`/`odd(d:p)` need a drive 1-256 (an omitted drive is a `URI_ERROR`) and a partition 0-256. A volume that is simply not found returns NULL with no message of its own; the caller decides what that means (UF5).",
+  "source": "S351 uri.c 109-199",
+  "quote": "\"URI_ERROR(\\\"Drive number cannot be omitted for hdd():/ and odd():/\\\");\" (line 119)",
+  "host_value": "—"
+ },
+ {
+  "id": "UF5",
+  "statement": "[src] An `efi` entry (`protocol: efi`, `chainload()`) reads `PATH`, then `IMAGE_PATH`; if `uri_open` returns NULL — file absent, volume not found, or a value `uri_resolve` cannot split (no `(` or no `):/`, which returns false without a message, lines 46-63) — Limine panics with \"Failed to open image\". So `LP-MISSING`, an unresolvable volume, and a URI-less `path:` value are all a panic of that entry at boot, not an ignored line.",
+  "source": "S361 chainload.c 414-435; S351 uri.c 46-63",
+  "quote": "\"panic(true, \\\"efi: Failed to open image with path `%s`. Is the path correct?\\\", image_path);\" (line 435)",
+  "host_value": "[obs] all six entries are `protocol: efi` (host receipt lines 29, 37, 49, 55, 63, 71)"
+ },
+ {
+  "id": "UF6",
+  "statement": "[src] Around that `uri_open`, `chainload()` sets `secure_boot_active = false` and restores it after; inside `uri_open` that flag gates only the \"Secure Boot is active and URI has no associated hash\" error. So an `efi` entry's `path:` may be unhashed under Secure Boot (the firmware's LoadImage verifies the image instead), while a pin that IS present is still compared (the mismatch path does not read the flag). The code comment says Limine \"does not need to enforce its own hash check here\"; the code only waives the missing-hash rule.",
+  "source": "S361 chainload.c 423-437; S351 uri.c 372-376, 442, 470, 664",
+  "quote": "\"// The firmware's LoadImage will verify the Secure Boot signature of the chainloaded EFI application, so Limine does not need\" (lines 423-424)",
+  "host_value": "[obs] SecureBoot efivar data byte `00` (off)"
+ },
+ {
+  "id": "UF7",
+  "statement": "[src] Every panic above is `panic(true, …)`: it prints `PANIC`, then \"Press a key to return to menu\", and the menu comes back, so another entry (a snapshot entry, the fallback) can be chosen. Under measured boot the menu return is refused and the machine prints \"System halted.\" Measured boot is on only when the config says `measured_boot: yes` or Secure Boot is active, and is forced off without a TPM/CC measurement interface.",
+  "source": "S362 panic.s2.c 18-29, 70-100; S353 menu.c 1719-1730; S350 CONFIG.md 157-160",
+  "quote": "\"print(\\\"Press a key to return to %s.\\\", booting_from_editor ? \\\"editor\\\" : \\\"menu\\\");\" (panic.s2.c line 78)",
+  "host_value": "[obs] no `measured_boot` key in `/boot/limine.conf`; Secure Boot off; `/sys/class/tpm/` empty"
+ },
+ {
+  "id": "UF8",
+  "statement": "[inf] On this host, therefore: the gate's `not-modelled` rows cannot come from a resource (every URI is `boot():/`), and an `LP-MISSING` main `path:` would be a panic that returns to the menu after a key press — the snapshot entries and `EFI fallback` stay selectable. The round-86 incident's mismatches stay `prompt` (`hash_mismatch_panic: no`, r87 LP5). The firmware's own TPM state was not read: an empty `/sys/class/tpm/` shows Linux has no TPM device, which is what Limine's `tpm_present()` would also need; not executed at boot.",
+  "source": "UF2, UF5, UF7; S363",
+  "quote": "—",
+  "host_value": "[obs] host receipt above"
+ }
+]
