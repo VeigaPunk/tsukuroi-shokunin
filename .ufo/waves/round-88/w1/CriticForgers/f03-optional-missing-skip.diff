@@ -1,0 +1,11 @@
+--- base.py
++++ f03-optional-missing-skip.py
+@@ -123,6 +123,8 @@
+ 
+         if status == "OK":
+             consequence = "none"
++        elif status == "LP-MISSING" and key in OPTIONAL_KEYS:
++            consequence = "skip"
+         elif status in ("LP-MISSING", "LP-UNRESOLVED"):
+             consequence = "not-modelled"
+         elif key in OPTIONAL_KEYS:

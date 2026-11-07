@@ -1,0 +1,173 @@
+{
+ "pristine_sha256": "e3b0fab4f2d276fe579b64ce5c8741a065bd9afe281257d38aa2209062407352",
+ "mutants": [
+  {
+   "mutant": "h01-key-sep-equals",
+   "rule": "R1 key directly followed by ':'",
+   "anchor": "if i == 0 or i >= len(line) or line[i] != \":\":",
+   "replacement": "if i == 0 or i >= len(line) or line[i] not in \":=\":",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h02-keychars-digits",
+   "rule": "R1 key charset letters/underscore",
+   "anchor": "KEYCHARS = frozenset(string.ascii_letters + \"_\")",
+   "replacement": "KEYCHARS = frozenset(string.ascii_letters + string.digits + \"_\")",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h03-value-lstrip-spaces-only",
+   "rule": "R1 skip blanks (space+tab) after ':'",
+   "anchor": "return line[:i].lower(), line[:i], line[i + 1:].lstrip(\" \\t\")",
+   "replacement": "return line[:i].lower(), line[:i], line[i + 1:].lstrip(\" \")",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h04-strip-spaces-only",
+   "rule": "R1 strip leading/trailing space+tab per line",
+   "anchor": "line = raw.replace(\"\\r\", \"\").strip(\" \\t\")",
+   "replacement": "line = raw.replace(\"\\r\", \"\").strip(\" \")",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h05-hash-empty-ignored",
+   "rule": "R2/R3 an empty hash is still a pin (LP-HASH-FORMAT)",
+   "anchor": "if uri is not None:",
+   "replacement": "if uri is not None and uri[\"hash\"]:",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h06-hash-len-at-least",
+   "rule": "R3 hash exactly 128 characters",
+   "anchor": "if len(h) != 128 or not set(h) <= HEXDIGITS:",
+   "replacement": "if len(h) < 128 or not set(h) <= HEXDIGITS:",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h07-hash-prefix-64",
+   "rule": "R5 full-digest comparison",
+   "anchor": "if got == h.lower():",
+   "replacement": "if got[:64] == h[:64].lower():",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h08-dollar-kept",
+   "rule": "R4 leading '$' gzip marker dropped from the resource",
+   "anchor": "resource = uri[\"resource\"][1:] if uri[\"resource\"].startswith(\"$\") else uri[\"resource\"]",
+   "replacement": "resource = uri[\"resource\"]",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h09-root-ignored-on-boot",
+   "rule": "R4 boot with a NON-empty root is LP-UNRESOLVED",
+   "anchor": "if resource != \"boot\" or uri[\"root\"] != \"\":",
+   "replacement": "if resource != \"boot\" and uri[\"root\"] != \"\":",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h10-empty-path-pin-ignored",
+   "rule": "R2 a pin with an empty path is still a pin",
+   "anchor": "if uri is not None:",
+   "replacement": "if uri is not None and uri[\"path\"]:",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h11-optional-case-sensitive",
+   "rule": "R6 optional keys matched per R1 (case-insensitive)",
+   "anchor": "optional = key in OPTIONAL_KEYS",
+   "replacement": "optional = written in OPTIONAL_KEYS",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h12-format-optional-panic",
+   "rule": "R6 LP-HASH-FORMAT on wallpaper/term_font -> skip",
+   "anchor": "rec.update(status=\"LP-HASH-FORMAT\", consequence=\"skip\" if optional else \"panic\",",
+   "replacement": "rec.update(status=\"LP-HASH-FORMAT\", consequence=\"panic\",",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h13-panic-key-case",
+   "rule": "R1/R6 hash_mismatch_panic key case-insensitive",
+   "anchor": "if key == \"hash_mismatch_panic\" and panic_setting is None:",
+   "replacement": "if written == \"hash_mismatch_panic\" and panic_setting is None:",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h14-sb-zero-inverted",
+   "rule": "R6/R7 --secure-boot-enforced 0 means not enforced",
+   "anchor": "r = check(a.conf, a.esp, a.secure_boot_enforced == \"1\")",
+   "replacement": "r = check(a.conf, a.esp, a.secure_boot_enforced == \"0\")",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h15-panic-startswith-no",
+   "rule": "R6 panic value equal to 'no' (not a prefix)",
+   "anchor": "panic_setting[1].lower() == \"no\"",
+   "replacement": "panic_setting[1].lower().startswith(\"no\")",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h16-missing-consequence-none",
+   "rule": "R6 LP-MISSING -> not-modelled",
+   "anchor": "rec.update(status=\"LP-MISSING\", consequence=\"not-modelled\")",
+   "replacement": "rec.update(status=\"LP-MISSING\", consequence=\"none\")",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h17-hash-nonhex-skipped",
+   "rule": "R3 hash must be hex",
+   "anchor": "if len(h) != 128 or not set(h) <= HEXDIGITS:",
+   "replacement": "if len(h) != 128:",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h18-cr-split-lines",
+   "rule": "R7/R8 1-based PHYSICAL line numbering",
+   "anchor": "for lineno, raw in enumerate(text.split(\"\\n\"), 1):",
+   "replacement": "for lineno, raw in enumerate(text.replace(\"\\r\", \"\\n\").split(\"\\n\"), 1):",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h19-entry-plus-kept",
+   "rule": "R8 entry label strips one leading '+'",
+   "anchor": "entry = sanitize(stripped.lstrip(\"/\").lstrip(\"+\").strip()) or entry",
+   "replacement": "entry = sanitize(stripped.lstrip(\"/\").strip()) or entry",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h20-resource-case-insensitive",
+   "rule": "R4 resource names are case-sensitive",
+   "anchor": "if resource != \"boot\" or uri[\"root\"] != \"\":",
+   "replacement": "if resource.lower() != \"boot\" or uri[\"root\"] != \"\":",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h21-conf-except-filenotfound",
+   "rule": "R7 any unreadable --conf -> CANNOT-EVALUATE",
+   "anchor": "    try:\n        with open(conf, \"rb\") as f:\n            text = f.read().decode(\"utf-8\", \"surrogateescape\")\n    except OSError as e:",
+   "replacement": "    try:\n        with open(conf, \"rb\") as f:\n            text = f.read().decode(\"utf-8\", \"surrogateescape\")\n    except FileNotFoundError as e:",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h22-first-uri-sep-rfind",
+   "rule": "R2 path starts after the FIRST '):/'",
+   "anchor": "rp = value.find(\"):/\", lp + 1)",
+   "replacement": "rp = value.rfind(\"):/\")",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h23-key-lookup-as-written",
+   "rule": "R1/R2 pin keys matched case-insensitively",
+   "anchor": "if key in PIN_KEYS:",
+   "replacement": "if written in PIN_KEYS:",
+   "diff_lines": 9
+  },
+  {
+   "mutant": "h24-term-font-dropped",
+   "rule": "R6 term_font is an optional key",
+   "anchor": "OPTIONAL_KEYS = frozenset({\"wallpaper\", \"term_font\"})",
+   "replacement": "OPTIONAL_KEYS = frozenset({\"wallpaper\"})",
+   "diff_lines": 9
+  }
+ ]
+}

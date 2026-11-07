@@ -1,0 +1,11 @@
+--- base.py
++++ f12-panic-value-raw-trailing-blanks.py
+@@ -92,7 +92,7 @@
+         key = line[:i].lower()
+         value = line[i + 1:].lstrip(BLANKS)
+         if key == "hash_mismatch_panic" and panic is None:
+-            panic = (lineno, value)
++            panic = (lineno, body[i + 1:].lstrip(BLANKS))
+         if key not in PIN_KEYS:
+             continue
+         uri = parse_uri(value)

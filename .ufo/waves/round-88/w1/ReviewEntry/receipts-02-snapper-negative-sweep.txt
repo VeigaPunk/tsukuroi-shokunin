@@ -1,0 +1,36 @@
+# Receipt 02 — negative sweep: does anything in pinned limine-snapper-sync 1.32.1 recompute a BLAKE2b pin? (ReviewEntry, 2026-11-06)
+
+$ grep -rn -i "b2sum\|blake2" limine-snapper-sync-1.32.1/
+./KernelReader.java:162:        String blake2sum = "";
+./KernelReader.java:177:            blake2sum = hashMatcher.group();
+./KernelReader.java:178:            pathValue = pathValue.substring(0, pathValue.indexOf(blake2sum)).trim();
+./KernelReader.java:210:        String snapshotPathValue = Utility.buildPath(config.machineID(), Config.HISTORY_FOLDER, fileHashName + blake2sum);
+./KernelReader.java:212:        imageProperties.put(Limine.HASH.name(), blake2sum);
+./Limine.java:28:    HASH_PATTERN("#[a-fA-F0-9]*"); // BLAKE2b or BLAKE3 hash pattern
+
+→ No b2sum invocation, no hash computation of the pin anywhere in the pinned snapper-sync set.
+  The only `blake2sum` source is the regex capture of the main entry's own pin text (line 177).
+  The only computed hash is `Utility.calculateHash(filePath)` (KernelReader 199) — content hash
+  for the history FILE NAME (PW7), and Hash.java hasCorruption (60-66) compares name suffix vs
+  content, never the `#` pin.
+
+Callers inside the pinned set:
+$ grep -rn "hasCorruption\|isFileHashable\|calculateHash\|fileHashIntegrityCheck" limine-snapper-sync-1.32.1/
+./Hash.java:55: isFileHashable (definition)
+./Hash.java:60: hasCorruption   (definition)
+./Hash.java:65:     var hashSum = Utility.fileHashIntegrityCheck(hashedFilePath, hashFunction, 2);
+./KernelReader.java:199: hashSum = Utility.calculateHash(filePath);
+
+→ hasCorruption/isFileHashable have NO caller inside the pinned set; their caller would be
+  snapper-sync's Utility.java, which is NOT pinned (residual, disclosed below).
+
+Write path of the copied pin (pinned): KernelReader 177 (regex capture) → 210 (appended to
+snapshotPathValue) → ImageDetail (unpinned record) → LimineWriter.java 250 `image.getSnapshotLine()`
+(unpinned method) → overwriteSnapshotsNode → save() rewrites /boot/limine.conf.
+Host corroboration: r87 live receipt lines 50/56/64 read OK and reference limine_history paths;
+limine_history/*.efi_sha256_<64hex> files exist in the r88 host receipt.
+
+Unpinned residuals (cannot be certified from the pin set, disclosed in the report):
+  - snapper-sync Utility.java (calculateHash / fileHashIntegrityCheck bodies)
+  - ImageDetail.getSnapshotLine() (the final line-assembly hop)
+  - entry-tool: limine-mkinitcpio and limine-install script bodies (entry Limits disclose this)

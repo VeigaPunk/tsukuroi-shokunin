@@ -1,0 +1,87 @@
+# Receipt 01 — pinned-source digest check + verbatim quote lines (ReviewEntry, 2026-11-06)
+
+Lane revision measured: 1fac4195243e55e7d9d8a2eddd653443d8559bff (git rev-parse master)
+
+## Digests (cwd .ufo/waves/round-88/before/src)
+
+$ sha256sum -c SHA256SUMS   → rc=0, all 14 lines OK
+./limine-entry-tool-1.40.0/89-warn-missing-file-hashes: OK
+./limine-entry-tool-1.40.0/Config.java: OK
+./limine-entry-tool-1.40.0/ConfigReader.java: OK
+./limine-entry-tool-1.40.0/limine-entry-tool.conf: OK
+./limine-entry-tool-1.40.0/LimineManager.java: OK
+./limine-entry-tool-1.40.0/limine-update: OK
+./limine-entry-tool-1.40.0/LimineWriter.java: OK
+./limine-entry-tool-1.40.0/Utility.java: OK
+./limine-snapper-sync-1.32.1/Config.java: OK
+./limine-snapper-sync-1.32.1/Hash.java: OK
+./limine-snapper-sync-1.32.1/KernelReader.java: OK
+./limine-snapper-sync-1.32.1/Limine.java: OK
+./limine-snapper-sync-1.32.1/LimineWriter.java: OK
+./URLS.txt: OK
+
+## Exact raw line numbers behind each row quote
+
+$ grep -n "ENABLE_VERIFICATION" limine-entry-tool-1.40.0/ConfigReader.java
+173:        String enableVerification = configs.get("ENABLE_VERIFICATION");
+175:            Config.ENABLE_VERIFICATION = Utility.isCommandPresent(Config.HASH_COMMAND) && "yes".equalsIgnoreCase(enableVerification);
+177:            Config.ENABLE_VERIFICATION = false;
+
+$ grep -n "bootConfig.add\|private String b2sum\|Limine.HASH" limine-entry-tool-1.40.0/LimineManager.java   (excerpt)
+308:  COMMENT line (no b2sum)          312/316: PROTOCOL (no b2sum)
+325:  MODULE_PATH ... + this.b2sum(moduleFullPath)      (inside for-loop over bootOptions.initrds())
+329:  MODULE_PATH ... + this.b2sum(initramfsFullPath)
+331:  PATH ... + this.b2sum(vmlinuzFullPath)
+332:  CMDLINE (no b2sum)
+348:  COMMENT (no b2sum)               352: PROTOCOL_EFI
+353:  PATH ... + this.b2sum(ukiFullPath)                ← PW3/PW5 quote line
+354:  CMDLINE (no b2sum)
+359:  private String b2sum(String absoluteFilePath) {
+368:      return Limine.HASH + b2sum;                    (only when Config.ENABLE_VERIFICATION; else "" at 370)
+
+$ grep -n "CompletableFuture<String> hashFuture1\|Hardware is faulty\|return hashResult1\|computeBlake2\|blake2sum" limine-entry-tool-1.40.0/Utility.java
+118: public static String computeBlake2(...)          → blake2IntegrityCheck(absoluteFilePath, 2)
+122: private static String blake2sum(...)             → runs Config.HASH_COMMAND ("b2sum") + extractHash
+144:     CompletableFuture<String> hashFuture1 = CompletableFuture.supplyAsync(() -> blake2sum(absoluteFilePath));   ← PW4 quote line (144; hashFuture2 at 145)
+153:         return hashResult1;  // on match
+164:         errorMessage("Repeated hash mismatches. Hardware is faulty. Returning corrupted hash for file:" ...)
+165:         return hashResult1;                      ← after last retry; hashResult1 is the FIRST OF THE FINAL PAIR
+175: }                                                  ← closing brace of blake2IntegrityCheck (cited range 118-175 ends exactly here)
+
+$ sed -n '152,158p' limine-snapper-sync-1.32.1/KernelReader.java   (numbered from 152)
+152: // Define regular expressions for matching keys and extracting their values
+153: Pattern pathResourceRegex = Pattern.compile(Limine.PATH_RESOURCE_PATTERN.toString());
+154: Pattern hashRegex = Pattern.compile(Limine.HASH_PATTERN.toString());
+155: (blank)
+156: Matcher pathResourceMatcher = pathResourceRegex.matcher(pathLine);
+157: Matcher hashMatcher = hashRegex.matcher(pathLine);           ← cited PW6 window 154-157 confirmed
+
+$ grep -n "hashMatcher.find\|blake2sum\|fileHashName\|snapshotPathValue\|hashSum = " limine-snapper-sync-1.32.1/KernelReader.java
+162: String blake2sum = "";
+176: if (hashMatcher.find()) {                 ← cited 175-179 confirmed (first/leftmost match)
+177:     blake2sum = hashMatcher.group();      ← pin text EXTRACTED, never computed
+178:     pathValue = pathValue.substring(0, pathValue.indexOf(blake2sum)).trim();
+199:     hashSum = Utility.calculateHash(filePath);        ← content hash, for the NAME only
+209: String fileHashName = fileName + Config.HASH_FUNCTION.hashName + hashSum;
+210: String snapshotPathValue = Utility.buildPath(config.machineID(), Config.HISTORY_FOLDER, fileHashName + blake2sum);   ← PW6 quote line
+212: imageProperties.put(Limine.HASH.name(), blake2sum);
+213: ImageDetail newImage = new ImageDetail(..., fileHashName, ..., snapshotPathValue, imageProperties);
+
+$ grep -n "HASH_FUNCTION" limine-snapper-sync-1.32.1/Config.java
+46: public static Hash HASH_FUNCTION = Hash.SHA256;               ← PW7 cited line exact
+
+$ grep -n "endsWith(hashSum)" limine-snapper-sync-1.32.1/Hash.java
+66: return !hashedFilePath.endsWith(hashSum);  // true = corrupted ← PW7 quote line (hasCorruption at 60; cited 60-66 exact)
+
+limine-snapper-sync-1.32.1/Limine.java
+28: HASH_PATTERN("#[a-fA-F0-9]*"); // BLAKE2b or BLAKE3 hash pattern   ← PW6 cited line exact
+
+limine-entry-tool-1.40.0/limine-update (28 lines, read whole)
+16: 	limine-install --no-efi-register
+23: 	limine-mkinitcpio "$@"                              ← PW5 quote line (both inside cited 16-28)
+
+limine-entry-tool-1.40.0/89-warn-missing-file-hashes (28 lines, read whole)
+19: warn_missing_verification_hashes() {
+20: 	check_secure_boot || return 0
+21: 	if [[ "${ENABLE_ENROLL_LIMINE_CONFIG:-}" == "yes" && "${ENABLE_VERIFICATION:-}" != "yes" && "${ENABLE_UKI:-}" != "yes" ]] && check_limine_v12; then
+22: 		warning_msg "Secure Boot and config checksum enrollment are enabled. Limine v12 requires verification hashes for all loaded files except EFI chainload."   ← PW9 quote line (cited 19-25 exact)

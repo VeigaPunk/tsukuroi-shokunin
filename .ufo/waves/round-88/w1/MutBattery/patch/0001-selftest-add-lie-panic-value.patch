@@ -1,0 +1,18 @@
+--- a/tools/limine-pin-battery-r88.py
++++ b/tools/limine-pin-battery-r88.py
+@@ -867,10 +867,14 @@
+         x["entry"] = "lie"
+ elif KIND == "panic-line" and isinstance(out.get("hash_mismatch_panic"), dict):
+     out["hash_mismatch_panic"]["line"] += 1
++elif KIND == "panic-value" and isinstance(out.get("hash_mismatch_panic"), dict):
++    v = out["hash_mismatch_panic"].get("value")
++    out["hash_mismatch_panic"]["value"] = "yes" if str(v).lower() == "no" else "no"
+ print(json.dumps(out))
+ sys.exit(rc)
+ '''
+-LIE_KINDS = ("exit-code", "rc-field", "line", "consequence", "status", "verdict", "entry", "panic-line")
++LIE_KINDS = ("exit-code", "rc-field", "line", "consequence", "status", "verdict", "entry", "panic-line",
++              "panic-value")
+ 
+ SELFTEST_GATES = {
+     # name: (source, must_meet)

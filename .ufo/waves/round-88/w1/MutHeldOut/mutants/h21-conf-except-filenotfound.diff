@@ -1,0 +1,9 @@
+--- pristine.py
++++ h21-conf-except-filenotfound.py
+@@ -99,5 +99,5 @@
+         with open(conf, "rb") as f:
+             text = f.read().decode("utf-8", "surrogateescape")
+-    except OSError as e:
++    except FileNotFoundError as e:
+         return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "error": "conf unreadable: %s" % sanitize(str(e))}
+     panic_setting = None

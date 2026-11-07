@@ -1,0 +1,71 @@
+Proposed patch (NOT applied; the L1 decides). Target: tools/battery-discrimination-r88.py at
+1fac4195243e55e7d9d8a2eddd653443d8559bff.
+
+Defect (observable): the docstring of tools/battery-discrimination-r88.py, lines 11-12, says
+  "void (exit 2) if this file or any roster file differs from
+   `.ufo/waves/round-88/before/freeze-manifest.sha256` / the roster digests"
+and the round-88 declaration's C1 kill rule says "void if the counter or any roster file differs
+from .ufo/waves/round-88/before/freeze-manifest.sha256". The code never reads the manifest:
+`grep -n freeze tools/battery-discrimination-r88.py` matches only that docstring line (12).
+load_roster() (lines 51-62) compares each gate file to the digest stored *inside* roster-r88.json,
+so a roster-r88.json edited with internally consistent digests - or the counter's own edited copy -
+runs instead of voiding. The receipt records counter_sha256/roster_sha256 (line 158-160), so an
+external auditor can still catch it; the instrument itself does not, which is what the docstring
+and the kill rule promise.
+
+Minimal patch: read the manifest once, check the counter, roster-r88.json and every frozen roster
+gate against it, and void (exit 2) before any gate runs.
+
+--- a/tools/battery-discrimination-r88.py
++++ b/tools/battery-discrimination-r88.py
+@@
+ ROSTER = os.path.join(LANE, ".ufo", "waves", "round-88", "before", "roster", "roster-r88.json")
++FREEZE = os.path.join(LANE, ".ufo", "waves", "round-88", "before", "freeze-manifest.sha256")
+ BATTERY_TIMEOUT = 900
+@@
+ def load_roster(path):
+@@
+     return roster, bad
+
+
++def freeze_mismatch(roster):
++    """The frozen bytes this counter trusts: its own file and every roster file (docstring lines 11-12)."""
++    try:
++        want = {}
++        with open(FREEZE) as f:
++            for line in f:
++                line = line.strip()
++                if not line:
++                    continue
++                digest, rel = line.split(None, 1)
++                want[rel.strip()] = digest
++    except OSError as e:
++        return "manifest unreadable: %s" % e
++    checked = [os.path.join(LANE, rel) for rel in want
++               if rel == "tools/battery-discrimination-r88.py"
++               or rel.startswith(".ufo/waves/round-88/before/roster/")]
++    checked.append(os.path.abspath(roster))
++    bad = []
++    for path in dict.fromkeys(checked):
++        rel = os.path.relpath(os.path.abspath(path), LANE)
++        if want.get(rel) != sha256(path):
++            bad.append(rel)
++    return ",".join(bad)
++
++
+ def one(battery, gate, scratch, lane):
+@@
+     if not os.path.isfile(battery):
+         print("void: battery not found: %s" % battery, file=sys.stderr)
+         return 2
++    bad = freeze_mismatch(a.roster)
++    if bad:
++        print("void: freeze mismatch: %s" % bad, file=sys.stderr)
++        return 2
+     roster, bad = load_roster(a.roster)
+
+Effect: a same-directory roster label flip (roster-r88.json digest 1e2dcc8b... -> anything else)
+and a modified counter copy both read `void: freeze mismatch: <rel>` rc 2 instead of running; the
+frozen run is unchanged (counter 7d2073df..., roster 1e2dcc8b... both equal the manifest at
+1fac4195). The candidate battery stays outside the check on purpose: it is the object under test,
+frozen only by the receipt's battery_sha256.

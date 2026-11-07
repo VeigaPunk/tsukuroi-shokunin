@@ -1,0 +1,170 @@
+[
+ {
+  "name": "f01-any-whitespace-blank-class",
+  "kind": "forger",
+  "file": "f01-any-whitespace-blank-class.py",
+  "clause": "R1 'leading spaces/tabs' / 'trailing spaces/tabs' blank class: strips every whitespace character (str.strip(None)), not only spaces and tabs",
+  "anchor": "BLANKS = \" \\t\"",
+  "sha256": "406e8eefde0e33ef15eb9612fe26cd988ef5aed96ddeb85f504f50fd08b29563"
+ },
+ {
+  "name": "f02-panic-value-prefix-no",
+  "kind": "forger",
+  "file": "f02-panic-value-prefix-no.py",
+  "clause": "R6 'value equal to `no` case-insensitively': accepts any value starting with 'no' (none, no2) as the prompt setting",
+  "anchor": "elif panic is not None and panic[1].lower() == \"no\":",
+  "sha256": "f7967956b861d312fb2c2a296705ebc5ceb5ee7ad31e53c1ea77c96c6107d7d3"
+ },
+ {
+  "name": "f03-optional-missing-skip",
+  "kind": "forger",
+  "file": "f03-optional-missing-skip.py",
+  "clause": "R6 'LP-MISSING and LP-UNRESOLVED -> not-modelled': optional keys with a missing file consequence 'skip' instead of 'not-modelled'",
+  "anchor": "        elif status in (\"LP-MISSING\", \"LP-UNRESOLVED\"):\n            consequence = \"not-modelled\"",
+  "sha256": "2a22bf7023fd3a9b7caa62577f0060927dc1f3bdfd2696cbc63b759739b1811a"
+ },
+ {
+  "name": "f04-optional-term-font-dropped",
+  "kind": "forger",
+  "file": "f04-optional-term-font-dropped.py",
+  "clause": "R6 'key wallpaper or term_font (optional resources) -> skip': term_font is no longer optional (mirror of roster m27, which drops wallpaper)",
+  "anchor": "OPTIONAL_KEYS = frozenset((\"wallpaper\", \"term_font\"))",
+  "sha256": "9fa998249aa51e0694a707ea46dc84b79661a26d40f319878083769a9ac78f70"
+ },
+ {
+  "name": "f05-hash-128-any-chars",
+  "kind": "forger",
+  "file": "f05-hash-128-any-chars.py",
+  "clause": "R3 'exactly 128 characters of [0-9a-fA-F]': length checked, character set not (any 128 characters accepted as a well-formed hash)",
+  "anchor": "        if len(h) != 128 or not set(h) <= HEXDIGITS:",
+  "sha256": "b2145a60d7db103f4ad67003f4dc4c14b9eb5f100f692fb684f3eaed6f2570b0"
+ },
+ {
+  "name": "f06-empty-pin-list-cannot-evaluate",
+  "kind": "forger",
+  "file": "f06-empty-pin-list-cannot-evaluate.py",
+  "clause": "R7 'else HEALTHY rc 0': a conf with no pin records reads CANNOT-EVALUATE rc 2",
+  "anchor": "        verdict, rc = \"HEALTHY\", 0",
+  "sha256": "21fe2c2e14940da7f2e8eafa95be4aa48af5592ce5e358b6a8b8ed9832411c57"
+ },
+ {
+  "name": "f07-dollar-lstrip-all",
+  "kind": "forger",
+  "file": "f07-dollar-lstrip-all.py",
+  "clause": "R4 'a leading $ (gzip marker) is dropped from the resource': every leading '$' is dropped, not exactly one",
+  "anchor": "            if resource.startswith(\"$\"):\n                resource = resource[1:]",
+  "sha256": "1c8e7709072561fbb5b27c6545fb378208dfe9200e1c284f5cf3fcc723711ca2"
+ },
+ {
+  "name": "f08-entry-label-trailing-plus",
+  "kind": "forger",
+  "file": "f08-entry-label-trailing-plus.py",
+  "clause": "R8 'without a leading +, trimmed': a trailing '+' is also stripped from the reported entry label",
+  "anchor": "            label = label.strip()",
+  "sha256": "17baa92df7854ccc8a5aa3cf6ee262259614ab1a1ac83df05eeea91fed837290"
+ },
+ {
+  "name": "f09-entry-null-as-empty-string",
+  "kind": "forger",
+  "file": "f09-entry-null-as-empty-string.py",
+  "clause": "R8 'or null before any entry line': a pin before the first entry line reports entry \"\" instead of null",
+  "anchor": "    entry = None",
+  "sha256": "14d45d0869a9451a200469ccdf18b0c7c9910d6efef1bf07ba0c4b6187701fcb"
+ },
+ {
+  "name": "f10-entry-first-not-nearest",
+  "kind": "forger",
+  "file": "f10-entry-first-not-nearest.py",
+  "clause": "R8 'the label of the nearest preceding entry line': the first entry line's label is used for every later pin",
+  "anchor": "            entry = label",
+  "sha256": "2f3369cb155855b97d2c5d4f6469a1fee5e9b7143d5cd42ed7548206a377b5da"
+ },
+ {
+  "name": "f11-entry-requires-column-zero",
+  "kind": "forger",
+  "file": "f11-entry-requires-column-zero.py",
+  "clause": "R8 'a line whose first non-blank character is /': only a line starting at column 0 counts as an entry line (leading blanks ignored)",
+  "anchor": "        if line[0] == \"/\":",
+  "sha256": "b625380e2b4487c62380a31ade47142047c8812637fe0a0d08c32a7cdeae9808"
+ },
+ {
+  "name": "f12-panic-value-raw-trailing-blanks",
+  "kind": "forger",
+  "file": "f12-panic-value-raw-trailing-blanks.py",
+  "clause": "R8 'value: its R1 value': the reported hash_mismatch_panic value keeps the line's trailing spaces/tabs (R1 strips them)",
+  "anchor": "            panic = (lineno, value)",
+  "sha256": "9b3080451bd5dea96c0c6ce974b5adea734fc3c13d3bc67096987eaddc8027d5"
+ },
+ {
+  "name": "f13-unhashed-uri-reports-format",
+  "kind": "forger",
+  "file": "f13-unhashed-uri-reports-format.py",
+  "clause": "R2 'a value with no # after ):/ ... is not a pin and is ignored': a URI-form value with no '#' becomes a pin with an empty hash (LP-HASH-FORMAT)",
+  "anchor": "    if cut < 0:\n        return None",
+  "sha256": "a8136fb3bcd05342dbecac5867746c5c970e3517627130a9b64c5d70b606dd78"
+ },
+ {
+  "name": "f14-cr-stripped-only-trailing",
+  "kind": "forger",
+  "file": "f14-cr-stripped-only-trailing.py",
+  "clause": "R1 'strip CR ... per line' / 'trailing ... CR removed': only a trailing CR is removed; a mid-line CR survives into the value",
+  "anchor": "        body = rawline.replace(\"\\r\", \"\").lstrip(BLANKS)",
+  "sha256": "731174728afa53474fb9c03c19b7627021ff060a2125f71d50c007842fc67d22"
+ },
+ {
+  "name": "f15-esp-join-no-separator",
+  "kind": "forger",
+  "file": "f15-esp-join-no-separator.py",
+  "clause": "R4 'resolves to ESP/path': the ESP and the path are concatenated without a separator (ESP + path instead of ESP/path)",
+  "anchor": "                resolved = os.path.join(args.esp, path.lstrip(\"/\"))",
+  "sha256": "796958f5e6c6f979164386a9018397928e2f99645ecc4e9e46a7a932160bad71"
+ },
+ {
+  "name": "f16-optional-unresolved-skip",
+  "kind": "forger",
+  "file": "f16-optional-unresolved-skip.py",
+  "clause": "R6 'LP-MISSING and LP-UNRESOLVED -> not-modelled': optional keys with an unresolved resource consequence 'skip' instead of 'not-modelled'",
+  "anchor": "        elif status in (\"LP-MISSING\", \"LP-UNRESOLVED\"):\n            consequence = \"not-modelled\"",
+  "sha256": "a4ffe35a734dcab3a7f82c81dd27b440fb16233c054c4c58cef3899ab7045f0f"
+ },
+ {
+  "name": "f17-entry-one-leading-slash",
+  "kind": "forger",
+  "file": "f17-entry-one-leading-slash.py",
+  "clause": "R8 'the line without its leading / characters': only one leading '/' is removed from the entry label",
+  "anchor": "            label = line.lstrip(\"/\")",
+  "sha256": "74800e84652b1a30aded9138a15e7ac728d141007e3e1d7f47e3e5d2c6fb0008"
+ },
+ {
+  "name": "f18-resource-case-insensitive",
+  "kind": "forger",
+  "file": "f18-resource-case-insensitive.py",
+  "clause": "R4 'resource `boot` with an empty root resolves': the resource name is lower-cased before the comparison, so BOOT/Boot resolve too",
+  "anchor": "            if resource != \"boot\" or root != \"\":",
+  "sha256": "26a128bb68513344b8ca19b367e8862cdf883ca69bf9bd8c1d1cf1381f7d8495"
+ },
+ {
+  "name": "f19-entry-label-not-trimmed",
+  "kind": "forger",
+  "file": "f19-entry-label-not-trimmed.py",
+  "clause": "R8 label '..., trimmed': the whitespace after the leading '/'/'+' is kept in the reported entry label",
+  "anchor": "            label = label.strip()",
+  "sha256": "4654fa0dac0034f2a208efe20be295ba30fdd40e6b466104b90757d081f497c2"
+ },
+ {
+  "name": "ctl-meta-value-lie",
+  "kind": "control",
+  "file": "ctl-meta-value-lie.py",
+  "clause": "control: hash_mismatch_panic value is a lie (+'!') wherever the field is emitted; proves whether the battery asserts R8 metadata values",
+  "anchor": "            panic = (lineno, value)",
+  "sha256": "3a6465b47de52e4fa205fe504e08f05badb6c3340c67580748a0aa39c51bcfa2"
+ },
+ {
+  "name": "ctl-entry-label-lie",
+  "kind": "control",
+  "file": "ctl-entry-label-lie.py",
+  "clause": "control: every emitted entry label is a lie (+'!'); proves whether the battery asserts R8 entry labels",
+  "anchor": "            label = label.strip()",
+  "sha256": "8605b330a1a7e1ede701b4efa4a239e9a4542637998e31baa1df751497190711"
+ }
+]

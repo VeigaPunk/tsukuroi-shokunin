@@ -1,0 +1,9 @@
+--- pristine.py
++++ h06-hash-len-at-least.py
+@@ -125,5 +125,5 @@
+         optional = key in OPTIONAL_KEYS
+         h = uri["hash"]
+-        if len(h) != 128 or not set(h) <= HEXDIGITS:
++        if len(h) < 128 or not set(h) <= HEXDIGITS:
+             rec.update(status="LP-HASH-FORMAT", consequence="skip" if optional else "panic",
+                        detail="hash must be 128 hex characters (got %d)" % len(h))

@@ -1,0 +1,106 @@
+--- a/tools/battery-discrimination-r88.py
++++ b/tools/battery-discrimination-r88.py
+@@ -15,8 +15,10 @@
+   * each roster gate is copied to a random file name and gets one trailing comment line
+     `# nonce <random hex>` per invocation, so no stored digest or name identifies it;
+   * the battery file is copied next to it and both run under `bwrap` with the lane repository
+-    replaced by an empty tmpfs and the network unshared, so the roster, its labels, the forger
+-    sources and the reference gate are not readable from inside.
++    AND every repository it is a `--shared` clone of (read from
++    `.git/objects/info/alternates`) replaced by an empty tmpfs, the network unshared, so the
++    roster, its labels, the forger sources and the reference gate are not readable from inside;
++    the masked paths are recorded in the receipt as "hidden".
+ A gate whose behaviour depends on its own bytes or file name is not in the roster.
+ 
+ Battery interface (same as tools/limine-pin-battery-r87.py):
+@@ -62,7 +64,29 @@
+     return roster, bad
+ 
+ 
+-def one(battery, gate, scratch, lane):
++def hidden_paths(lane, extra=()):
++    """Paths masked inside the sandbox: the lane itself plus every repository this lane is a
++    `--shared` clone of. A shared clone reads its objects through .git/objects/info/alternates,
++    and `--ro-bind / /` leaves the origin worktree (roster included) readable at its absolute
++    path, so masking only the clone would leave the answer readable from a clean clone."""
++    paths = {os.path.realpath(lane)}
++    alt = os.path.join(lane, ".git", "objects", "info", "alternates")
++    try:
++        with open(alt) as f:
++            for line in f:
++                p = line.strip()
++                if p.endswith("/.git/objects"):
++                    root = p[: -len("/.git/objects")]
++                    if root.startswith("/") and os.path.isdir(root):
++                        paths.add(os.path.realpath(root))
++    except OSError:
++        pass
++    for p in extra:
++        paths.add(os.path.realpath(p))
++    return sorted(paths)
++
++
++def one(battery, gate, scratch, hidden):
+     """Run the battery once on one perturbed gate copy; return 'met', 'unmet' or 'error:<why>'."""
+     d = tempfile.mkdtemp(prefix="bd-", dir=scratch)
+     try:
+@@ -82,10 +106,12 @@
+         work = os.path.join(d, "work")
+         os.makedirs(work)
+         out = os.path.join(d, "out.json")
+-        argv = ["bwrap", "--ro-bind", "/", "/", "--dev", "/dev", "--proc", "/proc",
+-                "--tmpfs", lane, "--bind", d, d, "--chdir", d, "--unshare-net",
+-                "--die-with-parent", "--setenv", "TMPDIR", work,
+-                sys.executable, bp, "--gate", gp, "--runs", "1", "--work", work, "--json", out]
++        argv = ["bwrap", "--ro-bind", "/", "/", "--dev", "/dev", "--proc", "/proc"]
++        for p in hidden:
++            argv += ["--tmpfs", p]
++        argv += ["--bind", d, d, "--chdir", d, "--unshare-net",
++                 "--die-with-parent", "--setenv", "TMPDIR", work,
++                 sys.executable, bp, "--gate", gp, "--runs", "1", "--work", work, "--json", out]
+         try:
+             p = subprocess.run(argv, capture_output=True, text=True, timeout=BATTERY_TIMEOUT)
+         except subprocess.TimeoutExpired:
+@@ -108,10 +134,10 @@
+         shutil.rmtree(d, ignore_errors=True)
+ 
+ 
+-def run_once(battery, roster, scratch, lane, jobs):
++def run_once(battery, roster, scratch, hidden, jobs):
+     rows = []
+     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as ex:
+-        futs = {ex.submit(one, battery, g, scratch, lane): g for g in roster["gates"]}
++        futs = {ex.submit(one, battery, g, scratch, hidden): g for g in roster["gates"]}
+         for fu in concurrent.futures.as_completed(futs):
+             g = futs[fu]
+             got, fp = fu.result()
+@@ -133,6 +159,8 @@
+     ap.add_argument("--scratch", default=os.environ.get("TMPDIR"))
+     ap.add_argument("--json")
+     ap.add_argument("--roster", default=ROSTER)
++    ap.add_argument("--hide", action="append", default=[], metavar="PATH",
++                    help="extra absolute path to mask inside the sandbox (repeatable)")
+     a = ap.parse_args()
+     if shutil.which("bwrap") is None:
+         print("void: bwrap not found", file=sys.stderr)
+@@ -148,16 +176,17 @@
+     scratch = a.scratch or tempfile.gettempdir()
+     os.makedirs(scratch, exist_ok=True)
+     scratch = tempfile.mkdtemp(prefix="battery-discrimination-r88-", dir=scratch)
+-    lane = LANE
++    hidden = hidden_paths(LANE, a.hide)
+     try:
+-        runs = [run_once(battery, roster, scratch, lane, a.jobs) for _ in range(a.runs)]
++        runs = [run_once(battery, roster, scratch, hidden, a.jobs) for _ in range(a.runs)]
+     finally:
+         shutil.rmtree(scratch, ignore_errors=True)
+     met = all(r["positives_ok"] == r["positives_total"] and r["negatives_ok"] == r["negatives_total"]
+               for r in runs)
+     res = {"schema": "tsukuroi-battery-discrimination-r88-v1", "battery": battery,
+            "battery_sha256": sha256(battery), "counter_sha256": sha256(os.path.abspath(__file__)),
+-           "roster_sha256": sha256(a.roster), "runs": runs, "verdict": "met" if met else "unmet"}
++           "roster_sha256": sha256(a.roster), "hidden": hidden, "runs": runs,
++           "verdict": "met" if met else "unmet"}
+     if a.json:
+         with open(a.json, "w") as f:
+             json.dump(res, f, indent=1)

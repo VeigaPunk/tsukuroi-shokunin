@@ -1,0 +1,17 @@
+# Receipt 03 — attempt to fetch limine-entry-tool 1.40.0 Main.java (PW5 uncited clause), 2026-11-06
+
+Purpose: PW5 states "its `Main.java` options are add/remove/scan/tree/cmdline" but Main.java is not in
+.ufo/waves/round-88/before/src/ (URLS.txt lists 8 entry-tool files; Main.java absent) and no S-row covers
+it. Wanted to check the clause's factual truth to inform the L1's fix.
+
+URL attempted: https://gitlab.com/Zesko/limine-entry-tool/-/raw/1.40.0/src/main/java/org/limine/entry/tool/Main.java
+
+$ curl -sSf -o Main.java <url>
+curl: (22) The requested URL returned error: 429        (attempt 1, ~21:0x -03)
+$ sleep 25 && curl -sSf -o Main.java <url>
+curl: (22) The requested URL returned error: 429        (attempt 2, 25 s later)
+attempt 3: 60 s backoff — curl: (22) The requested URL returned error: 429 (rc 22).
+
+No proxy or alternate host tried beyond this (rate limit is host-wide; the L1's freeze-time curls likely
+consumed the quota). Conclusion does not depend on the fetch: the clause is UNCITED either way — pin
+Main.java or move the parenthetical to Limits.

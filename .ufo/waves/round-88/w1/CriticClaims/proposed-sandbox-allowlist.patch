@@ -1,0 +1,15 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/battery-discrimination-r88.py	2026-11-06 20:43:55.859652178 -0300
++++ /fast/scratch/hyaku/tsukuroi-r88/CriticClaims/lane/tools/battery-discrimination-r88.py	2026-11-06 21:06:47.649999787 -0300
+@@ -82,7 +82,11 @@
+         work = os.path.join(d, "work")
+         os.makedirs(work)
+         out = os.path.join(d, "out.json")
+-        argv = ["bwrap", "--ro-bind", "/", "/", "--dev", "/dev", "--proc", "/proc",
++        argv = ["bwrap", "--ro-bind", "/usr", "/usr", "--symlink", "usr/bin", "/bin",
++                "--symlink", "usr/sbin", "/sbin", "--symlink", "usr/lib", "/lib",
++                "--symlink", "usr/lib64", "/lib64", "--ro-bind", "/etc", "/etc",
++                "--dev", "/dev", "--proc", "/proc",
++                "--tmpfs", "/home", "--tmpfs", "/fast", "--tmpfs", "/tmp", "--tmpfs", "/var",
+                 "--tmpfs", lane, "--bind", d, d, "--chdir", d, "--unshare-net",
+                 "--die-with-parent", "--setenv", "TMPDIR", work,
+                 sys.executable, bp, "--gate", gp, "--runs", "1", "--work", work, "--json", out]

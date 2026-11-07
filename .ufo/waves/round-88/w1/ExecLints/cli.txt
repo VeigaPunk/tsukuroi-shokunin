@@ -1,0 +1,71 @@
+## battery: no args
+usage: limine-pin-battery-r88.py [-h] [--gate GATE] [--runs RUNS]
+                                 [--work WORK] [--json JSON] [--selftest]
+RC=2
+## battery: --help
+usage: limine-pin-battery-r88.py [-h] [--gate GATE] [--runs RUNS]
+                                 [--work WORK] [--json JSON] [--selftest]
+
+Round-88 battery for a Limine v12.9.4 path-pin gate (tsukuroi lane; successor
+of the r87 battery).
+
+options:
+  -h, --help   show this help message and exit
+  --gate GATE
+  --runs RUNS
+  --work WORK
+  --json JSON
+  --selftest
+RC=0
+## battery: missing gate file
+families_passed 0/38 verdict unmet failed ALL-PIN-KEYS,COMMENT-DECOY,CONF-UNREADABLE,EMPTY-ROOT-RESOURCE,ENTRY-LABEL,FIR
+RC=1
+## battery: constant-HEALTHY fake gate
+families_passed 0/38 verdict unmet failed ALL-PIN-KEYS,COMMENT-DECOY,CONF-UNREADABLE,EMPTY-ROOT-RESOURCE,ENTRY-LABEL,FIR
+RC=1
+## counter: no args
+usage: battery-discrimination-r88.py [-h] --battery BATTERY [--runs RUNS]
+                                     [--jobs JOBS] [--scratch SCRATCH]
+                                     [--json JSON] [--roster ROSTER]
+battery-discrimination-r88.py: error: the following arguments are required: --battery
+RC=2
+## counter: --help
+usage: battery-discrimination-r88.py [-h] --battery BATTERY [--runs RUNS]
+                                     [--jobs JOBS] [--scratch SCRATCH]
+                                     [--json JSON] [--roster ROSTER]
+
+Round-88 frozen discrimination counter for a Limine pin-gate battery (tsukuroi
+lane).
+
+options:
+  -h, --help         show this help message and exit
+  --battery BATTERY
+  --runs RUNS
+  --jobs JOBS
+  --scratch SCRATCH
+  --json JSON
+  --roster ROSTER
+RC=0
+## counter: missing battery
+void: battery not found: /nonexistent/b.py
+RC=2
+## counter: roster in other dir (all gate files unresolvable)
+void: roster digest/label mismatch: P-landed-gate,P-g00-base,P-m01-comment-not-skipped,N-g01-loose-key,N-g02-no-paren,N-
+RC=2
+## selftest case names
+roster-literal     PASS families_passed=38
+absent             PASS families_passed=0
+constant-healthy   PASS families_passed=0
+non-json           PASS families_passed=0
+constant-degraded  PASS families_passed=0
+reference-gate     PASS families_passed=38
+lie-exit-code      PASS families_passed=2
+lie-rc-field       PASS families_passed=2
+lie-line           PASS families_passed=2
+lie-consequence    PASS families_passed=31
+lie-status         PASS families_passed=36
+lie-verdict        PASS families_passed=35
+lie-entry          PASS families_passed=2
+lie-panic-line     PASS families_passed=25
+selftest PASS 14/14
+RC=0

@@ -1,0 +1,11 @@
+--- base.py
++++ f06-empty-pin-list-cannot-evaluate.py
+@@ -145,7 +145,7 @@
+     elif "LP-UNRESOLVED" in statuses:
+         verdict, rc = "CANNOT-EVALUATE", 2
+     else:
+-        verdict, rc = "HEALTHY", 0
++        verdict, rc = ("CANNOT-EVALUATE", 2) if not pins else ("HEALTHY", 0)
+ 
+     out = {"verdict": verdict, "rc": rc, "pins": pins}
+     if panic is None:

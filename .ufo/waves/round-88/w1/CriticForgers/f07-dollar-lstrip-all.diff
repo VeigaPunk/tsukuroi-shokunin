@@ -1,0 +1,12 @@
+--- base.py
++++ f07-dollar-lstrip-all.py
+@@ -104,8 +104,7 @@
+         if len(h) != 128 or not set(h) <= HEXDIGITS:
+             status = "LP-HASH-FORMAT"
+         else:
+-            if resource.startswith("$"):
+-                resource = resource[1:]
++            resource = resource.lstrip("$")
+             if resource != "boot" or root != "":
+                 status = "LP-UNRESOLVED"
+             else:
