@@ -7445,3 +7445,10 @@ completed, 20 repos, no conflicting fact (`w1/ConnectorOverlap/sibling-scan.txt`
 R87-R6 erratum (lesson). Registry `check-registry-coverage.py` PASS 140/140, `check-knowledge-header.py` PASS 104/104
 at `1fac4195` (ExecLints). Axes now: depth8, coverage9, operability9, freshness9, calibration9, adjacency8
 (unchanged). No capability row enters. No retirement. No axis harmed.
+
+Round 88 — measured-outcome addendum (appended after wave seats MutBattery and ScoutSources reported; supersedes
+nothing above): the CR clause of C1 is certified by chance — `WHITESPACE-CRLF` draws CRLF with p 0.6 per case, so
+`N-m22`/`N-g15` escape a run with p ≈ 2.6 %; the seat's pristine battery read `met` on `N-m22` in 1 of 8 runs
+(`w1/MutBattery.md` §3 note 1). All 15 C1 runs on record read 45/45 (L1 12, ExecReplicate 3). The
+`hash_mismatch_panic.value` check has no detector (M18). Routed R88-R2/R3. ScoutSources found nothing contradicting
+PW5–PW8; PW6–PW8 were sharpened from its tag clones (lesson Gate addendum 2).
