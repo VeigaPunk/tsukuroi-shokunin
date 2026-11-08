@@ -1,0 +1,420 @@
+[
+ {
+  "name": "V1a-entry-scan-needs-double-slash",
+  "clause": "V1 entry-line detection",
+  "expect": "killed: PANIC-AFTER-PIN/MEASURED-IN-ENTRY/GLOBAL-VS-ENTRY (no cut at all)",
+  "sha256": "cf3849773e039d0480c0950d456a9646e39bd184d3b7d98b56787698a6da26fc",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        if raw.replace(\"\\r\", \"\").strip(\" \\t\").startswith(\"/\"):\n            first_entry = i",
+   "        if raw.replace(\"\\r\", \"\").strip(\" \\t\").startswith(\"//\"):\n            first_entry = i"
+  ]
+ },
+ {
+  "name": "V1b-entry-scan-no-break",
+  "clause": "V1 first entry line = last '/' line",
+  "expect": "killed: global section stretches to the last entry, body keys become visible",
+  "sha256": "70d13c35b80bd1ef06965ae4228b3b213d5e36576b5bb50b09b3b778f4a68872",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "            first_entry = i\n            break",
+   "            first_entry = i"
+  ]
+ },
+ {
+  "name": "V1c-flip-lag-one-line",
+  "clause": "V1 global section ends before first entry",
+  "expect": "killed: first entry body stays visible, MEASURED-IN-ENTRY/PANIC-AFTER-PIN",
+  "sha256": "25210bced5ca3b80ff771b5270b16c40129a38088395454415abe104034ea4c8",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "            if first_entry is not None and lineno == first_entry and first_entry != 1:\n                in_global = False",
+   "            if first_entry is not None and lineno == first_entry + 1 and first_entry != 1:\n                in_global = False"
+  ]
+ },
+ {
+  "name": "V1d-firstline-exception-line2",
+  "clause": "V1 first-line-is-entry exception guard",
+  "expect": "killed (probabilistic): first entry on line 2 keeps whole file visible",
+  "sha256": "4ec96a6187aba7129838479cff22f7f06957773b88b70de297ce18ccd22879f2",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "            if first_entry is not None and lineno == first_entry and first_entry != 1:",
+   "            if first_entry is not None and lineno == first_entry and first_entry not in (1, 2):"
+  ]
+ },
+ {
+  "name": "V1e-panic-last-wins",
+  "clause": "V1/R6 first visible hash_mismatch_panic wins",
+  "expect": "survivor expected: no family writes two visible panic keys",
+  "sha256": "b5ef3095b37e83cf3a28ac3e5afb665c0f07c92be8d5d3d93b75415a286b479a",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        if in_global and key == \"hash_mismatch_panic\" and panic_setting is None:",
+   "        if in_global and key == \"hash_mismatch_panic\":"
+  ]
+ },
+ {
+  "name": "V1f-panic-value-strip",
+  "clause": "R6 panic value compared after rstrip",
+  "expect": "killed: PANIC-VALUE-BLANKS (trailing blanks must keep panic)",
+  "sha256": "a35794a86be189f6f356e3edb2fc4a25c081412b5543974005972cb1770af1a0",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    prompt = (panic_setting is not None and panic_setting[1].lower() == \"no\" and not secure_boot)",
+   "    prompt = (panic_setting is not None and panic_setting[1].strip().lower() == \"no\" and not secure_boot)"
+  ]
+ },
+ {
+  "name": "V1g-measured-value-strip",
+  "clause": "R10 measured_boot value compared after rstrip",
+  "expect": "survivor expected: no measured_boot trailing-blank family",
+  "sha256": "a2206ef941254cb38b690c5eae37f7f02efaf7ff59aa71a33444467cefb8d052",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    requested = (measured_setting is not None and measured_setting[1] == \"yes\") or secure_boot",
+   "    requested = (measured_setting is not None and measured_setting[1].strip() == \"yes\") or secure_boot"
+  ]
+ },
+ {
+  "name": "V1h-measured-value-lower",
+  "clause": "R10 measured_boot strcmp is case-sensitive",
+  "expect": "killed: MEASURED-VALUE-CASE (Yes/YES must not request)",
+  "sha256": "11ebb9bec94be981729949a36138ff4d99351cb931df68f985621df5ece25ac4",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    requested = (measured_setting is not None and measured_setting[1] == \"yes\") or secure_boot",
+   "    requested = (measured_setting is not None and measured_setting[1].lower() == \"yes\") or secure_boot"
+  ]
+ },
+ {
+  "name": "V1i-tpm0-as-absent",
+  "clause": "R10 --tpm-present 0 forces menu",
+  "expect": "killed: MEASURED-TPM0",
+  "sha256": "1bf08ecb41b47b0126c8cfca75c1c19636321f292ba30a1be3164c2e7077b495",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    return \"halt\" if tpm else \"menu\"",
+   "    return \"halt\" if tpm is not None else \"menu\""
+  ]
+ },
+ {
+  "name": "V1j-tpm-absent-menu",
+  "clause": "R10 flag absent -> halt-if-tpm",
+  "expect": "killed: MEASURED-TPM-ABSENT",
+  "sha256": "fa50aac0ca84f41efe9659f97d5fb1c4dfd7fb8b08d353253175007d5afcc9ee",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    if tpm is None:\n        return \"halt-if-tpm\"",
+   "    if tpm is None:\n        return \"menu\""
+  ]
+ },
+ {
+  "name": "V1k-secboot-dropped-onpanic",
+  "clause": "R10 Secure Boot requests measured boot",
+  "expect": "killed: MEASURED-SB (sb=1, tpm=1 must halt)",
+  "sha256": "6855b2c826b897ea343d06c937557096fee1b0ad7d43c5d8baf0756de1bee5a2",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    requested = (measured_setting is not None and measured_setting[1] == \"yes\") or secure_boot",
+   "    requested = (measured_setting is not None and measured_setting[1] == \"yes\")"
+  ]
+ },
+ {
+  "name": "V1l-secboot-dropped-prompt",
+  "clause": "R6 Secure Boot suppresses prompt",
+  "expect": "killed: SECUREBOOT (sb=1 mismatch must panic)",
+  "sha256": "4630920f8442ae6eceebaa5ac13617a336b858e8a2931b96b800db1df34e8bfb",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    prompt = (panic_setting is not None and panic_setting[1].lower() == \"no\" and not secure_boot)",
+   "    prompt = (panic_setting is not None and panic_setting[1].lower() == \"no\")"
+  ]
+ },
+ {
+  "name": "U1a-image-path-precedence",
+  "clause": "U1/R9 image line = first path else first image_path",
+  "expect": "killed: PATH-PRECEDENCE/FIRST-PATH/UNVERIFIED-IMAGE-PATH",
+  "sha256": "b7b2979804f97a3433d5a9be47a0be910226968da962a91a159a70b9c2b3eef6",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    image_lines = {b.get(\"path\", b.get(\"image_path\")) for b in bodies if b.get(\"protocol\") in EFI_PROTOCOLS}",
+   "    image_lines = {b.get(\"image_path\", b.get(\"path\")) for b in bodies if b.get(\"protocol\") in EFI_PROTOCOLS}"
+  ]
+ },
+ {
+  "name": "U1b-empty-path-listed",
+  "clause": "U1 empty path is still a pin (not unverified)",
+  "expect": "killed: EMPTY-PATH if its image line is checked by U1",
+  "sha256": "47d42e3470be95acaa754eeefc1fd8d54f0c117cd6a9f43fd018de015fc27789",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        if parse_uri(kv[2]) is None:\n            unverified.append(img_ln)",
+   "        if parse_uri(kv[2]) is None or parse_uri(kv[2])[\"path\"] == \"\":\n            unverified.append(img_ln)"
+  ]
+ },
+ {
+  "name": "U1c-offbyone-line-index",
+  "clause": "U1 physical line lookup",
+  "expect": "killed: UNVERIFIED-IMAGE (next line is an entry line)",
+  "sha256": "605acb89dcdcd7961c56acf03dd5c88949600f292f044283aa85b8670afa27e6",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        kv = split_key(lines[img_ln - 1])",
+   "        kv = split_key(lines[img_ln])"
+  ]
+ },
+ {
+  "name": "U1d-discard-none-removed",
+  "clause": "U1 image-line set drops None",
+  "expect": "killed by a crash on entries with no image line (ENTRY-SCOPE)",
+  "sha256": "4239a8ec8c35060bb1d400de735d9e0448c918723bf5ae7034c122a9ce3b5609",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    image_lines.discard(None)",
+   "    # image_lines.discard(None) -- mutant"
+  ]
+ },
+ {
+  "name": "R9a-body-last-key-wins",
+  "clause": "R9 first key line of a body wins",
+  "expect": "killed: FIRST-PATH/FIRST-PROTOCOL",
+  "sha256": "0c65bc2eadd65afab264c6613273bd2f996d43bed84d727d7e5dd4ca4be45c40",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        if body is not None and key in (\"protocol\", \"path\", \"image_path\") and key not in body:",
+   "        if body is not None and key in (\"protocol\", \"path\", \"image_path\"):"
+  ]
+ },
+ {
+  "name": "R9b-protocol-set-adds-linux",
+  "clause": "R9 chainload protocols are efi/uefi/efi_chainload",
+  "expect": "killed: NON-EFI-MISSING (linux must be not-modelled)",
+  "sha256": "d78ea035af7f485b695e48d4583145371c8dbe786049e0eccfc4aaffd2c41e77",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "EFI_PROTOCOLS = frozenset({\"efi\", \"uefi\", \"efi_chainload\"})",
+   "EFI_PROTOCOLS = frozenset({\"efi\", \"uefi\", \"efi_chainload\", \"linux\"})"
+  ]
+ },
+ {
+  "name": "R9c-protocol-lower",
+  "clause": "R9 protocol compared with strcmp (case-sensitive)",
+  "expect": "killed: NON-EFI-MISSING (EFI/UEFI case variants)",
+  "sha256": "e74e45e953edbca4d8d75860cacd79dcfc87215dd836512349ce741406540a13",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "if b.get(\"protocol\") in EFI_PROTOCOLS}",
+   "if (b.get(\"protocol\") or \"\").lower() in EFI_PROTOCOLS}"
+  ]
+ },
+ {
+  "name": "R9d-protocol-value-strip",
+  "clause": "R9 protocol value compared with strcmp (trailing blanks matter)",
+  "expect": "killed: EFI-IMAGE-MISSING (protocol with a trailing blank is not efi)",
+  "sha256": "849c5109d45a18f5913e4cedded2a59df8d748725aac61385890282ffc02bb36",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "            body[key] = value if key == \"protocol\" else lineno",
+   "            body[key] = value.strip() if key == \"protocol\" else lineno"
+  ]
+ },
+ {
+  "name": "R6a-missing-any-panics",
+  "clause": "R6 LP-MISSING panics only on an efi image line",
+  "expect": "killed: MISSING/NON-EFI-MISSING/OPTIONAL-MISSING",
+  "sha256": "d48d9f9138b7d01c7793552c5ae821c388839b88a6b99838ce7d2f0c362d4d33",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "            if lineno in image_lines:\n                rec.update(status=\"LP-MISSING\", consequence=\"panic\",",
+   "            if True:\n                rec.update(status=\"LP-MISSING\", consequence=\"panic\","
+  ]
+ },
+ {
+  "name": "R6b-image-missing-not-modelled",
+  "clause": "R6 efi image LP-MISSING panics",
+  "expect": "killed: EFI-IMAGE-MISSING",
+  "sha256": "4f09af0cbd43f41f85808a115f824036320a8f5375cb7c7dc8847b0758a5b8da",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "                rec.update(status=\"LP-MISSING\", consequence=\"panic\",\n                           detail=\"image of an efi chainload entry:",
+   "                rec.update(status=\"LP-MISSING\", consequence=\"not-modelled\",\n                           detail=\"image of an efi chainload entry:"
+  ]
+ },
+ {
+  "name": "R6c-optional-missing-panics",
+  "clause": "R6 optional LP-MISSING is not-modelled",
+  "expect": "killed: OPTIONAL-MISSING (optional must be not-modelled)",
+  "sha256": "22f159ff5e86aa58b13642cf46a04edc8068641fad1d420e083144e2b1e742c9",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "                rec.update(status=\"LP-MISSING\", consequence=\"not-modelled\")",
+   "                rec.update(status=\"LP-MISSING\", consequence=\"skip\" if optional else \"not-modelled\")"
+  ]
+ },
+ {
+  "name": "R7a-rc-bad-resource-not-fault",
+  "clause": "R7 LP-BAD-RESOURCE is DEGRADED rc1",
+  "expect": "killed: BAD-RESOURCE",
+  "sha256": "222cc0238d608126bed1e3155c75013d3d7da055556b69b0e2bd6c33fbe9755c",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "FAULTS = (\"LP-MISMATCH\", \"LP-MISSING\", \"LP-HASH-FORMAT\", \"LP-BAD-RESOURCE\")",
+   "FAULTS = (\"LP-MISMATCH\", \"LP-MISSING\", \"LP-HASH-FORMAT\")"
+  ]
+ },
+ {
+  "name": "R4a-resource-lower",
+  "clause": "R4 resource name compared case-sensitively",
+  "expect": "killed: BAD-RESOURCE/RESOURCE-CASE (BOOT() must be LP-BAD-RESOURCE)",
+  "sha256": "7330dd4d496d0d0328832222888e906b35a85284d98fdd55ef9051d4a3ee2f67",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        if resource not in RESOURCES:",
+   "        if resource.lower() not in RESOURCES:"
+  ]
+ },
+ {
+  "name": "R4b-double-dollar",
+  "clause": "R4 exactly one leading $ dropped",
+  "expect": "killed: DOUBLE-DOLLAR",
+  "sha256": "b0ac3fadeb0fa1de21d03b5120f2856692b2964766636876e3545c95c49731a0",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        resource = uri[\"resource\"][1:] if uri[\"resource\"].startswith(\"$\") else uri[\"resource\"]",
+   "        resource = uri[\"resource\"].lstrip(\"$\")"
+  ]
+ },
+ {
+  "name": "R5a-hash-upper-compare",
+  "clause": "R5 hash compare is case-insensitive",
+  "expect": "killed: HASH-UPPER",
+  "sha256": "896780f399924e6a43f46f6ad04b136f54415aa5f05ab7d16799342ed11dfbb5",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        if got == h.lower():",
+   "        if got == h:"
+  ]
+ },
+ {
+  "name": "R2a-first-hash",
+  "clause": "R2 hash starts after the LAST #",
+  "expect": "killed: LAST-HASH",
+  "sha256": "7d795cc122a4e42fdda1d6b5695f62f64e59b2e22c1cd2bb97efab34f3775e50",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    cut = tail.rfind(\"#\")",
+   "    cut = tail.find(\"#\")"
+  ]
+ },
+ {
+  "name": "R2b-rfind-paren",
+  "clause": "R2 resource ends at the FIRST (",
+  "expect": "killed: PAREN-PATH",
+  "sha256": "01ac3d68e10f8dafdddabc37011a914fe254f70175977ecf31dfc60cb982d52f",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    lp = value.find(\"(\")",
+   "    lp = value.rfind(\"(\")"
+  ]
+ },
+ {
+  "name": "R1a-value-trailing-strip",
+  "clause": "R1 value keeps trailing blanks",
+  "expect": "killed: PANIC-VALUE-BLANKS (reported value must keep trailing blanks)",
+  "sha256": "a1e5518b481791290a7a98832050a41ce6553c71b5541ecbecb95de53609cc77",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    return line[:i].lower(), line[:i], line[i + 1:].lstrip(\" \\t\")",
+   "    return line[:i].lower(), line[:i], line[i + 1:].strip(\" \\t\")"
+  ]
+ },
+ {
+  "name": "R1b-value-no-lstrip",
+  "clause": "R1 value loses leading blanks",
+  "expect": "killed everywhere: every value keeps its leading blank -> LP-BAD-RESOURCE",
+  "sha256": "1cfe5814808ed2e0ec6f3c3fecc2982d11e8e43c48289af24eb840f65e932058",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    return line[:i].lower(), line[:i], line[i + 1:].lstrip(\" \\t\")",
+   "    return line[:i].lower(), line[:i], line[i + 1:]"
+  ]
+ },
+ {
+  "name": "R1c-cr-dropped",
+  "clause": "R1 every CR is removed before the key is read",
+  "expect": "killed: CR-INTERNAL (CR inside key/hash)",
+  "sha256": "1bdc42e5dea3a82714e6f145d1df922a372fc9aa5a3d7a7ac495d6d77e35b01b",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "    line = raw.replace(\"\\r\", \"\").strip(\" \\t\")",
+   "    line = raw.strip(\" \\t\")"
+  ]
+ },
+ {
+  "name": "R8a-empty-entry-label",
+  "clause": "R8 empty cleaned label keeps the previous entry",
+  "expect": "survivor expected: no family writes a bare '/' entry line",
+  "sha256": "7fb78799edbc85afb02ea1bced0a6dcb378b7a21b4771e16365ec867a8cd5611",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "            entry = sanitize(stripped.lstrip(\"/\").lstrip(\"+\").strip()) or entry",
+   "            entry = sanitize(stripped.lstrip(\"/\").lstrip(\"+\").strip())"
+  ]
+ },
+ {
+  "name": "V1m-child-entry-boundary",
+  "clause": "R9/V1 a '//' child line starts a new entry body",
+  "expect": "killed: ENTRY-SCOPE (an indented '//' child body becomes part of the parent)",
+  "sha256": "93cbd3d0cd7074341fcac103340add9a399069a985a8abadc21d75a84113fd4b",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        if stripped.startswith(\"/\"):\n            if first_entry is not None and lineno == first_entry and first_entry != 1:",
+   "        if stripped.startswith(\"/\") and not stripped.startswith(\"//\"):\n            if first_entry is not None and lineno == first_entry and first_entry != 1:"
+  ]
+ },
+ {
+  "name": "V1n-measured-last-wins",
+  "clause": "V1/R10 first visible measured_boot wins",
+  "expect": "survivor expected: no family writes two visible measured_boot keys",
+  "sha256": "ee94177f5f1cce73c2ec4258e2be0fde0085223b58abde2bc942d3dbd84b790d",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        if in_global and key == \"measured_boot\" and measured_setting is None:",
+   "        if in_global and key == \"measured_boot\":"
+  ]
+ },
+ {
+  "name": "U1e-reported-line-offset",
+  "clause": "U1 reports the physical line number",
+  "expect": "killed: UNVERIFIED-IMAGE (reported line is one too high)",
+  "sha256": "f992ef4436e8e1154cb8f6467a892a8eaa48abb6c86abe64b9b3375ad3c1da5b",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "            unverified.append(img_ln)\n    unverified.sort()",
+   "            unverified.append(img_ln + 1)\n    unverified.sort()"
+  ]
+ },
+ {
+  "name": "CONF-a-onpanic-menu",
+  "clause": "unreadable conf: on_panic is null",
+  "expect": "survivor expected: battery skips on_panic when conf is unreadable",
+  "sha256": "c84716e22ff07f325cf3119dcbdd0120a82de66f0b2c2dd088d37c90f2ef7db8",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        return {\"verdict\": \"CANNOT-EVALUATE\", \"rc\": 2, \"pins\": [], \"on_panic\": None,",
+   "        return {\"verdict\": \"CANNOT-EVALUATE\", \"rc\": 2, \"pins\": [], \"on_panic\": \"menu\","
+  ]
+ },
+ {
+  "name": "CONF-b-rc-1",
+  "clause": "unreadable conf: rc 2",
+  "expect": "killed: CONF-UNREADABLE",
+  "sha256": "5b9edf7419ed23488e86c8044b8d6e60339e8000fa3b04dc03153c5311206d0e",
+  "canon_sha256": "62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737",
+  "diff_lines": [
+   "        return {\"verdict\": \"CANNOT-EVALUATE\", \"rc\": 2, \"pins\": [], \"on_panic\": None,",
+   "        return {\"verdict\": \"CANNOT-EVALUATE\", \"rc\": 1, \"pins\": [], \"on_panic\": None,"
+  ]
+ }
+]

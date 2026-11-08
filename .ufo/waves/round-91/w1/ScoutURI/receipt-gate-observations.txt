@@ -1,0 +1,49 @@
+# ScoutURI — gate observations (landed gate) and receipt truncation
+
+gate: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-limine-pins.py
+gate sha256: 62bb06c997fb99a9fd811ec97440eebe2dafa7e63c4f21f43aa0ead9af7da737  (master = 2d7e09e101996cc1ac5836c6d635f3f608453ac5)
+
+## 1. host-shaped conf: an unhashed efi image line whose file IS present in the ESP
+{
+    "findings": [],
+    "hash_mismatch_panic": null,
+    "measured_boot": null,
+    "on_panic": "menu",
+    "pins": [],
+    "rc": 0,
+    "schema": "tsukuroi-limine-pins-v2",
+    "secure_boot_enforced": false,
+    "tpm_present": null,
+    "unverified_image_lines": [
+        3
+    ],
+    "verdict": "HEALTHY"
+}
+exit=0
+
+## 2. no-shape value (no '(' at all) on an efi entry
+  verdict=HEALTHY rc=0 unverified=[3] pins=[]
+
+## 3. hashed efi image line, file ABSENT from the ESP  (h1.conf)
+  verdict=DEGRADED rc=1 unverified=[] pins=[(3, 'LP-MISSING', 'panic')]
+
+## 4. the SAME entry with the hash removed, file still ABSENT  (h2.conf)
+  verdict=HEALTHY rc=0 unverified=[3] pins=[]
+
+## 5. bad resource, unhashed (r1) vs hashed (r2)
+  r1: verdict=HEALTHY rc=0 unverified=[3] pins=[]
+  r2: verdict=DEGRADED rc=1 unverified=[] pins=[(3, 'LP-BAD-RESOURCE', 'panic')]
+
+## 6. host receipt truncation at 140 columns
+  line 30:   printed_len=140 visible_hash= 93  TRUNCATED at 140 cols -> hash status UNKNOWN
+  line 38:   printed_len=140 visible_hash= 89  TRUNCATED at 140 cols -> hash status UNKNOWN
+  line 50:      printed_len=140 visible_hash=  0  TRUNCATED at 140 cols -> hash status UNKNOWN
+  line 56:      printed_len=140 visible_hash=  0  TRUNCATED at 140 cols -> hash status UNKNOWN
+  line 64:      printed_len=140 visible_hash=  0  TRUNCATED at 140 cols -> hash status UNKNOWN
+  line 72  printed_len= 37 visible_hash=  0  COMPLETE (no # anywhere)
+
+## 7. Limine side (compiled from the pinned uri.c), same values
+  boot():/EFI/BOOT/BOOTX64.EFI     => 1|boot||EFI/BOOT/BOOTX64.EFI|NULL
+  /EFI/BOOT/BOOTX64.EFI            => 0||||NULL
+  bogus():/p                       => 1|bogus||p|NULL
+  boot#x():/p                      => 1|boot#x||p|NULL

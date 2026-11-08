@@ -3995,3 +3995,36 @@ considerthese none fits; ScribeLesson mined R89-EMPTY-RUNS-MET.
 **Landing.** C2 entry `limine-tpm-volume-r90` TV1-TV9 (S365-S373), S364 for C1, LP5 erratum with carrier sweep,
 QUALITY 130-131, lesson M1-M2 and routed R90-R1..R4, README r90 frontier, registry row and R90-REG-1, SCORECARD measured
 outcome.
+
+## Round 91 — limine-pins visibility repair (battery r91) and the unverified-image plane (2026-11-08, TsukuroiR91a2 attempt 2)
+
+**Inputs.** Round-90 closure (`rejected-honest-stop`) and
+`corpus/lessons/round-90-verifier-spotcheck.md` routed 1-6; fresh-start
+authorized (`.scratch/run15-20261107-freshstart-authorized`). Attempt 1
+(`TsukuroiR91`) died without a report (`lane-dead-no-report tsukuroi
+round=91` 2026-11-08T00:55:20-03:00); its committed work is inherited
+and reused (freeze `d3b0987`, candidate, measurements `d6f674f8`,
+fixes `45ae6518`, SCORECARD outcome `3d645e2c`, receipts `2d7e09e1`);
+uncommitted wave seats' receipts are the inherited outputs.
+
+**Freeze `d3b0987`.** Battery `tools/limine-pin-battery-r91.py`
+(82 families: r90's 73 + V1 visibility x4 + U1 unverified x5),
+12 controls (K1 r90 gate, K2 adapter, N01-N10 near-misses) x3
+canonical and clone. **Candidate `45ae6518`**: V1 global-section
+scoping, U1 `unverified_image_lines`, S1 sanitize, dead-block removal.
+
+**C1 measured** 82/82 x3 canonical and clone at the landed tip
+(`.ufo/waves/round-91/after/measured/`); narrowed in
+`plans/round-91.md` (F2 oracle-import 80/82, F3 missing-sort 82/82,
+freeze-manifest battery binding NOT established; K2 broken duplicate
+`--tpm-present`, N10 duplicates N01). **C2 exploratory** (depth 8):
+`limine-unverified-image-r91` (S374-S376, uri.c/chainload.c/config.c
+tag `8ad14430…`); upstream v12.9.5/12.9.6 invert V1 first-line
+exception; pending `unprovable-but-better` from the closure.
+
+**Wave w1** (13 seats; attack 4/13 = 31%; connector 1). ReviewSource
+CONFIRMED all V1/U1/R6/R9/R10 clauses; ReviewGate S1 FIXED (`45ae6518`),
+S2 selftest-V1/U1 gap routed. SOURCES 373 → 376 rows (S374-S376).
+Axes: depth8, coverage9, operability9, freshness9, calibration9,
+adjacency8 (unchanged). No capability row enters. No retirement. No
+axis harmed.

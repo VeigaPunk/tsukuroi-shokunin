@@ -1,5 +1,9 @@
 # Limine v12.9.4 — unverified image lines on efi chainload entries
 
+source: S374 (Limine v12.9.4 `common/lib/uri.c`), S375 (Limine v12.9.4 `common/protos/chainload.c`), S376 (Limine v12.9.4 `common/lib/config.c`), all tag `8ad14430bc9f2c24679cda558981ef53e6e3b18c`; S374-S376 `mined`
+recheck: re-open the pinned files on any `limine` package update (cadence on-release); re-run the read-only host receipt commands after every boot that follows a firmware Secure Boot setting change or an ESP change (event trigger), else 30d
+verified-at: 2026-11-08
+
 Round 91 C2 (exploratory, depth axis). Sources S374 (uri.c), S375 (chainload.c),
 S376 (config.c), all Limine v12.9.4 tag `8ad14430bc9f2c24679cda558981ef53e6e3b18c`.
 
@@ -12,8 +16,11 @@ when `PATH` is absent — chainload.c 414-421) whose value is **not a pin URI**
 is never in the list.
 
 `uri_resolve` (uri.c 32-107) returns `false` with **no `URI_ERROR` message** for a
-value with no `(`, no `):/`, or no `#` after `):/` — the "silent no-shape fail"
-(uri.c 46-70, 77-106). `uri_open` returns NULL (uri.c 335-337), and `chainload`
+value with no `(`, no `):/`, or an empty path — the "silent no-shape fail"
+(uri.c 46-75). A value with no `#` after `):/` is **not** a resolve failure: the
+hash loop (uri.c 77-104) finds no `#` and falls through to `return true`
+(uri.c 106) with `*hash == NULL` — see the unhashed-but-shaped case below.
+`uri_open` returns NULL (uri.c 335-337) on a resolve failure, and `chainload`
 panics `"efi: Failed to open image"` (chainload.c 430-435).
 
 ## The unhashed-but-shaped case (host line 72)

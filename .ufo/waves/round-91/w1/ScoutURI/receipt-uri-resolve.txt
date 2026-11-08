@@ -1,0 +1,32 @@
+# ScoutURI receipts — C2 URI-resolution half, round 91 w1
+
+## 1. Pinned snapshot vs upstream raw URL vs tag clone (sha256)
+e06cac1212fec55150c109843e22dfe01cd618d4e81235e357d9a256e2a2ed6f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-91/after/src-c2/limine-v12.9.4-common_lib_uri.c
+e06cac1212fec55150c109843e22dfe01cd618d4e81235e357d9a256e2a2ed6f  /tmp/uri_upstream.c
+e06cac1212fec55150c109843e22dfe01cd618d4e81235e357d9a256e2a2ed6f  /fast/scratch/hyaku/tsukuroi-r91/ScoutURI/limine/common/lib/uri.c
+clone HEAD: 8ad14430bc9f2c24679cda558981ef53e6e3b18c  describe: v12.9.4
+diff pinned vs clone: IDENTICAL
+
+## 2. uri_resolve compiled from the pinned snapshot (upstream noreturn-panic semantics)
+L72 host value           ret=true  res=[boot] root=[] path=[EFI/BOOT/BOOTX64.EFI] hash=(null)
+good 128-hex             ret=true  res=[boot] root=[] path=[EFI/a.efi] hash=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+no '('                   ret=FALSE
+no '):/'                 ret=FALSE
+'boot():' only           ret=FALSE
+'boot():/' empty p       ret=FALSE
+empty path + hash        ret=true  res=[boot] root=[] path=[] hash=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+PANIC(Blake2b hash must be 128 characters long)
+EXIT=7 (noreturn panic: the harness exits 7 at the first URI_ERROR)
+
+## 3. uri_resolve compiled from the pinned snapshot (URI_ERROR demoted to print-only)
+no-hash (host L72)         ret=true  res=[boot] root=[] path=[EFI/BOOT/BOOTX64.EFI] hash=(null)
+good 128-hex               ret=true  res=[boot] root=[] path=[EFI/a.efi] hash=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+no '('                     ret=FALSE
+no '):/'                   ret=FALSE
+root-only 'boot():'        ret=FALSE
+empty path + hash          ret=true  res=[boot] root=[] path=[] hash=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+ERR Blake2b hash must be 128 characters long\n3-hex hash                 ret=FALSE
+129-hex hash               ret=true  res=[boot] root=[] path=[EFI/a.efi] hash=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+ERR Blake2b hash must be 128 characters long\nhash w/ non-hex z          ret=FALSE
+empty resource '():/'      ret=true  res=[] root=[] path=[EFI/BOOT/BOOTX64.EFI] hash=(null)
+empty string               ret=FALSE

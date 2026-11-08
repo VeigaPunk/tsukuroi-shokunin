@@ -1,0 +1,96 @@
+# harness output — upstream Limine config.c bytes compiled verbatim
+# built 2026-11-08T00:15:46-03:00
+
+## harness2 (v12.9.4 vs v12.9.6, upstream file raw 298-407 included verbatim)
+== N: no entry line at all ==
+v12.9.4  hash_mismatch_panic=no       measured_boot=yes      visible=[hash_mismatch_panic: no
+measured_boot: yes
+
+]
+v12.9.6(verbatim upstream file)  hash_mismatch_panic=no       measured_boot=yes      visible=[hash_mismatch_panic: no
+measured_boot: yes
+
+]
+== E: entry-first, no global keys at all ==
+v12.9.4  hash_mismatch_panic=(null)   measured_boot=(null)   visible=[/Shell
+protocol: efi
+
+]
+v12.9.6(verbatim upstream file)  hash_mismatch_panic=(null)   measured_boot=(null)   visible=[/Shell]
+== A: global panic BEFORE first entry ==
+v12.9.4  hash_mismatch_panic=no       measured_boot=(null)   visible=[hash_mismatch_panic: no]
+v12.9.6(verbatim upstream file)  hash_mismatch_panic=no       measured_boot=(null)   visible=[hash_mismatch_panic: no]
+== B: global panic AFTER first entry, first line is entry ==
+v12.9.4  hash_mismatch_panic=no       measured_boot=(null)   visible=[/Shell
+protocol: efi
+path: boot():/x#abc
+hash_mismatch_panic: no
+
+]
+v12.9.6(verbatim upstream file)  hash_mismatch_panic=(null)   measured_boot=(null)   visible=[/Shell]
+== D: measured_boot AFTER first entry, first line is entry ==
+v12.9.4  hash_mismatch_panic=(null)   measured_boot=yes      visible=[/Shell
+protocol: efi
+measured_boot: yes
+
+]
+v12.9.6(verbatim upstream file)  hash_mismatch_panic=(null)   measured_boot=(null)   visible=[/Shell]
+
+## harness3 (v12.9.4 vs v12.9.5, upstream file raw 298-407 included verbatim)
+== N: no entry line at all ==
+v12.9.4  hash_mismatch_panic=no       measured_boot=yes      visible=[hash_mismatch_panic: no
+measured_boot: yes
+
+]
+v12.9.5(verbatim upstream file)  hash_mismatch_panic=no       measured_boot=yes      visible=[hash_mismatch_panic: no
+measured_boot: yes
+
+]
+== E: entry-first, no global keys at all ==
+v12.9.4  hash_mismatch_panic=(null)   measured_boot=(null)   visible=[/Shell
+protocol: efi
+
+]
+v12.9.5(verbatim upstream file)  hash_mismatch_panic=(null)   measured_boot=(null)   visible=[/Shell]
+== A: global panic BEFORE first entry ==
+v12.9.4  hash_mismatch_panic=no       measured_boot=(null)   visible=[hash_mismatch_panic: no]
+v12.9.5(verbatim upstream file)  hash_mismatch_panic=no       measured_boot=(null)   visible=[hash_mismatch_panic: no]
+== B: global panic AFTER first entry, first line is entry ==
+v12.9.4  hash_mismatch_panic=no       measured_boot=(null)   visible=[/Shell
+protocol: efi
+path: boot():/x#abc
+hash_mismatch_panic: no
+
+]
+v12.9.5(verbatim upstream file)  hash_mismatch_panic=(null)   measured_boot=(null)   visible=[/Shell]
+== D: measured_boot AFTER first entry, first line is entry ==
+v12.9.4  hash_mismatch_panic=(null)   measured_boot=yes      visible=[/Shell
+protocol: efi
+measured_boot: yes
+
+]
+v12.9.5(verbatim upstream file)  hash_mismatch_panic=(null)   measured_boot=(null)   visible=[/Shell]
+
+## harness (strip-loop equivalence 12.9.4 raw 527-552 vs 12.9.6 raw 551-580)
+=== R1 strip-loop equivalence (12.9.4 raw 527-552 vs 12.9.6 raw 551-580) ===
+plain                              94=[key: value\n\n] 96=[key: value\n\n]  same
+CR at EOL                          94=[key: value\n\n] 96=[key: value\n\n]  same
+CR internal                        94=[key: value\n\n] 96=[key: value\n\n]  same
+CR then blanks                     94=[key: value\n\n] 96=[key: value\n\n]  same
+CR then newline then blanks        94=[key: value\nnext\n\n] 96=[key: value\nnext\n\n]  same
+leading blanks                     94=[key: value\n\n] 96=[key: value\n\n]  same
+trailing blanks                    94=[key: value\n\n] 96=[key: value\n\n]  same
+both                               94=[key: value\n\n] 96=[key: value\n\n]  same
+blank-only line                    94=[a\n\nb\n\n] 96=[a\n\nb\n\n]  same
+tab blank                          94=[key:\tvalue\n\n] 96=[key:\tvalue\n\n]  same
+vertical tab trailing              94=[key: value\n\n] 96=[key: value\n\n]  same
+formfeed trailing                  94=[key: value\n\n] 96=[key: value\n\n]  same
+no trailing newline                94=[key: value\n] 96=[key: value\n]  same
+CR only line                       94=[a\nb\n\n] 96=[a\nb\n\n]  same
+multiple CR                        94=[a\nb\n\n] 96=[a\nb\n\n]  same
+CR then blank line                 94=[a\n\nb\n\n] 96=[a\n\nb\n\n]  same
+blank then CR                      94=[a\nb\n\n] 96=[a\nb\n\n]  same
+entry slash line                   94=[/Entry\nprotocol: efi\n\n] 96=[/Entry\nprotocol: efi\n\n]  same
+hash at end                        94=[path: boot():/x#abc\n\n] 96=[path: boot():/x#abc\n\n]  same
+---- A: global panic BEFORE first entry (r91 V1 normal case)
+v12.9.4  hash_mismatch_panic=no       measured_boot=(null)   visible=[hash_mismatch_panic: no]

@@ -1,0 +1,22 @@
+{
+ "claims": {
+  "C1": {
+   "predicate": "tools/check-limine-pins.py --conf FILE --esp DIR [--secure-boot-enforced 0|1] [--tpm-present 0|1] reads hash_mismatch_panic and measured_boot only from the global section of the conf (every physical line before the first line whose first non-blank character is /), unless that first line is itself an entry line, in which case the whole file stays visible; for each of the 82 families of the r91 battery on fixtures generated fresh per run, every case returns exactly the expected (rc, verdict, sorted per-pin (line, status, consequence), on_panic, unverified_image_lines) within 20 s.",
+   "target": "82/82 families (verdict met, rc 0) in each of three consecutive runs at the landed lane tip, in the canonical lane and in a clean git clone --shared",
+   "kill": "unmet if any of the three runs reads below 82/82; void if the battery bytes or the freeze manifest differ from .ufo/waves/round-91/before/freeze-manifest.sha256 at scoring time",
+   "counting": "python3 tools/limine-pin-battery-r91.py --gate tools/check-limine-pins.py --runs 3 (canonical) and the same over a git clone --shared at the landed tip",
+   "axis": "operability",
+   "score": 9,
+   "kind": "measured"
+  },
+  "C2": {
+   "predicate": "entry corpus/knowledge/limine-unverified-image-r91.md (+ .json) holds sourced, host-measured rows on ground no entry holds: what Limine v12.9.4 does with an efi entry's path:/image_path: value that has no URI shape at all (no ( or no ):/ \u2014 uri_resolve returns false without a message, uri.c 46-63) and with an unhashed value under Secure Boot vs not, and what the gate should report for them (the unverified_image_lines field)",
+   "target": "named non-author unprovable-but-better with reasons (the hyaku closure; a wave seat is the lane)",
+   "kill": "lands unprovable without that judgment",
+   "counting": "none",
+   "axis": "depth",
+   "score": 8,
+   "kind": "exploratory"
+  }
+ }
+}

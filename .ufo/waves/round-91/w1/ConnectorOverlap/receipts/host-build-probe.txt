@@ -1,0 +1,51 @@
+# ConnectorOverlap — receipt: host-build patch-offset probe (limine plane)
+# date: 2026-11-08T00:28:38-03:00   host: Linux 7.2.11-arch1-1
+
+== 1. installed package identity ==
+$ pacman -Q limine
+limine 12.9.4-1
+$ cat /var/lib/pacman/local/limine-12.9.4-1/desc | grep -E 'VERSION|BUILDDATE|PACKAGER'
+%VERSION%
+%BUILDDATE%
+%PACKAGER%
+
+== 2. installed package's OWN recorded build-recipe digest (.BUILDINFO) ==
+$ bsdtar -xOf /var/cache/pacman/pkg/limine-12.9.4-1-x86_64.pkg.tar.zst .BUILDINFO | grep pkgbuild_sha256sum
+pkgver = 12.9.4-1
+pkgbuild_sha256sum = 1fd1cc4265b91ed6efb17b8c8423152533cc76b010b4037b809c259a36840926
+builddate = 1792481650
+
+== 3. Arch packaging repo: PKGBUILD at the commit that produced 12.9.4-1 ==
+$ curl -sSL https://gitlab.archlinux.org/archlinux/packaging/packages/limine/-/raw/9883569bd4255fc19cd093b5776546a676a66a6a/PKGBUILD | sha256sum
+1fd1cc4265b91ed6efb17b8c8423152533cc76b010b4037b809c259a36840926  PKGBUILD-12.9.4-1
+   (commit 9883569b = 'upgpkg: 12.9.4-1: New upstream release', 2026-10-20T09:35:02+02:00)
+   compare with .BUILDINFO pkgbuild_sha256sum above -> digest MATCH means the installed
+   package was built from EXACTLY this PKGBUILD, with no local edit.
+
+== 4. does that PKGBUILD patch the Limine sources? ==
+$ grep -n -e patch -e prepare -e 'sed' PKGBUILD-12.9.4-1
+20:prepare() {
+   -> prepare() runs ./bootstrap only; no patch()/sed on any source file.
+
+== 5. what does upstream's bootstrap write into common/ ? (v12.9.4) ==
+$ grep -n -e '^ *cp ' -e '^ *patch' -e 'common/' bootstrap
+30:            rm -rf "$2"
+42:            rm -rf "$2"
+58:    cp freestanding-lgrt/src/freestanding-lgrt.c common/freestanding-lgrt.s2.c
+64:    cp pdgzip/pdgzip.c common/compress/pdgzip.c
+65:    cp pdgzip/pdgzip.h common/compress/pdgzip.h
+86:    cp stbi-hardened/include/stb_image.h common/lib/stb_image.h
+87:    patch -p0 < common/stb_image.patch
+88:    rm -f common/lib/stb_image.h.orig
+114:    rm -f build-aux/$auxfile
+130:    cp "$AUTOMAKE_LIBDIR/$auxfile" build-aux/
+   -> writes: common/freestanding-lgrt.s2.c, common/compress/pdgzip.{c,h},
+      common/lib/stb_image.h (+ stb_image.patch on that one header).
+      NONE of uri.c / chainload.c / config.c is copied, patched or rewritten.
+
+== 6. independent check: installed doc vs upstream tag ==
+$ sha256sum /usr/share/doc/limine/CONFIG.md   (installed by the package)
+c9e8b670d20d839add4f651f8c49e9565302b132f9f86269acbc7cd1e0358923  /usr/share/doc/limine/CONFIG.md
+$ sha256sum CONFIG-upstream-v12.9.4.md        (raw.githubusercontent tag v12.9.4)
+c9e8b670d20d839add4f651f8c49e9565302b132f9f86269acbc7cd1e0358923  CONFIG-upstream-v12.9.4.md
+   -> BYTE-IDENTICAL to upstream v12.9.4

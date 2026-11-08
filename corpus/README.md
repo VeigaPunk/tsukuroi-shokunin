@@ -1034,3 +1034,19 @@ r89 frontier bullets "Held-out clauses" (except containment and the empty label)
 - Battery roster gaps (R90-R3): IMAGE-PATH-NOT-PIN, BLANK-IN-BODY, MEASURED-NON-YES (`w1/CriticForgers.md` G1-G3);
   R8 text versus the battery oracle for a bare `/` line and `\v` label ends (`w1/ReviewGate.md` F2).
 - Still open from r89: blanks before `\r\n` (R89-R2), ESP containment and empty labels (R89-R4).
+
+### Frontier (round-91 addition)
+
+- Visibility (V1): global-section scoping is live in the gate
+  (`tools/check-limine-pins.py` `in_global`, config.c 642-650); battery
+  82/82 met x3 canonical + clone at the landed tip. Claims narrowed
+  (`plans/round-91.md`): F3 missing-sort blindness, F2 oracle-import
+  discrimination and freeze-manifest battery binding are NOT established.
+- Unverified image lines (U1): `unverified_image_lines` covers the
+  silent no-shape fail (uri.c 46-75) and the unhashed-but-shaped case
+  (SB bypass, chainload.c 423-427); entry
+  `knowledge/limine-unverified-image-r91.md` (S374-S376); upstream
+  v12.9.5/12.9.6 invert the V1 first-line exception (`w1/ScoutDrift.md`).
+- Open: K2 broken (`--tpm-present` duplicate), N10 duplicates N01,
+  selftest lacks V1/U1 coverage, r89 frontier (blanks before CR-LF,
+  ESP containment, empty labels) still open.

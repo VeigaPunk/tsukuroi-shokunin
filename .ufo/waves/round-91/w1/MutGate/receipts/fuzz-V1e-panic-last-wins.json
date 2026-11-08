@@ -1,0 +1,301 @@
+{
+ "mutant": "V1e-panic-last-wins",
+ "cases": 10,
+ "divergences": 3,
+ "examples": [
+  {
+   "i": 1,
+   "conf": "\nhash_mismatch_panic: no\nhash_mismatch_panic: no\n    / e\n    protocol: efi_chainload\n      path: boot():/EFI/Linux/dg1f21.efi#295be6dfb20d1cd421411cabb50c3e6d317bdf989be15049d569b2e5c80b0ed0d7fb729213d1eac0f8bc830dbb01cc4a843bdf12279e2d94afc788c130608ca6\n  /ezy\n  protocol: linux\n    module_path: bootx():/EFI/Linux/a0ad0c.efi#5fa30e3d58d75b7d185d98046f64c98f816dfb2305f159564c5040df2133b1d0eed6c13a98f37ab4d14d237f86aad43188732b2a1d5849f0d64831b06b643606\n    path: EFI/Linux/1he2ed.efi\n    module_path: EFI/Linux/2b21gd.efi\n/+yb\nprotocol: efi\n",
+   "sb": null,
+   "tpm": "1",
+   "pristine": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 2,
+     "value": "no"
+    },
+    "measured_boot": null,
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "blake2b": "295be6dfb20d1cd421411cabb50c3e6d317bdf989be15049d569b2e5c80b0ed0d7fb729213d1eac0f8bc830dbb01cc4a843bdf12279e2d94afc788c130608ca6",
+      "consequence": "none",
+      "entry": "e",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-n5khykyh/c1/esp/EFI/Linux/dg1f21.efi",
+      "key": "path",
+      "line": 6,
+      "status": "OK",
+      "uri": "boot():/EFI/Linux/dg1f21.efi#295be6dfb20d1cd421411cabb50c3e6d317bdf989be15049d569b2e5c80b0ed0d7fb729213d1eac0f8bc830dbb01cc4a843bdf12279e2d94afc788c130608ca6"
+     },
+     {
+      "consequence": "panic",
+      "detail": "resource `bootx` is not valid (uri.c 364)",
+      "entry": "ezy",
+      "key": "module_path",
+      "line": 9,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "bootx():/EFI/Linux/a0ad0c.efi#5fa30e3d58d75b7d185d98046f64c98f816dfb2305f159564c5040df2133b1d0eed6c13a98f37ab4d14d237f86aad43188732b2a1d5849f0d64831b06b643606"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 9"
+    ]
+   },
+   "mutant": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 3,
+     "value": "no"
+    },
+    "measured_boot": null,
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "blake2b": "295be6dfb20d1cd421411cabb50c3e6d317bdf989be15049d569b2e5c80b0ed0d7fb729213d1eac0f8bc830dbb01cc4a843bdf12279e2d94afc788c130608ca6",
+      "consequence": "none",
+      "entry": "e",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-n5khykyh/c1/esp/EFI/Linux/dg1f21.efi",
+      "key": "path",
+      "line": 6,
+      "status": "OK",
+      "uri": "boot():/EFI/Linux/dg1f21.efi#295be6dfb20d1cd421411cabb50c3e6d317bdf989be15049d569b2e5c80b0ed0d7fb729213d1eac0f8bc830dbb01cc4a843bdf12279e2d94afc788c130608ca6"
+     },
+     {
+      "consequence": "panic",
+      "detail": "resource `bootx` is not valid (uri.c 364)",
+      "entry": "ezy",
+      "key": "module_path",
+      "line": 9,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "bootx():/EFI/Linux/a0ad0c.efi#5fa30e3d58d75b7d185d98046f64c98f816dfb2305f159564c5040df2133b1d0eed6c13a98f37ab4d14d237f86aad43188732b2a1d5849f0d64831b06b643606"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 9"
+    ]
+   }
+  },
+  {
+   "i": 2,
+   "conf": "backdrop: 1a1b26\nbackdrop: 1a1b26\nbackdrop: 1a1b26\nhash_mismatch_panic: yes\nhash_mismatch_panic: yes\nmeasured_boot: yes\n    /+ezba\n    protocol: linux\n/ eab\nprotocol: efi \n  module_path: boot():/EFI/Linux/gef222.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\n  global_dtb: guid(12):/EFI/Linux/3cddbg.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\n  path: hdd():/EFI/Linux/hhabbb.efi#50aab18f5bbbad8c7d47a41d30da3d73b79bc322bd37c8861f4347512632f1c3445b551965b11c59d24fdbde108a4c51c5f2f2b1bd37a06f618e037fb0c0abe7\n  cmdline: quiet\n/e\nprotocol: efi \n  image_path: bootx():/EFI/Linux/dga0fb.efi#903698e0f8fdcfa46b95bd7fd4d6a2ac7f13e63efcf9aeb3dd884e4f5ec89fba8151a90ea0016a7862297180d49202d7aa213bd2a5dc5df64cc717abf9b9fcbf\n  cmdline: quiet\n",
+   "sb": "1",
+   "tpm": "0",
+   "pristine": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 4,
+     "value": "yes"
+    },
+    "measured_boot": {
+     "line": 6,
+     "value": "yes"
+    },
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "eab",
+      "key": "module_path",
+      "line": 11,
+      "status": "LP-HASH-FORMAT",
+      "uri": "boot():/EFI/Linux/gef222.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     },
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "eab",
+      "key": "global_dtb",
+      "line": 12,
+      "status": "LP-HASH-FORMAT",
+      "uri": "guid(12):/EFI/Linux/3cddbg.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     },
+     {
+      "consequence": "not-modelled",
+      "detail": "resource hdd() is not the boot partition",
+      "entry": "eab",
+      "key": "path",
+      "line": 13,
+      "status": "LP-UNRESOLVED",
+      "uri": "hdd():/EFI/Linux/hhabbb.efi#50aab18f5bbbad8c7d47a41d30da3d73b79bc322bd37c8861f4347512632f1c3445b551965b11c59d24fdbde108a4c51c5f2f2b1bd37a06f618e037fb0c0abe7"
+     },
+     {
+      "consequence": "panic",
+      "detail": "resource `bootx` is not valid (uri.c 364)",
+      "entry": "e",
+      "key": "image_path",
+      "line": 17,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "bootx():/EFI/Linux/dga0fb.efi#903698e0f8fdcfa46b95bd7fd4d6a2ac7f13e63efcf9aeb3dd884e4f5ec89fba8151a90ea0016a7862297180d49202d7aa213bd2a5dc5df64cc717abf9b9fcbf"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 17",
+     "LP-HASH-FORMAT line 11",
+     "LP-HASH-FORMAT line 12",
+     "LP-UNRESOLVED line 13"
+    ]
+   },
+   "mutant": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 5,
+     "value": "yes"
+    },
+    "measured_boot": {
+     "line": 6,
+     "value": "yes"
+    },
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "eab",
+      "key": "module_path",
+      "line": 11,
+      "status": "LP-HASH-FORMAT",
+      "uri": "boot():/EFI/Linux/gef222.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     },
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "eab",
+      "key": "global_dtb",
+      "line": 12,
+      "status": "LP-HASH-FORMAT",
+      "uri": "guid(12):/EFI/Linux/3cddbg.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     },
+     {
+      "consequence": "not-modelled",
+      "detail": "resource hdd() is not the boot partition",
+      "entry": "eab",
+      "key": "path",
+      "line": 13,
+      "status": "LP-UNRESOLVED",
+      "uri": "hdd():/EFI/Linux/hhabbb.efi#50aab18f5bbbad8c7d47a41d30da3d73b79bc322bd37c8861f4347512632f1c3445b551965b11c59d24fdbde108a4c51c5f2f2b1bd37a06f618e037fb0c0abe7"
+     },
+     {
+      "consequence": "panic",
+      "detail": "resource `bootx` is not valid (uri.c 364)",
+      "entry": "e",
+      "key": "image_path",
+      "line": 17,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "bootx():/EFI/Linux/dga0fb.efi#903698e0f8fdcfa46b95bd7fd4d6a2ac7f13e63efcf9aeb3dd884e4f5ec89fba8151a90ea0016a7862297180d49202d7aa213bd2a5dc5df64cc717abf9b9fcbf"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 17",
+     "LP-HASH-FORMAT line 11",
+     "LP-HASH-FORMAT line 12",
+     "LP-UNRESOLVED line 13"
+    ]
+   }
+  },
+  {
+   "i": 9,
+   "conf": "# c\nhash_mismatch_panic: yes\nhash_mismatch_panic: no\n/yxyz\nprotocol: EFI\n  path: EFI/Linux/b3gh0a.efi\n  path: bootx():/EFI/Linux/gc0a1a.efi#a7adb96b7da0f7f139c00f9a8f4f35cf62372d325302811ab5894ef256d0a2208d2577b6a0be7788dd6731fb6fcb3697c4bbeb5c2293b82b004b8ae31e370f7e\n/\nprotocol: uefi\n  path: boot():/EFI/Linux/ha2h0h.efi#b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9\n  wallpaper: EFI/Linux/20ed1b.efi\n  term_font: bootx():/EFI/Linux/c03aah.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\n  cmdline: quiet\n",
+   "sb": "0",
+   "tpm": null,
+   "pristine": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 2,
+     "value": "yes"
+    },
+    "measured_boot": null,
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "consequence": "panic",
+      "detail": "resource `bootx` is not valid (uri.c 364)",
+      "entry": "yxyz",
+      "key": "path",
+      "line": 7,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "bootx():/EFI/Linux/gc0a1a.efi#a7adb96b7da0f7f139c00f9a8f4f35cf62372d325302811ab5894ef256d0a2208d2577b6a0be7788dd6731fb6fcb3697c4bbeb5c2293b82b004b8ae31e370f7e"
+     },
+     {
+      "blake2b": "b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9",
+      "consequence": "none",
+      "entry": "yxyz",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-n5khykyh/c9/esp/EFI/Linux/ha2h0h.efi",
+      "key": "path",
+      "line": 10,
+      "status": "OK",
+      "uri": "boot():/EFI/Linux/ha2h0h.efi#b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9"
+     },
+     {
+      "consequence": "skip",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "yxyz",
+      "key": "term_font",
+      "line": 12,
+      "status": "LP-HASH-FORMAT",
+      "uri": "bootx():/EFI/Linux/c03aah.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 7",
+     "LP-HASH-FORMAT line 12"
+    ]
+   },
+   "mutant": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 3,
+     "value": "no"
+    },
+    "measured_boot": null,
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "consequence": "panic",
+      "detail": "resource `bootx` is not valid (uri.c 364)",
+      "entry": "yxyz",
+      "key": "path",
+      "line": 7,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "bootx():/EFI/Linux/gc0a1a.efi#a7adb96b7da0f7f139c00f9a8f4f35cf62372d325302811ab5894ef256d0a2208d2577b6a0be7788dd6731fb6fcb3697c4bbeb5c2293b82b004b8ae31e370f7e"
+     },
+     {
+      "blake2b": "b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9",
+      "consequence": "none",
+      "entry": "yxyz",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-n5khykyh/c9/esp/EFI/Linux/ha2h0h.efi",
+      "key": "path",
+      "line": 10,
+      "status": "OK",
+      "uri": "boot():/EFI/Linux/ha2h0h.efi#b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9"
+     },
+     {
+      "consequence": "skip",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "yxyz",
+      "key": "term_font",
+      "line": 12,
+      "status": "LP-HASH-FORMAT",
+      "uri": "bootx():/EFI/Linux/c03aah.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 7",
+     "LP-HASH-FORMAT line 12"
+    ]
+   }
+  }
+ ]
+}

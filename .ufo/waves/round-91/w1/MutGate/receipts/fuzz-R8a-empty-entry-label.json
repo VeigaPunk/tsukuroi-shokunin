@@ -1,0 +1,363 @@
+{
+ "mutant": "R8a-empty-entry-label",
+ "cases": 10,
+ "divergences": 3,
+ "examples": [
+  {
+   "i": 4,
+   "conf": "measured_boot: yes \n/eyz\nprotocol: uefi\n  path: $boot():/EFI/Linux/hce31a.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\n  global_dtb: guid(12):/EFI/Linux/dhcddc.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\n  //child\n    path: guid(12):/EFI/Linux/1ed3d2.efi#b108e8d8fc7941d8732a5eb94d6d48c95c909b804b21f90c309098aff5362792b75f094c1a94e005081827a929730b757f27812241f0a8bbc8522a12450731dc\n/ eaycx\nprotocol: linux\n  term_font: boot():/EFI/Linux/ga0df2.efi\n  global_dtb: $$boot():/EFI/Linux/01chdg.efi#88BCA730E4328292DBC37E69136D0BC0AC04355DB62F8567DED55547BCC0229FE21B49F55C9C4E9C7D2E56844D43AD970E61F9584A555961BAA3F378167B59B6\n  path: boot():/EFI/Linux/33gde0.efi\n/\nprotocol: efi \n  kernel_path: boot():/EFI/Linux/b0bed1.efi#87c32b50307fec3164a4635e248a3b99e86ddaf896fdc46c8d63a90a19e95bcb165802efd081d7d845c947fb182f6db11d0695bb75300d97da744ec04772fadb\n",
+   "sb": "0",
+   "tpm": "0",
+   "pristine": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": null,
+    "measured_boot": {
+     "line": 1,
+     "value": "yes"
+    },
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "eyz",
+      "key": "path",
+      "line": 4,
+      "status": "LP-HASH-FORMAT",
+      "uri": "$boot():/EFI/Linux/hce31a.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     },
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "eyz",
+      "key": "global_dtb",
+      "line": 5,
+      "status": "LP-HASH-FORMAT",
+      "uri": "guid(12):/EFI/Linux/dhcddc.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     },
+     {
+      "consequence": "not-modelled",
+      "detail": "resource guid(12) is not the boot partition",
+      "entry": "child",
+      "key": "path",
+      "line": 7,
+      "status": "LP-UNRESOLVED",
+      "uri": "guid(12):/EFI/Linux/1ed3d2.efi#b108e8d8fc7941d8732a5eb94d6d48c95c909b804b21f90c309098aff5362792b75f094c1a94e005081827a929730b757f27812241f0a8bbc8522a12450731dc"
+     },
+     {
+      "consequence": "panic",
+      "detail": "resource `$boot` is not valid (uri.c 364)",
+      "entry": "eaycx",
+      "key": "global_dtb",
+      "line": 11,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "$$boot():/EFI/Linux/01chdg.efi#88BCA730E4328292DBC37E69136D0BC0AC04355DB62F8567DED55547BCC0229FE21B49F55C9C4E9C7D2E56844D43AD970E61F9584A555961BAA3F378167B59B6"
+     },
+     {
+      "blake2b": "87c32b50307fec3164a4635e248a3b99e86ddaf896fdc46c8d63a90a19e95bcb165802efd081d7d845c947fb182f6db11d0695bb75300d97da744ec04772fadb",
+      "consequence": "none",
+      "entry": "eaycx",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c4/esp/EFI/Linux/b0bed1.efi",
+      "key": "kernel_path",
+      "line": 15,
+      "status": "OK",
+      "uri": "boot():/EFI/Linux/b0bed1.efi#87c32b50307fec3164a4635e248a3b99e86ddaf896fdc46c8d63a90a19e95bcb165802efd081d7d845c947fb182f6db11d0695bb75300d97da744ec04772fadb"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 11",
+     "LP-HASH-FORMAT line 4",
+     "LP-HASH-FORMAT line 5",
+     "LP-UNRESOLVED line 7"
+    ]
+   },
+   "mutant": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": null,
+    "measured_boot": {
+     "line": 1,
+     "value": "yes"
+    },
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "eyz",
+      "key": "path",
+      "line": 4,
+      "status": "LP-HASH-FORMAT",
+      "uri": "$boot():/EFI/Linux/hce31a.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     },
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "eyz",
+      "key": "global_dtb",
+      "line": 5,
+      "status": "LP-HASH-FORMAT",
+      "uri": "guid(12):/EFI/Linux/dhcddc.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     },
+     {
+      "consequence": "not-modelled",
+      "detail": "resource guid(12) is not the boot partition",
+      "entry": "child",
+      "key": "path",
+      "line": 7,
+      "status": "LP-UNRESOLVED",
+      "uri": "guid(12):/EFI/Linux/1ed3d2.efi#b108e8d8fc7941d8732a5eb94d6d48c95c909b804b21f90c309098aff5362792b75f094c1a94e005081827a929730b757f27812241f0a8bbc8522a12450731dc"
+     },
+     {
+      "consequence": "panic",
+      "detail": "resource `$boot` is not valid (uri.c 364)",
+      "entry": "eaycx",
+      "key": "global_dtb",
+      "line": 11,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "$$boot():/EFI/Linux/01chdg.efi#88BCA730E4328292DBC37E69136D0BC0AC04355DB62F8567DED55547BCC0229FE21B49F55C9C4E9C7D2E56844D43AD970E61F9584A555961BAA3F378167B59B6"
+     },
+     {
+      "blake2b": "87c32b50307fec3164a4635e248a3b99e86ddaf896fdc46c8d63a90a19e95bcb165802efd081d7d845c947fb182f6db11d0695bb75300d97da744ec04772fadb",
+      "consequence": "none",
+      "entry": "",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c4/esp/EFI/Linux/b0bed1.efi",
+      "key": "kernel_path",
+      "line": 15,
+      "status": "OK",
+      "uri": "boot():/EFI/Linux/b0bed1.efi#87c32b50307fec3164a4635e248a3b99e86ddaf896fdc46c8d63a90a19e95bcb165802efd081d7d845c947fb182f6db11d0695bb75300d97da744ec04772fadb"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 11",
+     "LP-HASH-FORMAT line 4",
+     "LP-HASH-FORMAT line 5",
+     "LP-UNRESOLVED line 7"
+    ]
+   }
+  },
+  {
+   "i": 5,
+   "conf": "timeout: 0\nbackdrop: 1a1b26\n# c\nhash_mismatch_panic: nope\nmeasured_boot: Yes\n/\nprotocol: efi_boot_entry\n  term_font: boot():/EFI/Linux/1gd1e1.efi#6032e2d702dc4bff4357e9b4b6622a6111e1210ecc8eb09e2d3ecaed501fda51dd2af50f229e56293d28c15cc961609a4ccb7b7e82045547b171b6c3537dbc54\n  kernel_path: boot():/EFI/Linux/gcf2g0.efi#e44b0be2b782eebddca0c845786019e09935a1e850b8f649d3c6e8de77c2c1560b94683a74d5e505b2b6f2434ee06aafcb4d1c8d108d4a4fdfcc8e3f332aed15\n  cmdline: quiet\n  //child\n    path: boot():/EFI/Linux/hde333.efi\n  /+ebccz\n  protocol: efi_boot_entry\n/+eayzz\nprotocol: linux\n  module_path: guid(12):/EFI/Linux/01h0cf.efi#86aec6c440df4b3b214f2c7efc1a14eb7ee001bd8ec5f69eddfacf2db7765808\n  path: boot()EFI/Linux/11dfh2.efi\n  path: boot():/EFI/Linux/eec1ec.efi#080f9080bca32c30adc7ddb492648eeb859f0c073922aa81214da15b660c1e631d8ea6d022450ed878087ccdfdd7efd6d2cec096fb2b3f2f10e2b828d8150067\n",
+   "sb": null,
+   "tpm": null,
+   "pristine": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 4,
+     "value": "nope"
+    },
+    "measured_boot": {
+     "line": 5,
+     "value": "Yes"
+    },
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "blake2b": "6332e2d702dc4bff4357e9b4b6622a6111e1210ecc8eb09e2d3ecaed501fda51dd2af50f229e56293d28c15cc961609a4ccb7b7e82045547b171b6c3537dbc54",
+      "consequence": "skip",
+      "entry": null,
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c5/esp/EFI/Linux/1gd1e1.efi",
+      "key": "term_font",
+      "line": 8,
+      "status": "LP-MISMATCH",
+      "uri": "boot():/EFI/Linux/1gd1e1.efi#6032e2d702dc4bff4357e9b4b6622a6111e1210ecc8eb09e2d3ecaed501fda51dd2af50f229e56293d28c15cc961609a4ccb7b7e82045547b171b6c3537dbc54"
+     },
+     {
+      "consequence": "not-modelled",
+      "entry": null,
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c5/esp/EFI/Linux/gcf2g0.efi",
+      "key": "kernel_path",
+      "line": 9,
+      "status": "LP-MISSING",
+      "uri": "boot():/EFI/Linux/gcf2g0.efi#e44b0be2b782eebddca0c845786019e09935a1e850b8f649d3c6e8de77c2c1560b94683a74d5e505b2b6f2434ee06aafcb4d1c8d108d4a4fdfcc8e3f332aed15"
+     },
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 64)",
+      "entry": "eayzz",
+      "key": "module_path",
+      "line": 17,
+      "status": "LP-HASH-FORMAT",
+      "uri": "guid(12):/EFI/Linux/01h0cf.efi#86aec6c440df4b3b214f2c7efc1a14eb7ee001bd8ec5f69eddfacf2db7765808"
+     },
+     {
+      "consequence": "not-modelled",
+      "entry": "eayzz",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c5/esp/EFI/Linux/eec1ec.efi",
+      "key": "path",
+      "line": 19,
+      "status": "LP-MISSING",
+      "uri": "boot():/EFI/Linux/eec1ec.efi#080f9080bca32c30adc7ddb492648eeb859f0c073922aa81214da15b660c1e631d8ea6d022450ed878087ccdfdd7efd6d2cec096fb2b3f2f10e2b828d8150067"
+     }
+    ],
+    "findings": [
+     "LP-HASH-FORMAT line 17",
+     "LP-MISMATCH line 8",
+     "LP-MISSING line 19",
+     "LP-MISSING line 9"
+    ]
+   },
+   "mutant": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 4,
+     "value": "nope"
+    },
+    "measured_boot": {
+     "line": 5,
+     "value": "Yes"
+    },
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "blake2b": "6332e2d702dc4bff4357e9b4b6622a6111e1210ecc8eb09e2d3ecaed501fda51dd2af50f229e56293d28c15cc961609a4ccb7b7e82045547b171b6c3537dbc54",
+      "consequence": "skip",
+      "entry": "",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c5/esp/EFI/Linux/1gd1e1.efi",
+      "key": "term_font",
+      "line": 8,
+      "status": "LP-MISMATCH",
+      "uri": "boot():/EFI/Linux/1gd1e1.efi#6032e2d702dc4bff4357e9b4b6622a6111e1210ecc8eb09e2d3ecaed501fda51dd2af50f229e56293d28c15cc961609a4ccb7b7e82045547b171b6c3537dbc54"
+     },
+     {
+      "consequence": "not-modelled",
+      "entry": "",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c5/esp/EFI/Linux/gcf2g0.efi",
+      "key": "kernel_path",
+      "line": 9,
+      "status": "LP-MISSING",
+      "uri": "boot():/EFI/Linux/gcf2g0.efi#e44b0be2b782eebddca0c845786019e09935a1e850b8f649d3c6e8de77c2c1560b94683a74d5e505b2b6f2434ee06aafcb4d1c8d108d4a4fdfcc8e3f332aed15"
+     },
+     {
+      "consequence": "panic",
+      "detail": "hash must be 128 hex characters (got 64)",
+      "entry": "eayzz",
+      "key": "module_path",
+      "line": 17,
+      "status": "LP-HASH-FORMAT",
+      "uri": "guid(12):/EFI/Linux/01h0cf.efi#86aec6c440df4b3b214f2c7efc1a14eb7ee001bd8ec5f69eddfacf2db7765808"
+     },
+     {
+      "consequence": "not-modelled",
+      "entry": "eayzz",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c5/esp/EFI/Linux/eec1ec.efi",
+      "key": "path",
+      "line": 19,
+      "status": "LP-MISSING",
+      "uri": "boot():/EFI/Linux/eec1ec.efi#080f9080bca32c30adc7ddb492648eeb859f0c073922aa81214da15b660c1e631d8ea6d022450ed878087ccdfdd7efd6d2cec096fb2b3f2f10e2b828d8150067"
+     }
+    ],
+    "findings": [
+     "LP-HASH-FORMAT line 17",
+     "LP-MISMATCH line 8",
+     "LP-MISSING line 19",
+     "LP-MISSING line 9"
+    ]
+   }
+  },
+  {
+   "i": 9,
+   "conf": "# c\nhash_mismatch_panic: yes\nhash_mismatch_panic: no\n/yxyz\nprotocol: EFI\n  path: EFI/Linux/b3gh0a.efi\n  path: bootx():/EFI/Linux/gc0a1a.efi#a7adb96b7da0f7f139c00f9a8f4f35cf62372d325302811ab5894ef256d0a2208d2577b6a0be7788dd6731fb6fcb3697c4bbeb5c2293b82b004b8ae31e370f7e\n/\nprotocol: uefi\n  path: boot():/EFI/Linux/ha2h0h.efi#b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9\n  wallpaper: EFI/Linux/20ed1b.efi\n  term_font: bootx():/EFI/Linux/c03aah.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\n  cmdline: quiet\n",
+   "sb": "0",
+   "tpm": null,
+   "pristine": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 2,
+     "value": "yes"
+    },
+    "measured_boot": null,
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "consequence": "panic",
+      "detail": "resource `bootx` is not valid (uri.c 364)",
+      "entry": "yxyz",
+      "key": "path",
+      "line": 7,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "bootx():/EFI/Linux/gc0a1a.efi#a7adb96b7da0f7f139c00f9a8f4f35cf62372d325302811ab5894ef256d0a2208d2577b6a0be7788dd6731fb6fcb3697c4bbeb5c2293b82b004b8ae31e370f7e"
+     },
+     {
+      "blake2b": "b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9",
+      "consequence": "none",
+      "entry": "yxyz",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c9/esp/EFI/Linux/ha2h0h.efi",
+      "key": "path",
+      "line": 10,
+      "status": "OK",
+      "uri": "boot():/EFI/Linux/ha2h0h.efi#b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9"
+     },
+     {
+      "consequence": "skip",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "yxyz",
+      "key": "term_font",
+      "line": 12,
+      "status": "LP-HASH-FORMAT",
+      "uri": "bootx():/EFI/Linux/c03aah.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 7",
+     "LP-HASH-FORMAT line 12"
+    ]
+   },
+   "mutant": {
+    "verdict": "DEGRADED",
+    "rc": 1,
+    "on_panic": "menu",
+    "hash_mismatch_panic": {
+     "line": 2,
+     "value": "yes"
+    },
+    "measured_boot": null,
+    "unverified_image_lines": [],
+    "pins": [
+     {
+      "consequence": "panic",
+      "detail": "resource `bootx` is not valid (uri.c 364)",
+      "entry": "yxyz",
+      "key": "path",
+      "line": 7,
+      "status": "LP-BAD-RESOURCE",
+      "uri": "bootx():/EFI/Linux/gc0a1a.efi#a7adb96b7da0f7f139c00f9a8f4f35cf62372d325302811ab5894ef256d0a2208d2577b6a0be7788dd6731fb6fcb3697c4bbeb5c2293b82b004b8ae31e370f7e"
+     },
+     {
+      "blake2b": "b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9",
+      "consequence": "none",
+      "entry": "",
+      "file": "/fast/scratch/hyaku/tsukuroi-r91/MutGate/fuzz-g1rdpr45/c9/esp/EFI/Linux/ha2h0h.efi",
+      "key": "path",
+      "line": 10,
+      "status": "OK",
+      "uri": "boot():/EFI/Linux/ha2h0h.efi#b4f5c512a717d9e2d2f74d65bbfde9a2615c3316637957c96cae3f00d7fd1814b326cbb847f36667bc3d1e95249f25a78e6c8563b8192deb36b728eedecdd5d9"
+     },
+     {
+      "consequence": "skip",
+      "detail": "hash must be 128 hex characters (got 128)",
+      "entry": "",
+      "key": "term_font",
+      "line": 12,
+      "status": "LP-HASH-FORMAT",
+      "uri": "bootx():/EFI/Linux/c03aah.efi#zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     }
+    ],
+    "findings": [
+     "LP-BAD-RESOURCE line 7",
+     "LP-HASH-FORMAT line 12"
+    ]
+   }
+  }
+ ]
+}

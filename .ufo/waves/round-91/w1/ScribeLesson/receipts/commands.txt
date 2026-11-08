@@ -1,0 +1,47 @@
+### ScribeLesson r91 — command transcript
+
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse master
+2d7e09e101996cc1ac5836c6d635f3f608453ac5
+
+$ git clone --shared <lane> $S/fx-qVfSEE/lane
+clone HEAD: b516d6ae13ec0bba3ef89589ac1cac86f73a9632
+
+--- A1: r91 battery --runs 0 (tip) ---
+usage: limine-pin-battery-r91.py [-h] [--gate GATE] [--runs RUNS]
+                                 [--work WORK] [--json JSON] [--selftest]
+                                 [--reference REFERENCE]
+rc=2
+
+--- A2: r89 battery @7f3f30b3 --runs 0 ---
+rc=0 stdout=[] stderr=[]
+
+--- A3: r89 counter --runs 0 ---
+verdict met
+rc=0
+
+--- A4: r89 counter + usage-oracle ---
+run 1 positives 3/3 negatives 62/62 errors 0 failures -
+run 2 positives 3/3 negatives 62/62 errors 0 failures -
+run 3 positives 3/3 negatives 62/62 errors 0 failures -
+verdict met
+rc=0 (per-run hits999 65/65/65 of 65 rows)
+
+--- B1: r91 battery + sibling-path oracle-import forgery ---
+families_passed 82/82 verdict met failed -
+rc=0
+
+--- B2: r91 battery + absolute-path oracle-import forgery ---
+families_passed 0/82 verdict unmet failed ALL-PIN-KEYS,BAD-OVER-UNRESOLVED,BAD-RESOURCE,BAD-RESOURCE-OPTIONAL,BLANK-CLASS,COMMENT-DECOY,CONF-UNREADABLE,CR-INTERNAL,DOUBLE-DOLLAR,EFI-IMAGE-MISSING,EMPTY-PATH,EMPTY-PIN-LIST,EMPTY-ROOT-RESOURCE,ENTRY-LABEL,ENTRY-LABEL-EDGES,ENTRY-SCOPE,FIRST-LINE-ENTRY,FIRST-PATH,FIRST-PROTOCOL,FIRST-URI-SEP,FORMAT-BEFORE-BAD,FORMAT-BEFORE-RESOLVE,GLOBAL-VS-ENTRY,GZ-RAW,HASH-LENGTH,HASH-NONHEX,HASH-UPPER,HOST-SHAPE,KEY-CASE,KEY-EQUALS,KEY-SPACING,LARGE-FILE,LAST-HASH,MALFORMED-INPUT,MEASURED-DECOY,MEASURED-FIRST,MEASURED-GLOBAL-ONLY,MEASURED-IN-ENTRY,MEASURED-SB,MEASURED-TPM-ABSENT,MEASURED-TPM0,MEASURED-TPM1,MEASURED-VALUE-CASE,MISMATCH-EARLY,MISMATCH-LATE,MISSING,MULTI-FAULT,NO-PAREN,NON-EFI-MISSING,NON-UTF8,OPTIONAL-HASH-FORMAT,OPTIONAL-KEY-CASE,OPTIONAL-MISSING,OPTIONAL-SKIP,OPTIONAL-UNRESOLVED,PANIC-AFTER-PIN,PANIC-DEFAULT,PANIC-FIRST,PANIC-GLOBAL-ONLY,PANIC-KEY-CASE,PANIC-METADATA,PANIC-NO-ONLY,PANIC-NON-NO,PANIC-RAW-DECOY,PANIC-VALUE-BLANKS,PAREN-PATH,PATH-PRECEDENCE,POSITIVE,PROTOCOL-DECOY,RESOURCE-CASE,ROOT-ON-BOOT,SB-FLAG-ZERO,SECUREBOOT,UNHASHED-DECOYS,UNRESOLVED,UNVERIFIED-IMAGE,UNVERIFIED-IMAGE-PATH,UNVERIFIED-MIXED,UNVERIFIED-NON-EFI,UNVERIFIED-SORTED,VALID-RESOURCES,WHITESPACE-CRLF
+rc=1
+
+--- B3: isolated battery + channel control (import closed) ---
+families_passed 0/82 verdict unmet failed ALL-PIN-KEYS,BAD-OVER-UNRESOLVED,BAD-RESOURCE,BAD-RESOURCE-OPTIONAL,BLANK-CLAS
+rc=1
+
+--- B4: isolated battery + landed gate ---
+families_passed 82/82 verdict met failed -
+rc=0
+
+--- B5: tip battery + channel control (import open) ---
+families_passed 82/82 verdict met failed -
+rc=0

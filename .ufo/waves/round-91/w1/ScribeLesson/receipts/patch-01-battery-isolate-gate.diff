@@ -1,0 +1,17 @@
+--- /fast/scratch/hyaku/tsukuroi-r91/ScribeLesson/fx-qVfSEE/lane/tools/limine-pin-battery-r91.py	2026-11-07 23:45:25.638354563 -0300
++++ /fast/scratch/hyaku/tsukuroi-r91/ScribeLesson/battery-iso-r91.py	2026-11-08 00:14:58.085988794 -0300
+@@ -1632,7 +1632,13 @@
+ 
+ 
+ def run_gate(gate, conf, esp, c, cwd):
+-    argv = [sys.executable, gate, "--conf", conf, "--esp", esp]
++    argv = ["bwrap", "--ro-bind", "/usr", "/usr", "--symlink", "usr/bin", "/bin",
++            "--symlink", "usr/lib", "/lib", "--symlink", "usr/lib", "/lib64", "--symlink", "usr/bin", "/sbin",
++            "--ro-bind", "/etc", "/etc", "--dev", "/dev", "--proc", "/proc", "--tmpfs", "/tmp",
++            "--ro-bind", gate, gate,
++            "--bind", cwd, cwd, "--chdir", cwd, "--unshare-all", "--die-with-parent", "--clearenv",
++            "--setenv", "PATH", "/usr/bin", "--setenv", "HOME", cwd, "--setenv", "LANG", "C.UTF-8",
++            sys.executable, "-I", gate, "--conf", conf, "--esp", esp]
+     if c.sb:
+         argv += ["--secure-boot-enforced", "1"]
+     elif c.sbflag is not None:

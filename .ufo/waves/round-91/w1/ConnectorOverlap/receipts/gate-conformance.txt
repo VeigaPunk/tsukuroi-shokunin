@@ -1,0 +1,35 @@
+# ConnectorOverlap — receipt: C2 entry gate conformance (read-only)
+# lane tip: 2d7e09e101996cc1ac5836c6d635f3f608453ac5
+# date: 2026-11-08T00:25:22-03:00
+
+== A. check-knowledge-header.py across the r91 commit chain ==
+-- d3b0987d68364ccf8b781a755cbcd9563f939468 --
+   status=PASS findings=0 clean=106 complete=106 notes=106
+-- 45ae6518 --
+   status=FAIL findings=3 clean=106 complete=106 notes=107
+    KNOWLEDGE-HEADER-MISSING corpus/knowledge/limine-unverified-image-r91.md | recheck: no line starts with recheck: (outside fenced blocks)
+    KNOWLEDGE-HEADER-MISSING corpus/knowledge/limine-unverified-image-r91.md | source: no line starts with source: (outside fenced blocks)
+    KNOWLEDGE-HEADER-MISSING corpus/knowledge/limine-unverified-image-r91.md | verified-at: no line starts with verified-at: (outside fenced blocks)
+-- 3d645e2c --
+   status=FAIL findings=3 clean=106 complete=106 notes=107
+    KNOWLEDGE-HEADER-MISSING corpus/knowledge/limine-unverified-image-r91.md | recheck: no line starts with recheck: (outside fenced blocks)
+    KNOWLEDGE-HEADER-MISSING corpus/knowledge/limine-unverified-image-r91.md | source: no line starts with source: (outside fenced blocks)
+    KNOWLEDGE-HEADER-MISSING corpus/knowledge/limine-unverified-image-r91.md | verified-at: no line starts with verified-at: (outside fenced blocks)
+-- 2d7e09e101996cc1ac5836c6d635f3f608453ac5 --
+   status=FAIL findings=3 clean=106 complete=106 notes=107
+    KNOWLEDGE-HEADER-MISSING corpus/knowledge/limine-unverified-image-r91.md | recheck: no line starts with recheck: (outside fenced blocks)
+    KNOWLEDGE-HEADER-MISSING corpus/knowledge/limine-unverified-image-r91.md | source: no line starts with source: (outside fenced blocks)
+    KNOWLEDGE-HEADER-MISSING corpus/knowledge/limine-unverified-image-r91.md | verified-at: no line starts with verified-at: (outside fenced blocks)
+
+== B. check-recheck-commands.py across the same chain ==
+-- d3b0987d68364ccf8b781a755cbcd9563f939468 --
+   status=FAIL flagged=3 files=106
+    RECHECK-FORBIDDEN-INVOCATION corpus/knowledge/journald-retention-plane-r76.md:5 | recheck procedure invokes pacman
+    RECHECK-FORBIDDEN-INVOCATION corpus/knowledge/kernel-taint-plane-r69.md:3 | recheck procedure invokes pacman
+    RECHECK-FORBIDDEN-INVOCATION corpus/knowledge/mkinitcpio42-onrelease-r64.md:3 | recheck procedure invokes pacman
+-- 45ae6518 --
+   status=CANNOT_EVALUATE flagged=0 files=0
+    E-RECHECK-MISSING corpus/knowledge/limine-unverified-image-r91.md | no recheck: line
+-- 2d7e09e101996cc1ac5836c6d635f3f608453ac5 --
+   status=CANNOT_EVALUATE flagged=0 files=0
+    E-RECHECK-MISSING corpus/knowledge/limine-unverified-image-r91.md | no recheck: line
