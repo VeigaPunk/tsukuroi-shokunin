@@ -1,0 +1,13 @@
+--- tools/check-registry-content-r99.py	2026-11-08 10:58:11.520434167 -0300
++++ /fast/scratch/hyaku/tsukuroi-r99/dev/mut/M07.py	2026-11-08 10:58:24.781655641 -0300
+@@ -243,9 +243,7 @@
+         p = self._git("rev-parse", "--verify", self.revision + "^{commit}", check=False)
+         if p.returncode != 0:
+             raise TableError("revision %r does not resolve" % self.revision)
+-        p = self._git("merge-base", "--is-ancestor", self.revision, self.branch, check=False)
+-        if p.returncode != 0:
+-            raise TableError("revision %r is not an ancestor of %s" % (self.revision, self.branch))
++        pass  # M07: ancestor check skipped
+ 
+     def read(self, rel):
+         if self.revision is None:

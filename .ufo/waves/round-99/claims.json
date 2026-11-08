@@ -1,0 +1,22 @@
+{
+ "claims": {
+  "C1": {
+   "axis": "depth",
+   "kind": "measured",
+   "score": 8,
+   "predicate": "`tools/limine-pin-battery-r99.py --gate G --runs 3` is the r98 battery (roster unchanged at 105) with exactly two changes: (a) `REFUSAL-VERSIONS-9DIGIT` (X cap `999999999.9.9`) and `REFUSAL-VERSIONS-9DIGIT-Y` (`12.999999999.4` era B, `0.999999999.0` era A) set `check_echo` and `check_era`, so each case asserts the flag spelling echoed verbatim with source `flag` and the era label the whole tuple selects; (b) LIE_KINDS gains `limine-version` and `visibility-era`, so the `--selftest --reference` leg falsifies the two reported fields. The r98 Frontier names both limits: the metadata assertion is bound to the two r97 families only, and the X leg rides on one EXPLICIT case (A5).",
+   "target": "Landed gate 105/105 met, failed_families [], 0 error rows, x3 canonical + x3 clone. N09-y-era: unmet 104/105 x3 both layouts, failed_families exactly [REFUSAL-VERSIONS-9DIGIT-Y], 0 error rows. N11-x-era: unmet 103/105 x3 both layouts, failed_families exactly [EXPLICIT-VERSION-ERA, REFUSAL-VERSIONS-9DIGIT], 0 error rows. r98 do-nothing battery: met 105/105 x3 on the landed gate; met 105/105 x3 on N09 (blind); unmet 104/105 x3 on N11 with failed_families exactly [EXPLICIT-VERSION-ERA]. --selftest without reference PASS 5/5. Both new lie kinds make the battery read unmet.",
+   "kill": "Unmet if any landed-gate run reads below 105/105 or carries a non-null error row; unmet if any bend run is not unmet or its failed_families is not exactly the frozen list or its non-null error-row count is not 0; unmet if any do-nothing leg differs from its frozen reading; unmet if either new lie kind fails to make the battery read unmet; void if any instrument byte differs from .ufo/waves/round-99/before/instruments.sha256 at scoring time.",
+   "counting": "python3 tools/limine-pin-battery-r99.py --gate <GATE> --runs 3 --work <scratch> --json <out>; then python3 .ufo/waves/round-95/before/controls/count-runs.py <out> --family REFUSAL-VERSIONS-9DIGIT --family REFUSAL-VERSIONS-9DIGIT-Y --family REFUSAL-VERSIONS-9DIGIT-Z"
+  },
+  "C2": {
+   "axis": "freshness",
+   "kind": "measured",
+   "score": 9,
+   "predicate": "`tools/check-registry-content-r99.py --revision R` is the r98 checker with exactly two changes: (a) the RC-BEND-SPAN capture carries a boundary guard `(?![0-9,-])` and the binding is marked unique, so a hybrid cell (`VARIANTS N01-N04,N05`, the r98 A1 survivor that read PASS 7/7) reads RC-CELL-MISSING and a cell mentioning VARIANTS twice (the r98 same-cell-restatement survivor) reads the new RC-CELL-AMBIGUOUS; (b) --selftest gains span-hybrid, span-restated and ancestor (14 -> 17), the ancestor case running this file's real CLI on a revision that is not an ancestor of the selected branch (pristine rc 2 CANNOT-EVALUATE; the r98 MutRegistry M07 mutant reads rc 0 PASS).",
+   "target": "Landed status PASS, findings [], bindings 7; --selftest PASS 17/17; the M07 mutant FAIL 16/17 with exactly the ancestor case red; the r98 checker reads PASS on the hybrid and restated fixtures where r99 reads FAIL with exactly one finding (RC-CELL-MISSING / RC-CELL-AMBIGUOUS); coverage gate PASS 160/160 findings 0 at the pre-round tip.",
+   "kill": "Unmet if the landed run is not PASS with 0 findings; unmet if --selftest is not PASS 17/17; unmet if the M07 mutant passes --selftest or fails a different case; unmet if the r98 checker is not PASS on both capture fixtures, or r99 is not FAIL with the frozen single finding id on each; unmet if the coverage gate does not read PASS at the pre-round tip; void if tools/check-registry-content-r99.py differs from the instruments manifest at scoring time.",
+   "counting": "python3 tools/check-registry-content-r99.py --revision <R> --json <out>; python3 tools/check-registry-content-r99.py --selftest; fixtures by python3 .ufo/waves/round-99/before/dev/make-fixtures.py <dir>"
+  }
+ }
+}

@@ -1253,3 +1253,33 @@ now dies on both the selftest (12/14) and the D2 doctored revision, which the mu
   cells of bound rows, tool+cell co-doctoring, printed-tally parsing); from r96: the r92 launcher
   residuals, the r93 probe pre-release caveat; from r89: blanks before CR-LF, ESP containment and
   empty labels.
+
+## Round 99 — the accepted-cap families read the fields they certify
+
+New ground: `knowledge/limine-metadata-cap-families-r99.md` (S395 own-work — the battery's assertion
+sites at byte anchors, the gate's two emission sites re-measured at 16931/17037 with the early-return
+copies at 11230/11344; S392 re-opened). `tools/limine-pin-battery-r99.py` keeps the roster at 105 and
+sets `check_echo` + `check_era` on the X-cap `REFUSAL-VERSIONS-9DIGIT` (`999999999.9.9`) and the
+Y-cap `REFUSAL-VERSIONS-9DIGIT-Y` (`12.999999999.4`, `0.999999999.0`), and adds the selftest lie
+kinds `limine-version` and `visibility-era`. Measured: the Y-only era lie `N09-y-era` reads
+`met 105/105` on the r98 control and `unmet 104/105` on r99; the X-cap era lie `N11-x-era` reads
+`unmet 104/105` (EXPLICIT only) on r98 and `103/105` on r99 — a delta closure, because r98 already
+saw that article through one EXPLICIT case (A5). `tools/check-registry-content-r99.py` guards the
+`RC-BEND-SPAN` capture and marks it unique, so a hybrid cell reads `RC-CELL-MISSING` and a restated
+cell `RC-CELL-AMBIGUOUS` (both r98 survivors), and adds `span-hybrid`, `span-restated` and a
+git-fixture `ancestor` case (14 -> 17) that kills the r98 M07 survivor.
+
+### Frontier (round-99 addition)
+
+- The X/Y **echo** legs have no spelling-targeted committed bend: N09/N11 falsify `visibility_era`
+  only. The blanket `lie-limine-version` wrapper covers them, and it proves the battery sees the
+  field, not that a named family asserts it.
+- A drafted Z-echo bend was dropped as a **twin** under QUALITY 136: the r98 battery already sets
+  `check_echo` on the Z family, so the same article reads `unmet 104/105` on the r98 control.
+- N11's closure is a discrimination *delta* (+1 failed family), not a met-to-unmet flip; the
+  declaration and the lesson say so rather than counting it as a new witness.
+- The `unique` rule is fail-closed: a registry cell that legitimately states two spans in one cell
+  must be rewritten to one span; the capture's alphabet is still `N<digits>` with no space token.
+- Still open from r98 and r97: the unbound registry rows and the three measured C2 gaps (uncovered
+  cells, tool+cell co-doctoring, printed-tally parsing); from r96: the r92 launcher residuals, the
+  r93 probe pre-release caveat; from r89: blanks before CR-LF, ESP containment and empty labels.
