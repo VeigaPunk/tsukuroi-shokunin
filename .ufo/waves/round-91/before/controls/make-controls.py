@@ -14,9 +14,8 @@ import argparse
 import os
 
 K2_PATCHES = [
-    ('    ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)\n',
-     '    ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)\n'
-     '    ap.add_argument("--tpm-present", choices=("0", "1"), default=None)\n'),
+    # The r90 landed gate already registers --tpm-present (round 90 added R10); the adapter only
+    # needs to force on_panic "menu" so the r90 answers stay unchanged and only r91 clauses kill it.
     ('    print(json.dumps(r, sort_keys=True))\n',
      '    r["on_panic"] = "menu"\n    print(json.dumps(r, sort_keys=True))\n'),
 ]
@@ -57,10 +56,12 @@ NEAR = {
     "N09-unverified-last-path": ("U1 first path else first image_path", "UNVERIFIED-IMAGE-PATH", [
         ('    image_lines = {b.get("path", b.get("image_path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}\n',
          '    image_lines = {b.get("image_path", b.get("path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}\n')]),
-    # V1: panic_setting reads first key anywhere (not just global) — whole-file first-wins
-    "N10-panic-first-anywhere": ("V1 FIRST visible in global section", "PANIC-AFTER-PIN PANIC-GLOBAL-ONLY GLOBAL-VS-ENTRY", [
-        ('        if in_global and key == "hash_mismatch_panic" and panic_setting is None:\n',
-         '        if key == "hash_mismatch_panic" and panic_setting is None:\n')]),
+    # V1: panic_setting reads the LAST key anywhere (whole-file last-wins) — distinct bend from
+    # N01 (first-wins whole-file). Repaired after w1: the frozen patch was byte-identical to N01
+    # (ExecReplicate/MutGate); last-wins keeps a first-wins guard off while dropping in_global.
+    "N10-panic-first-anywhere": ("V1 LAST visible panic key wins whole file", "PANIC-AFTER-PIN PANIC-FIRST PANIC-GLOBAL-ONLY PANIC-METADATA", [
+        ('        if in_global and key == "hash_mismatch_panic" and panic_setting is None:\n            panic_setting = (lineno, value)\n',
+         '        if key == "hash_mismatch_panic":\n            panic_setting = (lineno, value)\n')]),
 }
 
 def patch(src, pairs, name):

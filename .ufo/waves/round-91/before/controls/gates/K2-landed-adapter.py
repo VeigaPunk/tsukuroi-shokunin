@@ -327,7 +327,6 @@ def main():
     ap.add_argument("--esp")
     ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)
     ap.add_argument("--tpm-present", choices=("0", "1"), default=None)
-    ap.add_argument("--tpm-present", choices=("0", "1"), default=None)
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
