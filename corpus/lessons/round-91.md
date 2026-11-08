@@ -42,7 +42,7 @@ false for without a `URI_ERROR` message.
   K2 was a broken control (duplicate `--tpm-present` registration → 984/984 `error:`
   cases; fixed in `6d12e07f`, re-measured 2/82 unmet ×3 canonical + clone); N10 duplicated
   N01 byte-identically (`7e158cd2…`; rewritten as whole-file LAST-wins in `6d12e07f`,
-  measured 78/82 unmet ×3 canonical, clone receipt pending at write time); the freeze
+  measured 78/82 unmet ×3 canonical + clone); the freeze
   manifest omits the battery itself and predates `203b3872`/`1652b086`; declaration
   literals (`8f0daee8…` sha, "78 families") describe the r90 instrument, not the frozen
   82-family r91 battery (CriticClaims items 1-2, 8).
@@ -103,7 +103,7 @@ Key findings:
 - Controls after repair: K1 valid (2/82 ×3 both layouts); K2 fixed and re-measured
   2/82 unmet ×3 canonical + clone (`6d12e07f`); N01-N10 each kill their named
   families ×3 both layouts — N10 now a distinct whole-file LAST-wins bend
-  (78/82 unmet canonical; clone receipt in `runs-clone/N10-*-fixed.*`).
+  (78/82 unmet ×3 canonical + clone; receipts `runs-{canonical,clone}/N10-panic-first-anywhere-fixed.*`).
 - Narrowed claims (falsification ledger `.ufo/waves/round-91/claim-falsification.tsv`,
   amendment `.ufo/plans/round-91.md`): C1's 82/82 does not exclude oracle-import
   forgeries (sibling-oracle reads met; F2-oracle-replay 80/82); F3 missing-sort is an
