@@ -116,3 +116,19 @@ seat has scored is never the claim's rule. This slot is empty at freeze time.
   landing.
 - No axis is harmed: the gate and both r98/r99 controls keep their bytes; the corpus is additive;
   `SCORECARD.md` is append-only; `PROVINCE.md` and `SHONEN.md` are untouched by the round.
+
+## Amendment slot — A1 (recorded 2026-11-08, after the wave, before filing)
+
+**A1 — what "the landing tip" denotes.** SentinelHarm F1 and ExecRegistry measured that the first
+landing commit `c450cd68` carried a 7-of-8-cell registry row, so all three registry gates read
+`CANNOT_EVALUATE` at that revision, and that the repaired commit `69474c55` reads PASS. Ruling: the
+C2 target's two surfaces are the **freeze tip** (`743ce449`; table 163 rows) and the **final landing
+tip** (`69474c55` and any later round-100 commit), which are the revisions the round's landing is
+measured at; an intermediate commit superseded inside the same round is not a scoring surface. The
+intermediate failure is disclosed as mistake `R100-REGISTRY-ROW-CELL-COUNT` with its pair sweep, and
+the repaired row's bytes are appended as the correction in `corpus/lessons/round-100.md`. This entry
+records which revision the frozen sentence names; it does not widen or narrow the enforced property
+(both named surfaces are PASS), and it is written after the fact only because the seat's artifact
+raised the ambiguity.
+
+Artifacts: `.ufo/waves/round-100/w1/SentinelHarm.md`, `.ufo/waves/round-100/w1/ExecRegistry/*`.

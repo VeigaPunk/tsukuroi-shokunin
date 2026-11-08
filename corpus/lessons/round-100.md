@@ -39,6 +39,8 @@ None — the round adds rows; no existing row's `status`, `recheck` or `used-by`
   rule existed and the freeze applied it before the wave, not after. Fix: the declaration's target
   names the two shapes separately, and the report repeats the delta in the same sentence as the
   closure rather than counting both as closures.
+- **R100-CLONE-PATH-PREFIX** — class: `harness/path`. The first clone-layout receipts for the four bend/control legs read `0/105` with every one of the 105 families in `failed_families`, because the gate path was built as `$CLONE/$ABSOLUTE_LANE_PATH` (the absolute lane path was appended to the clone root, so the gate did not exist); the canonical twin of each leg read the frozen set. Captured-by: `none` — no criterion said a leg that fails EVERY family in one layout is a harness fault before it is a verdict; this lesson adds QUALITY 142. Fix: the four runs are quarantined under `.ufo/waves/round-100/after/c1/harness-fault/` and re-run with the clone's own path (`$CLONE/.ufo/waves/round-100/before/controls/bends/<bend>.py`), and the criterion now requires that re-run before scoring.
+- **R100-REGISTRY-ROW-CELL-COUNT** — class: `self-application`. The first landing commit c450cd68 added the `check-registry-content-r100` registry row with 7 of the 8 required cells (the write-scope cell missing), so at that revision the r99 checker, the r100 checker and the coverage gate all read `CANNOT_EVALUATE` (E-TABLE / E-REGISTRY-TABLE; coverage reported `tools_total 0`). It was caught by the gates at the very next measurement and repaired at 69474c55, so the freeze tip and the final landing tip are both PASS. Captured-by: the two table parsers and the coverage gate (they caught it), but `none` caught it BEFORE the commit — the row was written without running `python3 tools/check-registry-content-r100.py --root .` on the working tree. Fix: a registry-row write now runs the content checker in `--root` mode (or the coverage gate on the committed revision) before the row is committed; this lesson names the pair sweep and the removed line below.
 - **R99-ONE-ANCHOR-TWO-MEMBERS** — class: `corpus precision` (routed R99-D3). The S395 anchor says
   "the two new `LIE_KINDS` members at BYTE 108455"; 108455 is `limine-version`
   (`grep -abo '"limine-version"' tools/limine-pin-battery-r99.py`), and `visibility-era` starts at
@@ -81,3 +83,17 @@ None — the round adds rows; no existing row's `status`, `recheck` or `used-by`
   non-attributability; the unbound registry rows; the three r98 C2 gaps (uncovered cells,
   tool+cell co-doctoring, printed-tally parsing); the r96 launcher residuals; the r93 probe
   pre-release caveat; the r89 blank/ESP/empty-label classes.
+
+## Correction (append-only, 2026-11-08) — the 7-cell row at `c450cd68`, repaired at `69474c55`
+
+The repair commit `69474c55` is the one that restored the 8th cell. Pair sweep, run over the
+consecutive pair:
+`git diff -U0 c450cd68 69474c55 -- SCORECARD.md LOG.md SHONEN.md SKILL.md PROVINCE.md corpus/ | grep -E '^-[^-]'`
+prints exactly **1** removed line — the original `check-registry-content-r100` row, whose
+`Pinned values` cell ended `the other 161 rows stay presence-only` and which therefore had no
+write-scope cell; the replacement adds
+`read-only; committed reads at the bound revision; --root reads a directory and writes nothing; selftest fixtures under the caller's TMPDIR`.
+The gates at `c450cd68` read `CANNOT_EVALUATE` (E-TABLE line 5951; coverage E-REGISTRY-TABLE with
+`tools_total 0`) and at `69474c55` read `PASS 7/7 rows 165` and `PASS 165/165 findings 0`. This
+correction is append-only; the wrong row's bytes stay in `c450cd68` and are not rewritten out of
+history. Recorded as `R100-REGISTRY-ROW-CELL-COUNT` above; the round report repeats it.
