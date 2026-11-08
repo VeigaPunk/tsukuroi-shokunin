@@ -7757,3 +7757,30 @@ readings are narrowed (A7). Axes now: depth 8, coverage 9, operability 9, freshn
 adjacency 8 (unchanged). No retirement. No axis harmed: era-A answers are unchanged (no-regression
 receipt `after/c1-controls/r91-battery-on-r92-gate.txt`, 82/82), and the r92 gate adds only the flag and
 two JSON fields to the r91 behaviour.
+
+## Round 93 — declaration (frozen before the candidate is scored; controls committed with it)
+
+Inputs read first: the round-92 closure (MANIFEST `rounds[]`, r92, `admitted`) and its non-author
+spot-check `corpus/lessons/round-92-verifier-spotcheck.md` §6 routed 1-5; the r92 lesson M1-M6;
+QUALITY 124-135; README round-92 Frontier. The r92 frontier's three era limits, the `N04-accept-any`
+family-level survival, and the r92 gate's fixed `12.9.4` default are this round's C1/C2. Full
+declaration, limits and amendment slot: `.ufo/plans/round-93.md`.
+
+Instruments: `tools/limine-pin-battery-r93.py` (96 families: the 89 r92 families plus
+`ERA-EXACT-125`, `ERA-B-FIRST-BODY`, `ERA-B-U1`, `REFUSAL-VERSIONS`, `AUTO-ERA-A`, `AUTO-ERA-B`,
+`AUTO-PROBE-FAIL`; the r92 ISOLATION launcher, with the V3 exception that a case's own fake
+`limine` is prepended to PATH). Candidate gate `tools/check-limine-pins.py` gains V3
+(`--limine-version auto` = read-only `limine --version` probe; `limine_version_source` in JSON;
+probe failure = rc 64, empty stdout). Six one-clause bends `tools/make-r93-bends.py` emits under
+`.ufo/waves/round-93/before/controls/bends/`; do-nothing controls are the r92 gate and the r92
+battery, copied byte-identical. Disclosure: the candidate was drafted alongside the battery; no
+score of it is a receipt. The landed gate is committed and scored only after this freeze.
+
+| Claim | Axis | Predicate (the same sentence in the battery docstring and the receipts) | Target | Kill rule | Counting command | Do-nothing and near-miss controls |
+|---|---|---|---|---|---|---|
+| C1 (measured; surface: the battery's era/refusal sampling) | depth 8 (tied lowest) | The r93 battery carries, on fixtures generated fresh per run, `ERA-EXACT-125` (version exactly 12.9.5; a first-line-entry config's key is invisible -> `panic`), `ERA-B-FIRST-BODY` (12.9.6; a key on the line immediately after the first entry label is invisible -> `panic`), `ERA-B-U1` (12.9.6; an unhashed efi image line inside an entry body is in `unverified_image_lines`) and `REFUSAL-VERSIONS` (ten out-of-range values each exit 64 with empty stdout); the planted gate reads `96/96 met` ×3 canonical and clone; N01-N04 each read `unmet` ×3 both layouts with the named family in `failed_families` and 0 error rows | 96/96 ×3 both; N01->ERA-EXACT-125, N02->ERA-B-FIRST-BODY, N03->ERA-B-U1, N04->REFUSAL-VERSIONS; 0 error rows | unmet if any run < 96/96; if a bend is not unmet or does not name its family ×3 both layouts; if any case row has a non-null error; void on a freeze-manifest mismatch | `.ufo/waves/round-93/before/controls/count-runs.py` over `tools/limine-pin-battery-r93.py --gate G --runs 3 --json OUT` | r92 battery (no such family, `grep -c` 0); the battery's `constant-healthy` selftest gate (0/96); the four bends |
+| C2 (measured; surface: the gate's era-selection input) | operability 9 (assurance arm; capability) | `--limine-version auto` resolves the installed bootloader by running `limine --version` read-only (PATH, 5 s, first `X.Y.Z`), records `limine_version` and `limine_version_source: probe`, selects the era from that value, and refuses with rc 64/empty stdout when the probe fails; `AUTO-ERA-A`/`AUTO-ERA-B`/`AUTO-PROBE-FAIL` (fake `limine` under the case dir on PATH) read `met` ×3 both layouts; N05 (probe ignored) and N06 (probe failure falls back to 12.9.4) read `unmet` with `AUTO-ERA-B`/`AUTO-PROBE-FAIL`; the live run prints `limine_version 12.9.4`, source `probe` | auto families met ×3 both; N05/N06 unmet with the named family; live probe fields | unmet if any auto family fails; if a bend is not unmet or does not name its family ×3 both; if the live source is not `probe`; void on a freeze-manifest mismatch | the same battery invocation with the `count-runs.py` family filter; `python3 tools/check-limine-pins.py --live --limine-version auto` | the r92 gate (rejects `auto` with rc 64); N05/N06 |
+
+Operability stays 9 (a sharper, host-aware arm; no ordinal claim). Depth stays 8 unless the closure
+endorses a move. C1 and C2 are causally separable: C1 reads the era/refusal families and N01-N04;
+C2 reads the auto families, N05/N06 and the live receipt.

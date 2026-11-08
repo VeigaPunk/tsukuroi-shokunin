@@ -39,6 +39,12 @@ S374-S376). Summary:
     GONE: when line 1 is an entry line the global section is empty and both keys are invisible. The reads
     run after the tree build (v12.9.4 raw 638-650; v12.9.6 raw 666-668 `config_ready`/`create_menu_tree`,
     reads at raw 733+). An unknown or malformed version is a usage error (rc 64), never a silent default.
+  - `--limine-version auto` (round 93 V3) resolves the version from the installed bootloader instead of a
+    hand-typed flag: it runs `limine --version` read-only (PATH lookup, 5 s timeout), accepts the first
+    `X.Y.Z` in its output, and selects the era from that value; the JSON records the resolved
+    `limine_version` and `limine_version_source: "probe"`. A failed probe (binary absent, nonzero exit,
+    no parsable version, timeout) is a usage error (rc 64, no verdict), never a silent default: a host
+    whose bootloader cannot be identified must not be answered with another release's rule.
   - unverified_image_lines (round 91 U1): the image line of an efi chainload entry whose value is not a
     pin URI (`boot():/path#hash` shape) is reported as a line-number list. uri_resolve returns false with no
     message for a value with no `(`, no `):/`, or no `#` after `):/`, and uri_open returns NULL; chainload
@@ -46,8 +52,10 @@ S374-S376). Summary:
 
 Usage:
   check-limine-pins.py --conf FILE --esp DIR [--secure-boot-enforced 0|1] [--tpm-present 0|1]
-                       [--limine-version X.Y.Z]
-  sudo check-limine-pins.py --live            # /boot/limine.conf, ESP /boot, Secure Boot from efivars
+                       [--limine-version X.Y.Z|auto]
+  sudo check-limine-pins.py --live --limine-version auto
+                                              # /boot/limine.conf, ESP /boot, Secure Boot from efivars,
+                                              # era from the installed `limine --version`
   check-limine-pins.py --selftest
 Output: one JSON object on stdout {verdict, rc, on_panic, pins[{line, key, entry, uri, status, consequence, ...}],
 ...}.
@@ -59,8 +67,10 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import string
+import subprocess
 import sys
 import tempfile
 
@@ -89,6 +99,23 @@ def parse_limine_version(text):
 
 
 VISIBILITY_ERA_SPLIT = (12, 9, 5)   # first upstream release with the create_menu_tree() cut
+
+
+def probe_limine_version(executable="limine"):
+    """V3 (round 93): the installed bootloader's version, read-only.
+
+    Runs `<executable> --version` (PATH lookup by default; the caller may name a path) with a 5 s
+    timeout and returns the first `X.Y.Z` in its output, or None when the binary is absent, exits
+    nonzero, times out or prints no parsable version. Nothing is written; the probe reads stdout
+    only. `limine --version` on this host prints `Limine 12.9.4`."""
+    try:
+        p = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if p.returncode != 0:
+        return None
+    m = re.search(r"(?i)\blimine\s+v?(\d+\.\d+\.\d+)\b", p.stdout)
+    return m.group(1) if m else None
 
 
 def split_key(raw):
@@ -153,7 +180,7 @@ def on_panic_of(measured_setting, secure_boot, tpm):
     return "halt" if tpm else "menu"
 
 
-def check(conf, esp, secure_boot, tpm=None, limine_version="12.9.4"):
+def check(conf, esp, secure_boot, tpm=None, limine_version="12.9.4", limine_version_source="flag"):
     if isinstance(tpm, str):                      # the CLI's spelling, normalised once (ReviewGate F4)
         tpm = tpm == "1"
     version = parse_limine_version(limine_version)
@@ -167,6 +194,7 @@ def check(conf, esp, secure_boot, tpm=None, limine_version="12.9.4"):
         return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "on_panic": None,
                 "unverified_image_lines": [],
                 "limine_version": limine_version,
+                "limine_version_source": limine_version_source,
                 "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
                 "error": "conf unreadable: %s" % sanitize(str(e))}
     panic_setting = None
@@ -282,6 +310,7 @@ def check(conf, esp, secure_boot, tpm=None, limine_version="12.9.4"):
         verdict, rc = "HEALTHY", 0
     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
             "limine_version": limine_version,
+            "limine_version_source": limine_version_source,
             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
             "hash_mismatch_panic": None if panic_setting is None else
             {"line": panic_setting[0], "value": sanitize(panic_setting[1])},
@@ -418,6 +447,26 @@ def selftest():
                         and parse_limine_version("12.09.4") == (12, 9, 4)
                         and parse_limine_version("9" * 5000 + ".0.0") is None,
                         "-", []))
+        # round 93 V3: the installed-version probe and the exact 12.9.5 boundary
+        case("era-exact-first-entry", first_entry, False, 1, [(3, "LP-MISMATCH", "panic")],
+             ver="12.9.5", want_era="12.9.5+")
+        probe_dir = os.path.join(work, "probe-bin")
+        os.makedirs(probe_dir)
+        fake = os.path.join(probe_dir, "limine")
+
+        def fake_probe(body):
+            with open(fake, "w") as f:
+                f.write("#!/bin/sh\n%s\n" % body)
+            os.chmod(fake, 0o755)
+            return probe_limine_version(fake)
+
+        results.append(("probe-version",
+                        fake_probe('echo "Limine 12.9.6"') == "12.9.6"
+                        and fake_probe('echo "Limine 12.9.4"; echo "BSD-2-Clause"') == "12.9.4"
+                        and fake_probe("exit 1") is None
+                        and fake_probe('echo "no version here"') is None
+                        and probe_limine_version(os.path.join(probe_dir, "absent")) is None,
+                        "-", []))
         r = check(os.path.join(work, "absent.conf"), esp, False)
         results.append(("conf-absent", r["rc"] == 2 and r["pins"] == [], r["rc"], r["pins"]))
     finally:
@@ -443,26 +492,36 @@ def main():
     ap.add_argument("--esp")
     ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)
     ap.add_argument("--tpm-present", choices=("0", "1"), default=None)
-    ap.add_argument("--limine-version", default="12.9.4")
+    ap.add_argument("--limine-version", default="12.9.4",
+                    help="X.Y.Z, or `auto` to probe `limine --version` (round 93 V3)")
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
-    if parse_limine_version(a.limine_version) is None:
+    version, version_source = a.limine_version, "flag"
+    if version == "auto":
+        probed = probe_limine_version()
+        if probed is None:
+            ap.print_usage(sys.stderr)
+            print("check-limine-pins: --limine-version auto: `limine --version` probe failed",
+                  file=sys.stderr)
+            return 64
+        version, version_source = probed, "probe"
+    if parse_limine_version(version) is None:
         ap.print_usage(sys.stderr)
-        print("check-limine-pins: --limine-version must be X.Y.Z", file=sys.stderr)
+        print("check-limine-pins: --limine-version must be X.Y.Z or auto", file=sys.stderr)
         return 64
     tpm = None if a.tpm_present is None else a.tpm_present == "1"
     if a.live:
         conf, esp = a.conf or "/boot/limine.conf", a.esp or "/boot"
         sb = live_secure_boot() if a.secure_boot_enforced is None else a.secure_boot_enforced == "1"
-        r = check(conf, esp, bool(sb), tpm, a.limine_version)
+        r = check(conf, esp, bool(sb), tpm, version, version_source)
         r["secure_boot_source"] = "efivar" if a.secure_boot_enforced is None else "argument"
         if sb is None:
             r["secure_boot_source"] = "efivar unreadable; treated as not enforced"
     elif a.conf and a.esp:
-        r = check(a.conf, a.esp, a.secure_boot_enforced == "1", tpm, a.limine_version)
+        r = check(a.conf, a.esp, a.secure_boot_enforced == "1", tpm, version, version_source)
     else:
         ap.print_usage(sys.stderr)
         return 64

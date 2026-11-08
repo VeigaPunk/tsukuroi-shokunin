@@ -1,0 +1,22 @@
+{
+ "claims": {
+  "C1": {
+   "predicate": "tools/limine-pin-battery-r93.py --gate G --runs 3 carries, on fixtures generated fresh per run, four families the r92 roster did not have — ERA-EXACT-125 (version exactly 12.9.5; a first-line-entry config's hash_mismatch_panic: no is invisible, so its mismatch pin's consequence is panic), ERA-B-FIRST-BODY (12.9.6; a hash_mismatch_panic: no key on the line immediately after the first entry label is invisible, so the mismatch consequence is panic), ERA-B-U1 (12.9.6; an unhashed efi image line inside an entry body appears in unverified_image_lines) and REFUSAL-VERSIONS (each of ten values outside X.Y.Z exits 64 with empty stdout and no verdict) — and against the landed gate the whole roster reads 96/96 met in each of three runs in the canonical lane and in a git clone --shared, while each of the four one-clause gates N01 (era split strict), N02 (era-B cut one line late), N03 (U1 restricted to the pre-cut text in era B) and N04 (version refusal deleted) reads unmet in each of three runs in both layouts with its named family in failed_families and zero error rows.",
+   "target": "landed gate 96/96 met x3 canonical and clone; N01 failed_families contains ERA-EXACT-125; N02 contains ERA-B-FIRST-BODY; N03 contains ERA-B-U1; N04 contains REFUSAL-VERSIONS; each x3 both layouts; every case row error null",
+   "kill": "unmet if any landed-gate run reads below 96/96; unmet if any named bend does not read unmet in all three runs in both layouts; unmet if the named family is absent from that bend's failed_families in any run; unmet if any case row carries a non-null error; void if any instrument byte differs from .ufo/waves/round-93/before/freeze-manifest.sha256 at scoring time",
+   "counting": "python3 tools/limine-pin-battery-r93.py --gate <GATE> --runs 3 --work <scratch> --json <out> plus .ufo/waves/round-93/before/controls/count-runs.py over the JSON",
+   "axis": "depth",
+   "score": 8,
+   "kind": "measured"
+  },
+  "C2": {
+   "predicate": "tools/check-limine-pins.py --limine-version auto resolves the installed bootloader by running limine --version read-only (PATH lookup, 5 s timeout, the first X.Y.Z in its output), records the resolved value in JSON limine_version and its origin in limine_version_source probe, selects the visibility era from that value, and refuses (rc 64, empty stdout, no verdict) when the probe fails; the r93 battery's AUTO-ERA-A (a fake limine answering 12.9.4 selects era A), AUTO-ERA-B (a fake answering 12.9.6 selects era B) and AUTO-PROBE-FAIL (a fake exiting 1 must be refused) families, whose inputs are committed fake limine scripts under the case directory on PATH, read met in each of three runs in the canonical lane and in a git clone --shared; the one-clause gates N05 (a probed version is not used for era selection) and N06 (probe failure falls back to 12.9.4) read unmet in each of three runs in both layouts with AUTO-ERA-B and AUTO-PROBE-FAIL respectively in failed_families; and python3 tools/check-limine-pins.py --live --limine-version auto on this host prints limine_version 12.9.4 with limine_version_source probe (rc 1, the two operator-owned pin mismatches at /boot/limine.conf lines 30 and 38).",
+   "target": "the three auto families met x3 both layouts; N05/N06 unmet x3 both layouts with the named family; live JSON limine_version equals limine --version's first X.Y.Z and limine_version_source is probe; 0 error rows",
+   "kill": "unmet if any auto family fails in any run; unmet if N05 or N06 does not read unmet with its named family in failed_families in all three runs in both layouts; unmet if the live JSON's source is not probe or its version differs from the probed binary's answer; void if any instrument byte differs from the freeze manifest at scoring time",
+   "counting": "python3 tools/limine-pin-battery-r93.py --gate <GATE> --runs 3 --work <scratch> --json <out> with the count-runs.py family filter, and python3 tools/check-limine-pins.py --live --limine-version auto",
+   "axis": "operability",
+   "score": 9,
+   "kind": "measured"
+  }
+ }
+}
