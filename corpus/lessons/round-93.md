@@ -23,15 +23,8 @@ Rejected / refused this round:
   version-print source — the print lives in `host/limine.c` (S384); the file is pinned as a negative
   locator (`grep -c 'Limine '` = 0 on the version path).
 
-Anchor change this round (logged old → new, no silent rewrite): S377's anchor cell read
-`Python 3.14 docs`; the pinned snapshot (`.ufo/waves/round-92/before/src/python-3-cmdline.txt`) and the
-live page both carry `Python 3.15.2` (the two `3.17` mentions are inside the `-b`/`-bb` deprecation note, not a page version), so the cell now
-reads `Python 3.15.2 docs`; the ≤25-word quote is unchanged. The QUALITY-127 sweep receipt is
-`.ufo/waves/round-93/after/q127-s377-pre.txt` (prints the old cell at the freeze revision) and its
-landing leg is written at filing.
-
 Anchor changes logged this round (old → new, no silent rewrite): (a) S377's anchor cell read
-`Python 3.14 docs`; the pinned snapshot and the live page both carry `Python 3.15.2` (the two `3.17`
+the `Python 3.14` docs line; the pinned snapshot and the live page both carry `Python 3.15.2` (the two `3.17`
 mentions are inside the `-b`/`-bb` deprecation note, not a page version), so the cell now reads
 `Python 3.15.2 docs`; the ≤25-word quote is unchanged. (b) S384's anchor cell said the version print
 was at raw 2029 and `--version-only` at raw 2022-2026; ScoutSource re-read the pinned bytes: the print
@@ -54,12 +47,20 @@ receipts stay labelled as such). This round's own non-author clos is the hyaku c
 - **M1 (`landing`, disclosed) — a one-run smoke of the candidate gate ran before the freeze commit.**
   Class: `landing`. The r93 battery was exercised once against the candidate gate (`96/96 met`,
   `.ufo/waves/round-93/after/` was not yet a receipt) during instrument development, before the
-  freeze landed at `c633f49a`. Captured-by: the freeze-before-score rule (`PROTOCOL.md`, the r92
-  declaration's "No score of it is a receipt") — the rule fired only as a disclosure because the run
-  left no receipt and every claimed number is from post-freeze runs. Fix: the smoke is disclosed in
+  freeze landed at `c633f49a`. Captured-by: the round-93 declaration's own disclosure sentence
+  (`SCORECARD.md` "Round 93 — declaration", frozen at `c633f49a`: "the candidate was drafted alongside
+  the battery; no score of it is a receipt. The landed gate is committed and scored only after this
+  freeze"), QUALITY 114 (`R82-FROZEN-CONTROLS`) and QUALITY 73 (`R28-BATTERY-MEASURE`: a run of
+  uncommitted counter bytes is development output) — the lane has no `PROTOCOL.md`; the fleet-root
+  file carries no freeze rule (ScribeLesson §4, `git log --all -- PROTOCOL.md` empty). The rule fired
+  only as a disclosure because the run left no receipt and every claimed number is from post-freeze
+  runs. Fix: the smoke is disclosed in
   the report, the freeze manifest pins the bytes all receipts used, and the lesson records that a
   smoke must be labelled as instrument development in the plan before the freeze. Shown able to fail:
-  the freeze-manifest check (`sha256sum -c`) passes on the exact bytes the receipts scored.
+  at the freeze commit the 14-line manifest verifies 14/14 (`w1/ExecReplicate/clone-identity.txt`) and
+  the 13-line instrument-only manifest (`before/instruments.sha256`) verifies clean at the landing
+  tip; the 14-line file's plan line changes only by this plan's own appended amendments (the r92 A8
+  precedent excluded declarations from that manifest — the over-pin is recorded in A2/A4).
 
 - **M2 (`calibration`, self-found by the measured do-nothing leg) — a refusal-shaped control cannot
   certify a refusal family.** Class: `calibration`. The frozen C2 control sentence said the r92 gate

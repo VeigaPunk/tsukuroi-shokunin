@@ -1,0 +1,10 @@
+--- check-limine-pins.py
++++ M14.py
+@@ -92,6 +92,7 @@
+     raises above 4300 digits (round-92 ReviewGate F1)."""
+     if not isinstance(text, str):
+         return None
++    text = text.strip()   # M14: surrounding blanks accepted
+     parts = text.split(".")
+     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+         return None

@@ -1,0 +1,137 @@
+[
+  {
+    "lane": "chousa-shokunin",
+    "file": "tools/research-gate.sh",
+    "probes": "GNU coreutils (mktemp, sed, mkdir, cat, rm, sort, readlink, dirname, date, tr, wc, od, head, stat), GNU grep, GNU coreutils env, GNU bash",
+    "mechanism": "captool_verify, grep_pin_verify, env_pin_verify, bash_pin_verify via timeout 10 \"$cand\" --version 2>/dev/null",
+    "fails_closed": true,
+    "behavior_on_failure": "Refuses before reading records with exit 2 (<NAME>_PROVENANCE refused: <reason>)",
+    "notes": "Implements grep-pin pattern (grep-pin-r35.md) to guard against PATH shadowing and malicious aliases."
+  },
+  {
+    "lane": "kaidoku-shokunin",
+    "file": "tools/round-69/contract-probe.py",
+    "probes": "UPX executable (/usr/bin/upx)",
+    "mechanism": "subprocess.run([UPX, '--version'], capture_output=True, text=True)",
+    "fails_closed": true,
+    "behavior_on_failure": "If absent or fails, host_version is None; packer.version / version_pin comparison fails -> test arm fails",
+    "notes": "Verified against host packer sha256 and version pin."
+  },
+  {
+    "lane": "kaidoku-shokunin",
+    "file": "tools/round-70/contract-probe.py",
+    "probes": "UPX executable (/usr/bin/upx)",
+    "mechanism": "subprocess.run([UPX, '--version'], capture_output=True, text=True)",
+    "fails_closed": true,
+    "behavior_on_failure": "host_version is None; packer.version_pin comparison fails -> test arm fails",
+    "notes": "Checks packer pin enforcement."
+  },
+  {
+    "lane": "kaidoku-shokunin",
+    "file": "tools/round-70/packed-elf.py (and r71, r72, r73)",
+    "probes": "upx, node",
+    "mechanism": "run([upx, '--version'], env=cenv), run([shutil.which('node') or 'node', '--version'])",
+    "fails_closed": true,
+    "behavior_on_failure": "Refuses execution unless version banner matches pinned expectation",
+    "notes": "UPX is refused without ever being run; only its --version banner is checked."
+  },
+  {
+    "lane": "kaidoku-shokunin",
+    "file": "tools/round-50/c1-counter.py",
+    "probes": "unblob, node",
+    "mechanism": "_first_line([unblob_path, '--version']), _first_line([node, '--version'])",
+    "fails_closed": true,
+    "behavior_on_failure": "unblob --version must equal frozen 26.6.4 else exit 2",
+    "notes": "Direct version pin assertion."
+  },
+  {
+    "lane": "kaidoku-shokunin",
+    "file": "tools/round-39/c1-run.sh (and r40, r41, r42, r50, r67)",
+    "probes": "unblob, rea-agents (via npx)",
+    "mechanism": "\"$unblob\" --version 2>&1 | sed -n 1p; timeout 120 npx -y \"$rea_pin\" --version 2>/dev/null",
+    "fails_closed": false,
+    "behavior_on_failure": "Captures version into receipt metadata; falls back to empty if probe fails",
+    "notes": "Informational metadata capture in run scripts."
+  },
+  {
+    "lane": "kaidoku-shokunin",
+    "file": "tools/round-42/sqfs3-oracle.py",
+    "probes": "backhand",
+    "mechanism": "run([backhand_binary, '--version'])",
+    "fails_closed": true,
+    "behavior_on_failure": "Throws / fails oracle setup if binary cannot run",
+    "notes": "Oracle tool readiness check."
+  },
+  {
+    "lane": "kama-shokunin",
+    "file": "tools/kama-context-capacity.py",
+    "probes": "server_real (llama.cpp server)",
+    "mechanism": "subprocess.run([server_real, '--version'], capture_output=True, text=True, timeout=60)",
+    "fails_closed": true,
+    "behavior_on_failure": "Raises SetupError('server-version-failed:...') or SetupError('server-version-mismatch:...')",
+    "notes": "Guards model context capacity testing against wrong server versions."
+  },
+  {
+    "lane": "kama-shokunin",
+    "file": "tools/round89-router-signatures.py",
+    "probes": "a.server (router server)",
+    "mechanism": "subprocess.run([str(a.server), '--version'], capture_output=True, text=True, timeout=30)",
+    "fails_closed": false,
+    "behavior_on_failure": "Defaults build string to '?' if version prefix not found",
+    "notes": "Metadata capture for router signature receipts."
+  },
+  {
+    "lane": "mado-shokunin",
+    "file": "tools/mado-verify.sh",
+    "probes": "walker, waybar",
+    "mechanism": "walker --version 2>/dev/null | head -1; waybar --version 2>/dev/null | head -1",
+    "fails_closed": true,
+    "behavior_on_failure": "Emits FAIL row to verification log if version output does not match pinned version",
+    "notes": "Wayland environment surface verification."
+  },
+  {
+    "lane": "mori-shokunin",
+    "file": "tools/mori-round17-jj-regressions.py",
+    "probes": "git, jj",
+    "mechanism": "tool_version([tools['git'], '--version']), tool_version([tools['jj'], '--version'])",
+    "fails_closed": false,
+    "behavior_on_failure": "Records 'absent' if tool not present",
+    "notes": "Diagnostic environment census in regression harness."
+  },
+  {
+    "lane": "souji-shokunin",
+    "file": "tools/souji-size-census.py",
+    "probes": "git",
+    "mechanism": "checked(env, '--version').strip()",
+    "fails_closed": true,
+    "behavior_on_failure": "Exits 1 on missing git, nonzero exit, or unexpected stderr",
+    "notes": "Git repository census tool."
+  },
+  {
+    "lane": "souji-shokunin",
+    "file": "tools/souji-repo-structure.sh",
+    "probes": "git",
+    "mechanism": "git_version=\"$(\"${GIT[@]}\" --version)\"",
+    "fails_closed": false,
+    "behavior_on_failure": "Captures output into variable; shell continues",
+    "notes": "Diagnostic capture."
+  },
+  {
+    "lane": "souji-shokunin",
+    "file": "tools/cand-e1-regress.sh",
+    "probes": "git",
+    "mechanism": "git --version 2>/dev/null || printf 'git-absent'",
+    "fails_closed": false,
+    "behavior_on_failure": "Prints fallback string 'git-absent'",
+    "notes": "Regression report header."
+  },
+  {
+    "lane": "tameshi-shokunin",
+    "file": "tools/env-diff.py",
+    "probes": "node, bash",
+    "mechanism": "subprocess.run([command, '--version'], capture_output=True, env=parent_env(), timeout=10)",
+    "fails_closed": true,
+    "behavior_on_failure": "Catches OSError/ValueError -> prints ENVDIFF_SETUP: and returns exit 2",
+    "notes": "Hermetic environment differential runner."
+  }
+]

@@ -1,0 +1,99 @@
+=== 03 count-runs.py: error rows make a met run read failed ===
+--- code (frozen control, sha256 666eace6..., freeze manifest line 12) ---
+        data = json.load(f)
+    runs = data if isinstance(data, list) else [data]
+    fams = a.family or sorted({e["family"] for r in runs for e in r.get("case_log", [])})
+    out = {"runs": [], "families": fams}
+    ok = True
+    for r in runs:
+        errors = sum(1 for e in r.get("case_log", []) if e.get("error") is not None)
+        per = {}
+        for e in r.get("case_log", []):
+            if e["family"] in fams:
+                p = per.setdefault(e["family"], [0, 0])
+                p[0 if e["passed"] else 1] += 1
+        out["runs"].append({"verdict": r.get("verdict"),
+                            "families_passed": r.get("families_passed"),
+                            "families_total": r.get("families_total"),
+                            "failed_families": r.get("failed_families"),
+                            "cases": r.get("cases"), "error_rows": errors,
+                            "named": per})
+        if r.get("verdict") != "met" or errors:
+            ok = False
+    print(json.dumps(out, indent=1))
+    return 0 if ok else 1
+
+
+--- synthetic fixture: verdict met, families 96/96, ONE error row ---
+[{"verdict": "met", "families_passed": 96, "families_total": 96, "cases": 384, "failed_families": [], "case_log": [{"family": "ERA-EXACT-125", "passed": true, "error": null}, {"family": "ERA-B-U1", "passed": true, "error": "bad-output: JSONDecodeError"}]}]$ python3 .ufo/waves/round-93/before/controls/count-runs.py <synth>
+{
+ "runs": [
+  {
+   "verdict": "met",
+   "families_passed": 96,
+   "families_total": 96,
+   "failed_families": [],
+   "cases": 384,
+   "error_rows": 1,
+   "named": {
+    "ERA-EXACT-125": [
+     1,
+     0
+    ],
+    "ERA-B-U1": [
+     1,
+     0
+    ]
+   }
+  }
+ ],
+ "families": [
+  "ERA-B-U1",
+  "ERA-EXACT-125"
+ ]
+}
+rc=1
+
+--- family filter does NOT narrow the pass/fail: --family on a bend leg ---
+   "verdict": "unmet",
+   "families_passed": 95,
+   "families_total": 96,
+   "failed_families": [
+    "ERA-EXACT-125"
+   ],
+   "cases": 384,
+   "error_rows": 0,
+   "named": {
+    "ERA-EXACT-125": [
+     0,
+     4
+    ]
+   }
+  }
+ ],
+ "families": [
+  "ERA-EXACT-125"
+ ]
+}
+rc=0
+
+=== exit-code semantics, UNPIPED (the earlier rc=0 line was tail's status) ===
+$ count-runs.py bend-N01 --family ERA-EXACT-125 > /dev/null ; echo rc=$?
+rc=1
+$ count-runs.py c1-canonical.json > /dev/null ; echo rc=$?
+rc=0
+$ count-runs.py c2-donothing-r92-gate.json > /dev/null ; echo rc=$?
+rc=1
+
+--- per-family tally on that bend leg (named) ---
+named: {'ERA-EXACT-125': [0, 4]}  verdict: unmet  failed: ['ERA-EXACT-125']  error_rows: 0
+
+--- count-runs.py is a FROZEN, manifest-pinned control ---
+666eace66ca27e34350c9878f8a681e02e2d143de6c62506dc28953bc38908e4  .ufo/waves/round-93/before/controls/count-runs.py
+--- the plan is pinned too, and was amended after the freeze ---
+4600cfa32563d267ca2ded47168e55b63f4d2c60e4b11aadfb87ecb706d28002  .ufo/plans/round-93.md
+4600cfa32563d267ca2ded47168e55b63f4d2c60e4b11aadfb87ecb706d28002  -
+70423d691af2ce57341a9021f7c4fe891960e7703f6090fbd488b76330a6ea55  .ufo/plans/round-93.md
+--- r92 A8 precedent: declarations NOT pinned in the r92 manifest ---
+28
+(no output = declarations not pinned)

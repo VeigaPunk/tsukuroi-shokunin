@@ -5952,7 +5952,13 @@ fixtures (adds `era-exact-first-entry` and `probe-version`), and the live form i
 `sudo python3 tools/check-limine-pins.py --live --limine-version auto` (receipts
 `.ufo/waves/round-93/after/live-c2.json`). Two tools are added above: `limine-pin-battery-r93` (96
 families, the r93 C1/C2 instrument) and `make-r93-bends` (the one-clause bend generator). Write scope
-unchanged (read-only).
+unchanged (read-only). The frozen rule set is now the `limine-pin-battery-r93` docstring (96 families,
+R1-R10 + R8 + V1/V2/V3 + U1); sources add S382 (v12.9.5 `common/lib/config.c`), S383 (v12.9.5
+ChangeLog) and S384 (v12.9.5 `host/limine.c`, the `--version` output); the `limine-pins` 64 clause now
+covers `--limine-version` outside `X.Y.Z|auto` and an `auto` probe that cannot identify the installed
+bootloader (absent, nonzero, no parsable version, 5 s timeout), rc 64 with no verdict and empty stdout.
+`make-r93-bends` has no argument parser: any argument is ignored and the six bends are regenerated
+deterministically (byte-identical, mtimes only — ExecLints F2).
 
 ## Round-81 correction — R81-REG-1: the `measure-round80` row's selftest cell
 

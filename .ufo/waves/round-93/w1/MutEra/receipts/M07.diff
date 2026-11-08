@@ -1,0 +1,11 @@
+--- check-limine-pins.py
++++ M07.py
+@@ -245,6 +245,8 @@
+     # unverified_image_lines. It changes no pin verdict.
+     unverified = []
+     for img_ln in sorted(image_lines):
++        if era_b and first_entry is not None and img_ln >= first_entry:
++            continue   # M07: U1 sees the global section only in era B
+         kv = split_key(lines[img_ln - 1])
+         if kv is None:
+             continue

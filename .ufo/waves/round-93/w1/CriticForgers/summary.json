@@ -1,0 +1,285 @@
+{
+ "schema": "tsukuroi-r93-critic-forgers-v1",
+ "seat": "CriticForgers",
+ "lane_head": "c633f49aa512e1c8a0e0464b7fb5d354c70096cf",
+ "instruments": {
+  "gate": "6b4c53d1b56f4935cbcad3327259c15dd643af5ecec428522f998b7c5b6260aa",
+  "battery": "ddd7e9550da163575ea5c41416f7fc6effd6dcdea9e477843b9fd759675e1aad",
+  "do_nothing_gate": "35c1088b7bacb31dfe92e087416136271b6ddef9aebf8fb36727696af8d5c87f",
+  "do_nothing_battery": "aef3392516aabf2942192cd55d637560b6276bc98b8bf8796f33bd464d02614f"
+ },
+ "environment": {
+  "python": "3.14.8",
+  "bubblewrap": "0.13.1",
+  "cores": 32,
+  "installs": "none"
+ },
+ "baselines": {
+  "reference": {
+   "verdict": "met",
+   "families_passed": 96,
+   "families_total": 96,
+   "cases": 384,
+   "failed_families": [],
+   "error_rows": 0,
+   "failed_cases": 0,
+   "file": "ref.json"
+  },
+  "independent": {
+   "verdict": "met",
+   "families_passed": 96,
+   "families_total": 96,
+   "cases": 384,
+   "failed_families": [],
+   "error_rows": 0,
+   "failed_cases": 0,
+   "file": "ind.json"
+  }
+ },
+ "independent": {
+  "file": "independent.py",
+  "sha256": "2bea245d864a088e7403b2bcbfc3da9c336f2d7eb9bf217f3f1664db67401b3b",
+  "note": "written from the battery module docstring (R1-R10/V1/V2/V3/U1 + GATE OUTPUT CONTRACT), no imports of battery or gate; 96/96 met"
+ },
+ "ambiguous_unsampled": [
+  {
+   "id": "A1",
+   "clause": "R5 ESP containment for .. / symlink out of --esp",
+   "independent": "OK/HEALTHY/rc0",
+   "gate": "LP-UNRESOLVED/CANNOT-EVALUATE/rc2",
+   "family": "none",
+   "receipt": "amb/traversal.conf"
+  },
+  {
+   "id": "A2",
+   "clause": "R8 empty entry label",
+   "independent": "entry ''",
+   "gate": "entry previous label",
+   "family": "none",
+   "receipt": "amb/labels.conf"
+  },
+  {
+   "id": "A3",
+   "clause": "R5 existing regular file that cannot be read",
+   "independent": "LP-MISSING (choice)",
+   "gate": "LP-UNRESOLVED",
+   "family": "none"
+  },
+  {
+   "id": "A4",
+   "clause": "V3 probe output grammar",
+   "independent": "first bare X.Y.Z",
+   "gate": "requires 'limine' token before X.Y.Z",
+   "family": "none"
+  }
+ ],
+ "forgers": [
+  {
+   "id": "f1",
+   "bend": "V1/V2 first-entry visibility -> line 1 is an entry and len(text.split(chr(10))) <= 8, era ignored",
+   "sha256": "363d7cbd34e68e14162f6fb63b8761be187b22fe0fdfa795fa9b4722e7ac78e4",
+   "verdict": "unmet",
+   "families_passed": 90,
+   "families_total": 96,
+   "cases": 384,
+   "failed_families": [
+    "AUTO-ERA-B",
+    "ERA-B-FIRST-BODY",
+    "ERA-EXACT-125",
+    "ERA-FLE-MEASURED-B",
+    "ERA-FLE-PANIC-B",
+    "FIRST-LINE-ENTRY"
+   ],
+   "error_rows": 0,
+   "failed_cases": 24,
+   "file": "f1.json"
+  },
+  {
+   "id": "f2",
+   "bend": "U1 candidate set -> every path: key line with a non-pin value, regardless of protocol/image line",
+   "sha256": "893fd1441f42a335166cd3d81c924e33809fd194ed23c91f972a0192e5fddf4d",
+   "verdict": "unmet",
+   "families_passed": 93,
+   "families_total": 96,
+   "cases": 384,
+   "failed_families": [
+    "UNVERIFIED-IMAGE-PATH",
+    "UNVERIFIED-NON-EFI",
+    "UNVERIFIED-SORTED"
+   ],
+   "error_rows": 0,
+   "failed_cases": 12,
+   "file": "f2.json"
+  },
+  {
+   "id": "f3",
+   "bend": "version handling -> every non-auto --limine-version refused rc 64 (blanket refusal)",
+   "sha256": "67f9197e3b8e155a730bb6df36d34190eb695fd8bac5d099beb5ade8cea34597",
+   "verdict": "unmet",
+   "families_passed": 4,
+   "families_total": 96,
+   "cases": 384,
+   "failed_families": [
+    "ALL-PIN-KEYS",
+    "BAD-OVER-UNRESOLVED",
+    "BAD-RESOURCE",
+    "BAD-RESOURCE-OPTIONAL",
+    "BLANK-CLASS",
+    "COMMENT-DECOY",
+    "CONF-UNREADABLE",
+    "CR-INTERNAL",
+    "DOUBLE-DOLLAR",
+    "EFI-IMAGE-MISSING",
+    "EMPTY-PATH",
+    "EMPTY-PIN-LIST",
+    "EMPTY-ROOT-RESOURCE",
+    "ENTRY-LABEL",
+    "ENTRY-LABEL-EDGES",
+    "ENTRY-SCOPE",
+    "ERA-B-FIRST-BODY",
+    "ERA-B-U1",
+    "ERA-DEFAULT",
+    "ERA-EXACT-125",
+    "ERA-FLE-MEASURED-A",
+    "ERA-FLE-MEASURED-B",
+    "ERA-FLE-PANIC-A",
+    "ERA-FLE-PANIC-B",
+    "ERA-GLOBAL-KEY-A",
+    "ERA-GLOBAL-KEY-B",
+    "FIRST-LINE-ENTRY",
+    "FIRST-PATH",
+    "FIRST-PROTOCOL",
+    "FIRST-URI-SEP",
+    "FORMAT-BEFORE-BAD",
+    "FORMAT-BEFORE-RESOLVE",
+    "GLOBAL-VS-ENTRY",
+    "GZ-RAW",
+    "HASH-LENGTH",
+    "HASH-NONHEX",
+    "HASH-UPPER",
+    "HOST-SHAPE",
+    "KEY-CASE",
+    "KEY-EQUALS",
+    "KEY-SPACING",
+    "LARGE-FILE",
+    "LAST-HASH",
+    "MALFORMED-INPUT",
+    "MEASURED-DECOY",
+    "MEASURED-FIRST",
+    "MEASURED-GLOBAL-ONLY",
+    "MEASURED-IN-ENTRY",
+    "MEASURED-SB",
+    "MEASURED-TPM-ABSENT",
+    "MEASURED-TPM0",
+    "MEASURED-TPM1",
+    "MEASURED-VALUE-CASE",
+    "MISMATCH-EARLY",
+    "MISMATCH-LATE",
+    "MISSING",
+    "MULTI-FAULT",
+    "NO-PAREN",
+    "NON-EFI-MISSING",
+    "NON-UTF8",
+    "OPTIONAL-HASH-FORMAT",
+    "OPTIONAL-KEY-CASE",
+    "OPTIONAL-MISSING",
+    "OPTIONAL-SKIP",
+    "OPTIONAL-UNRESOLVED",
+    "PANIC-AFTER-PIN",
+    "PANIC-DEFAULT",
+    "PANIC-FIRST",
+    "PANIC-GLOBAL-ONLY",
+    "PANIC-KEY-CASE",
+    "PANIC-METADATA",
+    "PANIC-NO-ONLY",
+    "PANIC-NON-NO",
+    "PANIC-RAW-DECOY",
+    "PANIC-VALUE-BLANKS",
+    "PAREN-PATH",
+    "PATH-PRECEDENCE",
+    "POSITIVE",
+    "PROTOCOL-DECOY",
+    "RESOURCE-CASE",
+    "ROOT-ON-BOOT",
+    "SB-FLAG-ZERO",
+    "SECUREBOOT",
+    "UNHASHED-DECOYS",
+    "UNRESOLVED",
+    "UNVERIFIED-IMAGE",
+    "UNVERIFIED-IMAGE-PATH",
+    "UNVERIFIED-MIXED",
+    "UNVERIFIED-NON-EFI",
+    "UNVERIFIED-SORTED",
+    "VALID-RESOURCES",
+    "WHITESPACE-CRLF"
+   ],
+   "error_rows": 368,
+   "failed_cases": 368,
+   "file": "f3.json"
+  },
+  {
+   "id": "f4",
+   "bend": "V3 -> probe output echoed but era forced to pre-12.9.5",
+   "sha256": "e05ff3eb12461095c6261bd93b807e8daf96091cb8b8915f04e987647eea9e3f",
+   "verdict": "unmet",
+   "families_passed": 95,
+   "families_total": 96,
+   "cases": 384,
+   "failed_families": [
+    "AUTO-ERA-B"
+   ],
+   "error_rows": 0,
+   "failed_cases": 4,
+   "file": "f4.json"
+  },
+  {
+   "id": "f5",
+   "bend": "V3 -> era B whenever the probe target's PATH head is not /usr/bin",
+   "sha256": "197c0086b1421c552f9eee84f918c94c10cdde51d6e1b4d152d3f686f15726a1",
+   "verdict": "unmet",
+   "families_passed": 95,
+   "families_total": 96,
+   "cases": 384,
+   "failed_families": [
+    "AUTO-ERA-A"
+   ],
+   "error_rows": 0,
+   "failed_cases": 4,
+   "file": "f5.json"
+  },
+  {
+   "id": "f6",
+   "bend": "V3 probe mechanism -> read <cwd>/bin/limine source, never execute limine --version",
+   "sha256": "7e612f6d7a06d36ee690bd415b94974255995bd3372f390fe9bab22beee85b6f",
+   "verdict": "met",
+   "families_passed": 96,
+   "families_total": 96,
+   "cases": 384,
+   "failed_families": [],
+   "error_rows": 0,
+   "failed_cases": 0,
+   "file": "f6.json"
+  }
+ ],
+ "survivors": [
+  "f6"
+ ],
+ "leakage": {
+  "docstring_sentence": "Fixtures carry no answer: ... no expected value on disk",
+  "false_for": [
+   "AUTO-ERA-A",
+   "AUTO-ERA-B",
+   "AUTO-PROBE-FAIL"
+  ],
+  "why": "<case>/bin/limine literal source is echo \"Limine <expected>\" or exit 1; cwd is the case dir",
+  "witness": "f6 met 96/96 without executing limine --version",
+  "corrections": [
+   "decoy X.Y.Z before the echo in build() so a source scanner gets the wrong version",
+   "optional execution receipt: fake touches a marker in a rw bind, battery asserts it",
+   "reword the docstring sentence"
+  ]
+ },
+ "run_commands": [
+  "python3 <lane>/tools/limine-pin-battery-r93.py --gate <gate> --runs 1 --work <own dir> --json <out>"
+ ]
+}

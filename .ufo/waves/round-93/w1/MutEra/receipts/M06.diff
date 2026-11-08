@@ -1,0 +1,11 @@
+--- check-limine-pins.py
++++ M06.py
+@@ -218,7 +218,7 @@
+     for lineno, raw in enumerate(lines, 1):
+         stripped = raw.replace("\r", "").strip(" \t")
+         if stripped.startswith("/"):
+-            if first_entry is not None and lineno == first_entry and (era_b or first_entry != 1):
++            if first_entry is not None and lineno == first_entry and (first_entry != 1):   # M06
+                 in_global = False
+             entry = sanitize(stripped.lstrip("/").lstrip("+").strip()) or entry
+             body = {}

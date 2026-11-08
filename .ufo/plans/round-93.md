@@ -256,3 +256,14 @@ Artifacts: `after/clone-gate.json`, `after/clone-bend-N01-exact-split.json`,
 failure always carries `error: null` (its detail lives in `rows`/`got`), so "0 error rows" is not a
 clean-case proof by itself. The claim's clean-case proof is `failed_families` naming the family in every
 run plus the `error: null` count; the report and SCORECARD cite both, never the error count alone.
+
+## Amendment A4 (2026-11-08, after data; disclosure only) — the pre-freeze instrument-development smoke
+
+Before the freeze commit (`c633f49a`), the L1 ran the candidate battery once against the candidate
+gate during instrument development (`96/96 met`). The run left no receipt, and **no number in this
+round's claims is derived from it**: every cited canonical, bend, clone and live receipt was produced
+after the freeze and scored the frozen bytes (the 13-line `before/instruments.sha256` verifies clean at
+the landing tip). This amendment records the run as instrument development under QUALITY 114
+(`R82-FROZEN-CONTROLS`) and QUALITY 73 (`R28-BATTERY-MEASURE`), and lesson M1 records the class.
+Artifacts: `corpus/lessons/round-93.md` M1; `w1/ScribeLesson/receipts/02-freeze-manifest-check.txt`
+(the freeze/landing hashes).

@@ -1,0 +1,11 @@
+--- check-limine-pins.py
++++ M05.py
+@@ -217,6 +217,8 @@
+     in_global = True
+     for lineno, raw in enumerate(lines, 1):
+         stripped = raw.replace("\r", "").strip(" \t")
++        if first_entry is not None and lineno == first_entry - 1:
++            in_global = False   # M05: last global line treated as body
+         if stripped.startswith("/"):
+             if first_entry is not None and lineno == first_entry and (era_b or first_entry != 1):
+                 in_global = False

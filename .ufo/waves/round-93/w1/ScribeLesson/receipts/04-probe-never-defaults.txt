@@ -1,0 +1,44 @@
+=== 04 probe contract: fail closed, empty stdout, value+source named ===
+--- gate code (frozen, sha 6b4c53d1...) tools/check-limine-pins.py:503-511 ---
+    if version == "auto":
+        probed = probe_limine_version()
+        if probed is None:
+            ap.print_usage(sys.stderr)
+            print("check-limine-pins: --limine-version auto: `limine --version` probe failed",
+                  file=sys.stderr)
+            return 64
+        version, version_source = probed, "probe"
+    if parse_limine_version(version) is None:
+
+--- probe function head (tools/check-limine-pins.py:104-121) ---
+def probe_limine_version(executable="limine"):
+    """V3 (round 93): the installed bootloader's version, read-only.
+
+    Runs `<executable> --version` (PATH lookup by default; the caller may name a path) with a 5 s
+    timeout and returns the first `X.Y.Z` in its output, or None when the binary is absent, exits
+    nonzero, times out or prints no parsable version. Nothing is written; the probe reads stdout
+    only. `limine --version` on this host prints `Limine 12.9.4`."""
+    try:
+        p = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if p.returncode != 0:
+        return None
+    m = re.search(r"(?i)\blimine\s+v?(\d+\.\d+\.\d+)\b", p.stdout)
+    return m.group(1) if m else None
+
+
+def split_key(raw):
+
+--- live receipt: value + source named ---
+{'limine_version': '12.9.4', 'limine_version_source': 'probe', 'visibility_era': 'pre-12.9.5', 'verdict': 'DEGRADED', 'rc': 1}
+
+--- fake limine exiting 1 on PATH: rc and stdout bytes (this seat, scratch) ---
+0
+stdout_bytes above (0 = empty)
+rc=64 (see stderr tail)
+check-limine-pins: --limine-version auto: `limine --version` probe failed
+
+--- N06 (silent fallback) kills AUTO-PROBE-FAIL; N05 kills AUTO-ERA-B ---
+[('unmet', ['AUTO-PROBE-FAIL'], 0), ('unmet', ['AUTO-PROBE-FAIL'], 0), ('unmet', ['AUTO-PROBE-FAIL'], 0)]
+[('unmet', ['AUTO-ERA-B'], 0), ('unmet', ['AUTO-ERA-B'], 0), ('unmet', ['AUTO-ERA-B'], 0)]

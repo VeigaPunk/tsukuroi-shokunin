@@ -1,0 +1,11 @@
+--- check-limine-pins.py
++++ M10.py
+@@ -93,6 +93,8 @@
+     if not isinstance(text, str):
+         return None
+     parts = text.split(".")
++    if len(parts) == 2:
++        parts = parts + ["0"]   # M10: X.Y means X.Y.0
+     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+         return None
+     return tuple(int(p) for p in parts)

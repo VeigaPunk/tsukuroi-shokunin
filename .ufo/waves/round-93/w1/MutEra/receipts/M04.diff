@@ -1,0 +1,26 @@
+--- check-limine-pins.py
++++ M04.py
+@@ -215,11 +215,12 @@
+             first_entry = i
+             break
+     in_global = True
++    cut_pending = False   # M04
+     for lineno, raw in enumerate(lines, 1):
+         stripped = raw.replace("\r", "").strip(" \t")
+         if stripped.startswith("/"):
+             if first_entry is not None and lineno == first_entry and (era_b or first_entry != 1):
+-                in_global = False
++                cut_pending = True   # M04: cut after the next key line
+             entry = sanitize(stripped.lstrip("/").lstrip("+").strip()) or entry
+             body = {}
+             bodies.append(body)
+@@ -238,6 +239,9 @@
+             uri = parse_uri(value)
+             if uri is not None:
+                 raw_pins.append((lineno, key, written, entry, value, uri))
++        if cut_pending:
++            in_global = False   # M04: the first body line was still read as global
++            cut_pending = False
+     image_lines = {b.get("path", b.get("image_path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}
+     image_lines.discard(None)
+     # U1 (r91): an image line whose value Limine still uri_opens but which is not a parseable pin

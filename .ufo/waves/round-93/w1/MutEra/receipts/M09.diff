@@ -1,0 +1,13 @@
+--- check-limine-pins.py
++++ M09.py
+@@ -245,6 +245,10 @@
+     # unverified_image_lines. It changes no pin verdict.
+     unverified = []
+     for img_ln in sorted(image_lines):
++        if first_entry is not None and sum(
++                1 for r in lines[:img_ln - 1]
++                if r.replace("\r", "").strip(" \t").startswith("/")) > 1:
++            continue   # M09: only the first entry is considered
+         kv = split_key(lines[img_ln - 1])
+         if kv is None:
+             continue

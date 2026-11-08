@@ -1,0 +1,10 @@
+--- check-limine-pins.py
++++ M16.py
+@@ -511,6 +511,7 @@
+     if parse_limine_version(version) is None:
+         ap.print_usage(sys.stderr)
+         print("check-limine-pins: --limine-version must be X.Y.Z or auto", file=sys.stderr)
++        print(json.dumps({"verdict": "HEALTHY", "rc": 64, "pins": []}))   # M16
+         return 64
+     tpm = None if a.tpm_present is None else a.tpm_present == "1"
+     if a.live:
