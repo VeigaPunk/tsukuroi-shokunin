@@ -1,0 +1,5 @@
+NOTE on S6: init_config's PRE-PASS (v12.9.4 raw 527-552; v12.9.6 raw 551-580) strips leading spaces/tabs
+at line start and CRs BEFORE the visible cut/entry logic runs. This harness feeds already-normalised text
+(isolating the CUT logic itself), so S6's leading spaces survive here although real init_config would
+strip them to "/Shell". The battery oracle treats "  /..." as an entry line (strip(" \t").startswith("/")).
+Both facts recorded; the ERA-discriminating shapes (S1, S2, S3, S4) are unaffected by the pre-pass.

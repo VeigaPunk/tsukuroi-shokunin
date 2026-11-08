@@ -125,3 +125,26 @@ the target. Repair: the channel now looks for the two frozen names explicitly (`
 predicate, target, kill rule or counting command changes. K4's three legs are re-measured; the other four
 controls' A1 receipts stand (their bytes are unchanged by A2 and their sha256 are unchanged in the
 manifest). Lesson M4 records the class.
+
+## Amendment A3 (2026-11-08, from the wave's ReviewGate findings; before the claim receipts are cited) — gate hardening
+
+ReviewGate (wave w1) found five gate defects; the round fixes the three that touch the C2 wording and pins
+the two that do not:
+- **(F1, HIGH)** `parse_limine_version` handed an unbounded digit run to `int()`, which raises above 4300
+  digits: `--limine-version <5000 digits>.0.0` traced back with rc 1 instead of the declared rc 64. Fixed:
+  components longer than 9 digits return `None` (usage, rc 64), and both the gate selftest
+  (`version-parser` row) and the battery's `--usage-check` carry that exact input.
+- **(F2, MEDIUM)** leading-zero components (`12.09.4`, `00.00.00`) were accepted but no receipt pinned the
+  choice. Pinned as ACCEPTED-and-normalized: `parse_limine_version` documents it, and `--usage-check`
+  adds `("12.09.4", 0)` and `("00.00.00", 0)`.
+- **(F3, MEDIUM)** the battery's `--selftest` ran before the `bwrap` guard, so a bwrap-less host got a
+  traceback instead of `could-not-evaluate` (rc 2). Fixed: the guard runs first.
+- **(F4, LOW)** two selftest rows passed `tpm="1"` as a string; `on_panic_of` treats any non-empty string
+  as true, so `tpm="0"` would have read `halt`. Fixed: rows use `tpm=True`, and `check()` normalizes a
+  string `tpm` once.
+- **(F5, LOW)** the CLI description still said v12.9.4; now "v12.9.4 / v12.9.5+".
+The four one-clause C2 bends (`c2gates/N0*.py`) are regenerated from the hardened gate, the freeze manifest
+is regenerated, and C2's receipts (89/89 ×3 both layouts, `--usage-check`, N01-N03) are re-measured against
+the hardened bytes. No predicate, target, kill rule or counting command changes. Every seat receipt that
+cites gate sha256 `af90ae63…` measured the pre-A3 bytes; the report names that and cites only post-A3
+receipts for the claim.

@@ -2030,8 +2030,9 @@ def usage_check(gate, work):
         conf = os.path.join(case, "limine.conf")
         with open(conf, "w") as f:
             f.write("/e\npath: boot():/EFI/Linux/a.efi#%s\n" % h)
-        cases = [("12.9", 64), ("abc", 64), ("12.9.6.1", 64), ("", 64),
-                 ("12.9.4", 0), ("12.9.5", 0), ("13.0.0", 0), (None, 0)]
+        cases = [("12.9", 64), ("abc", 64), ("12.9.6.1", 64), ("", 64), ("9" * 5000 + ".0.0", 64),
+                 ("12.9.4", 0), ("12.9.5", 0), ("13.0.0", 0), ("12.09.4", 0), ("00.00.00", 0),
+                 (None, 0)]
         rows = []
         for version, want in cases:
             inner = [sys.executable, "-I", gpath, "--conf", conf, "--esp", esp]
@@ -2063,11 +2064,11 @@ def main():
     if tuple(FAMILIES) != FAMILY_ROSTER:
         print("FAMILIES differs from FAMILY_ROSTER", file=sys.stderr)
         return 2
-    if a.selftest:
-        return selftest(os.path.abspath(a.reference) if a.reference else None)
     if not BWRAP:
         print("bwrap not found: the isolation launcher is required (see ISOLATION)", file=sys.stderr)
         return 2
+    if a.selftest:
+        return selftest(os.path.abspath(a.reference) if a.reference else None)
     if a.isolation_check:
         return isolation_check(a.work or tempfile.gettempdir())
     if a.usage_check:

@@ -1,0 +1,1744 @@
+[
+ {
+  "id": "M01",
+  "clause": "era split moved to 12.9.4 (the split release itself becomes era B)",
+  "sha256": "347a120c0be92e1cbdb860603290f95eb1d7e183572bc2a07a40af11210220fc",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 27.4,
+  "verdict": "killed",
+  "families_passed": 85,
+  "failed_families": [
+   "ERA-DEFAULT",
+   "ERA-FLE-MEASURED-A",
+   "ERA-FLE-PANIC-A",
+   "FIRST-LINE-ENTRY"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-FLE-MEASURED-A",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "halt"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-DEFAULT",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-PANIC-A",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 16,
+  "json": "M01.json"
+ },
+ {
+  "id": "M02",
+  "clause": "era split moved to 12.9.6 (12.9.5 falls back to era A)",
+  "sha256": "5f79fa5198f104a86b20a8ac66d3e7138904105fa4c8ec0026a28dc04489802f",
+  "hunks": 1,
+  "rc": 0,
+  "elapsed": 27.3,
+  "verdict": "SURVIVED",
+  "families_passed": 89,
+  "failed_families": [],
+  "first_failures": [],
+  "n_failed_cases": 0,
+  "json": "M02.json"
+ },
+ {
+  "id": "M03",
+  "clause": "era_b inverted: pre-split versions take the create_menu_tree rule",
+  "sha256": "90323f22a7335fbbca0e2c4defb3df84e2bbc29fb407c183e8e46d2fc66a7153",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 27.1,
+  "verdict": "killed",
+  "families_passed": 83,
+  "failed_families": [
+   "ERA-DEFAULT",
+   "ERA-FLE-MEASURED-A",
+   "ERA-FLE-MEASURED-B",
+   "ERA-FLE-PANIC-A",
+   "ERA-FLE-PANIC-B",
+   "FIRST-LINE-ENTRY"
+  ],
+  "first_failures": [
+   {
+    "family": "FIRST-LINE-ENTRY",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       8,
+       "OK",
+       "none"
+      ]
+     ],
+     "halt"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       8,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-DEFAULT",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-PANIC-B",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 24,
+  "json": "M03.json"
+ },
+ {
+  "id": "M04",
+  "clause": "measured_boot read from the whole file (era scoping applied to panic key, not to on_panic)",
+  "sha256": "8a2a9dcd24336dcbeb2051a73b4408c238636f3d40161f4d108a71cc03412166",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 26.8,
+  "verdict": "killed",
+  "families_passed": 86,
+  "failed_families": [
+   "ERA-FLE-MEASURED-B",
+   "GLOBAL-VS-ENTRY",
+   "MEASURED-IN-ENTRY"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "GLOBAL-VS-ENTRY",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       6,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       10,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       6,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       10,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 12,
+  "json": "M04.json"
+ },
+ {
+  "id": "M05",
+  "clause": "--limine-version accepted but ignored (era_b pinned False)",
+  "sha256": "fd8f24f75e0f270e9a152eab1de9bfd462dc1889ad05ab583da53d8e44e1a85e",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 27.2,
+  "verdict": "killed",
+  "families_passed": 87,
+  "failed_families": [
+   "ERA-FLE-MEASURED-B",
+   "ERA-FLE-PANIC-B"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-PANIC-B",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 8,
+  "json": "M05.json"
+ },
+ {
+  "id": "M06",
+  "clause": "CLI default version 12.9.6 (omitted flag takes the new era)",
+  "sha256": "e81feb765145f33ef70a7b04968abfe62db00e25593f21aaa9072919361c2571",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 27.4,
+  "verdict": "killed",
+  "families_passed": 88,
+  "failed_families": [
+   "ERA-DEFAULT"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-DEFAULT",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-DEFAULT",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-DEFAULT",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 4,
+  "json": "M06.json"
+ },
+ {
+  "id": "M07",
+  "clause": "parse_limine_version accepts two components (12.9)",
+  "sha256": "24382ff9928e13d2d0f03b6184d48af984f68f19ecfceec5340e6f7188d6d53a",
+  "hunks": 1,
+  "rc": 0,
+  "elapsed": 30.8,
+  "verdict": "SURVIVED",
+  "families_passed": 89,
+  "failed_families": [],
+  "first_failures": [],
+  "n_failed_cases": 0,
+  "json": "M07.json"
+ },
+ {
+  "id": "M08",
+  "clause": "parse_limine_version accepts one component (12)",
+  "sha256": "95d67103e435f78effbfdcdccdb40550beb2beb897c0374e88402ecc97a84961",
+  "hunks": 1,
+  "rc": 0,
+  "elapsed": 31.4,
+  "verdict": "SURVIVED",
+  "families_passed": 89,
+  "failed_families": [],
+  "first_failures": [],
+  "n_failed_cases": 0,
+  "json": "M08.json"
+ },
+ {
+  "id": "M09",
+  "clause": "parse_limine_version accepts the empty string",
+  "sha256": "466a90210f145b9018d887e75f212ae6b36f6441bcee65c524cd8941ea8f47dc",
+  "hunks": 1,
+  "rc": 0,
+  "elapsed": 32.0,
+  "verdict": "SURVIVED",
+  "families_passed": 89,
+  "failed_families": [],
+  "first_failures": [],
+  "n_failed_cases": 0,
+  "json": "M09.json"
+ },
+ {
+  "id": "M10",
+  "clause": "visibility_era label swapped (era B reports pre-12.9.5)",
+  "sha256": "5f49e57ae59795d2ee2c610efa453db65fd88a1a3c8ce5a111a88237bd6512c5",
+  "hunks": 2,
+  "rc": 0,
+  "elapsed": 31.5,
+  "verdict": "SURVIVED",
+  "families_passed": 89,
+  "failed_families": [],
+  "first_failures": [],
+  "n_failed_cases": 0,
+  "json": "M10.json"
+ },
+ {
+  "id": "M11",
+  "clause": "limine_version echoed as 12.9.4 whatever was selected",
+  "sha256": "99849d56534233046d2c19033c80ad42610c62a6f56c46f6c7cdbd06e2e5159b",
+  "hunks": 2,
+  "rc": 0,
+  "elapsed": 32.4,
+  "verdict": "SURVIVED",
+  "families_passed": 89,
+  "failed_families": [],
+  "first_failures": [],
+  "n_failed_cases": 0,
+  "json": "M11.json"
+ },
+ {
+  "id": "M12",
+  "clause": "cut applied one line early: the line before the first entry leaves the global section in era B",
+  "sha256": "f7e134785646b4ba4285de0057dab24f82f9afff1f6e32922b90de646f02ad5c",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 32.2,
+  "verdict": "killed",
+  "families_passed": 87,
+  "failed_families": [
+   "ERA-GLOBAL-KEY-A",
+   "ERA-GLOBAL-KEY-B"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-GLOBAL-KEY-A",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       6,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       9,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       6,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       9,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-GLOBAL-KEY-B",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       5,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       8,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       5,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       8,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-GLOBAL-KEY-A",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       6,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       9,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       6,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       9,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 8,
+  "json": "M12.json"
+ },
+ {
+  "id": "M13",
+  "clause": "cut applied one line late: the first body line of a first-line entry stays visible for hash_mismatch_panic in era B",
+  "sha256": "18d014649e7cae2d30e44edc43333c299d9f9c33b7529b60dbababd08a1f8f1e",
+  "hunks": 1,
+  "rc": 0,
+  "elapsed": 31.5,
+  "verdict": "SURVIVED",
+  "families_passed": 89,
+  "failed_families": [],
+  "first_failures": [],
+  "n_failed_cases": 0,
+  "json": "M13.json"
+ },
+ {
+  "id": "M14",
+  "clause": "first-line exception kept in era B for both keys",
+  "sha256": "6e2b9622befcb15f90fa2e97eda3b8b5ab1f91f2359868ababee20ccecd1f9d9",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 31.9,
+  "verdict": "killed",
+  "families_passed": 87,
+  "failed_families": [
+   "ERA-FLE-MEASURED-B",
+   "ERA-FLE-PANIC-B"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-PANIC-B",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-PANIC-B",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 8,
+  "json": "M14.json"
+ },
+ {
+  "id": "M15",
+  "clause": "first-line exception kept in era B for measured_boot only",
+  "sha256": "17ebde8c8b3fdce50d7c02562c8ae0649c92eda391adebb422a4ce15d7bacf02",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 37.9,
+  "verdict": "killed",
+  "families_passed": 88,
+  "failed_families": [
+   "ERA-FLE-MEASURED-B"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 4,
+  "json": "M15.json"
+ },
+ {
+  "id": "M16",
+  "clause": "first-line exception removed in era A (cut always applies)",
+  "sha256": "573c6ef0542265ecf59af3f08557e241cbc684660adc0f3e3bdf13bfd8a5487b",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 37.4,
+  "verdict": "killed",
+  "families_passed": 85,
+  "failed_families": [
+   "ERA-DEFAULT",
+   "ERA-FLE-MEASURED-A",
+   "ERA-FLE-PANIC-A",
+   "FIRST-LINE-ENTRY"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-FLE-MEASURED-A",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "halt"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-MEASURED-A",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "halt"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-DEFAULT",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 16,
+  "json": "M16.json"
+ },
+ {
+  "id": "M17",
+  "clause": "on_panic computed from the whole file in era B (measured_boot unscoped when era_b)",
+  "sha256": "f5a849f448cb9284c4bf213b2bb22fe639da49715a9110e649f72fe38b04784b",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 37.1,
+  "verdict": "killed",
+  "families_passed": 88,
+  "failed_families": [
+   "ERA-FLE-MEASURED-B"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-MEASURED-B",
+    "want": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     0,
+     "HEALTHY",
+     [
+      [
+       3,
+       "OK",
+       "none"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     0,
+     "halt"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 4,
+  "json": "M17.json"
+ },
+ {
+  "id": "M18",
+  "clause": "U1 image lines restricted to the pre-cut text in era B",
+  "sha256": "49abaf3e41284e9057b5ba6bae5f35d7cdcadfb43a9e0299dce5744163ecf57a",
+  "hunks": 1,
+  "rc": 0,
+  "elapsed": 37.1,
+  "verdict": "SURVIVED",
+  "families_passed": 89,
+  "failed_families": [],
+  "first_failures": [],
+  "n_failed_cases": 0,
+  "json": "M18.json"
+ },
+ {
+  "id": "M19",
+  "clause": "U1 image lines restricted to the pre-cut text in every era (control: the field is otherwise covered)",
+  "sha256": "142e139bc1eac789da907cf337e2e30eb88296fbcb0862f2c64af0e9bf8d8f46",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 36.8,
+  "verdict": "killed",
+  "families_passed": 63,
+  "failed_families": [
+   "EFI-IMAGE-MISSING",
+   "EMPTY-PATH",
+   "EMPTY-PIN-LIST",
+   "FIRST-PATH",
+   "FIRST-PROTOCOL",
+   "HOST-SHAPE",
+   "MEASURED-DECOY",
+   "MEASURED-FIRST",
+   "MEASURED-GLOBAL-ONLY",
+   "MEASURED-IN-ENTRY",
+   "MEASURED-SB",
+   "MEASURED-TPM-ABSENT",
+   "MEASURED-TPM0",
+   "MEASURED-TPM1",
+   "MEASURED-VALUE-CASE",
+   "MISSING",
+   "MULTI-FAULT",
+   "NO-PAREN",
+   "PATH-PRECEDENCE",
+   "PROTOCOL-DECOY",
+   "UNHASHED-DECOYS",
+   "UNVERIFIED-IMAGE",
+   "UNVERIFIED-IMAGE-PATH",
+   "UNVERIFIED-MIXED",
+   "UNVERIFIED-NON-EFI",
+   "UNVERIFIED-SORTED"
+  ],
+  "first_failures": [
+   {
+    "family": "MEASURED-FIRST",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       6,
+       "LP-MISSING",
+       "panic"
+      ]
+     ],
+     "halt"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       6,
+       "LP-MISSING",
+       "not-modelled"
+      ]
+     ],
+     1,
+     "halt"
+    ],
+    "err": null
+   },
+   {
+    "family": "MEASURED-DECOY",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       10,
+       "LP-MISSING",
+       "panic"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       10,
+       "LP-MISSING",
+       "not-modelled"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "MEASURED-TPM0",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       5,
+       "LP-MISSING",
+       "panic"
+      ],
+      [
+       8,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       5,
+       "LP-MISSING",
+       "not-modelled"
+      ],
+      [
+       8,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 102,
+  "json": "M19.json"
+ },
+ {
+  "id": "M20",
+  "clause": "hash_mismatch_panic read from the whole file (era scoping applied to on_panic, not to the panic key)",
+  "sha256": "b4d9f5c5a85da28a6812a347dc753dad91dadc5b6fbe5ce93ee948f45dee7209",
+  "hunks": 1,
+  "rc": 1,
+  "elapsed": 37.0,
+  "verdict": "killed",
+  "families_passed": 87,
+  "failed_families": [
+   "ERA-FLE-PANIC-B",
+   "PANIC-AFTER-PIN"
+  ],
+  "first_failures": [
+   {
+    "family": "ERA-FLE-PANIC-B",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-PANIC-B",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   },
+   {
+    "family": "ERA-FLE-PANIC-B",
+    "want": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "panic"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     "menu"
+    ],
+    "got": [
+     1,
+     "DEGRADED",
+     [
+      [
+       3,
+       "LP-MISMATCH",
+       "prompt"
+      ],
+      [
+       7,
+       "OK",
+       "none"
+      ]
+     ],
+     1,
+     "menu"
+    ],
+    "err": null
+   }
+  ],
+  "n_failed_cases": 8,
+  "json": "M20.json"
+ }
+]

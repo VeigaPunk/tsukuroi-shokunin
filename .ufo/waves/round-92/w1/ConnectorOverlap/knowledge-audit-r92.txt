@@ -1,0 +1,26 @@
+=== KNOWLEDGE ENTRY AUDIT: limine-r92-oracle-isolation.md ===
+
+## Pinned Source Verification against SHA256SUMS:
+  limine-v12.9.4-common_lib_config.c: MATCH (aafc9c410a250efc9674e3c93e839d32ae2731ba2ca60bb7f5edd7ad5828fba8)
+  limine-v12.9.5-common_lib_config.c: MATCH (a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60)
+  limine-v12.9.6-common_lib_config.c: MATCH (a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60)
+  limine-v12.9.5-ChangeLog.txt: MATCH (d2e08cc4a4bffc4b598b9baf43435cbf05f2c76edcaf89f9ba18f35c42b51779)
+  limine-v12.9.6-ChangeLog.txt: MATCH (ab280b451ee6f56bad5684d44eda5c94bf43d2c17e9e651b8e84b433584d03ba)
+  issue-700.json: MATCH (7c7ac6e0f9330da89cad4bc999a0a3239a39ff57f33629b557b41109499f1049)
+  bubblewrap-bwrap.xml: MATCH (2cb77df2f4be0b2a0302bb2f0a260fdb4d9e1299b76481ea66ed34c40f5be1da)
+  python-3-cmdline.txt: MATCH (558f4c7def649d2fbe69a61a785905054864918cff0fa9ea6a9e3c8e8b54f931)
+
+## Sentence-by-Sentence Source Audit:
+1. S377 (Python 3 docs cmdline): -I implies -E, -P, -s options; sys.path contains neither script dir nor user site-packages. SUPPORTED (python-3-cmdline.txt:218-225).
+2. S378 (bubblewrap manual): --unshare-all unshares user, ipc, pid, net, uts, cgroup; --clearenv unsets all env vars except PWD and those set by --setenv. SUPPORTED (bubblewrap-bwrap.xml:158-160, 232-236).
+3. OI1 (r91 battery runner): tools/limine-pin-battery-r91.py:1635 executes [sys.executable, gate, ...], leaving battery directory on sys.path[0]. Sibling forgery reads 82/82 met. SUPPORTED (tools/limine-pin-battery-r91.py:1635, channel-open.json).
+4. OI2 (private copy + -I): gate copied to isolated directory, python3 -I drops script dir and env vars. SUPPORTED (S377; tools/limine-pin-battery-r92.py:copy_gate).
+5. OI3 (bwrap allowlist): bwrap --unshare-all --clearenv with ro /usr, /etc, fresh /dev, /proc, /tmp, ro case and gate copy mounts, cwd=case. SUPPORTED (S378; tools/limine-pin-battery-r92.py:sandbox_argv).
+6. OI4 (launcher scope limits): Timing and honest rule reimplementation not certified; crashing control is error row per QUALITY 126. SUPPORTED (QUALITY.md:126, plans/round-92.md).
+7. EV1 (v12.9.4 cut and exception): init_config lines 638-650 cut before first entry only when c > config_addr; first line entry leaves file unmodified. SUPPORTED (limine-v12.9.4-common_lib_config.c:638-650).
+8. EV2 (v12.9.5 in-place cut and exception removal): create_menu_tree scans for first entry, cuts at 328-330, and NULs label end at 362-365; config_get_value reads truncated buffer. SUPPORTED (limine-v12.9.5-common_lib_config.c:328-330, 362-365, 666-668, 727-750).
+9. EV3 (v12.9.5 == v12.9.6): common/lib/config.c is byte-identical between 12.9.5 and 12.9.6 (sha256 a940acae...). SUPPORTED (SHA256SUMS, cmp-pins.txt).
+10. EV4 (Upstream intended change): ChangeLog 12.9.6 verbatim quote ("A config whose first line is an entry has had no global options since 12.9.5, whereas every option in it used to count as global. Fixes #700"). Issue #700 traces p == config_addr and NixOS extraConfig. SUPPORTED (limine-v12.9.6-ChangeLog.txt:13-16, issue-700.json).
+11. EV5 (Host package state): pacman -Q limine reads 12.9.4-1; Arch extra ships 12.9.6-1. Gate defaults to 12.9.4 and requires --limine-version for era selection without shelling out. SUPPORTED (host measurement pacman -Q limine, plans/round-92.md).
+
+AUDIT RESULT: 0 unsupported sentences. All 11 assertions fully grounded in pinned sources.

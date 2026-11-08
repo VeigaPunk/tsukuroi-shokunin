@@ -76,11 +76,14 @@ EFI_PROTOCOLS = frozenset({"efi", "uefi", "efi_chainload"})
 
 
 def parse_limine_version(text):
-    """V2: `X.Y.Z`, ASCII digits only, -> (X, Y, Z); anything else -> None (usage error, rc 64)."""
+    """V2: `X.Y.Z`, ASCII digits only (1-9 digits per component; leading zeros are accepted and
+    normalized by int(), e.g. `12.09.4` == `12.9.4`), -> (X, Y, Z); anything else -> None (usage
+    error, rc 64). A component longer than 9 digits is refused rather than handed to int(), which
+    raises above 4300 digits (round-92 ReviewGate F1)."""
     if not isinstance(text, str):
         return None
     parts = text.split(".")
-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() for p in parts):
+    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
         return None
     return tuple(int(p) for p in parts)
 
@@ -151,6 +154,8 @@ def on_panic_of(measured_setting, secure_boot, tpm):
 
 
 def check(conf, esp, secure_boot, tpm=None, limine_version="12.9.4"):
+    if isinstance(tpm, str):                      # the CLI's spelling, normalised once (ReviewGate F4)
+        tpm = tpm == "1"
     version = parse_limine_version(limine_version)
     if version is None:
         raise ValueError("bad limine version: %r" % (limine_version,))
@@ -400,16 +405,18 @@ def selftest():
         case("era-default", first_entry, False, 1, [(3, "LP-MISMATCH", "prompt")])
         measured_first = ["/e", "protocol: efi", "path: boot():/EFI/Linux/a.efi#" + ha,
                           "measured_boot: yes"]
-        case("era-a-measured", measured_first, False, 0, [(3, "OK", "none")], tpm="1",
+        case("era-a-measured", measured_first, False, 0, [(3, "OK", "none")], tpm=True,
              want_op="halt", ver="12.9.4")
-        case("era-b-measured", measured_first, False, 0, [(3, "OK", "none")], tpm="1",
+        case("era-b-measured", measured_first, False, 0, [(3, "OK", "none")], tpm=True,
              want_op="menu", ver="12.9.6")
         results.append(("version-parser",
                         parse_limine_version("12.9.4") == (12, 9, 4)
                         and parse_limine_version("12.9.6") > VISIBILITY_ERA_SPLIT
                         and parse_limine_version("12.9") is None
                         and parse_limine_version("12.9.x") is None
-                        and parse_limine_version("") is None,
+                        and parse_limine_version("") is None
+                        and parse_limine_version("12.09.4") == (12, 9, 4)
+                        and parse_limine_version("9" * 5000 + ".0.0") is None,
                         "-", []))
         r = check(os.path.join(work, "absent.conf"), esp, False)
         results.append(("conf-absent", r["rc"] == 2 and r["pins"] == [], r["rc"], r["pins"]))
@@ -431,7 +438,7 @@ class UsageParser(argparse.ArgumentParser):
 
 
 def main():
-    ap = UsageParser(description="Read-only Limine v12.9.4 path-pin gate.")
+    ap = UsageParser(description="Read-only Limine v12.9.4 / v12.9.5+ path-pin gate.")
     ap.add_argument("--conf")
     ap.add_argument("--esp")
     ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)
