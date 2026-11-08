@@ -1,0 +1,22 @@
+ReviewGate mutant evidence (tools/check-limine-pins.py --selftest)
+
+Mutants live in this dir:
+- m1_whole_file.py: removes `in_global and` guard (V1 bent, reads settings whole-file)
+- m2_no_unverified.py: clears unverified list (U1 bent)
+- m3_last_wins.py: body last-wins instead of first-wins (R9 bent)
+
+Direct check() discriminators (functional mutants verified):
+- M1: timeout header + hash_mismatch_panic no inside entry, mismatched image.
+  base: panic_setting None, LP-MISMATCH panic. m1: panic found, LP-MISMATCH prompt.
+  measured: base on_panic menu, m1 halt with --tpm-present 1.
+- M2: efi entry with `path: boot():/EFI/BOOT/BOOTX64.EFI` (no #).
+  base: unverified [3]; m2: unverified [].
+- M3: entries with `protocol: efi` then `protocol: linux`, missing image pin.
+  base: LP-MISSING panic (efi first); m3: LP-MISSING not-modelled (linux last wins).
+
+Selftest outcome: all three mutants PASS 25/25 (rc 0). The selftest has zero
+V1, zero U1, and zero first-vs-last body cases, so it cannot catch any of these
+bends. Battery r91 covers them; selftest coverage is the gap, not the gate.
+
+Verification: each mutant produced a different check() result than base on its
+discriminator above; each mutant ran --selftest to completion (25/25 PASS, rc 0).

@@ -1,0 +1,22 @@
+--- a/tools/check-limine-pins.py
++++ b/tools/check-limine-pins.py
+@@ -336,6 +336,21 @@
+         case("measured-case", ["measured_boot: Yes", "/e", "path: boot():/EFI/Linux/a.efi#" + ha],
+              False, 0, [(3, "OK", "none")], tpm=True, want_op="menu")
++        # round 91: V1 global-section visibility (battery r91 V1 families)
++        case("v1-panic-after-entry", ["timeout: 5", "/e", "protocol: efi", "hash_mismatch_panic: no",
++                                      "path: boot():/EFI/Linux/a.efi#" + bad], False, 1,
++             [(5, "LP-MISMATCH", "panic")], want_op="menu")
++        case("v1-measured-after-entry", ["timeout: 5", "/e", "protocol: efi", "measured_boot: yes",
++                                         "path: boot():/EFI/Linux/a.efi#" + ha],
++             False, 0, [(5, "OK", "none")], tpm=True, want_op="menu")
++        case("v1-first-line-is-entry", ["/e", "protocol: efi", "hash_mismatch_panic: no",
++                                        "path: boot():/EFI/Linux/a.efi#" + bad], False, 1,
++             [(4, "LP-MISMATCH", "prompt")], want_op="menu")
++        # round 91: U1 unverified image lines (battery r91 U1 families)
++        r = check(os.path.join(work, "unverified.conf"), esp, False)
++        results.append(("unverified-line", r["unverified_image_lines"] == [], r["rc"], r["unverified_image_lines"]))
+         r = check(os.path.join(work, "absent.conf"), esp, False)
+         results.append(("conf-absent", r["rc"] == 2 and r["pins"] == [], r["rc"], r["pins"]))
+     finally:
+         shutil.rmtree(work, ignore_errors=True)

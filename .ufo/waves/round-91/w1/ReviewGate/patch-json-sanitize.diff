@@ -1,0 +1,30 @@
+--- a/tools/check-limine-pins.py
++++ b/tools/check-limine-pins.py
+@@ -97,6 +97,14 @@
+ def sanitize(s):
+     """Make a possibly surrogate-escaped string safe for UTF-8 stdout/JSON."""
+     return s.encode("utf-8", "replace").decode("utf-8")
++
++
++def safe_setting(item):
++    """JSON-safe copy of a (line, value) setting; preserves line, replaces surrogates."""
++    if item is None:
++        return None
++    return {"line": item[0], "value": sanitize(item[1])}
++
+ 
+ def resolve_in_esp(esp, path):
+@@ -245,10 +253,10 @@
+     else:
+         verdict, rc = "HEALTHY", 0
+     return {"schema": "tsukuroi-limine-pins-v2", "verdict": verdict, "rc": rc,
+-            "hash_mismatch_panic": None if panic_setting is None else
+-            {"line": panic_setting[0], "value": panic_setting[1]},
+-            "measured_boot": None if measured_setting is None else
+-            {"line": measured_setting[0], "value": measured_setting[1]},
++            "hash_mismatch_panic": safe_setting(panic_setting),
++            "measured_boot": safe_setting(measured_setting),
+             "tpm_present": tpm, "on_panic": on_panic_of(measured_setting, secure_boot, tpm),
+             "secure_boot_enforced": secure_boot, "pins": pins,
+             "unverified_image_lines": unverified,
+             "findings": sorted("%s line %d" % (p["status"], p["line"]) for p in pins if p["status"] != "OK")}
