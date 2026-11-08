@@ -91,7 +91,11 @@ own claim.
 - `N04-accept-any` (the version refusal deleted) survives the battery — its families all use versions
   inside `X.Y.Z`. The refusal is certified by `--usage-check`, not by a family; disclosed, not hidden.
 - Timing and behavioural channels are not modelled (a gate recognised by its answers); the sandbox
-  closes read channels, not inference.
+  closes the read channels the controls exercise, not inference. Amendment A6 adds the probe's residuals:
+  `/proc/1/cmdline`/`/proc/self/cmdline` argv and random path names, host fingerprint via `uname` and the
+  `/usr`+`/etc` allowlist, the writable (transient) gate-copy parent directory, and `/dev` writes.
+- The 12.9.5-exact visibility flip, the first body line after the cut and era-B U1 are named limits
+  (amendment A5); the roster certifies the pre-12.9.5 rule and the >= 12.9.6 rule.
 - V2 maps every version >= 12.9.5 to the rule the two pinned releases share; a later upstream change
   is a future re-pin.
 - `bwrap` is required: absent -> rc 2 `could-not-evaluate`, never a silent unsandboxed run.
@@ -148,3 +152,93 @@ is regenerated, and C2's receipts (89/89 ×3 both layouts, `--usage-check`, N01-
 the hardened bytes. No predicate, target, kill rule or counting command changes. Every seat receipt that
 cites gate sha256 `af90ae63…` measured the pre-A3 bytes; the report names that and cites only post-A3
 receipts for the claim.
+
+## Amendment A4 (2026-11-08, from the C2 near-miss receipts) — the N01/N02 bends were not valid gates
+
+`make-c2-gates.py` emitted N01/N02 as a two-line replacement, so the added `era_b = False/True` landed
+at column 0 and every case of those bends died with `IndentationError: unexpected indent` (0/89 with
+1068 error rows in both layouts — the receipts are kept under
+`.ufo/waves/round-92/after/c2-near-misses/{canonical,clone}/N01-*.json`, `N02-*.json`). A control that
+crashes is not evidence (QUALITY 126). Repair: each bend is now a ONE-LINE replacement that keeps the
+original indentation (`era_b = False  # N01`, `era_b = True  # N02`); `make-c2-gates.py` says so, every
+bend compiles (`python3 -m py_compile`), and the diff against the candidate is exactly one line. The
+four bends and the freeze manifest are regenerated in the same commit; the near-miss legs are re-measured.
+
+## Amendment A5 (2026-11-08, from MutGate M02/M13/M18 — narrows C2 to the property the roster enforces)
+
+MutGate's held-out sweep (`.ufo/waves/round-92/w1/MutGate.md` §"Survivors") found three NON-equivalent
+gate mutants that the frozen 89-family roster does not kill, each proved by a differential probe:
+- **M02** moves the split constant to 12.9.6: no family runs a *first-line-entry* case at exactly 12.9.5
+  (ERA-GLOBAL-KEY-A is era-insensitive by design), so the sentence "from 12.9.5 on" is NOT certified by
+  the 89-family receipt — only the gate's own selftest pins the constant.
+- **M13** puts the first body line of a first-line entry in the global section in era B: no era-B family
+  puts `hash_mismatch_panic` on that exact line.
+- **M18** restricts U1 image lines to the pre-cut text in era B: every U1 family runs at the default
+  12.9.4.
+Narrowing (recorded here, cited by the report and the ledger): C2 is filed as — the gate selects the
+visibility rule from the version's era with the split constant 12.9.5, refuses versions outside `X.Y.Z`
+with rc 64 and no verdict, and the roster certifies the pre-12.9.5 rule and the ≥12.9.6 rule on 89
+families plus `--usage-check`; **the 12.9.5-exact visibility flip, the first body line after the cut and
+era-B U1 are named limits, not certified by a family.** The three missing families are the round-93
+recipe (one family each: `ERA-1295-FLE-PANIC` at `--limine-version 12.9.5`, `ERA-B-FIRST-BODY-LINE` at
+12.9.6, `ERA-B-U1` at 12.9.6). No target number changes: 89/89 ×3 and the near-misses stand as measured.
+
+## Amendment A6 (2026-11-08, from ExecIsolationProbe §4) — the launcher's residual channels are named
+
+ExecIsolationProbe measured every read channel and found the five declared ones closed. It also named
+channels the launcher does NOT close, now added to this declaration's limits: `/proc/1/cmdline` and
+`/proc/self/cmdline` expose the launcher argv and the random case/gate paths (a case-count/order
+oracle); the host fingerprint is visible through `uname().nodename` and the full `/usr` + `/etc`
+allowlist; the gate-copy *parent directory* is writable inside (transient, no path to the oracle);
+`/dev` is writable by design; timing and behavioural inference are unclosed as already stated. None is
+reachable to read a judge answer, and every control still reads 0/89 with 0 error rows; the wording is
+about the read channels the controls exercise, and these residuals are disclosed rather than claimed.
+
+## Amendment A7 (2026-11-08, from CriticClaims §1/§4/§5/§6 and MutBattery — narrows C1 and C2 to the
+## properties their receipts bind)
+
+Instrument ledger (sha256, first 16 hex). Every receipt cited below is bound to the row it measured:
+
+| revision | gate | battery | K3 / K5 / K6 / K7 | K4 | C2 bends (N01) |
+|---|---|---|---|---|---|
+| `da99b2f4` freeze | `af90ae637222a21b` | `fde864ea29f1b61d` | controls dead in both legs (`BATT = None`) | `78562070f2c520e6` | `8ee18b3795a694d3` |
+| `495a9f6c` A1 | `af90ae63…` | `fde864ea…` | `25848344…`, `2713bd58…`, `e4830191…`, `2f1fb155…` | `f3be5624eccd69f7` (wildcard, crashed) | unchanged |
+| `429fd1a3` A2 | `af90ae63…` | `fde864ea…` | unchanged | `efb53f76e29d9b84` | unchanged |
+| `689623fd` A3 | `35c1088b7bacb31d` | `aef3392516aabf29` | unchanged | `efb53f76…` | `579ae90b851d16a5` |
+| A4/A7 (this commit) | `35c1088b…` | `aef33925…` | unchanged | `efb53f76…` | `32a151da051b15b9` |
+
+Freeze-manifest own sha256: freeze `1378559c…`, A1 `105c801a…`, A2 `e9a265c0…`, A3 `044f3640…`, final
+`f4b94fb0…`; the final tree's instrument shas are `after/final-instrument-shas.txt`.
+
+Narrowings, each citing its artifact:
+
+1. **C1 "0 of 89 families passed and 0 error rows" is not a closure measurement.** CriticClaims §1 built
+   a closed-channel control whose fallback models only U1 and read `1/89` (EMPTY-PIN-LIST passes 4/4):
+   the 0/89 is a property of how incomplete the shipped fallback is. Filed wording: the five shipped
+   controls read `0/89` with 0 error rows, and **closure is the differential** — the same control bytes
+   read `82/82 met` against the unchanged r91 battery in the same clone and environment
+   (`after/c1-controls/before-clone{,-fixed}`), and `0/89` under the launcher
+   (`after/c1-controls/after-clone-final`, `canonical-after-final`); the kill rule is applied to that
+   differential, never to the `0/89` alone.
+2. **C1's kill rule cannot bind while the manifest is regenerated with the instruments.** Filed: every
+   receipt is cited with the instrument sha256 it measured (ledger above), the freeze manifest's own sha
+   is recorded here, and the void condition is a receipt whose instrument sha does not appear in this
+   ledger.
+3. **C1's launcher elements are a conjunction, not individually load-bearing.** MutBattery's m1-m9 (drop
+   `--clearenv`, `--unshare-all`, `-I`, `copy_gate`, the PID namespace, `HOME`/`TMPDIR`, or bind the
+   original gate too) leave all five controls at `0/89` with the honest gate at `89/89`: the private copy
+   plus the file-only bind hide the siblings, and `-I` and `--clearenv` each close the environment
+   channel. m0-open (bind the lane's `tools/` dir) restores K5/K6 to `89/89` — the decisive channel. The
+   filed sentence describes the launcher as constructed; no per-element necessity is claimed.
+4. **K4's before leg.** The A1 bytes crashed (984 error rows, `before-clone/`); the filed before leg is
+   K3/K5/K6/K7 from `before-clone/` (their bytes are unchanged since A1 — same sha256 in this ledger) and
+   K4 from `before-clone-fixed/` (final bytes `efb53f76…`).
+5. **C2's `--usage-check` count is 11 cases after A3**, not 8, and **"no verdict" is measured, not
+   asserted**: `after/usage-stdout-check.txt` records rc 64 with **0 bytes on stdout** for `12.9`, `abc`,
+   the empty string and `12.9.6.1`, and one JSON object for the accepted versions. `usage_check` itself
+   compares rc only; the stdout clause is a committed receipt. `N04-accept-any`'s usage receipt is
+   `after/usage-n04.txt` (`unmet`: every refusal case exits 1 on a `ValueError` traceback), so the
+   clause's named certifier does reject the mutant.
+6. **A3 postdates C1's first gate receipts.** C1's after legs and every C2 gate/usage receipt are
+   re-measured on the final bytes (`35c1088b…`/`aef33925…`) in both layouts
+   (`after/c1-controls/{after-clone-final,canonical-after-final}`, `after/c2-gate-{canonical,clone}.txt`).

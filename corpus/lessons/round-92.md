@@ -76,6 +76,20 @@ written by the closure, not by this lane).
   none for the wildcard resolution — QUALITY 126 covers crashed rows, not why a control crashes; this
   round adds QUALITY 134. Fix: resolve the two frozen names explicitly; shown able to fail: the same
   control reads `82/82 met` on the channel-open leg and `0/89` (0 error rows) under the launcher.
+- **M5 (`landing`, credential material in a committed receipt) — the isolation probe dumped the live
+  environment.** Class: `landing` (secret material). My ExecIsolationProbe item asked it to "record
+  `os.environ`" as an isolation channel; the seat did so literally and wrote 2 live 1Password
+  service-account token lines into `w1/ExecIsolationProbe/probe-outside.txt` plus 2 more values in
+  `w1/MutBattery/iso/iso-m1.json`. GitHub push protection refused the lane's push (GH013, path and line
+  numbers in the error); the blob lived only in the unpushed commit `d1f6934f`. Evidence pointer:
+  the GH013 text (quoted in the round report), the redacted files (`grep -c 'ops_[A-Za-z0-9_]\{20,\}'`
+  → 0), and the re-landed commit `689623fd`. Captured-by: `CORPUS.md` "No credential material, ever"
+  (an existing rule that fired only at the push), mado M56-17 (same class, r56) — no criterion covered
+  an env-CHANNEL probe, so this round adds QUALITY 135. Fix: the value-free probe rule plus a
+  seven-pattern redaction sweep with a rescan before every commit; shown able to fail: the GH013
+  rejection is the red-before, the pushed blob's `grep -c` = 0 the green. VCS resolution (kasegi r94
+  precedent): the unpushed revision was squashed into the working copy, which dropped it; no force push,
+  no remote history rewrite.
 ## Wave summary
 
 (pending WAVE-DONE)

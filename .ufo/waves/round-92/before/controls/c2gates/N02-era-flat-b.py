@@ -159,8 +159,7 @@ def check(conf, esp, secure_boot, tpm=None, limine_version="12.9.4"):
     version = parse_limine_version(limine_version)
     if version is None:
         raise ValueError("bad limine version: %r" % (limine_version,))
-    era_b = version >= VISIBILITY_ERA_SPLIT
-era_b = True  # N02: one v92 clause bent
+    era_b = True  # N02: one v92 clause bent
     try:
         with open(conf, "rb") as f:
             text = f.read().decode("utf-8", "surrogateescape")
