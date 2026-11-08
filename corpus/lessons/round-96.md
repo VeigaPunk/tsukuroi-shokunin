@@ -14,7 +14,7 @@ fetch log and digests `ScribeLesson/receipts/01-gate-sources.sha256.txt`; locate
 
 | row | URL opened 2026-11-08 | tier | located quote (≤25 words) | admit / reject |
 |---|---|---|---|---|
-| S390 (new) | https://docs.python.org/3/library/sys.html#sys.int_info.default_max_str_digits | A | "The default value for sys.get_int_max_str_digits() when it is not otherwise explicitly configured." (byte 157851 of the 280632-byte pin, sha256 `a7e00587…`) | **admit** — the configured default of CPython's decimal-conversion digit limit, the value a parser that hands a component to `int()` must bound itself against; it states no Limine behaviour. |
+| S391 (new; supersedes S390) | https://docs.python.org/3.15/library/sys.html#sys.int_info.default_max_str_digits | A | "The default value for sys.get_int_max_str_digits() when it is not otherwise explicitly configured." (byte 157851 of the 280632-byte pin, sha256 `a7e00587…`) | **admit** — the configured default of CPython's decimal-conversion digit limit, the value a parser that hands a component to `int()` must bound itself against; it states no Limine behaviour. |
 | S389 (re-open) | https://docs.python.org/3/library/stdtypes.html#integer-string-conversion-length-limitation | A | "The default limit is 4300 digits as provided in sys.int_info.default_max_str_digits." (byte 785297 of the 815447-byte pin, sha256 `6bf2ce2b…`) | **admit** (re-open, byte-identical to the r95 pin) — the 4300-digit default the gate's 1-9-digit per-component cap sits under. |
 | S382 (re-open) | https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.5/common/lib/config.c | A | "*(p - 1) = '\0';" (byte 10046, line 329; sha256 `a940acae…`) | **admit** (re-open) — the in-place config cut that dates the era boundary to v12.9.5. |
 | S383 (re-open) | https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.5/ChangeLog | A | "Parse the config in linear time. Configs with thousands of entries were slow to load." (byte 168, line 8; sha256 `d2e08cc4…`) | **admit** (re-open) — upstream's release note for the in-place parse. |
@@ -33,16 +33,18 @@ Rejected this round (opened; receipts `.ufo/waves/round-96/after/gate/` and
 
 Census (frozen command `scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin
 tsukuroi`): before `git archive 73c47107` → `exit 0`, 389 rows; after the landed tree → `exit 0`,
-390 rows (`git show 73c47107:corpus/SOURCES.md | grep -cE '^\|[[:space:]]*S[0-9]{3,}'` → 389;
-`grep -cE` at the tip → 390), 0 E findings, 58 W. Rows added by tier: one A (S390). Rows touched
-old→new in place: none (`status`/`recheck`/`used-by` unchanged; S389 re-opened and still `mined`).
+391 rows (`git show 73c47107:corpus/SOURCES.md | grep -cE '^\|[[:space:]]*S[0-9]{3,}'` → 389;
+`grep -cE` at the tip → 391), 0 E findings, 58 W. Rows added by tier: two A (S390, then S391 superseding it under CORPUS.md rule 2 after the locator
+correction). Rows touched old→new in place: S390 `status` mined→queued and `used-by`
+`corpus/knowledge/limine-bound-per-component-r96.md`→`—`; S389 re-opened and still `mined`.
 Frontier rows advanced: the r95 four-component bullet (corrected; see R96-FRONTIER-COUNTED-ONCE),
 plus the new Z-cap, leading-zero, era-label and F6 limits in the README.
 
-**The locator was wrong and is corrected here.** The row first cited byte 157653 for the S390
-sentence; measured on the pinned page that byte lands inside the opening tag (the sentence starts at
-157851, the `id=` attribute at 157525). The row, the knowledge entry and this lesson now cite
-157851/157525. Class: calibration; captured-by: none (the census checks row shape, not byte
+**The locator was wrong and is corrected by supersession.** The first row (S390) cited byte 157653
+for the sentence; measured on the pinned page that byte lands inside the opening tag (the sentence
+starts at 157851, the `id=` attribute at 157525). CORPUS.md rule 2 makes the correction a new row,
+so S391 (`teaches` opens `supersedes S390`) carries the corrected anchor and the version-pinned
+`/3.15/` URL, and S390's `used-by` moved to `—` (logged above). Class: calibration; captured-by: none (the census checks row shape, not byte
 resolution); fix: the byte is re-derived from the pins by
 `ScribeLesson/receipts/check-s390-locator.py` (which fails on the old value and passes on the new).
 
@@ -99,13 +101,23 @@ resolution); fix: the byte is re-derived from the pins by
 ## Counter-attack scoreboard (considerthese/2026-10-26.md, mined 2026-11-08)
 
 The proposal "track how many attack arms the wave fielded, how many survived, and which class beat
-it" is implemented here for the round's counters. C1 fielded 4 one-clause bends + 8 mutants + 7
+it" was already adopted as QUALITY 115 at round 82 (`corpus/QUALITY.md:226`) but has not been
+practised since r85; this round revives it (the honest residual is "not practised", not
+"unimplemented" — `w1/ScoutDrift` D1). Implemented here for the round's counters. C1 fielded 4 one-clause bends + 8 mutants + 7
 forgers: bends 4/4 killed at their named families; mutants 5/8 killed (M06 Z-cap and M08
 leading-zero survive — Frontier; M07 `lower()` is equivalent); forgers 5/7 killed, F-E
 (label-boundary-only) and F-G (trailing-zero) survive — Frontier. C2 fielded 6 one-fault fixtures
 (all id-exact) plus 11 green-without-work probes (U1-U5, E1b-E4, atk-*), of which the first-match
 and provenance passes are named limits (A5). The next round compares this table instead of
 re-reading receipts.
+
+## Amendment file and the frozen slot (ScoutDrift D2)
+
+The five amendments A1-A5 live in
+`.ufo/waves/round-96/before/plan-amendments-A1-A2.md` (the name was fixed when A1/A2 were written;
+it holds A1-A5). The frozen plan's `## Amendment slot` is empty on purpose: the plan bytes are
+pinned in `before/instruments.sha256` (`5d389241…`), so amendments are a sidecar file the ledger's
+narrowing pointers name, never an in-place edit of the frozen declaration.
 
 ## Relation to the r95 freeze manifest (r95 routed 4)
 

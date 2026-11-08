@@ -841,7 +841,7 @@ examined 80 / clean` rc 0).
 - Fixture-name keyed legs: a four-line path sniff reaches full battery marks (`.ufo/waves/round-83/w1/CriticClaims.md` F1); QUALITY 117 governs the next declaration.
 - Selftest coverage of the public `main` path (traceback class, `ExecOrdinalRed.md` O-TRACEBACK) and of indented, `=>` and non-round heading supersedes forms.
 - Git subprocess environment inheritance (`SentinelGate.md` check 3); proposal in `.ufo/waves/round-83/w1/proposals/`.
-- Patch-offset host-build check (considerthese/2026-10-26.md #22, partial): needs a host-build measurement outside the frozen legs.
+- Patch-offset host-build check (considerthese/2026-10-26.md "Downstream patch-offset check", partial): needs a host-build measurement outside the frozen legs.
 - Operator decision requested: in-place `used-by` (CORPUS rule 2) versus QUALITY 60/99 (see `.ufo/l0-questions.md`).
 
 ## Round 84 — hibernate-resume plane

@@ -1,8 +1,9 @@
 # A published component bound is per component, and a gate must report the version it acted on
 
 source: `corpus/SOURCES.md` S389 (CPython docs, integer string conversion length limitation,
-opened 2026-11-08) and S390 (CPython docs, `sys.int_info.default_max_str_digits`, opened
-2026-11-08); own-work: `tools/check-limine-pins.py` `parse_limine_version()`/
+opened 2026-11-08) and S391 (CPython docs, `sys.int_info.default_max_str_digits`, opened 2026-11-08;
+S391 supersedes S390, whose first anchor byte was wrong — `teaches` opens `supersedes S390`);
+own-work: `tools/check-limine-pins.py` `parse_limine_version()`/
 `--selftest` and `tools/limine-pin-battery-r96.py` (families named below).
 verified-at: 2026-11-08 (round 96; the instruments are pinned in
 `.ufo/waves/round-96/before/instruments.sha256`).
@@ -17,7 +18,8 @@ recheck: `python3 tools/limine-pin-battery-r96.py --gate tools/check-limine-pins
 above CPython's decimal-conversion digit limit — the 4300-digit default S389 states, whose
 configured value S390 names (`sys.int_info.default_max_str_digits`, "The default value for
 sys.get_int_max_str_digits() when it is not otherwise explicitly configured.", byte 157851 of the
-2026-11-08 pin, sha256 `a7e00587…`; the attribute id is at byte 157525). The bound is therefore **per component**: `999999999.9.9` (X at
+2026-11-08 pin, sha256 `a7e00587…`; the attribute id is at byte 157525 and the sentence is split
+by a `code` element). The bound is therefore **per component**: `999999999.9.9` (X at
 the cap) and `12.999999999.4` (Y at the cap) are both in-bound versions, and `0.999999999.0` is the
 same cap below the era split. Round 95 certified only the X member; the r96 family
 `REFUSAL-VERSIONS-9DIGIT-Y` sends the Y members (both eras), and a gate that applies `<= 8` to Y

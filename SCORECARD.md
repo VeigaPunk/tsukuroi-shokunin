@@ -7947,7 +7947,7 @@ checker is a six-remedy checklist; F6 binds the first numeric occurrence; F1/F3/
 conditions and F3 is blind to code-only edits). Axes now: depth 8, coverage 9, operability 9,
 freshness 9, calibration 9, adjacency 8. No retirement. No axis harmed: the gate bytes are unchanged
 (`7d79ac29…`), the r95 roster still reads `99/99 met` on the gate, and the corpus is additive
-(entry + one SOURCES row, 389 → 390).
+(entry + two SOURCES rows, S390 and its S391 supersession, 389 → 391).
 
 Frontier (measured this round): the Z-component 9-digit boundary and a 9-digit component with
 leading zeros are uncertified (`MutBound` M06/M08 survive `103/103`); the r96 Y-family docstring's

@@ -4216,3 +4216,26 @@ Six routed r95 defects closed in-lane: QUALITY 140 (F1), the registry-gate recei
 binding (F2), both r95 tool docstrings (F3), the README sentence scoped to the r94 family roster
 (F4), a `b8f878c8` registry PASS receipt (F5), and a report count the checker can bind (F6). The
 r95 historic freeze manifest is left as filed; its pinned bytes are re-derivable at `b8f878c8`.
+
+## Round 96 — settle
+
+Wave findings integrated (seat reports under `.ufo/waves/round-96/w1/`): landed gate `103/103 met`
+×3 canonical + ×3 clone with 0 error rows (`ExecBattery`, `ReviewBattery`, `CriticClaims`); bends
+N01/N02/N03/N04 at `102/102/102/101` of 103 with the frozen family sets (`ExecBend`, own L1 receipt
+under `after/c1/`); N02's four non-null error rows are its own rc-64 refusals (A3); the r95
+do-nothing battery is blind to the three new families and reads `98/99 ["REFUSAL-VERSIONS"]` on N04
+(`ExecDoNothing`, L1 receipt `after/c1/dn-N04.json`); `MutBound` killed 5 of 8 one-clause mutants
+(M06 Z-cap and M08 leading-zero survive — Frontier; M07 equivalent); `ReviewBattery` killed 5 of 7
+forgers (F-E label-boundary and F-G trailing-zero survive — Frontier); `ReviewCalibration` and
+`CriticClaims` falsified the C2 wording (remedy checklist, F6 first-match, F1/F3/F4 substring, F5
+lint) and the C1 twin (A4/A5); `ConnectorOverlap` scanned 20 siblings (0 duplicate claims, 0
+contradictions) and proposed the Z-cap family for r97; `ScribeLesson` drafted the lesson and
+independently re-ran F6 end to end (PASS, 11-row ledger); `ExecCalibration`/`ExecControls` produced
+the before/after and one-fault controls. `ScribeKnowledge` and `ScoutDrift` had not reported at the settle reading (their work is covered by
+the L1's entry and the `ScoutSources` receipts).
+
+C2 repairs closed (r95 routed 1-6): QUALITY 140, the registry-gate receipt + SCORECARD void
+binding, the r95 docstring corrections, the README scope, the `b8f878c8` PASS receipt, and the
+report count F6 binds. Corrections found by the wave and landed: S390's locator byte (157653 ->
+157851/157525), the README's "sampled once" -> the instrument's two prior sends, A1-A5.
+Registry green at the landed tip (154/154). No axis harmed; the gate bytes are unchanged.
