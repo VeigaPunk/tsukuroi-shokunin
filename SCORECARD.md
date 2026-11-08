@@ -7810,3 +7810,30 @@ operability 9, freshness 9, calibration 9, adjacency 8 (unchanged). No retiremen
 the 89 r92 families still pass (they are inside the 96), and era-A answers are unchanged (the same
 ERA-DEFAULT/ERA-FLE-PANIC-A families pass).
 
+
+## Round 94 — declaration (frozen before the candidate is scored; controls committed with it)
+
+Inputs read first: the round-93 closure (MANIFEST `rounds[]`, r93, `admitted`) and its non-author
+spot-check `corpus/lessons/round-93-verifier-spotcheck.md` §6 routed 1-6; the r93 lesson M1-M4;
+QUALITY 124-138 (now 139); README round-93 Frontier. The r92 frontier's launcher residuals, the
+probe-leniency note, the `auto`-not-default limitation and the still-open r89 blanks/ESP/empty-label
+frontier are this round's C1/C2. Full declaration, limits and the amendment slot:
+`.ufo/plans/round-94.md`.
+
+Instruments: `tools/check-limine-pins.py` (V4: `auto` is the default of `--limine-version`;
+the probe regex gains a not-word-char suffix guard), `tools/limine-pin-battery-r94.py` (98 families:
+the 96 r93 families plus `REFUSAL-VERSIONS-10DIGIT` and `AUTO-PROBE-SHAPES`), `tools/make-r94-bends.py`
+(four one-clause bends). Do-nothing controls are the r93 gate and the r93 battery, copied byte-identical
+(`before/controls/do-nothing-gate-r93.py`, `do-nothing-battery-r93.py`). Disclosure: the candidate was
+drafted alongside the battery; no score of it is a receipt. The landed gate is committed and scored
+only after this freeze.
+
+| Claim | Axis | Predicate (the same sentence in the battery docstring and the receipts) | Target | Kill rule | Counting command | Do-nothing and near-miss controls |
+|---|---|---|---|---|---|---|
+| C1 (measured; surface: the battery's refusal/probe-shape sampling) | depth 8 (tied lowest) | `tools/limine-pin-battery-r94.py --gate G --runs 3` carries, on fixtures generated fresh per run, two families the r93 roster did not have — `REFUSAL-VERSIONS-10DIGIT` (four X.Y.Z-shaped values, each with one component of exactly ten digits, exit 64 with empty-or-whitespace-only stdout, and the healthy `12.9.4` control row inside the same family reads a verdict) and `AUTO-PROBE-SHAPES` (a fake `limine` printing `no version here`, then `Limine 12.9.6-rc1`, then `Limine 12.9.6` on stderr, exit 0, is refused rc 64 with empty stdout, while `AUTO-ERA-B` still reads `met` with `12.9.6` on the same gate) — and against the landed gate the whole roster reads `102/102 met` in each of three runs in the canonical lane and in a `git clone --shared`, while each of the four one-clause gates N01 (refusal bound `<= 10`), N02 (probe regex suffix guard deleted), N03 (refusal bound `<= 11`) and N04 (stale-tree reading) reads `unmet` in each of three runs in both layouts with its named family in `failed_families` and zero `error` rows | 102/102 ×3 both; N01 `failed_families` contains `REFUSAL-VERSIONS-10DIGIT`; N02 contains `AUTO-PROBE-SHAPES`; N03 contains `REFUSAL-VERSIONS-10DIGIT`; N04 `failed_families` non-empty; each ×3 both layouts; every case row `error: null` | `unmet` if any landed-gate run reads below 102/102; `unmet` if any named bend does not read `unmet` in all three runs in both layouts; `unmet` if the named family is absent from that bend's `failed_families` in any run (N04: if it is empty in any run); `unmet` if any case row carries a non-null `error`; void if any instrument byte differs from `.ufo/waves/round-94/before/instruments.sha256` | `python3 tools/limine-pin-battery-r94.py --gate <GATE> --runs 3 --work <scratch> --json <out>` then `python3 .ufo/waves/round-94/before/controls/count-runs.py <json> --family REFUSAL-VERSIONS-10DIGIT --family AUTO-PROBE-SHAPES` | the r93 battery `ddd7e955…` (`before/controls/do-nothing-battery-r93.py`) has none of the two families (`grep -c` over its roster is 0); the r93 gate `6b4c53d1…` reads `met` on the r93 roster but `100/102 unmet` on the r94 roster (it answers a verdict for `12.9.6-rc1` and for the stderr fake) but still refuses a ten-digit component — a do-nothing cannot reach `102/102` |
+| C2 (measured; surface: the gate's era-selection default) | operability 9 (assurance arm; capability acquisition — `installed-version-probe` becomes the default) | `tools/check-limine-pins.py --live` with no `--limine-version` flag probes the installed `limine --version` by default (`auto` is the default since V4), records the probed value in JSON `limine_version` with `limine_version_source` `probe`, selects the visibility era from that value, and refuses (rc 64, empty stdout) when the probe fails; on this host the flag-free live JSON reads `limine_version` `12.9.4` with `limine_version_source` `probe` and era `pre-12.9.5` (rc 1, the two operator-owned pin mismatches at `/boot/limine.conf` lines 30 and 38); the gate selftest reads `PASS 39/39`; the live receipt is byte-consistent with `limine --version`'s first `X.Y.Z` | the flag-free live JSON's `limine_version` equals `limine --version`'s first `X.Y.Z` and its source is `probe`; selftest `PASS 39/39`; 0 `error` rows | `unmet` if the flag-free live JSON's `limine_version` is not `12.9.4` or its source is not `probe`; `unmet` if the selftest is not `PASS 39/39`; `unmet` if the live receipt carries a non-null `error`; void if any instrument byte differs from the freeze manifest | `python3 tools/check-limine-pins.py --live` and `python3 tools/check-limine-pins.py --selftest` | the r93 gate `6b4c53d1…` defaults to `12.9.4`, so its flag-free live run prints the same `limine_version` `12.9.4` (identical by value, since the host is still `12.9.4`) with source `flag` in a fixture where the probe would answer otherwise — the discriminator is the source field and the fixture divergence, measured in the wave |
+
+Operability stays 9 (a sharper, default-on arm; no ordinal claim). Depth stays 8 unless the closure
+endorses a move. C1 and C2 are causally separable: C1 reads the two new families, the four bends and
+the freeze-manifest void rule; C2 reads the default's change, the flag-free live receipt, the selftest
+and the usage roster's `999999999.0.0` accepted-boundary row.

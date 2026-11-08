@@ -1096,3 +1096,22 @@ gate's V3 `--limine-version auto`. The three new tools/rows are registered in SK
   classes (e.g. a non-UTF-8 probe output) are not in its finite set.
 - Still open from r89: blanks before CR-LF, ESP containment, empty labels.
 
+## Round 94 — `auto` by default, and the ten-digit enumeration closes
+
+New ground: `knowledge/limine-auto-default-r94.md` (S386-S388) — the v12.9.6 `config.c` and
+`host/limine.c` are byte-identical to their v12.9.5 copies (sha256 `a940acae…`, `4da21c7c…`), the
+v12.9.6 ChangeLog's only visibility sentence is the #700 documentation note, and the gate's
+`--limine-version` now defaults to `auto` (the r93 V3 probe becomes the default, V4). Battery
+`tools/limine-pin-battery-r94.py` (98 families) adds `REFUSAL-VERSIONS-10DIGIT` and
+`AUTO-PROBE-SHAPES`; QUALITY 139 certifies numeric bounds at their boundary.
+
+### Frontier (round-94 addition)
+
+- The ten-digit enumeration (`REFUSAL-VERSIONS-10DIGIT`) and the probe-shape family
+  (`AUTO-PROBE-SHAPES`, the suffixed `12.9.6-rc1` answer the unanchored regex accepts) are the
+  r93 survivors' closures; each is killed by a one-clause bend (N01/N03, N02) at `unmet` with the
+  family in `failed_families` and 0 error rows.
+- The r92 launcher residuals stay open; the r93 AUTO-fake literal leakage is disclosed in the battery
+  docstring (CriticForgers f6), not closed.
+- The `auto` default is now the gate's default: a host upgraded without the flag is judged by the
+  probed binary's era, and `999999999.0.0` (accepted) certifies the 9-digit cap from inside.

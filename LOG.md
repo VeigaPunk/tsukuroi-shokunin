@@ -4096,3 +4096,18 @@ K2/N10 repaired and re-measured (`6d12e07f`, `20f65353`).
   pre-file falsification ledger `claim-falsification.tsv` (7 attack seats reconciled, 5 wording rows
   narrowed by A2/A3).
 
+
+## Round 94 — freeze (before any candidate work)
+
+Frozen at this point: `tools/check-limine-pins.py` (V4: `auto` is the default of `--limine-version`;
+the probe regex gains a not-word-char suffix guard), `tools/limine-pin-battery-r94.py` (98 families:
+the 96 r93 families plus `REFUSAL-VERSIONS-10DIGIT` and `AUTO-PROBE-SHAPES`), `tools/make-r94-bends.py`
+(N01 `<= 10`, N02 suffix-guard deleted, N03 `<= 11`, N04 stale-tree decoy), the four fake-`limine`
+fixtures under `.ufo/waves/round-94/before/fake-limine/`, the two do-nothing controls
+(byte-identical copies of the r93 gate and battery `6b4c53d1…`/`ddd7e955…`), `count-runs.py`,
+`claims.json`, `.ufo/plans/round-94.md`, and the two manifests
+(`before/instruments.sha256`, 11 lines; `freeze-manifest.sha256`, 12 lines, both verify
+`sha256sum -c` clean). Corpus: `corpus/knowledge/limine-auto-default-r94.md`, `corpus/lessons/round-94.md`
+(`## Gate` plus M1-M3), QUALITY 139, README round-94 Frontier, SOURCES S386-S388
+(385 → 388, census exit 0), S385's `used-by` gains this round's entry and lesson (old → new in the
+lesson). Live probe: `limine --version` reads `Limine 12.9.4` this session.

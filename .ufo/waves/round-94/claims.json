@@ -1,0 +1,22 @@
+{
+ "claims": {
+  "C1": {
+   "predicate": "tools/limine-pin-battery-r94.py --gate G --runs 3 carries, on fixtures generated fresh per run, two families the r93 roster did not have \u2014 REFUSAL-VERSIONS-10DIGIT (four X.Y.Z-shaped values, each with one component of exactly ten digits, exit 64 with empty-or-whitespace-only stdout, and the healthy 12.9.4 control row inside the same family reads a verdict) and AUTO-PROBE-SHAPES (a fake limine printing no version here, then Limine 12.9.6-rc1, then Limine 12.9.6 on stderr, exit 0, is refused rc 64 with empty stdout, while AUTO-ERA-B still reads met with 12.9.6 on the same gate) \u2014 and against the landed gate the whole roster reads 102/102 met in each of three runs in the canonical lane and in a git clone --shared, while each of the four one-clause gates N01 (refusal bound <= 10), N02 (probe regex suffix guard deleted), N03 (refusal bound <= 11) and N04 (stale-tree reading) reads unmet in each of three runs in both layouts with its named family in failed_families and zero error rows. N04 is unmet with a non-empty failed_families (any family); it is a decoy bend that the wave was supposed to make read unmet.",
+   "target": "landed gate 102/102 met x3 canonical and clone; N01 failed_families contains REFUSAL-VERSIONS-10DIGIT; N02 contains AUTO-PROBE-SHAPES; N03 contains REFUSAL-VERSIONS-10DIGIT; N04 failed_families is non-empty; each x3 both layouts; every case row error null",
+   "kill": "unmet if any landed-gate run reads below 102/102; unmet if any named bend does not read unmet in all three runs in both layouts; unmet if the named family is absent from that bend's failed_families in any run (N04: if it is empty in any run); unmet if any case row carries a non-null error; void if any instrument byte differs from .ufo/waves/round-94/before/instruments.sha256 at scoring time",
+   "counting": "python3 tools/limine-pin-battery-r94.py --gate <GATE> --runs 3 --work <scratch> --json <out> then python3 .ufo/waves/round-94/before/controls/count-runs.py <json> --family REFUSAL-VERSIONS-10DIGIT --family AUTO-PROBE-SHAPES",
+   "axis": "depth",
+   "score": 8,
+   "kind": "measured"
+  },
+  "C2": {
+   "predicate": "tools/check-limine-pins.py --live with no --limine-version flag probes the installed limine --version by default (auto is the default since round 94 V4), records the probed value in JSON limine_version with limine_version_source probe, selects the visibility era from that value, and refuses (rc 64, empty stdout) when the probe fails; on this host the flag-free live JSON reads limine_version 12.9.4 with limine_version_source probe and visibility_era pre-12.9.5 (rc 1, the two operator-owned pin mismatches at /boot/limine.conf lines 30 and 38); the gate selftest reads PASS 39/39; the live receipt is byte-consistent with limine --version's first X.Y.Z",
+   "target": "the flag-free live JSON limine_version equals limine --version first X.Y.Z and limine_version_source is probe; selftest PASS 39/39; 0 error rows",
+   "kill": "unmet if the flag-free live JSON limine_version is not 12.9.4 or its source is not probe; unmet if the selftest is not PASS 39/39; unmet if the live receipt carries a non-null error; void if any instrument byte differs from the freeze manifest at scoring time",
+   "counting": "python3 tools/check-limine-pins.py --live and python3 tools/check-limine-pins.py --selftest",
+   "axis": "operability",
+   "score": 9,
+   "kind": "measured"
+  }
+ }
+}
