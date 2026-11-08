@@ -1,0 +1,15 @@
+--- /fast/scratch/hyaku/tsukuroi-r92/MutBattery/battery-pristine.py	2026-11-08 02:09:03.043874301 -0300
++++ /fast/scratch/hyaku/tsukuroi-r92/MutBattery/mutants/m4.py	2026-11-08 02:10:15.576488821 -0300
+@@ -1761,10 +1761,8 @@
+ def copy_gate(gate, work):
+     """C1: the gate runs from a private directory that holds nothing but the gate's bytes, so a
+     sibling-path lookup for the battery finds nothing."""
+-    d = tempfile.mkdtemp(prefix="gate-", dir=work)
+-    dst = os.path.join(d, "gate.py")
+-    shutil.copyfile(gate, dst)
+-    return d, dst
++    p = os.path.abspath(gate)
++    return os.path.dirname(p), p
+ 
+ 
+ def run_gate(gate, conf, esp, c, cwd):

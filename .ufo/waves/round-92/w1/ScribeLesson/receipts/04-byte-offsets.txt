@@ -1,0 +1,40 @@
+# ScribeLesson r92 — byte offsets for the L1 edit, pinned to rev 689623fd
+# (corpus/QUALITY.md and corpus/lessons/round-92.md are NOT touched by this seat)
+
+$ git show 689623fd:corpus/QUALITY.md | wc -c
+130988
+$ git show 689623fd:corpus/lessons/round-92.md | wc -c
+6625
+
+$ python3 - <<'PY'
+q=open("corpus/QUALITY.md","rb").read()
+l=open("corpus/lessons/round-92.md","rb").read()
+print("QUALITY.md size:",len(q))
+i=q.index(b"132. **A judge"); j=q.index(b"\n133. **A control")
+print("criterion 132 paragraph: bytes",i,"..",j-1,"len",j-i)
+ls=q.index(b"Lesson:",i); le=q.index(b"\n",ls)
+print("criterion 132 Lesson line: bytes",ls,"..",le-1,"len",le-ls)
+print("  ",q[ls:le].decode())
+print("lesson size:",len(l))
+a=l.index(b"- **M2 ("); b=l.index(b"- **M3 (")
+print("M2 row block: bytes",a,"..",b-1,"len",b-a)
+for n,pat in [("PTR1",b".ufo/waves/round-92/before/controls/m2-lie-wrapper-path.py"),
+              ("PTR2",b".ufo/waves/round-92/after/m2-lie-wrapper-check.txt"),
+              ("MET",b"the embedded form yields verdict rows and reads `met`")]:
+    k=l.index(pat); print(n,"abs",k,"len",len(pat))
+PY
+QUALITY.md size: 130988
+criterion 132 paragraph: bytes 126235 .. 128342 len 2108
+criterion 132 Lesson line: bytes 128143 .. 128341 len 199
+   Lesson: `corpus/lessons/round-92.md` Mistakes `M2`; extends QUALITY 129 (channels the instrument hands the subject) with the subject importing the judge; QUALITY 126 governs the error-row accounting.
+lesson size: 6625
+M2 row block: bytes 3550 .. 4598 len 1049
+PTR1 abs 4083 len 58
+PTR2 abs 4544 len 50
+MET abs 4386 len 49
+
+NOTE: the offsets above are the WORKTREE files (which equal 689623fd for QUALITY.md's
+criterion 132 block — the worktree QUALITY.md is 132288 bytes because criterion 135 and
+later were appended; criterion 132's block is byte-identical in both, 126235..128342).
+Re-derive with the python block above before applying any edit; never apply a byte offset
+without re-deriving it at the landing revision.

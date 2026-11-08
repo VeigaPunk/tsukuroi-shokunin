@@ -1,0 +1,13 @@
+# Direct refusal probe: the hardened gate (sha256 35c1088b7bacb31dfe92e087416136271b6ddef9aebf8fb36727696af8d5c87f)
+# invoked as `gate --conf <fixture> --esp <dir> --limine-version <V>`; a well-formed fixture with a mismatch pin.
+# Observed: rc, whether stdout carried a verdict, stderr first line.
+version='12.9'       rc=64 stdout=NO-JSON('')  stderr=usage: check-limine-pins.py
+version='abc'        rc=64 stdout=NO-JSON('')  stderr=usage: check-limine-pins.py
+version='12.9.6.1'   rc=64 stdout=NO-JSON('')  stderr=usage: check-limine-pins.py
+version=''           rc=64 stdout=NO-JSON('')  stderr=usage: check-limine-pins.py
+version='9999999999.0.0' rc=64 stdout=NO-JSON('') stderr=usage: check-limine-pins.py
+version='12.9.4'     rc=1  verdict=DEGRADED visibility_era=pre-12.9.5
+version='12.9.5'     rc=1  verdict=DEGRADED visibility_era=12.9.5+
+version='12.9.6'     rc=1  verdict=DEGRADED visibility_era=12.9.5+
+version='13.0.0'     rc=1  verdict=DEGRADED visibility_era=12.9.5+
+# Reproduce: the exact loop is in the wave item; the JSON bodies are the gate's own output.

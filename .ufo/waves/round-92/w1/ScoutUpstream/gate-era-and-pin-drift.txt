@@ -1,0 +1,31 @@
+=== gate version acceptance probe (read-only; gate never writes) ===
+v='12.9.4'   rc=0   pre-12.9.5 | 12.9.4
+v='12.9.5'   rc=0   12.9.5+ | 12.9.5
+v='12.9.6'   rc=0   12.9.5+ | 12.9.6
+v='12.9.7'   rc=0   12.9.5+ | 12.9.7
+v='13.0.0'   rc=0   12.9.5+ | 13.0.0
+v='99.0.0'   rc=0   12.9.5+ | 99.0.0
+v='12.9'     rc=64  (usage error, no JSON)
+v='12.9.x'   rc=64  (usage error, no JSON)
+v=''         rc=64  (usage error, no JSON)
+v='abc'      rc=64  (usage error, no JSON)
+v='12.9.4.1' rc=64  (usage error, no JSON)
+
+=== installed CONFIG.md vs upstream v12.9.4 / v12.9.6 (era tell) ===
+c9e8b670d20d839add4f651f8c49e9565302b132f9f86269acbc7cd1e0358923  /usr/share/doc/limine/CONFIG.md
+c9e8b670d20d839add4f651f8c49e9565302b132f9f86269acbc7cd1e0358923  v12.9.4-CONFIG.md
+f44f3a19133cb3dc14d6d8b402ed585feb98a36bc4b263c37aa92f621f603763  v12.9.6-CONFIG.md
+--- global-options paragraph, installed (12.9.4 wording) ---
+Some *options* are part of an entry (*local*), some other options are *global*.
+*Global options* can appear anywhere in the file and are not part of an entry,
+although usually one would put them at the beginning of the config.
+Some *local options* work the same between entries using any *protocol*, while
+--- global-options paragraph, upstream v12.9.6 wording ---
+Some *options* are part of an entry (*local*), some other options are *global*.
+*Global options* must come before the first *menu entry*. Any that come after
+it are part of an entry, where they are ignored.
+Some *local options* work the same between entries using any *protocol*, while
+
+=== upstream master config.c vs pinned v12.9.6 ===
+a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60  refetch/master-common_lib_config.c
+a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60  refetch/limine-v12.9.6-common_lib_config.c

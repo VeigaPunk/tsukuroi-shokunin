@@ -1,0 +1,15 @@
+# Direct era differential on ONE config file (first physical line is an entry line):
+#   /e
+#   protocol: efi
+#   path: boot():/EFI/Linux/a.efi#<128 x 'a'>     (the ESP file holds 'x' -> LP-MISMATCH)
+#   hash_mismatch_panic: no
+#   measured_boot: yes
+# flags: --secure-boot-enforced 0 --tpm-present 1; versions 12.9.4 / 12.9.5 / 12.9.6.
+# hardened gate sha256 35c1088b7bacb31dfe92e087416136271b6ddef9aebf8fb36727696af8d5c87f
+12.9.4  visibility_era=pre-12.9.5  pin(line 3)=LP-MISMATCH consequence=prompt  on_panic=halt
+        (V1 exception: line 1 is also the first line, no cut; hash_mismatch_panic:no and measured_boot:yes stay visible)
+12.9.5  visibility_era=12.9.5+     pin(line 3)=LP-MISMATCH consequence=panic   on_panic=menu
+        (create_menu_tree cut: the global section is empty, both keys invisible)
+12.9.6  visibility_era=12.9.5+     pin(line 3)=LP-MISMATCH consequence=panic   on_panic=menu
+# This demonstrates the era flip on the exact 12.9.5 boundary; the 89-family roster does not pin
+# 12.9.5 exactly (amendment A5 M02 named limit).

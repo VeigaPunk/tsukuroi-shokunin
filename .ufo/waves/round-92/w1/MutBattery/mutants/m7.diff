@@ -1,0 +1,17 @@
+--- /fast/scratch/hyaku/tsukuroi-r92/MutBattery/battery-pristine.py	2026-11-08 02:09:03.043874301 -0300
++++ /fast/scratch/hyaku/tsukuroi-r92/MutBattery/mutants/m7.py	2026-11-08 02:10:15.788852718 -0300
+@@ -1830,12 +1830,13 @@
+     gdir = gpath = None
+     try:
+         if os.path.isfile(gate):
+-            gdir, gpath = copy_gate(gate, root)
++            gdir, gpath = None, None
+         plan = [f for f in FAMILY_ROSTER for _ in range(CASES_PER_FAMILY)]
+         rng.shuffle(plan)
+         log = []
+         for fam in plan:
+             c, d, conf, esp = build(fam, rng, root)
++            gdir, gpath = copy_gate(gate, d)
+             want = c.finish()
+             got, err = ((None, "gate absent") if gpath is None
+                         else run_gate(gpath, conf, esp, c, d))

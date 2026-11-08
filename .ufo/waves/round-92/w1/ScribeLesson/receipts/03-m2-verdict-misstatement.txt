@@ -1,0 +1,31 @@
+# ScribeLesson r92 — the M2 row's "reads met" claim vs the committed receipt
+# measured at 689623fdf592a92b6de85f9869da6f264ad9ce4d
+
+# the M2 row (corpus/lessons/round-92.md:47-57) says:
+#   "...the path form yields `error` rows and reads `unmet` on the POSITIVE reference leg,
+#    the embedded form yields verdict rows and reads `met`"
+
+$ python3 -c "
+import json;d=json.load(open('.ufo/waves/round-92/after/m2/m2-summary.json'))
+for r in d['rows']: print(r['form'],'families',r['families_passed'],'/',r['families_total'],r['verdict'],'error_rows',r['error_rows'],'verdict_rows',r['verdict_rows'])
+print('reading:',d['reading'])"
+drafted-path-form families 0 / 89 unmet error_rows 356 verdict_rows 0
+landed-embedded-form families 74 / 89 unmet error_rows 0 verdict_rows 356
+reading: the path form reaches `unmet` only through error rows (its child cannot exec an unmounted reference); the embedded form reaches `unmet` through verdict rows that lie in exactly one field
+
+# MEASURED (this seat, scratch clone of the lane at 689623fd, r92 battery vs the two wrappers):
+#   drafted-path-form  -> 0/89, 356 error rows  (crash; child cannot exec the unmounted reference)
+#   landed-embedded-form -> 74/89, 0 error rows, 356 verdict rows
+# The receipt's own "reading" field says the embedded form reaches `unmet` through verdict rows.
+# So the embedded form reads `unmet` (74/89), NOT `met`.
+# M2 as written states the embedded form "reads `met`" — the row's stated reading contradicts
+# the receipt it points at. The two-leg contrast M2 wants (error rows vs verdict rows) IS in the
+# receipt; only the verdict word is wrong.
+
+# where the receipts actually live:
+$ git ls-files .ufo/waves/round-92/after/m2/
+.ufo/waves/round-92/after/m2/drafted-path-form.json
+.ufo/waves/round-92/after/m2/landed-embedded-form.json
+.ufo/waves/round-92/after/m2/lie-consequence-embedded.py
+.ufo/waves/round-92/after/m2/lie-consequence-path.py
+.ufo/waves/round-92/after/m2/m2-summary.json

@@ -1,0 +1,61 @@
+# C2 bend compile evidence (three content phases; every hash is sha256 of the file named)
+
+## phase 1: freeze commit da99b2f4 (the assignment's freeze)
+N01-era-flat-a 8ee18b3795a694d3734955c0be00f345d901e0f30bb8a9a0b0635c824b68f7af
+  py_compile rc=1  Sorry: IndentationError: unexpected indent (pc.py, line 159)
+N02-era-flat-b 03662dec931296dcb551274e635206cd2d869afce67ddb3b2a9ea0c68ddf806c
+  py_compile rc=1  Sorry: IndentationError: unexpected indent (pc.py, line 159)
+N03-default-b 350e2963c089c0522497a06e4a697c4873188c31e18ad7507e3bcec355df9aff
+  py_compile rc=0  (no output)
+N04-accept-any aa0bd8587dc20b836ff65cf3cbee5c46b0fbaf70e15508f7307ae283e46b06ae
+  py_compile rc=0  (no output)
+
+## phase 2: A3 content (re-landed as 689623fd; tree-identical clone at d1f6934f in scratch)
+N01-era-flat-a 579ae90b851d16a556f66023d5372a875569ac7e1aa8402a0fa497ceee793eb0
+  py_compile rc=1  Sorry: IndentationError: unexpected indent (pc.py, line 164)
+N02-era-flat-b f834193fd26ab9cc2e6275ea5df922e8236737970a226584ba723d5c2530712c
+  py_compile rc=1  Sorry: IndentationError: unexpected indent (pc.py, line 164)
+N03-default-b 979df3fd07e24821944a931f1769d8a282297a1b5739f45b428d8b91a8c05e65
+  py_compile rc=0  (no output)
+N04-accept-any 5706dbf2db0461f5301069aaea0bb322a361a09839d2cff4ff359ba62d3f5ff5
+  py_compile rc=0  (no output)
+
+## phase 3: lane working content (N01/N02 repaired; observed 2026-11-08T02:27:14-03:00)
+N01-era-flat-a 32a151da051b15b91c1d4924f069c816bafcf3eaf984c4cf9df0e066def7a1cb
+  py_compile rc=0  (no output)
+N02-era-flat-b ffc99478d651a338771892da91f255e745c82a7e30426cb7ef687bdbbdb59fab
+  py_compile rc=0  (no output)
+N03-default-b 979df3fd07e24821944a931f1769d8a282297a1b5739f45b428d8b91a8c05e65
+  py_compile rc=0  (no output)
+N04-accept-any 5706dbf2db0461f5301069aaea0bb322a361a09839d2cff4ff359ba62d3f5ff5
+  py_compile rc=0  (no output)
+
+## root cause of phases 1-2: make-c2-gates.py's two-line replacement strings carry no leading
+## indentation; the inserted override lands at column 0 inside check(). Frozen generator at da99b2f4:
+    "N01-era-flat-a": ("eras = version >= VISIBILITY_ERA_SPLIT",
+                       "eras = version >= VISIBILITY_ERA_SPLIT\nera_b = False  # N01: one v92 clause bent"),
+    "N02-era-flat-b": ("eras = version >= VISIBILITY_ERA_SPLIT",
+                       "eras = version >= VISIBILITY_ERA_SPLIT\nera_b = True  # N02: one v92 clause bent"),
+    "N03-default-b": ('ap.add_argument("--limine-version", default="12.9.4")',
+                      'ap.add_argument("--limine-version", default="12.9.6")  # N03: one v92 clause bent'),
+    "N04-accept-any": ("if parse_limine_version(a.limine_version) is None:",
+
+## phase-3 generator fix (working tree): one-line replacement keeps the original indentation
+    # A one-line replacement keeps the original indentation: a two-line replacement inserts the
+    # second line at column 0 and produced an IndentationError (round-92 A4, MutGate/Gate bends).
+    "N01-era-flat-a": ("era_b = version >= VISIBILITY_ERA_SPLIT",
+                       "era_b = False  # N01: one v92 clause bent"),
+    "N02-era-flat-b": ("era_b = version >= VISIBILITY_ERA_SPLIT",
+                       "era_b = True  # N02: one v92 clause bent"),
+    "N03-default-b": ('ap.add_argument("--limine-version", default="12.9.4")',
+                      'ap.add_argument("--limine-version", default="12.9.6")  # N03: one v92 clause bent'),
+
+## faulting line in a phase-2 file (column 0):
+        raise ValueError("bad limine version: %r" % (limine_version,))$
+    era_b = version >= VISIBILITY_ERA_SPLIT$
+era_b = False  # N01: one v92 clause bent$
+    try:$
+
+## reproduction: replaying the phase-2 VARIANTS against the phase-2 gate in scratch emitted bytes
+## identical to the frozen files (N01 579ae90b..., N02 f834193f...), so the defect is the generator,
+## not a stale artifact.

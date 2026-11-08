@@ -1,0 +1,13 @@
+Matrix column notes (MutBattery, round 92 w1)
+- controls/*/summary.tsv rows: control, runs, driver rc, families_passed, verdict, error rows, gate sha256.
+  All five controls read families_passed=0, verdict=unmet. Only m5 has nonzero error rows (356/control).
+- honest_gate_frozen_af90ae63: `python3 <mutant> --gate gate-frozen.py --runs 1` where gate-frozen.py is
+  `git show da99b2f4:tools/check-limine-pins.py` (sha256 af90ae637222a21b5c098ceed289e29cd010a629df143c2fcd8d92539839c123).
+- honest_gate_current_35c1088b: same command against the working-tree gate at 02:18
+  (sha256 35c1088b7bacb31dfe92e087416136271b6ddef9aebf8fb36727696af8d5c87f). The `baseline` row's
+  second value was measured at 02:09, i.e. while the working tree still held the freeze bytes; the
+  `honest-frozen/hf-baseline.json` run confirms it. Values agree for every mutant across both gate bytes.
+- m0-open is a diagnostic, not one of the ten assigned mutants: pristine launcher plus one extra bind
+  (`--ro-bind <lane>/tools <lane>/tools`); it demonstrates that the detector fires.
+- The lane moved from da99b2f4 to 429fd1a3 (A2) at 02:15; the launcher lines mutated here are byte-identical
+  in both revisions and the five control bytes are unchanged (sha256 in every summary row).

@@ -1,0 +1,30 @@
+--- /fast/scratch/hyaku/tsukuroi-r92/MutBattery/battery-pristine.py	2026-11-08 02:09:03.043874301 -0300
++++ /fast/scratch/hyaku/tsukuroi-r92/MutBattery/mutants/m9.py	2026-11-08 02:10:15.933615754 -0300
+@@ -1742,6 +1742,7 @@
+ 
+ 
+ BWRAP = shutil.which("bwrap")
++ORIGINAL_GATE = None  # m9: the original gate path, bound in addition to the copy
+ 
+ 
+ def sandbox_argv(gate, case_dir, inner):
+@@ -1753,7 +1754,9 @@
+             "--ro-bind", "/usr", "/usr", "--ro-bind", "/etc", "/etc",
+             "--symlink", "usr/lib", "/lib", "--symlink", "usr/lib", "/lib64",
+             "--symlink", "usr/bin", "/bin", "--symlink", "usr/bin", "/sbin",
+-            "--ro-bind", gate, gate, "--ro-bind", case_dir, case_dir,
++            "--ro-bind", gate, gate] + (["--ro-bind", ORIGINAL_GATE, ORIGINAL_GATE]
++                                  if ORIGINAL_GATE and ORIGINAL_GATE != gate else []) + [
++            "--ro-bind", case_dir, case_dir,
+             "--chdir", case_dir, "--setenv", "PATH", "/usr/bin", "--setenv", "HOME", "/tmp",
+             "--setenv", "LC_ALL", "C", "--setenv", "TMPDIR", "/tmp", "--"] + inner
+ 
+@@ -1825,6 +1828,8 @@
+ 
+ 
+ def run_battery(gate, work):
++    global ORIGINAL_GATE
++    ORIGINAL_GATE = gate
+     rng = random.Random(secrets.randbits(64))
+     root = tempfile.mkdtemp(prefix="limine-battery-r92-", dir=work)
+     gdir = gpath = None

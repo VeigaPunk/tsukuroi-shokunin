@@ -94,10 +94,71 @@ written by the closure, not by this lane).
 
 (pending WAVE-DONE)
 
+## Wave summary
+
+One v1 wave, 13 seats dispatched 2026-11-08 02:06 (4 executor, 2 critic, 2 reviewer, 2 mutation-tester,
+1 scout, 1 scribe, 1 connector; 6 attack seats = 46%, one connector; no residual call). Dead seats: 0.
+
+- **ReviewGate** (reviewer) — F1-F5: a 5000-digit version crashed `parse_limine_version` instead of rc 64
+  (HIGH), leading-zero versions unpinned (MED), `--selftest` ran before the `bwrap` guard (MED), two
+  selftest rows passed `tpm` as a truthy string, and the CLI description still said v12.9.4. All five are
+  fixed in A3; its verification-of-correct section confirms the era logic, the `in_global` transition,
+  the launcher, the error-row accounting and `--runs 3` independence by probe.
+- **ExecIsolationProbe** (executor) — per-channel table through the frozen launcher: all five declared
+  channels closed (`probe-inside.txt` vs `probe-outside.txt`); residuals named — `/proc/1/cmdline` argv
+  and random path names, host fingerprint via `uname`/`/usr`/`/etc`, writable (transient) gate-copy parent
+  dir, `/dev` writes (A6).
+- **MutGate** (mutation-tester) — 12 killed / 8 survived of 20 held-out gate mutants. M02 (split at 12.9.6),
+  M13 (first body line visible in era B) and M18 (era-B U1 restricted to the pre-cut text) are
+  non-equivalent survivors proved by differential probes → A5; M07-M09 (refusal) are killed by
+  `--usage-check`; M10/M11 are reporting-only.
+- **MutBattery** (mutation-tester) — m1-m9 launcher mutants all leave the five controls at 0/89 with the
+  honest gate at 89/89: the closure is the conjunction (private copy + file-only bind + `-I` +
+  `--clearenv`), not any single element; the m0-open diagnostic (bind the lane `tools/` dir) restores
+  K5/K6 → A7 §3.
+- **CriticClaims** (critic) — §1 `0/89` is the fallback's property, not closure (a U1-aware fallback reads
+  1/89); §4 the usage count was 8/8 vs 11 cases and "no verdict" was unasserted; §5 the manifest cannot
+  bind itself; §6 K4's before leg was a crash. → A7 §1/§2/§4/§5.
+- **CriticForgers** (critic) — five one-clause forgers killed; N01/N02 read `unmet` by crash
+  (`IndentationError` in the bends) → A4; N04 survives the families and is killed by `--usage-check`.
+- **ExecReplicate** (executor) — clean-room clone: gate 89/89 ×3, all five controls 0/89 ×3 with 0 error
+  rows, before leg 82/82 (`w1/ExecReplicate/`).
+- **ScoutUpstream** (scout) — host `limine 12.9.4-1`; no 12.9.7 (upstream HEAD is the v12.9.6 tag); no
+  post-12.9.6 `config.c` commits; the three tagged files' hashes match the pins.
+- **ConnectorOverlap** (connector) — 20 sibling repos, **0 conflicts**; kumitate owns orchestration-level
+  seat isolation (adjacent, reported not absorbed); 103 sibling tools use dynamic imports (the same
+  "subject can import the judge" class at fleet scale).
+- **ScribeLesson** (scribe) — criteria 132-135 are taken by this round; redrafted the oracle criterion and
+  the M2 row; the r91 draft's number was already used, which the round records rather than renumbers.
+- **ExecLints** (executor) — lane gates: registry coverage, knowledge header/refs, line endings, census
+  (receipts `w1/ExecLints/`).
+- **ReviewSource** (reviewer) — pinned-source verification of the era rule (receipts `w1/ReviewSource/`).
+
+Two seats' reports were still landing when this lesson was written; their receipt directories are the
+evidence and the L1 integrated only what it re-read.
 ## Before → after
 
-(pending the measured receipt)
+- Battery families: 82 (r91) → 89 (r92), +7 era families (ERA-FLE-PANIC-A/B, ERA-FLE-MEASURED-A/B,
+  ERA-GLOBAL-KEY-A/B, ERA-DEFAULT); the launcher replaces `[sys.executable, gate, ...]` everywhere.
+- Gate: `--limine-version X.Y.Z`, era-selected global-section scoping, `limine_version`/`visibility_era`
+  fields, schema `tsukuroi-limine-pins-v3`, selftest 25 → 37 cases; `--usage-check` 11 cases.
+- C1 measured: before `82/82 met` ×3 (K3/K5/K6/K7 `before-clone/`, K4 `before-clone-fixed/`), after
+  `0/89 unmet` ×3 with 0 error rows in both layouts (`after-clone-final/`, `canonical-after-final/`);
+  landed gate `89/89 met` ×3 both layouts.
+- C2 measured: `89/89 met` ×3 canonical + clone at `35c1088b…`/`aef33925…`; `--usage-check` `met` 11/11
+  both layouts; N01 87/89, N02 85/89, N03 88/89 `unmet` ×3 both layouts (0 error rows), N04 89/89 (limit)
+  and `unmet` under `--usage-check`; refused versions print no JSON (`after/usage-stdout-check.txt`).
+- Census: 376 → 381 `^tsukuroi` rows (5 new: S377-S381), exit 0 before and after; knowledge notes 108,
+  header 108/108 clean; registry coverage 145/145; line-endings PASS (471 files).
 
 ## Frontier
 
-(pending the measured receipt)
+- Landed: the oracle channel is closed and certified per channel (QUALITY 132, capability
+  `battery-oracle-isolation`); the visibility rule is version-selected with the v12.9.5 boundary sourced
+  (S377-S381, entry `knowledge/limine-r92-oracle-isolation.md`); the r91 frontier items "battery
+  oracle-import channel", "freeze manifest does not pin the battery" and "selftest lacks V1/U1 coverage"
+  are closed.
+- Routed to round 93 (named limits, A5/A7): one family each for `--limine-version 12.9.5` (the exact
+  boundary), the first body line after the cut in era B, and era-B U1; `N04-accept-any`'s family-level
+  survival (`--usage-check` covers it); the launcher's argv/fingerprint/write residuals (A6); and the
+  fleet-wide "subject can import the judge" class ConnectorOverlap counted in 103 sibling tools.

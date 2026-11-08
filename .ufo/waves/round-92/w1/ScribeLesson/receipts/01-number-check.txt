@@ -1,0 +1,26 @@
+# ScribeLesson r92 — number check for criterion 132
+# measured at lane rev 689623fdf592a92b6de85f9869da6f264ad9ce4d (HEAD at seat time)
+$ git -C <lane> rev-parse HEAD
+689623fdf592a92b6de85f9869da6f264ad9ce4d
+
+$ grep -cE '^[0-9]+\. \*\*' corpus/QUALITY.md
+117
+
+$ grep -nE '^[0-9]+\. \*\*' corpus/QUALITY.md | tail -4
+321:131. **A key's visibility clause is read at the buffer the reading call sees...
+324:132. **A judge's oracle is unreachable from the subject it judges...
+327:133. **A control proves a channel only if its channel-open leg scores the target...
+330:134. **A channel control resolves its target by the frozen name, never by a wildcard...
+333:135. **An environment-channel probe asserts what the environment holds, never prints it...
+
+$ grep -oE '^[0-9]+\.' corpus/QUALITY.md | tr -d '.' | sort -n | uniq | awk 'NR!=$1{print "GAP";g=1} END{if(!g) print "contiguous 1.."NR}'
+contiguous 1..135
+
+$ grep -oE '^[0-9]+\.' corpus/QUALITY.md | tr -d '.' | sort -n | uniq -d
+(no output — no duplicate numbers)
+
+$ grep -cE '^136\.' corpus/QUALITY.md
+0
+
+# verdict: 132 is TAKEN (landed 495a9f6c, tag R92-JUDGE-ORACLE-IMPORTABLE).
+# next free number = 136.

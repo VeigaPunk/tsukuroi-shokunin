@@ -7730,3 +7730,28 @@ after this freeze.
 Operability stays 9 (a sharper runnable arm, no ordinal claim); depth stays 8 unless the closure endorses a move.
 C1 and C2 are causally separable: C1 reads the controls under the two batteries; C2 reads the era families, the
 usage check and the one-clause near-misses.
+
+## Capabilities — round 92 demonstrated entry
+
+The round-68 full evidence set stands; this round adds one row. It entered only after the capability ran
+end to end on real inventory in both layouts (AXES.md §Capabilities).
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| battery-oracle-isolation | Runs any gate under a launcher that closes the five read channels to the judge's oracle (private copy + `bwrap --unshare-all --clearenv` + `python3 -I`), certifies each channel with a control that scores the target when the channel is open (82/82 against the r91 battery) and reads 0/89 with 0 error rows when it is closed, and prints what a probe actually sees (`--isolation-check`) | `bash tools/limine-pin-battery-r92.py --isolation-check`; `after/c1-controls/{before-clone,before-clone-fixed,after-clone-final,canonical-after-final}/summary.tsv`; QUALITY 132 | round 92 |
+
+## Round 92 — measured outcome (measured at `e9fce481` plus the final receipts; C1 met on the differential reading of amendment A7 §1, C2 met on the narrowed predicate of amendment A5)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: the `limine-pins` battery's oracle channel) | operability 9 → 9 (assurance arm) | `run-controls.py` over `before/controls/gates` with the r91 battery (channel open) and the r92 battery (closed), `--runs 3`: before `82/82 met` ×3 for all five controls (K4 from the A2 bytes), after `0/89 unmet` ×3 with **0 error rows** for all five, canonical and `git clone --shared`; landed gate `89/89 met` ×3 in both layouts (`.ufo/waves/round-92/after/c1-controls/*/summary.tsv`, `after/c2-gate-{canonical,clone}.txt`) | gate 89/89 ×3 both layouts; controls 0/89 ×3 with 0 error rows both layouts; before leg 82/82 ×3 | **met**, on the differential reading: the `0/89` is the shipped fallback's property, closure is the same-bytes before/after flip (A7 §1) |
+| C2 (measured; surface: the visibility rule's version selection) | depth 8 → 8 | `python3 tools/limine-pin-battery-r92.py --gate tools/check-limine-pins.py --runs 3` → `89/89 met`, ×3 both layouts at `35c1088b…`/`aef33925…`; `--usage-check` → `met` 11/11 both layouts; near-misses `N01 87/89`, `N02 85/89`, `N03 88/89`, each `unmet` ×3 both layouts with 0 error rows; `N04` 89/89 (named limit) and `unmet` under `--usage-check`; `after/usage-stdout-check.txt` (refused versions: rc 64, 0 bytes on stdout) | 89/89 ×3 canonical + clone; usage met; N01-N03 unmet ×3 both layouts | **met on the narrowed predicate** (A5): the 12.9.5-exact flip, the first body line after the cut and era-B U1 are named limits |
+
+Falsified-or-narrowed this round (all recorded in `.ufo/plans/round-92.md` A1-A7): the controls were dead in
+both legs (A1), K4 resolved a wildcard (A2), the gate crashed on a 5000-digit version (A3, ReviewGate F1),
+the N01/N02 bends were syntactically invalid (A4), the 12.9.5-exact boundary is not sampled by a family
+(A5), the launcher's residual channels are named (A6), and the `0/89`/manifest-binding/usage-count
+readings are narrowed (A7). Axes now: depth 8, coverage 9, operability 9, freshness 9, calibration 9,
+adjacency 8 (unchanged). No retirement. No axis harmed: era-A answers are unchanged (no-regression
+receipt `after/c1-controls/r91-battery-on-r92-gate.txt`, 82/82), and the r92 gate adds only the flag and
+two JSON fields to the r91 behaviour.

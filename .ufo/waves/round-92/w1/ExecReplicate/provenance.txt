@@ -1,0 +1,108 @@
+# ExecReplicate — provenance
+
+Host: Linux 7.2.11-arch1-1 x86_64; python 3.14.8; bwrap bubblewrap 0.13.1; /usr/bin/bwrap
+Scratch root: /fast/scratch/hyaku/tsukuroi-r92/ExecReplicate (deleted on exit)
+
+## Instrument revisions observed
+
+Lane tip when the seat started: da99b2f4 (freeze commit named in the seat spec).
+Lane tip moved twice while the seat ran (parent commits), each time with a regenerated manifest:
+  02:08:46 429fd1a3  round-92: A2 control repair (K4 frozen-name resolution)
+  02:15:15 d1f6934f  round-92: A3 gate hardening (ReviewGate F1-F5)
+  02:17:06 689623fd  round-92: A3 gate hardening (amended; same instrument bytes as d1f6934f)
+
+Instrument sha256 per revision (all equal to that revision's own freeze-manifest lines):
+  revision    check-limine-pins.py                                               limine-pin-battery-r92.py                                          r91 battery
+  da99b2f4    af90ae637222a21b5c098ceed289e29cd010a629df143c2fcd8d92539839c123  fde864ea29f1b61d9e8cdcb1063942e6c9b07bfdf81cec5766e804488542b166  655ee8f3d0942e958cc853deb2d16abcd2d16ae2823ca6548f2a53991b4901b9
+  495a9f6c    af90ae637222a21b5c098ceed289e29cd010a629df143c2fcd8d92539839c123  fde864ea29f1b61d9e8cdcb1063942e6c9b07bfdf81cec5766e804488542b166  655ee8f3d0942e958cc853deb2d16abcd2d16ae2823ca6548f2a53991b4901b9
+  429fd1a3    af90ae637222a21b5c098ceed289e29cd010a629df143c2fcd8d92539839c123  fde864ea29f1b61d9e8cdcb1063942e6c9b07bfdf81cec5766e804488542b166  655ee8f3d0942e958cc853deb2d16abcd2d16ae2823ca6548f2a53991b4901b9
+  d1f6934f    35c1088b7bacb31dfe92e087416136271b6ddef9aebf8fb36727696af8d5c87f  aef3392516aabf2942192cd55d637560b6276bc98b8bf8796f33bd464d02614f  655ee8f3d0942e958cc853deb2d16abcd2d16ae2823ca6548f2a53991b4901b9
+  689623fd    35c1088b7bacb31dfe92e087416136271b6ddef9aebf8fb36727696af8d5c87f  aef3392516aabf2942192cd55d637560b6276bc98b8bf8796f33bd464d02614f  655ee8f3d0942e958cc853deb2d16abcd2d16ae2823ca6548f2a53991b4901b9
+
+Clones used (git clone --shared, each toplevel asserted = the clone dir):
+  clone                495a9f6c  (created 02:07, before the A2 commit landed)
+  clone-429fd1a3       429fd1a3
+  clone-latest         d1f6934f  (bytes identical to lane tip 689623fd; verified below)
+
+## Byte identity clone-latest vs lane tip
+
+$ sha256sum <clone-latest>/tools/{check-limine-pins.py,limine-pin-battery-r92.py,limine-pin-battery-r91.py}
+35c1088b7bacb31dfe92e087416136271b6ddef9aebf8fb36727696af8d5c87f  /fast/scratch/hyaku/tsukuroi-r92/ExecReplicate/clone-latest/tools/check-limine-pins.py
+aef3392516aabf2942192cd55d637560b6276bc98b8bf8796f33bd464d02614f  /fast/scratch/hyaku/tsukuroi-r92/ExecReplicate/clone-latest/tools/limine-pin-battery-r92.py
+655ee8f3d0942e958cc853deb2d16abcd2d16ae2823ca6548f2a53991b4901b9  /fast/scratch/hyaku/tsukuroi-r92/ExecReplicate/clone-latest/tools/limine-pin-battery-r91.py
+$ sha256sum <lane>/tools/{...} (tip 689623fd)
+35c1088b7bacb31dfe92e087416136271b6ddef9aebf8fb36727696af8d5c87f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-limine-pins.py
+aef3392516aabf2942192cd55d637560b6276bc98b8bf8796f33bd464d02614f  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/limine-pin-battery-r92.py
+655ee8f3d0942e958cc853deb2d16abcd2d16ae2823ca6548f2a53991b4901b9  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/limine-pin-battery-r91.py
+
+$ (cd <clone-latest> && sha256sum -c .ufo/waves/round-92/before/freeze-manifest.sha256)
+36
+  (36/36 OK, none FAILED)
+
+## Commands (current bytes, clone-latest = d1f6934f)
+
+1. honest gate:
+   cd <clone-latest> && TMPDIR=$S/tmp python3 tools/limine-pin-battery-r92.py \
+     --gate tools/check-limine-pins.py --runs 3 --work $S/work-latest --json $S/c1-gate-latest/runs.json
+2. before leg (r91 battery; the five frozen controls copied byte-identically beside the two batteries):
+   cd <clone-latest> && TMPDIR=$S/tmp PYTHONPATH=$S/tools-latest python3 \
+     .ufo/waves/round-92/before/controls/run-controls.py --battery $S/tools-latest/limine-pin-battery-r91.py \
+     --gates $S/tools-latest --only K3-sibling,K4-syspath,K5-abspath,K6-proc,K7-env --runs 3 --jobs 5 \
+     --label before-latest --out $S/before-latest
+3. after leg (r92 battery; identical gate dir):  same command with --battery .../limine-pin-battery-r92.py and --out $S/after-latest
+4. after leg in the frozen layout named by the seat spec (--gates .ufo/waves/round-92/before/controls/gates):
+   cd <clone-latest> && TMPDIR=$S/tmp PYTHONPATH=<clone-latest>/tools python3 \
+     .ufo/waves/round-92/before/controls/run-controls.py --battery tools/limine-pin-battery-r92.py \
+     --gates .ufo/waves/round-92/before/controls/gates --runs 3 --jobs 5 --label after-spec-layout --out $S/layout-spec/after
+5. before leg in the same frozen layout (r91 battery): --battery tools/limine-pin-battery-r91.py --out $S/layout-spec/before
+6. isolation probe: cd <clone-latest> && TMPDIR=$S/tmp python3 tools/limine-pin-battery-r92.py --isolation-check --work $S/iso/work
+
+Notes: run-controls.py globs every *.py in --gates; when the batteries are co-located the two
+batteries are picked up as controls (each 984 error rows from their own arg parsing), hence --only.
+The five control copies used in the co-located dir are byte-identical to the frozen gates (sha256 above).
+
+## Oracle resolution per control (import-time BATT), co-located vs frozen gates dir
+co-located ($S/tools-latest, PYTHONPATH=<clone-latest>/tools):
+  K3-sibling  $S/tools-latest/limine-pin-battery-r92.py
+  K4-syspath  <clone-latest>/tools/limine-pin-battery-r92.py
+  K5-abspath  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/limine-pin-battery-r92.py   (the lane, by design)
+  K6-proc     tools/limine-pin-battery-r92.py   (relative to the parent cmdline; resolved via /proc/<pid>/cwd at run time)
+  K7-env      <clone-latest>/tools/limine-pin-battery-r92.py
+frozen gates dir (.ufo/.../gates, PYTHONPATH=<clone-latest>/tools):
+  K3-sibling  None   <-- no battery can ever live in this directory; the sibling channel has no target
+  K4-syspath  <clone-latest>/tools/limine-pin-battery-r92.py
+  K5-abspath  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/limine-pin-battery-r92.py
+  K6-proc     tools/limine-pin-battery-r92.py
+  K7-env      <clone-latest>/tools/limine-pin-battery-r92.py
+
+## Frozen control hashes (byte-identical copies used in the co-located dir)
+
+  K3-sibling.py
+  K4-syspath.py
+  K5-abspath.py
+  K6-proc.py
+  K7-env.py
+
+Manifest lines (clone-latest / lane tip): identical for the five K*.py (checked above).
+The c2gates/N0*.py hashes were regenerated by A3 in d1f6934f; they are C2 instruments and were
+not exercised by this seat (C1 only).
+
+## Prior-revision gate receipt (429fd1a3 bytes) — added after the first scratch pass
+
+$ (cd <clone-429 @429fd1a3> && TMPDIR=$S/tmp python3 tools/limine-pin-battery-r92.py --gate tools/check-limine-pins.py --runs 3 --work $S/work-429 --json $S/gate-429/runs.json)
+  families_passed 89/89 verdict met   (x3, rc 0)
+  gate  af90ae637222a21b5c098ceed289e29cd010a629df143c2fcd8d92539839c123
+  batt  fde864ea29f1b61d9e8cdcb1063942e6c9b07bfdf81cec5766e804488542b166
+  receipt: prior-rev-429-gate/{runs.json,stdout.txt}
+
+## Lane state at 02:27:48 -03 (tip e9fce481 'A4/A7 narrowings')
+
+$ sha256sum -c .ufo/waves/round-92/before/freeze-manifest.sha256
+  34 OK, 2 FAILED:
+    .ufo/plans/round-92.md  manifest 37480e0abc73383290e4e11b1574a54109b9131a9c30e195cd4d4da46655d21b  actual 251adf8cd462a2cc4478d000433701ada86f03efd8a325e2730c25cf9a127de5
+    SKILL.md                manifest 60c89f2e857145bd9601fd2997a5062498a058a6279924992c53fb8d0f992a5b  actual 5d3625890f6155bc57e10c4d344c0a74fde7f395c7202f7ae26e8b364414f368
+  Every tools/ and controls/ line still OK; instrument bytes unchanged since d1f6934f:
+    check-limine-pins.py 35c1088b7bacb31dfe92e087416136271b6ddef9aebf8fb36727696af8d5c87f
+    limine-pin-battery-r92.py aef3392516aabf2942192cd55d637560b6276bc98b8bf8796f33bd464d02614f
+    limine-pin-battery-r91.py 655ee8f3d0942e958cc853deb2d16abcd2d16ae2823ca6548f2a53991b4901b9
+  The two failures are declaration documents, not instruments; recorded, not adjudicated.

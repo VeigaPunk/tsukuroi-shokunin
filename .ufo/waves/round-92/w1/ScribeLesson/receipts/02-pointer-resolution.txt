@@ -1,0 +1,31 @@
+# ScribeLesson r92 — pointer resolution sweep (every backticked path in the r92 lesson)
+# measured at 689623fdf592a92b6de85f9869da6f264ad9ce4d
+
+$ python3 - <<'PY'
+import re,os
+t=open("corpus/lessons/round-92.md").read()
+for p in sorted(set(re.findall(r'`(\.ufo/[^`]+)`', t))):
+    print(("OK  " if os.path.exists(p) else "MISS"), p)
+PY
+OK   .ufo/plans/round-92.md
+OK   .ufo/waves/round-92/after/c1-controls/
+OK   .ufo/waves/round-92/after/c1-controls/before-clone-dead-controls/summary.tsv
+OK   .ufo/waves/round-92/after/c1-controls/before-clone-fixed/K4-syspath.json
+OK   .ufo/waves/round-92/after/c1-controls/before-clone/K4-syspath.json
+MISS .ufo/waves/round-92/after/m1-landing-check.txt
+MISS .ufo/waves/round-92/after/m2-lie-wrapper-check.txt
+MISS .ufo/waves/round-92/before/controls/m2-lie-wrapper-path.py
+OK   .ufo/waves/round-92/before/src/
+
+# the three MISSing paths never existed in ANY commit:
+$ git log --all --oneline -- '.ufo/waves/round-92/before/controls/m2-lie-wrapper-path.py' '.ufo/waves/round-92/after/m2-lie-wrapper-check.txt' '.ufo/waves/round-92/after/m1-landing-check.txt'
+(no output — never existed)
+
+# the files that DO carry the M2 evidence:
+$ git ls-files .ufo/waves/round-92/after/m2/ .ufo/waves/round-92/before/controls/m2-evidence.py
+.ufo/waves/round-92/after/m2/drafted-path-form.json
+.ufo/waves/round-92/after/m2/landed-embedded-form.json
+.ufo/waves/round-92/after/m2/lie-consequence-embedded.py
+.ufo/waves/round-92/after/m2/lie-consequence-path.py
+.ufo/waves/round-92/after/m2/m2-summary.json
+.ufo/waves/round-92/before/controls/m2-evidence.py
