@@ -1183,3 +1183,39 @@ the class reached the r95 instrument twice (the roster's `12.9.5.1` row and the 
 - Still open from r95: the registry gate's content binding (row presence, not cell content);
   the r92 launcher residuals; the r93 probe pre-release caveat; r89's blanks-before-CRLF, ESP
   containment and empty labels.
+
+## Round 97 — the third component's cap, the leading-zero form, and registry cell content
+
+New ground: `knowledge/limine-bound-9digit-z-r97.md` (S389/S391 re-opened byte-identical, S392
+opened) — the published 1-9-digit component cap is per component, and the THIRD component was the
+r96 Frontier's uncertified leg; `int()` documents leading zeros for an explicit base, so a
+leading-zero version component is a legal decimal spelling and the era follows the numeric tuple.
+`tools/limine-pin-battery-r97.py` (roster 103 → 105) adds `REFUSAL-VERSIONS-9DIGIT-Z`
+(`12.9.999999999` era B, `0.9.999999999` era A) and `LEADING-ZERO-NORMALIZE` (`12.09.4`,
+`000000012.9.4`, `12.000000009.000000005`, `000000000.000000000.000000000`); the one-clause bends
+`N05-z-cap-8` and `N06-leading-zero-reject` read `103/105` (two families, 6 rc-64 rows) and
+`104/105` (one family, 4 rows) in both layouts, and the r96 battery is blind to both **on its roster
+leg** (`met 103/103`; its `--usage-check` already sends `12.09.4`/`00.00.00`, so that class is a
+roster-level closure only — amendment A3). `tools/check-registry-content.py` binds seven `SKILL.md`
+registry cells to the bytes of the tool each row names and reads `FAIL` with one
+`RC-VALUE-MISMATCH` per doctored cell on a revision the unchanged coverage gate still certifies
+`PASS 154/154` (base pinned to `f48d1642`; A1/A4).
+
+### Frontier (round-97 addition)
+
+- `REFUSAL-VERSIONS-9DIGIT-Z`'s era discrimination is carried by its era-B member only; the era-A
+  member and the repeat cases are acceptance redundancy (CriticClaims `05-*`). The same holds for
+  `LEADING-ZERO-NORMALIZE`, whose text-comparer discriminator is the single member
+  `12.000000009.000000005` (`06-*`).
+- `tools/limine-pin-battery-r97.py`'s `fam_leading_zero_normalize` docstring names the wrong member
+  and direction for a text comparer (A6); frozen bytes are not edited this round, so r98 owes the
+  docstring correction with its own manifest — the second instance of this class in two rounds.
+- `check-registry-content.py` binds 7 cells of 4 rows; of the other 150, 21 carry a bindable cell
+  shape, 15 re-derive today and 11 are machine-checkable but unbound (ScoutDrift §3), and every
+  unbound cell of the four bound rows stays presence-only (ReviewRegistryContent (b)). A tool and
+  its cell doctored together read `PASS` (same-revision comparison, (c)); a `selftest_total` binding
+  parses a printed tally without running the cases ((d)).
+- The checker's own selftest never exercises a non-contiguous `VARIANTS` label set: MutRegistry's M08
+  survives all three legs (routed to r98 as a selftest case).
+- Still open from r96: the r92 launcher residuals, the r93 probe pre-release caveat, and r89's
+  blanks-before-CRLF, ESP containment and empty labels.

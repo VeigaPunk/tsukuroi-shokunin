@@ -7954,3 +7954,24 @@ leading zeros are uncertified (`MutBound` M06/M08 survive `103/103`); the r96 Y-
 era claim is false (an X-only era reader passes Y, fails ERA — CriticClaims F-4, routed to r97);
 the calibration checker does not bind ledger provenance (ExecControls D2) and its F6 is
 first-match (ReviewCalibration).
+
+## Round 97 — declaration (frozen before the candidate is scored; controls committed with it)
+
+Frozen declaration: `.ufo/plans/round-97.md` (pre-round tip `f48d16428d8bb92fd6cf546a745bff5b624e3f18`);
+frozen claims `.ufo/waves/round-97/claims.json`; instruments pinned in
+`.ufo/waves/round-97/before/instruments.sha256`; freeze commit `a57e88cd`. Lowest non-retired axes:
+depth 8 and adjacency 8 (tied). C1 works depth; C2 works freshness. No adjacency move is declarable
+(the kaidoku/revenger reverse-engineering ownership is operator-owned and unruled — reported, not
+absorbed).
+
+C1 (depth 8): `tools/limine-pin-battery-r97.py` roster 103 → 105 with `REFUSAL-VERSIONS-9DIGIT-Z`
+(the third component at the published 1-9-digit cap: `12.9.999999999` era B, `0.9.999999999` era A)
+and `LEADING-ZERO-NORMALIZE` (`12.09.4`, `000000012.9.4`, `12.000000009.000000005`,
+`000000000.000000000.000000000`); two one-clause bends `N05-z-cap-8` and `N06-leading-zero-reject`,
+which the r96 battery (`do-nothing-battery-r96.py`, `f06d90ae…`) is blind to **on its roster leg** (`met 103/103`); its `--usage-check` mode already sends `12.09.4` and `00.00.00` and reads `unmet` on `N06` (A3), so the leading-zero class is a roster-level closure and the Z class is new at both levels.
+
+C2 (freshness 9): `tools/check-registry-content.py` re-derives seven `SKILL.md` registry cell values
+from the tool bytes each row names (`limine-pins` default/tally/schema; the r96 battery's roster in
+two cells; the r96 calibration checker's tally; the r96 bends generator's variant span) and reads
+`FAIL` with one `RC-VALUE-MISMATCH` per doctored cell on a revision the unchanged coverage gate
+certifies `PASS 154/154`. Capability row: `registry-content-binding`, first working round 97.

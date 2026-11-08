@@ -4239,3 +4239,42 @@ binding, the r95 docstring corrections, the README scope, the `b8f878c8` PASS re
 report count F6 binds. Corrections found by the wave and landed: S390's locator byte (157653 ->
 157851/157525), the README's "sampled once" -> the instrument's two prior sends, A1-A5.
 Registry green at the landed tip (154/154). No axis harmed; the gate bytes are unchanged.
+
+## Round 97 — freeze (`a57e88cd`)
+
+Two claims frozen at `a57e88cd` against pre-round tip `f48d1642`; instruments pinned in
+`.ufo/waves/round-97/before/instruments.sha256` (20 entries); do-nothing copies
+(`do-nothing-battery-r96.py` `f06d90ae…` = the r96 landed battery, `do-nothing-gate.py`
+`7d79ac29…`, `do-nothing-registry-coverage.py` `6fcb2d0a…`), two one-clause bends
+(`N05-z-cap-8`, `N06-leading-zero-reject`), the doctored-fixture builder with its diff, the
+pre-round registry baseline (`PASS 154/154` at `f48d1642`) and the development receipts committed
+with it. The r96 leftover `.ufo/waves/round-96/after/registry-final.json` (spot-check routed 1) is
+committed here under the r97 entry. C1 (depth 8): battery roster 103 → 105 with
+`REFUSAL-VERSIONS-9DIGIT-Z` and `LEADING-ZERO-NORMALIZE`. C2 (freshness 9):
+`tools/check-registry-content.py` binds seven registry cells to tool bytes.
+
+## Round 97 — wave (`dafcd5df`)
+
+One v1 wave, 14 seats, 0 dead (`w1-results.json`): 5 executors, 2 scouts, 2 scribes, 2 reviewers,
+1 critic, 1 mutation-tester, 1 connector; attack roles 5/14 = 36 % (floor 25 %), connector seats 1
+(limit 2). Validator `counts` 14 spawn / 0 resume / 14 total; `w1-validate.err` 0 bytes; `.ready`
+taken at 08:48:42 and all 14 settled. Wave findings: C1's legs match the frozen target in both
+layouts (landed 105/105 x3, N05 103/105 two families 6 rc-64 rows, N06 104/105 one family 4 rows,
+r96 control 103/103 x3 on the gate and both bends); C2 landed PASS 7/7, selftest 12/12, doctored
+FAIL with six RC-VALUE-MISMATCH on two independently built revisions while the coverage gate reads
+PASS 154/154 (base pinned); six of eight checker mutants killed. Narrowings A1-A7 and the named
+limits (era-field/echo unasserted on the new members; three C2 scope gaps; M08) are recorded in
+`before/plan-amendments-r97.md`, `w1/*`, and `corpus/lessons/round-97.md`.
+
+## Round 97 — settle
+
+Measured: C1 landed `105/105` ×3 canonical + ×3 clone, 0 error rows; N05 `103/105` ×3 both
+layouts with `[LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT-Z]` and 6 rc-64 rows; N06 `104/105`
+×3 both layouts with `[LEADING-ZERO-NORMALIZE]` and 4 rc-64 rows; the r96 control `met 103/103` ×3
+on the gate and both bends. C2 landed `PASS 7/7`, selftest `12/12`; doctored revision (base
+`f48d1642`) `FAIL` with six `RC-VALUE-MISMATCH` while the unchanged coverage gate reads
+`PASS 154/154`; settled tip `PASS 7/7` and coverage `PASS 157/157`. Corpus: S392 (CPython `int()`),
+`knowledge/limine-bound-9digit-z-r97.md`, `lessons/round-97.md`, census 391 → 392. Registry: three
+r97 rows. The r96 Y-family docstring corrected in the r96 tool (bytes re-derivable at
+`f48d1642`, `f06d90ae…` = the round's control). Amendments A1-A6 in
+`before/plan-amendments-r97.md`. No axis harmed; the gate bytes are unchanged (`7d79ac29…`).

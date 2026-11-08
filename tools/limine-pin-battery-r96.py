@@ -1772,8 +1772,12 @@ def fam_refusal_versions_9digit_y(c):
     cap sits in the SECOND component — `12.999999999.4` (era B) and `0.999999999.0` (era A) — is a
     real version: the gate must accept it (rc 1 for this fixture's mismatch pin, never rc 64) and
     answer from the era the whole tuple selects. A gate that bounds only X (the r95 leg) accepts
-    both; one that applies `<= 8` to Y refuses the cap member and fails, and one that reads the era
-    from X alone answers era B for `0.999999999.0` and fails."""
+    both; one that applies `<= 8` to Y refuses the cap member and fails. LIMIT (r96 CriticClaims
+    F-4, corrected in r97): an era reader that looks at X alone is NOT caught by this family -- X=12
+    and X=0 answer era B and era A correctly for these two members; that reader is caught by
+    `EXPLICIT-VERSION-ERA` on its `12.9.4` row. The sentence this docstring carried is withdrawn; the
+    family and its expectation are unchanged. Bytes of the r96 landed tool are re-derivable at
+    `f48d1642:tools/limine-pin-battery-r96.py` (sha256 f06d90ae...)."""
     _era_first_line_panic(c, Y_DIGIT9[c.index % len(Y_DIGIT9)])
 
 
