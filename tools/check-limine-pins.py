@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Read-only Limine path-pin gate (tsukuroi rounds 87 and 90; Limine v12.9.4 rules).
+"""Read-only Limine path-pin gate (tsukuroi rounds 87, 90 and 91; Limine v12.9.4 rules).
 
 Hashes every file a `limine.conf` path pin names and says what Limine will do at boot.
-The rule set is frozen in tools/limine-pin-battery-r90.py (R1-R7, R9, R10; the r87 R1-R7 with the
-round-90 changes); sources are the pinned Limine v12.9.4 files in .ufo/waves/round-87/before/src/ and
-.ufo/waves/round-89/before/src/ (registry S350-S353, S361, S362). Summary:
+The rule set is frozen in tools/limine-pin-battery-r91.py (R1-R7, R9, R10, V1, U1; the r90 rules
+with round-91 additions); sources are the pinned Limine v12.9.4 files in .ufo/waves/round-87/before/src/,
+.ufo/waves/round-89/before/src/ and .ufo/waves/round-91/after/src-c2/ (registry S350-S353, S361, S362,
+S374-S376). Summary:
   - key lines: after leading blanks, `KEY:`; keys case-insensitive; `#` lines are comments (config.c 778-818);
   - pins: path, kernel_path, image_path, module_path, dtb_path, global_dtb, wallpaper, term_font whose value is
     `[$]resource(root):/path#hash`; the hash is after the LAST `#` (uri.c 28-104);
@@ -27,6 +28,14 @@ round-90 changes); sources are the pinned Limine v12.9.4 files in .ufo/waves/rou
     -> "menu" (a panic returns to the menu after a key press); requested and --tpm-present 1 -> "halt"
     ("System halted."), --tpm-present 0 -> "menu", flag absent -> "halt-if-tpm". `--live` never guesses the
     firmware TPM: /sys/class/tpm is a Linux-side signal only (corpus/knowledge/limine-uri-failure-r89.md UF8).
+  - hash_mismatch_panic and measured_boot are read only from the global section (lines before the first
+    `/` entry line) UNLESS line 1 is itself an entry line (config.c 642-650: the buffer cut is skipped when
+    `c == config_addr`, i.e. no bytes precede the first `/`; round 91 V1). An entry body's hash_mismatch_panic
+    or measured_boot is invisible to config_get_value.
+  - unverified_image_lines (round 91 U1): the image line of an efi chainload entry whose value is not a
+    pin URI (`boot():/path#hash` shape) is reported as a line-number list. uri_resolve returns false with no
+    message for a value with no `(`, no `):/`, or no `#` after `):/`, and uri_open returns NULL; chainload
+    panics "Failed to open image" (uri.c 32-107, 335-336; chainload.c 414-435; registry S374, S375).
 
 Usage:
   check-limine-pins.py --conf FILE --esp DIR [--secure-boot-enforced 0|1] [--tpm-present 0|1]
@@ -146,9 +155,6 @@ def check(conf, esp, secure_boot, tpm=None):
             first_entry = i
             break
     in_global = True
-    if first_entry is not None and first_entry != 1:
-        # global section ends the line before first_entry; flip when we reach it
-        pass
     for lineno, raw in enumerate(lines, 1):
         stripped = raw.replace("\r", "").strip(" \t")
         if stripped.startswith("/"):
@@ -244,9 +250,9 @@ def check(conf, esp, secure_boot, tpm=None):
         verdict, rc = "HEALTHY", 0
     return {"schema": "tsukuroi-limine-pins-v2", "verdict": verdict, "rc": rc,
             "hash_mismatch_panic": None if panic_setting is None else
-            {"line": panic_setting[0], "value": panic_setting[1]},
+            {"line": panic_setting[0], "value": sanitize(panic_setting[1])},
             "measured_boot": None if measured_setting is None else
-            {"line": measured_setting[0], "value": measured_setting[1]},
+            {"line": measured_setting[0], "value": sanitize(measured_setting[1])},
             "tpm_present": tpm, "on_panic": on_panic_of(measured_setting, secure_boot, tpm),
             "secure_boot_enforced": secure_boot, "pins": pins,
             "unverified_image_lines": unverified,

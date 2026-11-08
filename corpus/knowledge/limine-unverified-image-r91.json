@@ -1,0 +1,22 @@
+{
+  "schema": "tsukuroi-knowledge-r91",
+  "round": 91,
+  "claim": "C2",
+  "title": "Limine v12.9.4 unverified image lines on efi chainload entries",
+  "sources": ["S374", "S375", "S376"],
+  "pinned_files": [
+    ".ufo/waves/round-91/after/src-c2/limine-v12.9.4-common_lib_uri.c",
+    ".ufo/waves/round-91/after/src-c2/limine-v12.9.4-common_protos_chainload.c",
+    ".ufo/waves/round-91/after/src-c2/limine-v12.9.4-common_lib_config.c"
+  ],
+  "host_instance": ".ufo/waves/round-91/before/host/receipt.txt line 72: path: boot():/EFI/BOOT/BOOTX64.EFI (no #)",
+  "findings": [
+    "uri_resolve returns false with no URI_ERROR for values with no '(', no '):/', or no '#' after '):/' (uri.c 46-70, 77-106)",
+    "uri_open returns NULL on uri_resolve failure (uri.c 335-337); chainload panics 'Failed to open image' (chainload.c 430-435)",
+    "unhashed-but-shaped value (boot():/path, no #) is NOT a resolve failure; hash==NULL; SB-unhashed panic bypassed by chainload clearing secure_boot_active (chainload.c 423-427)",
+    "first PATH wins unconditionally; IMAGE_PATH only when PATH absent (NULL), not when empty (chainload.c 415-418)",
+    "hash-mismatch prompt bypasses panic() and returns to menu even under measured boot (uri.c 307-314)"
+  ],
+  "gate_field": "unverified_image_lines: list of line numbers for efi chainload entries whose image line is not a pin URI",
+  "verdict": "exploratory — depth axis, host line 72 is a live instance"
+}
