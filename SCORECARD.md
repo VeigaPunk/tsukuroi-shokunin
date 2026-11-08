@@ -8103,3 +8103,29 @@ not claimed). Axes now: depth 8, coverage 9, operability 9, freshness 9, calibra
 battery and checker keep their bytes and read `met 105/105` / `PASS 7/7` as controls, coverage
 certified `160/160` at the pre-round tip and after this round's three rows, and the corpus is
 additive (one row S395, one entry, six lesson mistakes).
+
+## Round 100 — declaration (frozen before any seat runs; controls committed at `743ce449`)
+
+Inputs read first: the round-99 closure (`MANIFEST` r99, admitted) and its non-author spot-check
+`corpus/lessons/round-99-verifier-spotcheck.md` (routed R99-D2/D3/D4 plus the carried limits); the
+r99 lesson's mistakes and counter-attack scoreboard; `corpus/QUALITY.md` 136-141; `corpus/README.md`
+§ "Round 99" and its Frontier. Fresh-start status: not applicable — r95-r99 closures are all `ok`
+and no rejection has accrued since the r91 fresh-start base (Amendment 62). Full declaration,
+development-run readings and limits: `.ufo/plans/round-100.md`; claims
+`.ufo/waves/round-100/claims.json`; instruments pinned in
+`.ufo/waves/round-100/before/instruments.sha256`.
+
+Instruments: `tools/make-r100-bends.py` (two component-keyed one-clause bends, exact-once
+substitution guard), `tools/check-registry-content-r100.py` (the `RC-BEND-SPAN` label-set binding
+and nine new selftest cases, 17 -> 26). The gate `tools/check-limine-pins.py` (`7d79ac29…`), the r99
+battery (`c2e8c8fc…`) and the r99 checker (`b489f5b8…`) keep their bytes; the r98 battery
+(`8198bd84…`) and the r99 checker are the do-nothing controls.
+
+| Claim | Axis | Predicate (the same sentence in `claims.json`) | Target | Kill rule | Counting command |
+|---|---|---|---|---|---|
+| C1 (measured; surface: the accepted-cap families' echo assertions) | depth 8 (tied lowest) | `tools/make-r100-bends.py` emits two one-clause bends of the unchanged gate that falsify only the returned JSON `limine_version`, `N12-x-echo` keyed on the first version component `999999999` and `N13-y-echo` on the second; the unchanged r99 battery must move the families whose `check_echo` the r99 Frontier says no bend ever exercised, with the r98 battery as the control | landed gate `met 105/105` x3 both layouts, `failed_families []`, 0 error rows; `N13-y-echo` `unmet 104/105` x3 both layouts exactly `[REFUSAL-VERSIONS-9DIGIT-Y]`; `N12-x-echo` `unmet 103/105` x3 both layouts exactly `[EXPLICIT-VERSION-ECHO, REFUSAL-VERSIONS-9DIGIT]`; r98 control `met 105/105` x3 on N13 and `unmet 104/105` x3 on N12 exactly `[EXPLICIT-VERSION-ECHO]`; one-line diff per bend; selftest `PASS 5/5` | unmet on any count/set/error-row clause, on a multi-line bend diff, or on a control reading that differs; void on a pinned-byte mismatch | `python3 tools/limine-pin-battery-r99.py --gate <ARTICLE> --runs 3 --work <scratch> --json <out>`; `python3 .ufo/waves/round-95/before/controls/count-runs.py <out> --family REFUSAL-VERSIONS-9DIGIT --family REFUSAL-VERSIONS-9DIGIT-Y --family EXPLICIT-VERSION-ECHO` |
+| C2 (measured; surface: the registry checker's span capture) | freshness 9 (assurance arm) | `tools/check-registry-content-r100.py` binds `RC-BEND-SPAN` as a label set (tokens `N<digits>`/`N<digits>-N<digits>`, ranges expanded, separators `,` whitespace `;` `+` `/` `and`, set equality against the tool's `VARIANTS` keys), closing the two r99 named capture limits; the r99 checker is the do-nothing control | live table r100 `PASS 7/7 findings 0` (r99 control `PASS 7/7`); six cells PASS on r100 where r99 reads a finding (SEP-SPACE, SEP-SEMICOLON, SEP-PLUS, SEP-SLASH, SEP-AND, UNION); five fail-closed controls keep their ids; selftest `PASS 26/26` (r99 `17/17`) | unmet on a non-PASS live table, on a forged cell reading PASS, on a frozen id that moves, or on a non-26/26 selftest; void on a pinned-byte mismatch | `python3 tools/check-registry-content-r100.py --revision <R> --json <out>`; `--selftest`; `python3 .ufo/waves/round-100/before/dev/make-fixtures.py <dir>` then both checkers with `--root` |
+
+Depth stays 8 and freshness stays 9 (sharper instruments; no ordinal uplift). C1 and C2 are causally
+separable: C1 reads battery JSON from gate articles; C2 reads the SKILL.md registry table and fixture
+trees.

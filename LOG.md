@@ -4348,3 +4348,25 @@ coverage `PASS 160/160`. Corpus: S395 mined, `knowledge/limine-metadata-cap-fami
 `lessons/round-99.md` (6 mistakes incl. the seat-harm row), census 394 → 395 exit 0. Registry: three
 r99 rows. The r98 routed defect R99-D1 is repaired with committed tip/settle receipts (160/160 at
 `f107da3a` and `270ca298`; the r97-settle 157/157 re-derived).
+
+## Round 100 — freeze (`743ce449`)
+
+Two claims frozen before any seat ran, against pre-round tip `ce73ccaf`; instruments pinned in
+`.ufo/waves/round-100/before/instruments.sha256` (16 entries), do-nothing controls copied
+byte-identical (`do-nothing-battery-r98.py` `8198bd84…`, `do-nothing-battery-r99.py` `c2e8c8fc…`,
+`do-nothing-checker-r99.py` `b489f5b8…`), two component-keyed bends (`N12-x-echo`, `N13-y-echo`)
+each a one-line diff against the unchanged gate, and the development-run readings under
+`.ufo/waves/round-100/before/dev/` (landed gate `105/105`; r99 `103/105 [EXPLICIT-VERSION-ECHO,
+REFUSAL-VERSIONS-9DIGIT]` on N12 and `104/105 [REFUSAL-VERSIONS-9DIGIT-Y]` on N13; r98 control
+`104/105 [EXPLICIT-VERSION-ECHO]` and `105/105 met`; r100 checker `PASS 26/26`, r99 `17/17`; live
+table `PASS 7/7`; six C2 cells rejected by r99 and bound by r100). Wave w1 (14 seats) spec and
+handoff landed at `60b5636f`.
+
+## Round 100 — routed correction R99-D2 (append-only; supersedes two round-99 heading status labels)
+
+The round-99 entries `## Round 99 — freeze (pending)` and `## Round 99 — measured
+(pending-settle)` were written before settle and never re-labelled. `LOG.md` is append-only, so this
+entry is the correction rather than an edit: the freeze entry is superseded by the r99 settle commit
+`778f15fd` and the measured entry by the falsification-ledger commit `efe5ba59` (lane `master` at
+closure). The round-99 text above stays as filed; no heading was rewritten. Captured as
+`R99-STALE-LOG-HEADING` in `corpus/lessons/round-100.md`.

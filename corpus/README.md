@@ -1283,3 +1283,28 @@ git-fixture `ancestor` case (14 -> 17) that kills the r98 M07 survivor.
 - Still open from r98 and r97: the unbound registry rows and the three measured C2 gaps (uncovered
   cells, tool+cell co-doctoring, printed-tally parsing); from r96: the r92 launcher residuals, the
   r93 probe pre-release caveat; from r89: blanks before CR-LF, ESP containment and empty labels.
+
+## Round 100 — the echo legs get bends, and a registry cell becomes a label set
+
+New ground: `knowledge/limine-echo-bends-r100.md` (S396 own-work, S397 `re` docs). `tools/make-r100-bends.py`
+emits two component-keyed one-clause bends of the unchanged gate — `N12-x-echo` (first component
+`999999999`) and `N13-y-echo` (second component `999999999`) — and the unchanged r99 battery reads
+`unmet 103/105 [EXPLICIT-VERSION-ECHO, REFUSAL-VERSIONS-9DIGIT]` and `unmet 104/105
+[REFUSAL-VERSIONS-9DIGIT-Y]` respectively, 0 error rows; the r98 control is blind on the Y article
+(`met 105/105`) and reads `unmet 104/105 [EXPLICIT-VERSION-ECHO]` on the X one (a one-family delta).
+`tools/check-registry-content-r100.py` binds `RC-BEND-SPAN` as a label set (tokens `N<digits>` /
+`N<digits>-N<digits>`, ranges expanded, separators `,` whitespace `;` `+` `/` `and`, set equality
+against the tool's `VARIANTS` keys): six cells the r99 control rejects now bind, five forged shapes
+stay closed, `--selftest` 17 -> 26.
+
+### Frontier (round-100 addition)
+
+- The X echo leg is a **delta**, never a flip: the r96 `EXPLICIT-VERSION-ECHO` family sends the same
+  `999999999.9.9` spelling, so a later closure claim for X needs a spelling no other family sends.
+- A blanket echo lie (any version, any component) moves every echo-reading family at once and cannot
+  attribute the failure; it is not a substitute for a component-keyed bend.
+- The selftest `--reference` leg (the `lie-limine-version` wrapper) stays owed from r99 (A6a).
+- Still open from r99/r98/r97: the unbound registry rows and the three measured C2 gaps (uncovered
+  cells, tool+cell co-doctoring, printed-tally parsing); the carried C5 compound witness; from r96:
+  the r92 launcher residuals and the r93 probe pre-release caveat; from r89: blanks before CR-LF,
+  ESP containment and empty labels.

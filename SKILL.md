@@ -5947,6 +5947,8 @@ stays as carried; its selftest figure is corrected in the round-71 correction pa
 | limine-pin-battery-r99 | gate | `python3 tools/limine-pin-battery-r99.py --gate <PATH> [--runs <N>=1>] [--work <DIR>] [--json <FILE>]`, `--selftest [--reference <GATE>]`, `--isolation-check`, `--usage-check --gate <PATH>` | 0 met (every family in the literal FAMILY_ROSTER, 105, passed all 4 cases, with `check_echo`/`check_era` on `REFUSAL-VERSIONS-9DIGIT`, `REFUSAL-VERSIONS-9DIGIT-Y`, `REFUSAL-VERSIONS-9DIGIT-Z` and `LEADING-ZERO-NORMALIZE`); 1 unmet; 2 usage/could-not-evaluate (no `--gate`, `--runs` below 1, FAMILIES differs from FAMILY_ROSTER, or `bwrap` absent) | `python3 tools/limine-pin-battery-r99.py --selftest` (5 cases: roster-literal, absent, constant-HEALTHY, non-JSON, constant-DEGRADED); with `--reference <GATE>` the 14 one-field lie kinds include `limine-version` and `visibility-era` | r99 roster 105 (unchanged from r98: the X-cap `REFUSAL-VERSIONS-9DIGIT` and the Y-cap `REFUSAL-VERSIONS-9DIGIT-Y` now set `check_echo`/`check_era`); bytes pinned in `.ufo/waves/round-99/before/instruments.sha256` | committed wave artifacts read-only; `--work` scratch | tsukuroi |
 | make-r99-bends | library | `python3 tools/make-r99-bends.py` | 0 every VARIANTS entry written (two one-clause bends N09, N11); 1 a substitution matched a count other than one - the loop stops there; 2 unused (the tool parses no argv: arguments such as `--help` are ignored and it writes) | none (the exact-once substitution guard is its check; the emitted bends are pinned in the r99 freeze manifest) | r99 VARIANTS N09,N11 | writes `.ufo/waves/round-99/before/controls/bends/` only | tsukuroi |
 | check-registry-content-r99 | gate | `python3 tools/check-registry-content-r99.py --revision <REV> [--branch master]`, `--root <DIR>`, `--selftest` | 0 PASS (every binding in BINDINGS matches); 1 findings (RC-ROW-MISSING, RC-ROW-AMBIGUOUS, RC-CELL-MISSING, RC-CELL-AMBIGUOUS, RC-VALUE-MISMATCH, RC-DERIVE-FAILED); 2 usage/could-not-evaluate (unreadable table, revision not landed, bad arguments) | `python3 tools/check-registry-content-r99.py --selftest` (17 cases: the r98 fourteen plus `span-hybrid`, `span-restated` and the git-fixture `ancestor` case) | r99 seven bindings over 4 rows; `RC-BEND-SPAN` is guarded so a hybrid cell reads `RC-CELL-MISSING` and a restated cell `RC-CELL-AMBIGUOUS`; bytes pinned in `.ufo/waves/round-99/before/instruments.sha256` | committed reads; selftest private fixtures | tsukuroi |
+| make-r100-bends | library | `python3 tools/make-r100-bends.py` | 0 every VARIANTS entry written (two one-clause bends N12, N13); 1 a substitution matched a count other than one - the loop stops there; 2 unused (the tool parses no argv: arguments such as `--help` are ignored and it writes) | none (the exact-once substitution guard is its check; the emitted bends are pinned in the r100 freeze manifest) | r100 VARIANTS N12,N13 | writes `.ufo/waves/round-100/before/controls/bends/` only | tsukuroi |
+| check-registry-content-r100 | gate | `python3 tools/check-registry-content-r100.py --revision <REV> [--branch master]`, `--root <DIR>`, `--selftest` | 0 PASS (every binding in BINDINGS matches; RC-BEND-SPAN is a label set); 1 findings (RC-ROW-MISSING, RC-ROW-AMBIGUOUS, RC-CELL-MISSING, RC-CELL-AMBIGUOUS, RC-VALUE-MISMATCH, RC-DERIVE-FAILED); 2 usage/could-not-evaluate (unreadable table, revision not landed, bad arguments) | `python3 tools/check-registry-content-r100.py --selftest` (26 cases: the r99 seventeen plus `span-sep-space`, `span-sep-semicolon`, `span-sep-and`, `span-sep-slash`, `span-sep-plus`, `span-union`, `span-letter-suffix`, `span-prose`, `span-union-lie`) | r100 seven bindings over 4 rows; `RC-BEND-SPAN` tokens `N<digits>` and `N<digits>-N<digits>` joined by `,` whitespace `;` `+` `/` or `and`, ranges expanded, declared set equal to the tool's VARIANTS label set; bytes pinned in `.ufo/waves/round-100/before/instruments.sha256`; the other 161 rows stay presence-only | tsukuroi |
 
 ## Round-90 correction — R90-REG-1: the `limine-pins` row
 
@@ -6380,3 +6382,19 @@ dropped as a twin, since the r98 control already reads `unmet 104/105` on it) an
 (read-only). Sources add S395 (own-work, the battery's assertion sites with byte anchors); the
 teaching entry is `corpus/knowledge/limine-metadata-cap-families-r99.md`, and the round's limits are
 its §5 plus `corpus/README.md` § "Frontier (round-99 addition)".
+
+## Round-100 correction — R100-REG-1: the two new instruments
+
+Append-only; the rows above stay as written for their rounds. From round 100 the lane carries
+`tools/make-r100-bends.py` (two component-keyed one-clause bends of the unchanged gate: `N12-x-echo`
+falsifies the returned `limine_version` only when the first version component is `999999999`,
+`N13-y-echo` only when the second is; pins, rc and `visibility_era` stay true) and
+`tools/check-registry-content-r100.py` (the `RC-BEND-SPAN` binding as a label SET: tokens
+`N<digits>` and `N<digits>-N<digits>` joined by `,`, whitespace, `;`, `+`, `/` or `and`, ranges
+expanded, declared set equal to the tool's `VARIANTS` label set; 26 selftest cases, 17 -> 26). The
+r99 battery reads `unmet 104/105 [REFUSAL-VERSIONS-9DIGIT-Y]` on the Y bend (the r98 control is
+blind, `105/105`) and `unmet 103/105 [EXPLICIT-VERSION-ECHO, REFUSAL-VERSIONS-9DIGIT]` on the X bend
+(a one-family delta over the r98 control's `104/105`). The gate `tools/check-limine-pins.py` is
+unchanged (`7d79ac29…`); write scope unchanged (read-only). Sources add S396 (own-work), S397 and the
+rejected S398; the teaching entry is `corpus/knowledge/limine-echo-bends-r100.md`, and the round's
+limits are its §3 plus `corpus/README.md` § "Frontier (round-100 addition)".
