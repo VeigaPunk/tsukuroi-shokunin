@@ -1,0 +1,17 @@
+# ScribeKnowledge — precise sweep: which pre-r100 generator bends the ECHO VALUE (not a mention)
+date: 2026-11-08T12:19:38-03:00
+method: a generator bends the echo value iff one of its substitution pairs has an 'old' arm
+        that carries "limine_version": limine_version (the unmodified echo) and an 'new' arm
+        that assigns a different value to limine_version.
+
+make-r100-bends.py         echo-mentions=4  echo-VALUE-BENT=2
+      BENT: '            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap s
+      BENT: '            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version
+make-r93-bends.py          echo-mentions=0  echo-VALUE-BENT=0
+make-r94-bends.py          echo-mentions=0  echo-VALUE-BENT=0
+make-r95-bends.py          echo-mentions=0  echo-VALUE-BENT=0
+make-r96-bends.py          echo-mentions=2  echo-VALUE-BENT=1
+      BENT: '            "limine_version": "99.9.9" if limine_version_source == "flag" else limine_version,'
+make-r97-bends.py          echo-mentions=0  echo-VALUE-BENT=0
+make-r98-bends.py          echo-mentions=2  echo-VALUE-BENT=0
+make-r99-bends.py          echo-mentions=4  echo-VALUE-BENT=0

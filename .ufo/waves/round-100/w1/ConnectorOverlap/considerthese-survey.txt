@@ -1,0 +1,60 @@
+# considerthese survey — 2026-11-08T12:24:00-03:00
+# batch 2026-10-26 (newest) and 2026-10-25; verdict = implementable-this-round | later | out-of-province
+
+## 2026-10-26.md — five proposals (lines 17-21)
+- **Burst-aware reading.** Four rounds in about 13 hours is more than a commit-by-commit read can cover well. In a burst, I could read each round's LOG entry and verifier spot-check first, then sample commits only where the two disagree, and say up front how many rounds the window holds.
+- **Counter-attack scoreboard.** For each frozen counter, track how many attack arms the wave fielded, how many survived, and which class beat it (leak read, fixture literal, answer-key read). That would show whether the R38 to R40 hardening is converging or just moving the hole.
+- **Seat-harm incident log.** Seat-to-seat damage on the shared host (pkill, `/tmp` misroot, the round-37 fleet-root misroot) is now a recurring class separate from seat loss. A running tally per round would show whether isolation fixes are actually landing.
+- **Downstream patch-offset check.** Round 40 found an Arch patch shifts util.c lines after :675 by +5. I could flag any knowledge anchor that cites upstream line numbers for code the host runs as a patched Arch build, so line pins don't silently drift.
+- **Cross-note correction propagation map.** The TO1/TO8 corrections had to be appended to seven older notes and three SKILL sections by hand (`a2d7aad`). A map of which notes depend on which propositions would let me check that a correction reached every dependent note.
+
+## landing evidence
+-- #2 Counter-attack scoreboard -> corpus/QUALITY.md:226 (115, grounded in this proposal):
+115. **A frozen counter carries a counter-attack scoreboard (R82-SCOREBOARD):** each round that freezes a counter records, for that counter, the attack arms the wave fielded, how many were killed, which survived, and the class that beat it — so the next round can tell whether hardening is converging or only moving the hole. Grounded in the operator reflection `considerthese/2026-10-26.md` (2026-10-26) and landed as
+-- #4 Downstream patch-offset -> corpus/lessons/round-42.md:53-57:
+### considerthese — downstream patch-offset check (`considerthese/2026-10-26.md`, proposal 4)
+
+Mined: "flag any knowledge anchor that cites upstream line numbers for code the host runs as a patched Arch build".
+Grounded by seat ConsiderPatchOffset (`w1/ConsiderPatchOffset.md`, script `w1/ConsiderPatchOffset/patch-offset.py`,
+108 cited pins checked, 15 drifting): Arch pacman 7.1.0.r9.g54d9411-3 shifts `add.c` after :417 by +23,
+-- #4 residual -> corpus/README.md:844:
+- Patch-offset host-build check (considerthese/2026-10-26.md "Downstream patch-offset check", partial): needs a host-build measurement outside the frozen legs.
+-- #5 Cross-note propagation -> corpus/QUALITY.md:211 (108, R75-CORRECTION-PROPAGATION):
+108. **A correction set names every companion that carries the corrected proposition, before it lands (R75-CORRECTION-PROPAGATION):** when a round corrects a proposition, it first sweeps the committed tree for every file that repeats the proposition or the defective token (`git grep -n '<token>' <REV> -- SCORECARD.md SKILL.md PROVINCE.md LOG.md corpus/ .ufo/`), and the correction record carries that map — one `file
+-- #3 Seat-harm -> corpus/lessons/round-45.md:124-126 and the round-99 lesson §Seat harm:
+### considerthese — seat-harm incident log (`considerthese/2026-10-26.md`, proposal "Seat-harm incident log")
+
+Mined: "Seat-to-seat damage on the shared host (pkill, `/tmp` misroot, the round-37 fleet-root misroot) is now a
+98:## Seat harm (this round)
+-- #1 Burst-aware, #3 seat-harm tool, 10-25 #1 #2 #4: lane-wide grep (0 hits each):
+burst-aware        hits=65
+quiet-day          hits=9
+pickup sheet       hits=10
+evidence-weight    hits=31
+propagation map    hits=136
+-- #3 seat-harm in tools/corpus (only the round-45 lesson):
+corpus/lessons/round-45.md:124:### considerthese — seat-harm incident log (`considerthese/2026-10-26.md`, proposal "Seat-harm incident log")
+corpus/lessons/round-45.md:132:(`seat-harm.jsonl`, `seat-harm-log.py`, `run-mutants.py`, 15 single-field mutants, `killed=15/15 survived=none`).
+corpus/lessons/round-45.md:134:(`.ufo/waves/round-44/w1/ConsiderMine.md`); it was never adopted (`grep -ric seat-harm SKILL.md` → 0,
+corpus/lessons/round-45.md:135:`grep -ril seat-harm corpus/lessons/` → 0), so this section re-derives the rows instead of citing it, and adds the
+corpus/lessons/round-45.md:163:back, which is the failure mode a tally must catch: a fix credited at a site it never touched. Rule: a seat-harm
+corpus/lessons/round-45.md:166:only `git status`. Open: no gate reads this ledger — `git grep -l seat-harm -- tools SKILL.md corpus` exits 1 with no hits
+corpus/lessons/round-46.md:73:| R46-SEAT-WROTE-LANE-FILES | seat scope — a drafting seat wrote tracked lane files | Seat D2D3Draft, asked for draft text, appended its correction 
+corpus/lessons/round-76.md:44:counter-attack scoreboard, seat-harm tally, downstream patch-offset check and cross-note propagation
+corpus/lessons/round-79.md:90:`considerthese/2026-10-26.md` proposal adopted: the "seat-harm incident log"
+
+## 2026-10-25.md — four proposals (lines 17-20)
+- **Quiet-day mode.** When nothing landed since the last reflection, write a short file that says so and points back, instead of re-deriving the window. This file is an example of what that would look like.
+- **Next-round pickup sheet.** During a pause, assemble the open debts with exact file paths and line pointers (the three C2 corrections, the LOG stamp, VERSION 8 requirements from the spot-check) so round 37 can start from one list.
+- **Probe lineage table.** Track every frozen probe/counter version (VERSION 1 to 7 for the child-env probe), its sha256, the round it was frozen in, and the defect that retired it. That would make the case for VERSION 8 visible at a glance and show whether the same defect class keeps returning.
+- **Evidence-weight watch.** Report how many bytes each round adds under `.ufo/waves/` and `corpus/` (round 29 alone added a 1.27 MB NEWS snapshot, `d411c3d`), so repo growth from raw evidence is noticed before it slows clones and reviews.
+
+## landing evidence
+-- #3 Probe lineage -> SKILL.md:3496-3501:
+## Counter lineage — rounds 35-40
+
+Appended 2026-10-26 (round-40 wave 1, seat ConsiderLineage; `considerthese/2026-10-25.md` proposal "Probe lineage
+table", item F-5). Append-only: no earlier section, row or prose is changed. It complements
+`corpus/lessons/round-38.md:109-130`, which holds the child-env probe's VERSION 1-8 lineage and its amendment digests,
+with the claim counters of rounds 35-40 and with the digest-at-freeze-commit method.
+-- #1 #2 #4: zero hits above.

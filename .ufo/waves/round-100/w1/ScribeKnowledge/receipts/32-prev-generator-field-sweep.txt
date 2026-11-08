@@ -1,0 +1,26 @@
+# ScribeKnowledge — sweep: which FIELD do the pre-r100 bend generators bend?
+date: 2026-11-08T12:19:27-03:00
+
+== for each generator, the substituted line (the '+' side of its one changed line) ==
+--- tools/make-r93-bends.py
+--- tools/make-r94-bends.py
+--- tools/make-r96-bends.py
+28:        '            "limine_version": limine_version,\n',
+30:        '            "limine_version": "99.9.9" if limine_version_source == "flag" else limine_version,'
+38:        '            "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",\n'
+39:        '            "hash_mismatch_panic":',
+40:        '            "visibility_era": "pre-12.9.5" if era_b else "12.9.5+",  # N03 (label bent)\n'
+41:        '            "hash_mismatch_panic":',
+--- tools/make-r97-bends.py
+--- tools/make-r98-bends.py
+26:        '    return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,\n            "limine_version": limine_version,\n            "limine_version_source": limine_version_source,\n            "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",',
+27:        '    return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,\n            "limine_version": limine_version,\n            "limine_version_source": limine_version_source,\n            "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if (len(limine_version.split(".")[2]) == 9 or any(len(p) > 1 and p.startswith("0") for p in limine_version.split("."))) else ("12.9.5+" if era_b else "pre-12.9.5")),  # N07 (era label lies for Z/LZ spellings only, r98)',
+--- tools/make-r99-bends.py
+29:        '            "limine_version": limine_version,\n'
+31:        '            "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",',
+33:        '            "limine_version": limine_version,\n'
+35:        '            "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version.split(".")[1] == "999999999" else ("12.9.5+" if era_b else "pre-12.9.5")),  # N09 (era label lies for Y-cap spellings only, r99)',
+39:        '            "limine_version": limine_version,\n'
+41:        '            "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",',
+43:        '            "limine_version": limine_version,\n'
+45:        '            "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version.split(".")[0] == "999999999" else ("12.9.5+" if era_b else "pre-12.9.5")),  # N11 (era label lies for the X-cap spelling only, r99)',

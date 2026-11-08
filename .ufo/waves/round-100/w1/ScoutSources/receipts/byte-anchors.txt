@@ -1,0 +1,53 @@
+# byte-anchor receipt — ScoutSources, round 100 wave w1
+# all offsets are BYTE offsets into the pinned bytes (QUALITY 141), measured with grep -abo / bytes.find
+# gen.py   = git show 743ce449:tools/make-r100-bends.py            sha256 7ccfe69e52604ec5bb8db423e377cf9f0eb468baf03d0ef7be77b3209654e695  4471 bytes
+# chk.py   = git show 743ce449:tools/check-registry-content-r100.py sha256 7a23a522871ab5dd33a94ae51b09c70ab182a0d2a53d7380f82bb11a13f3c2d2  38009 bytes
+# b12.py   = git show 743ce449:.ufo/waves/round-100/before/controls/bends/N12-x-echo.py sha256 eb247e1646d1b421cf047f2b2edeb34423227b5ca056edcaf0712924b3f0331a 30409 bytes
+# b13.py   = git show 743ce449:.ufo/waves/round-100/before/controls/bends/N13-y-echo.py sha256 e1e5916fad0ee545a0571c852ebf658269322a138e802bcff5e875ab868bebee 30446 bytes
+# re.html  = https://docs.python.org/3/library/re.html HTTP 200, 257722 bytes, sha256 69d64759ed7e269bd617470594dfb8c7970b61fa4def81530a5ea2953d42493b
+
+$ grep -abo '"limine_version": ("999999998.9.9"' gen.py
+2615:"limine_version": ("999999998.9.9"
+$ grep -abo '"limine_version": ("12.999999998.4"' gen.py
+3365:"limine_version": ("12.999999998.4"
+$ grep -abo '"999999998.9.9" if' gen.py
+2634:"999999998.9.9" if
+$ grep -abo '"12.999999998.4" if' gen.py
+3384:"12.999999998.4" if
+$ grep -abo '# N12 (echo lies' gen.py
+2720:# N12 (echo lies
+$ grep -abo '# N13 (echo lies' gen.py
+3506:# N13 (echo lies
+$ grep -abo '"N12-x-echo": (' gen.py
+2187:"N12-x-echo": (
+$ grep -abo '"N13-y-echo": (' gen.py
+2937:"N13-y-echo": (
+$ grep -abo '"limine_version": ("' b12.py
+16931:"limine_version": ("
+$ grep -abo '"limine_version": ("' b13.py
+16931:"limine_version": ("
+$ grep -abo 'def parse_label_set' chk.py
+12134:def parse_label_set
+$ grep -abo 'TOKEN' chk.py
+12025:TOKEN
+12657:TOKEN
+$ grep -abo 'SEPARATORS' chk.py
+12073:SEPARATORS
+12567:SEPARATORS
+$ grep -abo 'variant_labels' chk.py
+11164:variant_labels
+16978:variant_labels
+17179:variant_labels
+17196:variant_labels
+$ grep -abo 'RC-BEND-SPAN' chk.py
+1815:RC-BEND-SPAN
+3330:RC-BEND-SPAN
+5644:RC-BEND-SPAN
+16898:RC-BEND-SPAN
+
+$ python3 (bytes.find, re.html)
+111489 b'id="re.fullmatch"'
+112171 b'If the whole <em>string</em> matches the regular expression <em>'
+69787 b'Matches the empty string, but only at the beginning or end of a '
+257438 b'Last updated on Nov 08, 2026 (14:27 UTC).'
+39044 b'not a word boundary as outside a set'

@@ -1,0 +1,20 @@
+# ScribeKnowledge — word-count census for the quotes this seat places in the round's SOURCES-style rows
+date: 2026-11-08T12:17:01-03:00
+rule: a located quote is at most 25 words; count with the same whitespace split the lane uses
+
+S396  | generator N12 emission line  | tools/make-r100-bends.py                   | BYTE   2615 | words=18 | <=25 OK
+        quote: "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)\n'
+S396  | generator N13 emission line  | tools/make-r100-bends.py                   | BYTE   3365 | words=22 | <=25 OK
+        quote: "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)\n'
+S396  | generator N13 falsified literal | tools/make-r100-bends.py                   | BYTE   3384 | words=21 | <=25 OK
+        quote: "12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)\n'
+S396  | checker TOKEN regex          | tools/check-registry-content-r100.py       | BYTE  12025 | words= 3 | <=25 OK
+        quote: TOKEN = re.compile(r"N([0-9]+)(?:-N([0-9]+))?")
+S396  | checker SEPARATORS regex     | tools/check-registry-content-r100.py       | BYTE  12073 | words= 3 | <=25 OK
+        quote: SEPARATORS = re.compile(r"\s*(?:,|;|\+|/|\band\b)\s*|\s+")
+S396  | checker parse_label_set      | tools/check-registry-content-r100.py       | BYTE  12134 | words= 2 | <=25 OK
+        quote: def parse_label_set(expr):
+S396  | gate limine_version emission | tools/check-limine-pins.py                 | BYTE  16931 | words= 2 | <=25 OK
+        quote: "limine_version": limine_version,
+S396  | gate visibility_era emission | tools/check-limine-pins.py                 | BYTE  17037 | words= 6 | <=25 OK
+        quote: "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",

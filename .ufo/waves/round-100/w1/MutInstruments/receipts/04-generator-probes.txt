@@ -1,0 +1,111 @@
+=== CASE 01-pristine-on-pristine (gate pristine, generator /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/bin/GEN-pristine.py)
+expect: the scratch layout reproduces the frozen bend bytes
+rc=0
+stdout: wrote /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/probe/01-pristine-on-pristine/.ufo/waves/round-100/before/controls/bends/N12-x-echo.py (30409 bytes, one clause bent) | wrote /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/probe/01-pristine-on-pristine/.ufo/waves/round-100/before/controls/bends/N13-y-echo.py (30446 bytes, one clause bent)
+emitted files: ['N12-x-echo.py', 'N13-y-echo.py']
+  N12-x-echo.py          sha256=eb247e1646d1b421cf047f2b2edeb34423227b5ca056edcaf0712924b3f0331a bytes=30409 changed_lines(-/1 +/1)
+    diff: --- gate
+    +++ emitted
+    @@ -316 +316 @@
+    -            "limine_version": limine_version,
+    +            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)
+    
+  N13-y-echo.py          sha256=e1e5916fad0ee545a0571c852ebf658269322a138e802bcff5e875ab868bebee bytes=30446 changed_lines(-/1 +/1)
+    diff: --- gate
+    +++ emitted
+    @@ -316 +316 @@
+    -            "limine_version": limine_version,
+    +            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)
+    
+CASE VERDICT: repr-faithful rc=0 byte-equal-to-frozen={'N12-x-echo.py': True, 'N13-y-echo.py': True}
+
+=== CASE 02-pristine-on-zero-match (gate zero-match, generator /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/bin/GEN-pristine.py)
+expect: pristine refuses a pattern matched 0 times
+rc=1
+stderr: N12-x-echo: pattern '    return {"schema": "tsukuroi-limine-pins-v3", "verdict": ' matched 0 times, expected 1
+emitted files: none
+CASE VERDICT: control-refuses rc=1 emitted=[]
+
+=== CASE 03-B1-on-zero-match (gate zero-match, generator /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/bin/B1.py)
+expect: B1 has no count guard; on a 0-match pattern it can only be stopped by the no-op guard (masking) or emit a no-op article (defect)
+rc=1
+stderr: N12-x-echo: substitution changed nothing
+emitted files: none
+CASE VERDICT: masked rc=1 refused by the surviving no-op guard
+
+=== CASE 04-pristine-on-two-match (gate two-match, generator /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/bin/GEN-pristine.py)
+expect: pristine refuses a pattern matched twice
+rc=1
+stderr: N12-x-echo: pattern '    return {"schema": "tsukuroi-limine-pins-v3", "verdict": ' matched 2 times, expected 1
+emitted files: none
+CASE VERDICT: control-refuses rc=1 emitted=[]
+
+=== CASE 05-B1-on-two-match (gate two-match, generator /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/bin/B1.py)
+expect: B1 bends both matches (2 changed lines per article) instead of refusing
+rc=0
+stdout: wrote /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/probe/05-B1-on-two-match/.ufo/waves/round-100/before/controls/bends/N12-x-echo.py (30886 bytes, one clause bent) | wrote /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/probe/05-B1-on-two-match/.ufo/waves/round-100/before/controls/bends/N13-y-echo.py (30960 bytes, one clause bent)
+emitted files: ['N12-x-echo.py', 'N13-y-echo.py']
+  N12-x-echo.py          sha256=8818a7bc8a2d33897aa16459df9bc7867cc3d50a28df824821273d964261f5e5 bytes=30886 changed_lines(-/2 +/2)
+    diff: --- gate
+    +++ emitted
+    @@ -316 +316 @@
+    -            "limine_version": limine_version,
+    +            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)
+    @@ -546 +546 @@
+    -            "limine_version": limine_version,
+    +            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)
+    
+  N13-y-echo.py          sha256=f318e23ef75acb2b93014feec3bac6708c558eb3c056b049f885947c84dbbf7a bytes=30960 changed_lines(-/2 +/2)
+    diff: --- gate
+    +++ emitted
+    @@ -316 +316 @@
+    -            "limine_version": limine_version,
+    +            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)
+    @@ -546 +546 @@
+    -            "limine_version": limine_version,
+    +            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)
+    
+CASE VERDICT: killed rc=0 changed_lines={'N12-x-echo.py': (2, 2), 'N13-y-echo.py': (2, 2)}
+
+=== CASE 06-P-B2-control (gate pristine, generator /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/bin/P-B2-pristine-noop-variant.py)
+expect: pristine generator with a no-op N12 replacement refuses
+rc=1
+stderr: N12-x-echo: substitution changed nothing
+emitted files: none
+CASE VERDICT: control-refuses rc=1 emitted=[]
+
+=== CASE 07-B2-on-pristine (gate pristine, generator /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/bin/B2.py)
+expect: B2 emits the gate itself as the N12 article
+rc=0
+stdout: wrote /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/probe/07-B2-on-pristine/.ufo/waves/round-100/before/controls/bends/N12-x-echo.py (30286 bytes, one clause bent) | wrote /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/probe/07-B2-on-pristine/.ufo/waves/round-100/before/controls/bends/N13-y-echo.py (30446 bytes, one clause bent)
+emitted files: ['N12-x-echo.py', 'N13-y-echo.py']
+  N12-x-echo.py          sha256=7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32 bytes=30286 changed_lines(-/0 +/0)
+  N13-y-echo.py          sha256=e1e5916fad0ee545a0571c852ebf658269322a138e802bcff5e875ab868bebee bytes=30446 changed_lines(-/1 +/1)
+    diff: --- gate
+    +++ emitted
+    @@ -316 +316 @@
+    -            "limine_version": limine_version,
+    +            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)
+    
+CASE VERDICT: killed rc=0 N12-identical-to-gate=True emitted=['N12-x-echo.py', 'N13-y-echo.py']
+
+=== CASE 08-B3-on-pristine (gate pristine, generator /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/bin/B3.py)
+expect: B3 emits an N12 article keyed on the second component (no X lie)
+rc=0
+stdout: wrote /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/probe/08-B3-on-pristine/.ufo/waves/round-100/before/controls/bends/N12-x-echo.py (30444 bytes, one clause bent) | wrote /fast/scratch/hyaku/tsukuroi-r100/MutInstruments/probe/08-B3-on-pristine/.ufo/waves/round-100/before/controls/bends/N13-y-echo.py (30446 bytes, one clause bent)
+emitted files: ['N12-x-echo.py', 'N13-y-echo.py']
+  N12-x-echo.py          sha256=c93394134d126e76ca64a8af4dfaba9f3ae77f3e9012db83f0f8936ccfd66038 bytes=30444 changed_lines(-/1 +/1)
+    diff: --- gate
+    +++ emitted
+    @@ -316 +316 @@
+    -            "limine_version": limine_version,
+    +            "limine_version": ("999999998.9.9" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)
+    
+  N13-y-echo.py          sha256=e1e5916fad0ee545a0571c852ebf658269322a138e802bcff5e875ab868bebee bytes=30446 changed_lines(-/1 +/1)
+    diff: --- gate
+    +++ emitted
+    @@ -316 +316 @@
+    -            "limine_version": limine_version,
+    +            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)
+    
+CASE VERDICT: killed rc=0 N12-keyed-on-second=True

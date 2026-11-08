@@ -1,0 +1,22 @@
+# ScribeKnowledge — S397 external row: fetch reproduction and quote word counts
+date: 2026-11-08T12:20:24-03:00
+url: https://docs.python.org/3/library/re.html
+
+== fetch ==
+http=200 bytes=257722 url=https://docs.python.org/3/library/re.html
+69d64759ed7e269bd617470594dfb8c7970b61fa4def81530a5ea2953d42493b  re2.html
+cmp: identical to the first fetch
+
+== byte-level anchors (bytes.find on the fetched bytes) ==
+b'id="re.fullmatch"' -> 111489
+    'id="re.fullmatch">\n<span class="sig-prename descclassname"><span class="pre">re.</span></span><span class="sig-name descname"><span class="p'
+b'If the whole ' -> 112171
+    'If the whole <em>string</em> matches the regular expression <em>pattern</em>, return a\ncorresponding <a class="reference internal" href="#re'
+b'Matches the empty string, but only at th' -> 69787
+    'Matches the empty string, but only at the beginning or end of a word.\nA word is defined as a sequence of word characters.\nNote that formally'
+
+== quote word counts (whitespace split) ==
+fullmatch sentence   | BYTE 112171 | words=11 | <=25 OK
+    quote: If the whole <em>string</em> matches the regular expression <em>pattern</em>, return a
+\b sentence          | BYTE  69787 | words=14 | <=25 OK
+    quote: Matches the empty string, but only at the beginning or end of a word.

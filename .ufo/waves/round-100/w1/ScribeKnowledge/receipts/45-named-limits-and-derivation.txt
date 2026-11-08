@@ -1,0 +1,41 @@
+# ScribeKnowledge — verify the r100 checker's own 'Named limits' text and the VARIANTS derivation
+date: 2026-11-08T12:30:18-03:00
+
+== Named limits section of the r100 checker ==
+24:Named limits (frozen with the bindings):
+25-  * Only the cells in BINDINGS are bound. The other rows of the operative table stay presence-only
+26-    (the coverage gate's scope), and a row added by a later round is not bound until a later freeze.
+27-  * A `selftest` derivation runs the tool's own `--selftest` from a private copy of the tool bytes at
+28-    the inspected revision, with a 180 s timeout; its printed tally is the derived value. A tool that
+29-    prints no tally, exits non-zero, or cannot be copied is RC-DERIVE-FAILED (fail closed), never a
+30-    pass.
+31-  * `--revision` reads SKILL.md and the tool bytes with `git show`; it refuses a revision that is not
+32-    an ancestor of the selected branch (rc 2). `--root DIR` reads a directory tree instead and is the
+
+== the VARIANTS-keys derivation function ==
+            if not isinstance(node.value, (ast.Tuple, ast.List)):
+                raise ValueError("FAMILY_ROSTER is not a literal tuple")
+            return len(node.value.elts)
+    raise ValueError("no module-level FAMILY_ROSTER assignment")
+
+
+def variant_labels(text, _arg=None):
+    """The set of N-labels the tool's module-level `VARIANTS` dict declares (sorted)."""
+    tree = ast.parse(text, filename="<bound-tool>")
+    keys = None
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(
+                isinstance(t, ast.Name) and t.id == "VARIANTS" for t in node.targets):
+            if not isinstance(node.value, ast.Dict):
+                raise ValueError("VARIANTS is not a literal dict")
+            keys = [k.value for k in node.value.keys if isinstance(k, ast.Constant)]
+    if not keys:
+        raise ValueError("no module-level VARIANTS dict")
+    labels = sorted({re.match(r"(N[0-9]+)", k).group(1) for k in keys
+                     if re.match(r"(N[0-9]+)", k)})
+    if not labels:
+        raise ValueError("VARIANTS keys carry no N<digits> label")
+    return labels
+
+
+TOKEN = re.compile(r"N([0-9]+)(?:-N([0-9]+))?")

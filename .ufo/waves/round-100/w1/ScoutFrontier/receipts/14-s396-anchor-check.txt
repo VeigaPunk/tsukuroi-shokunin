@@ -1,0 +1,18 @@
+# S396 anchor check: the N12 and N13 byte anchors point at DIFFERENT constructs
+# tools/make-r100-bends.py (4471 bytes, sha256 7ccfe69e...)
+N12 emission-line start (bytes.find of the whole quoted clause): 2615
+N13 emission-line start (bytes.find of the whole quoted clause): 3365
+N12 lie literal start ("999999998.9.9"): 2634
+N13 lie literal start ("12.999999998.4"): 3384
+--- grep -abo (0-based) ---
+2616:limine_version": ("
+3366:limine_version": ("
+2635:999999998.9.9
+3385:12.999999998.4
+
+# corpus/SOURCES.md S396 (committed at c450cd68) says:
+generator emission lines at BYTE 2615 (N12) and BYTE 3384 (N13)
+
+# the wave scribe measured N13 at 3365 (.ufo/waves/round-100/w1/ScribeLesson/receipts/08-n13-offset.txt):
+N13 substitution byte 3365
+N12 substitution byte 2615

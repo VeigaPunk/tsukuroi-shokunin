@@ -1,0 +1,16 @@
+# one-clause check: diff gate vs bend
+N12-x-echo hunks=1 removed=1 added=1
+N13-y-echo hunks=1 removed=1 added=1
+
+# byte offsets (grep -abo on pinned bytes)
+gate emission site 1: 11230:"limine_version": limine_version,
+gate emission site 2: 16931:"limine_version": limine_version,
+bend N12-x-echo changed site: 16931:"limine_version": (
+bend N13-y-echo changed site: 16931:"limine_version": (
+battery echo assertion: 99430:if c.check_echo and not (got[8] == c.version and got[9] == "flag")
+# battery check_echo flags
+79015:c.check_echo = True
+79893:c.check_echo = True
+81666:c.check_echo = True
+83173:c.check_echo = True
+84390:c.check_echo = True

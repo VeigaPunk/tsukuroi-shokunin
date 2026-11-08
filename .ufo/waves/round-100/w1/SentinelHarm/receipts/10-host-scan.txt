@@ -1,0 +1,35 @@
+# 10 host-mutation scan — counts only
+pattern set: \bsudo\b|sysctl|swapon|systemctl|mkinitcpio|insmod|modprobe|setcap
+raw hit lines over wave dir: 23
+--- hits (file:line: context) ---
+.ufo/waves/round-100/before/controls/bends/N12-x-echo.py:59:  sudo check-limine-pins.py --live --limine-version auto
+.ufo/waves/round-100/before/controls/bends/N13-y-echo.py:59:  sudo check-limine-pins.py --live --limine-version auto
+.ufo/waves/round-100/make-spec.py:39:- Tooling authorization (operator, 2026-10-19): you may install or upgrade tools that help th
+.ufo/waves/round-100/make-spec.py:265:6. Credential/host guard: scan the wave dir for secret-shaped strings (names/counts only, ne
+.ufo/waves/round-100/w1-dispatch.json:191:    "context": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iter
+.ufo/waves/round-100/w1-dispatch.json:261:        "task": "/skill:godspeed\n\nYou are a Godspeed-enabled subagent.\n\n1. **Name th
+.ufo/waves/round-100/w1-spec.json:10: "context": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate chea
+.ufo/waves/round-100/w1-spec.json:136:   "prompt": "You are a Godspeed-enabled subagent.\n\n1. **Name the axes.**\n2. **Iterate ch
+.ufo/waves/round-100/w1/ScribeLesson/receipts/12-census-and-coinflip.txt:9:tsukuroi	W04	S058 duplicate url gitlab.archlinux.org/ar
+.ufo/waves/round-100/w1/ScribeLesson/receipts/12-census-and-coinflip.txt:15:tsukuroi	W04	S095 duplicate url gitlab.archlinux.org/a
+.ufo/waves/round-100/w1/ScribeLesson/receipts/12-census-and-coinflip.txt:16:tsukuroi	W04	S098 duplicate url gitlab.com/Zesko/limin
+.ufo/waves/round-100/w1/ScribeLesson/receipts/12-census-and-coinflip.txt:21:tsukuroi	W04	S109 duplicate url gitlab.archlinux.org/a
+.ufo/waves/round-100/w1/ScribeLesson/receipts/12-census-and-coinflip.txt:44:tsukuroi	W04	S280 duplicate url gitlab.com/Zesko/limin
+.ufo/waves/round-100/w1/SentinelHarm/receipts/10-host-scan.txt:2:pattern set: \bsudo\b|sysctl|swapon|systemctl|mkinitcpio|insmod|m
+.ufo/waves/round-100/w1/SentinelHarm/report.md:458:### 8b. Host mutation — no `sudo`, sysctl, boot or service mutation ran
+.ufo/waves/round-100/w1/SentinelHarm/report.md:460:Pattern set: `\bsudo\b`, `sysctl`, `swapon`, `systemctl`, `mkinitcpio`, `insmod
+.ufo/waves/round-100/w1/SentinelHarm/report.md:461:`setcap`. Raw hit count over the wave dir: **8**, all of them text, none an exe
+.ufo/waves/round-100/w1/SentinelHarm/report.md:465:| 4 | `.ufo/waves/round-100/before/controls/bends/N12-x-echo.py` lines 59, 60, 
+.ufo/waves/round-100/w1/SentinelHarm/report.md:470:actually-run privileged command — `grep -rInE '(^|[^a-zA-Z])sudo .*(check-lim
+.ufo/waves/round-100/w1/SentinelHarm/report.md:471:→ **0 hits**; `grep -rInE 'sysctl -w|/etc/sysctl|/boot/efi.*write'` → **0 h
+.ufo/waves/round-100/w1/SentinelHarm/report.md:472:a privileged invocation, a sysctl write, a service restart, a module load or a 
+.ufo/waves/round-100/w1/SentinelHarm/report.md:475:rule: no `sudo` was used by this seat, no pacman transaction was attempted, no 
+.ufo/waves/round-100/w1/SentinelHarm/report.md:524:grep -rIloE '<secret patterns>' .ufo/waves/round-100 ; grep -rInE '\bsudo\b|sys
+--- executed privileged commands in receipts (expect 0) ---
+count: 4
+--- sysctl/boot writes in receipts (expect 0) ---
+count: 2
+--- inherited docstring lines in the frozen gate (source of 4 of the 8 hits) ---
+59:  sudo check-limine-pins.py --live --limine-version auto
+60:                                              # /boot/limine.conf, ESP /boot, Secure Boot from efivars,
+525:        conf, esp = a.conf or "/boot/limine.conf", a.esp or "/boot"

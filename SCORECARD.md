@@ -8129,3 +8129,27 @@ battery (`c2e8c8fc…`) and the r99 checker (`b489f5b8…`) keep their bytes; th
 Depth stays 8 and freshness stays 9 (sharper instruments; no ordinal uplift). C1 and C2 are causally
 separable: C1 reads battery JSON from gate articles; C2 reads the SKILL.md registry table and fixture
 trees.
+
+## Round 100 — measured outcome (measured at `69474c55`; receipts in `.ufo/waves/round-100/after/`, committed `ef12af4c`; wave `w1` 14 seats, 13 filed + 1 dead at spawn)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: the accepted-cap families' echo assertions) | depth 8 → 8 (tied lowest; a sharper instrument, no ordinal uplift) | landed gate `met 105/105 []` ×3 canonical + ×3 clone, cases 420, 0 error rows (`after/c1/gate-canonical.json`, `gate-clone.json`); **N13-y-echo** `unmet 104/105` ×3 both layouts exactly `[REFUSAL-VERSIONS-9DIGIT-Y]`, 0 error rows; **N12-x-echo** `unmet 103/105` ×3 both layouts exactly `[EXPLICIT-VERSION-ECHO, REFUSAL-VERSIONS-9DIGIT]`, 0 error rows (`after/c1/bend-*`); r98 control `met 105/105` ×3 on N13 (blind) and `unmet 104/105` ×3 on N12 exactly `[EXPLICIT-VERSION-ECHO]` (`after/c1/control-*`); each bend one changed line; selftest `PASS 5/5` | as declared in the declaration row above | **met as narrowed** (A2 the main-return unit; A3 the X-leg family unit; A5 the N13 payload unit; A4 the plan's Frontier paraphrase) |
+| C2 (measured; surface: the registry checker's span capture) | freshness 9 → 9 (assurance arm; no ordinal claim) | freeze tip `743ce449`: r100 `PASS 7/7 findings 0` rows 163, r99 control `PASS 7/7`; final tip `69474c55`: r100 `PASS 7/7`, r99 `PASS 7/7`, coverage `PASS 165/165/165 findings 0` (`after/c2/`); six acceptance cells PASS on r100 where r99 reads `RC-CELL-MISSING` ×4 / `RC-VALUE-MISMATCH` ×2; `LETTER`/`PROSE` `RC-CELL-MISSING`, `UNION-LIE`/`HYBRID` `RC-VALUE-MISMATCH`, `RESTATED` `RC-CELL-AMBIGUOUS`, `GAP` PASS on both; selftest `PASS 26/26` (r99 `17/17`) | as declared | **met as narrowed** (A6 the empty-token grammar; A7 set-vs-keys sharpening) |
+
+Wave: one v1 wave, 14 seats under `ufo-wave-policy.json` (band 8-16), validated (`w1-validate.err` 0
+bytes; `counts` 14 spawn / 0 resume / 14 total). Roles: 4 executors, 2 scouts, 2 scribes, 2
+reviewers, 1 critic, 1 mutation-tester, 1 connector, 1 sentinel; attack roles 6/14 = 42.9 % (floor
+25 %), connector seats 1 (limit 2). `ReviewRegistry` died at spawn with no artifact and is recorded
+as an unfiled seat (not credited, not replaced); the other 13 seats filed. No residual call.
+
+Disclosed defects (status-neutral, named in `corpus/lessons/round-100.md`): the intermediate landing
+commit `c450cd68` carried a 7-of-8-cell row (all three registry gates `CANNOT_EVALUATE` there; repair
+`69474c55`, pair sweep exactly 1 removed line); the freeze carried two tools without rows for one
+commit (coverage `missing 2` at `743ce449`); the freeze manifest pinned the appendable plan and
+`claims.json`, so `sha256sum -c` read 15/16 until the manifest was narrowed to its 14
+instrument/control lines (no instrument byte moved). Axes now: depth 8, coverage 9, operability 9,
+freshness 9, calibration 9, adjacency 8 (unchanged). No retirement. No axis harmed: the gate bytes
+are unchanged (`7d79ac29…`), the r98/r99 batteries and the r99 checker keep their bytes as controls,
+coverage is `165/165/165`, and the corpus is additive (S396/S397 admitted, S398 rejected, one
+knowledge entry, one lesson, QUALITY 142).

@@ -1,0 +1,12 @@
+# 04 control integrity: git show ce73ccaf:<p> | sha256sum  vs  worktree
+IDENTICAL tools/check-limine-pins.py pre=7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32 work=7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32
+IDENTICAL tools/limine-pin-battery-r99.py pre=c2e8c8fc87dccef0591323dfb2a589d16540150eaf65628abce6db6373619f99 work=c2e8c8fc87dccef0591323dfb2a589d16540150eaf65628abce6db6373619f99
+IDENTICAL tools/limine-pin-battery-r98.py pre=8198bd848effc4aa2b8f8d800f688ee131e2afe9b61bcac6c663ba71543f2a87 work=8198bd848effc4aa2b8f8d800f688ee131e2afe9b61bcac6c663ba71543f2a87
+IDENTICAL tools/check-registry-content-r99.py pre=b489f5b86fa2fa706698ee32ce05cdefa514e9e7a17d4c0af537535bc597d20d work=b489f5b86fa2fa706698ee32ce05cdefa514e9e7a17d4c0af537535bc597d20d
+--- bend diffs vs frozen gate (line level) ---
+-- N12-x-echo --
+-            "limine_version": limine_version,
++            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)
+-- N13-y-echo --
+-            "limine_version": limine_version,
++            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)

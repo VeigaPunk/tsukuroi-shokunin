@@ -1,0 +1,61 @@
+# 08 no-regression runs at tip 69474c55eb38632f3e740923b58029dc43e01300
+== r99 checker --revision HEAD ==
+registry-content: status PASS bindings 7/7 findings 0
+EXIT=0
+{
+ "bindings": 7,
+ "findings": [],
+ "revision": "HEAD",
+ "rows": 165,
+ "schema": "tsukuroi-registry-content-r99-v1",
+ "status": "PASS"
+}
+== r99 checker --revision ce73ccaf (baseline) ==
+registry-content: status PASS bindings 7/7 findings 0
+EXIT=0
+
+== r100 checker --revision 69474c55 ==
+registry-content: status PASS bindings 7/7 findings 0
+EXIT=0
+
+== coverage gate --revision 69474c55 ==
+{"branch":"master","branch_tip":"69474c55eb38632f3e740923b58029dc43e01300","counts":{"findings":0,"missing":0,"registered":165,"rows_total":165,"tools_total":165},"findings":[],"revision":"69474c55eb38632f3e740923b58029dc43e01300","status":"PASS"}
+EXIT=0
+
+== r99 battery --gate tools/check-limine-pins.py --runs 3 ==
+families_passed 105/105 verdict met failed -
+families_passed 105/105 verdict met failed -
+families_passed 105/105 verdict met failed -
+EXIT=0
+
+== count-runs.py ==
+  },
+  {
+   "verdict": "met",
+   "families_passed": 105,
+   "families_total": 105,
+   "failed_families": [],
+   "cases": 420,
+   "error_rows": 0,
+   "named": {
+    "REFUSAL-VERSIONS-9DIGIT-Y": [
+     4,
+     0
+    ],
+    "EXPLICIT-VERSION-ECHO": [
+     4,
+     0
+    ],
+    "REFUSAL-VERSIONS-9DIGIT": [
+     4,
+     0
+    ]
+   }
+  }
+ ],
+ "families": [
+  "REFUSAL-VERSIONS-9DIGIT",
+  "REFUSAL-VERSIONS-9DIGIT-Y",
+  "EXPLICIT-VERSION-ECHO"
+ ]
+}

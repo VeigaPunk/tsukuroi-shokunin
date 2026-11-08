@@ -1,0 +1,32 @@
+# ScribeKnowledge — each bend's diff against the landed gate (exactly one changed line)
+date: 2026-11-08T12:26:24-03:00
+--- diff -u tools/check-limine-pins.py .ufo/waves/round-100/before/controls/bends/N12-x-echo.py
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-100/before/controls/bends/N12-x-echo.py	2026-11-08 11:59:26.842275291 -0300
+@@ -313,7 +313,7 @@
+     else:
+         verdict, rc = "HEALTHY", 0
+     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+-            "limine_version": limine_version,
++            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)
+             "limine_version_source": limine_version_source,
+             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+             "hash_mismatch_panic": None if panic_setting is None else
+diff rc=1
+removed lines (<): 1
+added   lines (>): 1
+--- diff -u tools/check-limine-pins.py .ufo/waves/round-100/before/controls/bends/N13-y-echo.py
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-100/before/controls/bends/N13-y-echo.py	2026-11-08 11:59:26.844684504 -0300
+@@ -313,7 +313,7 @@
+     else:
+         verdict, rc = "HEALTHY", 0
+     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+-            "limine_version": limine_version,
++            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)
+             "limine_version_source": limine_version_source,
+             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+             "hash_mismatch_panic": None if panic_setting is None else
+diff rc=1
+removed lines (<): 1
+added   lines (>): 1

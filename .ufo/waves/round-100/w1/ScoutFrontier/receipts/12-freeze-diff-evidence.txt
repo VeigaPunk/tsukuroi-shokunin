@@ -1,0 +1,43 @@
+# git diff ce73ccaf 743ce449 (freeze) — axis documents and corpus must be untouched
+$ git diff ce73ccaf 743ce449 --stat -- SCORECARD.md PROVINCE.md SHONEN.md corpus/
+rc=0 (no output above = empty)
+
+$ git diff ce73ccaf 743ce449 --numstat -- SCORECARD.md PROVINCE.md SHONEN.md corpus/
+(no output above = empty)
+
+$ git diff ce73ccaf 743ce449 --name-only  (all 22 freeze paths)
+.ufo/plans/round-100.md
+.ufo/waves/round-100/before/census-before-after.txt
+.ufo/waves/round-100/before/controls/bends/N12-x-echo.py
+.ufo/waves/round-100/before/controls/bends/N13-y-echo.py
+.ufo/waves/round-100/before/controls/do-nothing-battery-r98.py
+.ufo/waves/round-100/before/controls/do-nothing-battery-r99.py
+.ufo/waves/round-100/before/controls/do-nothing-checker-r99.py
+.ufo/waves/round-100/before/dev/c1-bend-N12-x-echo.json
+.ufo/waves/round-100/before/dev/c1-bend-N13-y-echo.json
+.ufo/waves/round-100/before/dev/c1-control-N12-x-echo.json
+.ufo/waves/round-100/before/dev/c1-control-N13-y-echo.json
+.ufo/waves/round-100/before/dev/c1-gate-runs1.json
+.ufo/waves/round-100/before/dev/c2-content-tip-r99.json
+.ufo/waves/round-100/before/dev/c2-content-tip.json
+.ufo/waves/round-100/before/dev/c2-fixtures.txt
+.ufo/waves/round-100/before/dev/c2-selftest-r100.txt
+.ufo/waves/round-100/before/dev/c2-selftest-r99.txt
+.ufo/waves/round-100/before/dev/make-fixtures.py
+.ufo/waves/round-100/before/instruments.sha256
+.ufo/waves/round-100/claims.json
+tools/check-registry-content-r100.py
+tools/make-r100-bends.py
+
+$ git diff ce73ccaf 743ce449 --stat -- tools/check-limine-pins.py tools/limine-pin-battery-r99.py tools/limine-pin-battery-r98.py tools/check-registry-content-r99.py tools/check-registry-coverage.py
+(no output above = freeze did not touch any pre-existing instrument)
+
+$ git diff ce73ccaf 69474c55 --stat -- PROVINCE.md SHONEN.md
+(no output = byte-identical at landing tip)
+
+$ git diff ce73ccaf 69474c55 --numstat -- SCORECARD.md corpus/
+26	0	SCORECARD.md
+25	0	corpus/README.md
+3	0	corpus/SOURCES.md
+88	0	corpus/knowledge/limine-echo-bends-r100.md
+83	0	corpus/lessons/round-100.md

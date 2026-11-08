@@ -1,0 +1,9 @@
+# committed bend diffs against the pinned gate (each expected: one changed line = 2 +/- records)
+== N12-x-echo
+-            "limine_version": limine_version,
++            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)
+changed-lines=2
+== N13-y-echo
+-            "limine_version": limine_version,
++            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)
+changed-lines=2

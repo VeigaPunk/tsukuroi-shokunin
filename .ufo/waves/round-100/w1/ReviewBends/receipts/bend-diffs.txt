@@ -1,0 +1,33 @@
+-- rederive from generator VARIANTS (scratch) --
+N12-x-echo matches=1 rederived=eb247e1646d1b421cf047f2b2edeb34423227b5ca056edcaf0712924b3f0331a committed=eb247e1646d1b421cf047f2b2edeb34423227b5ca056edcaf0712924b3f0331a IDENTICAL
+N13-y-echo matches=1 rederived=e1e5916fad0ee545a0571c852ebf658269322a138e802bcff5e875ab868bebee committed=e1e5916fad0ee545a0571c852ebf658269322a138e802bcff5e875ab868bebee IDENTICAL
+-- diff N12 --
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-100/before/controls/bends/N12-x-echo.py	2026-11-08 11:59:26.842275291 -0300
+@@ -313,7 +313,7 @@
+     else:
+         verdict, rc = "HEALTHY", 0
+     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+-            "limine_version": limine_version,
++            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)
+             "limine_version_source": limine_version_source,
+             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+             "hash_mismatch_panic": None if panic_setting is None else
+-- diff N13 --
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-100/before/controls/bends/N13-y-echo.py	2026-11-08 11:59:26.844684504 -0300
+@@ -313,7 +313,7 @@
+     else:
+         verdict, rc = "HEALTHY", 0
+     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+-            "limine_version": limine_version,
++            "limine_version": ("12.999999998.4" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N13 (echo lies for the Y-cap spellings only, r100)
+             "limine_version_source": limine_version_source,
+             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+             "hash_mismatch_panic": None if panic_setting is None else
+-- diff attack bends (counts of +/- lines) --
+E1-y-echo-plus-era.py: -2 +2
+E1b-y-era-only.py: -1 +1
+E2-leading-zero-echo.py: -1 +1
+E3-z-echo.py: -1 +1
+E4-y-cap-leading-zero.py: -1 +1

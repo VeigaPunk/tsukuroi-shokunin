@@ -1,0 +1,99 @@
+# C1 accepted-spelling echo hole — evidence — 2026-11-08T12:24:52-03:00
+
+## 1. the battery never sends the accepted-boundary spelling 999999999.0.0
+$ grep -n "999999999\.0\.0" tools/limine-pin-battery-r99.py
+2487:                 ("1234567890.0.0", 64), ("0.1234567890.0", 64), ("999999999.0.0", 0),
+$ grep -n "usage_check(" tools/limine-pin-battery-r99.py
+2468:def usage_check(gate, work):
+2545:        return usage_check(a.gate, a.work or tempfile.gettempdir())
+
+## 2. --usage-check asserts rc only on its accepted rows
+$ sed -n "2505,2511p" tools/limine-pin-battery-r99.py
+                        and out.get("limine_version_source") == "probe"
+                except Exception:
+                    ok = False
+            else:
+                ok = p.returncode == want
+            rows.append({"version": version, "want_rc": want, "rc": p.returncode,
+                         "ok": ok})
+
+## 3. run_usage positive rows parse JSON and check rc only
+$ sed -n "2222,2231p" tools/limine-pin-battery-r99.py
+            try:
+                json.loads(p.stdout)
+                ok = p.returncode == 0
+            except Exception:
+                ok = False
+        else:
+            ok = p.returncode == 64 and p.stdout.strip() == ""
+        rows.append({"version": v[:40], "rc": p.returncode, "stdout_bytes": len(p.stdout), "ok": ok})
+        if not ok:
+            bad.append("%r rc=%s stdout=%d" % (v[:20], p.returncode, len(p.stdout)))
+
+## 4. direct probe: pristine vs N12 on the accepted-boundary spelling (2 runs each)
+pristine run1 rc=0 verdict=HEALTHY limine_version='999999999.0.0' source='flag' findings=[]
+pristine run2 rc=0 verdict=HEALTHY limine_version='999999999.0.0' source='flag' findings=[]
+N12-x-echo run1 rc=0 verdict=HEALTHY limine_version='999999998.9.9' source='flag' findings=[]
+N12-x-echo run2 rc=0 verdict=HEALTHY limine_version='999999998.9.9' source='flag' findings=[]
+
+## 5. my r99-battery run on N12 (receipt n12-r99-battery.json)
+{
+ "runs": [
+  {
+   "verdict": "unmet",
+   "families_passed": 103,
+   "families_total": 105,
+   "failed_families": [
+    "EXPLICIT-VERSION-ECHO",
+    "REFUSAL-VERSIONS-9DIGIT"
+   ],
+   "cases": 420,
+   "error_rows": 0,
+   "named": {
+    "REFUSAL-VERSIONS-9DIGIT-Y": [
+     4,
+     0
+    ],
+    "REFUSAL-VERSIONS-9DIGIT": [
+     0,
+     4
+    ],
+    "EXPLICIT-VERSION-ECHO": [
+     3,
+     1
+    ]
+   }
+  }
+ ],
+ "families": [
+  "REFUSAL-VERSIONS-9DIGIT",
+  "REFUSAL-VERSIONS-9DIGIT-Y",
+  "EXPLICIT-VERSION-ECHO"
+ ]
+}
+
+## 6. the exact-spelling probe bend (scratch only; not an instrument, not a claim)
+construction: tools/check-limine-pins.py bytes, one anchored substitution:
+  old: \n            "limine_version": limine_version,\n
+  new: \n            "limine_version": ("999999998.0.0" if limine_version == "999999999.0.0" else limine_version),\n
+e79e21ca708ff58afdc9ca52ca88776d6f2263ea22193b62947c81ff74e2b3f3  /fast/scratch/hyaku/tsukuroi-r100/ConnectorOverlap/c1hole/P-acc-boundary-echo.py
+$ probe outputs (accepted-boundary spelling lies, all others truth):
+999999999.0.0    rc=0 limine_version='999999998.0.0' verdict=HEALTHY
+999999999.9.9    rc=0 limine_version='999999999.9.9' verdict=HEALTHY
+12.9.4           rc=0 limine_version='12.9.4' verdict=HEALTHY
+13.0.0           rc=0 limine_version='13.0.0' verdict=HEALTHY
+00.00.00         rc=0 limine_version='00.00.00' verdict=HEALTHY
+
+## 7. r99 battery run on the exact-spelling probe bend (unchanged battery)
+{
+ "verdict": "met",
+ "families_passed": 105,
+ "families_total": 105,
+ "failed_families": [],
+ "cases": 420
+}
+
+## 8. the probe bend is one changed line against the pinned gate
+-            "limine_version": limine_version,
++            "limine_version": ("999999998.0.0" if limine_version == "999999999.0.0" else limine_version),  # ConnectorOverlap probe: exact-spelling echo lie, r100
+changed-lines=2

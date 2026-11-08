@@ -1,0 +1,37 @@
+# 11 the broken land commit c450cd68 — 7-of-8 cell measurement + three gate readings
+== cell counts with the instrument's own split_row ==
+-- c450cd68 --
+ line 5949 ncells 8 | first cell: 'check-registry-content-r99'
+ line 5950 ncells 8 | first cell: 'make-r100-bends'
+ line 5951 ncells 7 | first cell: 'check-registry-content-r100'
+-- 69474c55 --
+ line 5949 ncells 8 | first cell: 'check-registry-content-r99'
+ line 5950 ncells 8 | first cell: 'make-r100-bends'
+ line 5951 ncells 8 | first cell: 'check-registry-content-r100'
+
+== gates at c450cd68 ==
+-- r99 checker --
+{"findings": [{"detail": "malformed registry row at line 5951", "id": "E-TABLE", "site": "SKILL.md"}], "revision": "c450cd68", "schema": "tsukuroi-registry-content-r99-v1", "status": "CANNOT_EVALUATE"}
+CANNOT-EVALUATE: malformed registry row at line 5951
+EXIT=2
+-- r100 checker --
+{"findings": [{"detail": "malformed registry row at line 5951", "id": "E-TABLE", "site": "SKILL.md"}], "revision": "c450cd68", "schema": "tsukuroi-registry-content-r100-v1", "status": "CANNOT_EVALUATE"}
+CANNOT-EVALUATE: malformed registry row at line 5951
+EXIT=2
+-- coverage gate --
+{"branch":"master","branch_tip":"69474c55eb38632f3e740923b58029dc43e01300","counts":{"findings":1,"missing":0,"registered":0,"rows_total":0,"tools_total":0},"findings":[{"detail":"malformed registry row at line 5951","id":"E-REGISTRY-TABLE","site":"SKILL.md"}],"revision":"c450cd68a18a666f7bc835bcb2e8d76119f8aff6","status":"CANNOT_EVALUATE"}
+EXIT=2
+
+== same three gates at the baseline ce73ccaf ==
+registry-content: status PASS bindings 7/7 findings 0
+EXIT=0
+{"branch":"master","branch_tip":"69474c55eb38632f3e740923b58029dc43e01300","counts":{"findings":0,"missing":0,"registered":163,"rows_total":163,"tools_total":163},"findings":[],"revision":"ce73ccaf75d0279385977f03ccb35945c1cf8e07","status":"PASS"}
+EXIT=0
+
+== publication status ==
+69474c55 tsukuroi-shokunin 2026-11-08T12:12:16-03:00 round-100: fix — the check-registry-content-r100 registry row was missing its write-scope cell 
+c450cd68 tsukuroi-shokunin 2026-11-08T12:11:43-03:00 round-100: land — SKILL rows + R100-REG-1, SCORECARD declaration, LOG freeze + R99-D2 correctio
+60b5636f tsukuroi-shokunin 2026-11-08T12:06:47-03:00 round-100: wave w1 — 14-seat spec validated (band 8-16), dispatch and ready handoff
+743ce449 tsukuroi-shokunin 2026-11-08T12:04:59-03:00 round-100: freeze — C1 echo bends (N12/N13) + C2 label-set capture, controls and dev receipts
+c450cd68 IS on origin/master
+69474c55 IS on origin/master

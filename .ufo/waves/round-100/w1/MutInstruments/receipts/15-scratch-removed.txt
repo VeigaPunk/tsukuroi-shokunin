@@ -1,0 +1,24 @@
+Scratch lifecycle for seat MutInstruments (round 100 w1)
+========================================================
+scratch dir used: /fast/scratch/hyaku/tsukuroi-r100/MutInstruments
+  (919M at delete time: five battery work directories plus the mutant/fixture trees)
+
+command: rm -rf /fast/scratch/hyaku/tsukuroi-r100/MutInstruments
+rm's own exit status was NOT captured by the one-liner that ran it (the trace line was written by
+a following echo), so the evidence is the probe below, run immediately afterwards:
+
+probe 1 (immediately after rm):
+  $ ls -d /fast/scratch/hyaku/tsukuroi-r100/MutInstruments
+  ls: cannot access '/fast/scratch/hyaku/tsukuroi-r100/MutInstruments': No such file or directory
+
+probe 2 (same check re-run later, with the shared scratch root's contents at that moment):
+  $ ls /fast/scratch/hyaku/tsukuroi-r100
+  ConnectorOverlap CriticClaims ReviewBends ScoutFrontier ScoutSources ScribeKnowledge
+  ScribeLesson SentinelHarm l1
+  $ ls -d /fast/scratch/hyaku/tsukuroi-r100/MutInstruments   # rc 2
+  ls: cannot access '/fast/scratch/hyaku/tsukuroi-r100/MutInstruments': No such file or directory
+
+The scratch root is shared with sibling seats and its listing changes as they clean up; the seat's
+own directory is absent in both probes. No scratch path is cited as evidence anywhere in the
+report: every receipt was copied into .ufo/waves/round-100/w1/MutInstruments/receipts/ before the
+delete.

@@ -1,0 +1,69 @@
+# lane cleanliness and sibling write check — 2026-11-08T12:24:14-03:00
+
+## pre-round tip
+$ git -C tsukuroi-shokunin rev-parse ce73ccaf75d0279385977f03ccb35945c1cf8e07
+ce73ccaf75d0279385977f03ccb35945c1cf8e07
+$ git -C tsukuroi-shokunin merge-base --is-ancestor ce73ccaf master
+ancestor=YES (rc 0)
+$ git -C tsukuroi-shokunin log --oneline ce73ccaf..HEAD
+69474c55 round-100: fix — the check-registry-content-r100 registry row was missing its write-scope cell (7 of 8)
+c450cd68 round-100: land — SKILL rows + R100-REG-1, SCORECARD declaration, LOG freeze + R99-D2 correction, knowledge/lesson/README, SOURCES S396-S398
+60b5636f round-100: wave w1 — 14-seat spec validated (band 8-16), dispatch and ready handoff
+743ce449 round-100: freeze — C1 echo bends (N12/N13) + C2 label-set capture, controls and dev receipts
+
+## tracked working-tree modifications in the lane (expected empty)
+$ git -C tsukuroi-shokunin diff --stat
+ corpus/QUALITY.md           | 3 +++
+ corpus/lessons/round-100.md | 1 +
+ 2 files changed, 4 insertions(+)
+(end; exit 0)
+
+## untracked lane entries (expected: only this round wave dirs)
+$ git -C tsukuroi-shokunin status --porcelain
+ M corpus/QUALITY.md
+ M corpus/lessons/round-100.md
+?? .ufo/waves/round-100/after/
+?? .ufo/waves/round-100/w1.ready.dispatched
+?? .ufo/waves/round-100/w1/
+$ ... | grep -v "^?? .ufo/waves/round-100/"  (expected empty)
+ M corpus/QUALITY.md
+ M corpus/lessons/round-100.md
+
+## sibling lanes: worktree status entry counts
+audio-shokunin           0
+chousa-shokunin          3
+game-dev-2d-shokunin     0
+game-dev-3d-shokunin     0
+kagi-shokunin            57
+kaidoku-shokunin         0
+kake-shokunin            0
+kama-shokunin            17
+kasegi-shokunin          8
+kengaku-shokunin         2
+kotoba-shokunin          0
+kotodama-shokunin        0
+kumitate-shokunin        0
+lore-shokunin            0
+mado-shokunin            0
+mori-shokunin            0
+revenger-shokunin        0
+souji-shokunin           0
+tabi-shokunin            0
+tameshi-shokunin         0
+tsukuroi-shokunin        5
+
+## sibling entries naming tsukuroi (expected 0)
+(end)
+
+## fleet root status (expected: none naming tsukuroi)
+ A .scratch/closure-tabi-r83-entry.json
+ M .scratch/goal-20261103-hyaku-run15.md
+ M .scratch/run15-state.json
+ A .scratch/run15-wrapup/misroot-cff0b4cb/versions.html
+ A .scratch/run15-wrapup/misroot-cff0b4cb/w4lines.txt
+ M .ufo/l0-questions.md
+?? .scratch/closure-kama-r96-entry.json
+?? .scratch/closure-tabi-r87-entry.json
+?? .ufo/reports/round-68/kagi.md
+$ ... | grep -i tsukuroi (expected empty)
+(empty)

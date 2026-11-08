@@ -4370,3 +4370,19 @@ entry is the correction rather than an edit: the freeze entry is superseded by t
 `778f15fd` and the measured entry by the falsification-ledger commit `efe5ba59` (lane `master` at
 closure). The round-99 text above stays as filed; no heading was rewritten. Captured as
 `R99-STALE-LOG-HEADING` in `corpus/lessons/round-100.md`.
+
+## Round 100 — measured (measured at `69474c55`; receipts `ef12af4c`)
+
+C1: landed gate `met 105/105 []` x3 canonical + x3 clone (cases 420, 0 error rows); `N12-x-echo`
+`unmet 103/105` x3 both layouts exactly `[EXPLICIT-VERSION-ECHO, REFUSAL-VERSIONS-9DIGIT]`;
+`N13-y-echo` `unmet 104/105` x3 both layouts exactly `[REFUSAL-VERSIONS-9DIGIT-Y]`; r98 control
+`met 105/105` on the gate and N13, `104/105 [EXPLICIT-VERSION-ECHO]` on N12; one-line bend diffs;
+selftest `PASS 5/5`; 45/45 reviewed runs 0 error rows. C2: freeze tip and final tip `PASS 7/7
+findings 0` (r99 control `PASS 7/7`; rows 163 -> 165); six cells PASS where r99 finds, five forged
+shapes still closed; selftest `PASS 26/26` (r99 `17/17`); coverage `PASS 165/165/165`. Wave w1:
+14 seats, 13 filed + `ReviewRegistry` dead at spawn (unfiled, not credited); attack roles 6/14.
+Corpus: S396 (own-work) + S397 (docs) admitted, S398 rejected; census 395 -> 398 exit 0 both;
+lesson mines eight mistakes; QUALITY 142; plan amendments A1-A7. Disclosed: the `c450cd68` 7-cell
+row (repaired `69474c55`), the freeze's two tools without rows, and the manifest pinning the
+appendable plan (now 14 instrument lines). The prefile falsification ledger is filed beside this
+entry (`claim-falsification.tsv`) and its gate line is recorded in the round report.

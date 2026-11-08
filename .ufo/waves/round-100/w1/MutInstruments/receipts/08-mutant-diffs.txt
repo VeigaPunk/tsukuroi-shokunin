@@ -1,0 +1,57 @@
+M1  vs check-registry-content-r100.py: 9 changed lines
+    -            try:
+    -                declared_set = parse_label_set(mention.group(1))
+    -            except ValueError as exc:
+    -                findings.append({"id": "RC-CELL-MISSING", "site": "SKILL.md:%d" % row["line"],
+    -                                 "detail": "%s cell %d label set: %s"
+    -                                           % (binding["row"], binding["cell"], str(exc)[:160])})
+    -                continue
+    +            first_label = re.search(r"N[0-9]+", mention.group(1))
+    +            declared_set = {first_label.group(0)} if first_label else set()
+M2  vs check-registry-content-r100.py: 8 changed lines
+    -            if mentions > 1:
+    -                findings.append({"id": "RC-CELL-AMBIGUOUS", "site": "SKILL.md:%d" % row["line"],
+    -                                 "detail": "%s cell %d mentions %r %d times; the first mention is "
+    -                                           "not the cell's value"
+    -                                           % (binding["row"], binding["cell"], "VARIANTS",
+    -                                              mentions)})
+    -                continue
+    +            # M2: a second VARIANTS mention is silently accepted (first mention bound)
+M3  vs check-registry-content-r100.py: 2 changed lines
+    -            if declared_set != derived_set:
+    +            if sorted(declared_set)[:1] != sorted(derived_set)[:1]:
+M4  vs check-registry-content-r100.py: 6 changed lines
+    -        last = int(match.group(2))
+    -        if last < first:
+    -            raise ValueError("range %r descends" % part)
+    -        for number in range(first, last + 1):
+    -            labels.add("N%0*d" % (width, number))
+    +        labels.add("N%0*d" % (width, first))
+M5  vs check-registry-content-r100.py: 2 changed lines
+    -            if declared_set != derived_set:
+    +            if not declared_set >= derived_set:
+M6  vs check-registry-content-r100.py: 3 changed lines
+    -            raise ValueError("token %r is not an N-label or N-label range" % part)
+    +            labels.update("N%s" % n for n in re.findall(r"N([0-9]+)", expr))
+    +            continue
+M7  vs check-registry-content-r100.py: 2 changed lines
+    -            mentions = len(re.findall(r"\bVARIANTS\b", cell))
+    +            mentions = len(re.findall(r"\bVARIANTS\b", cell, re.IGNORECASE))
+M8  vs check-registry-content-r100.py: 6 changed lines
+    -        try:
+    -            tree.check_revision()
+    -        except TableError as exc:
+    -            print("CANNOT-EVALUATE: %s" % exc, file=sys.stderr)
+    -            return CANNOT
+    +        # M8: the ancestor refusal is skipped
+B1  vs make-r100-bends.py: 2 changed lines
+    -        if n != 1:
+    -            raise SystemExit("%s: pattern %r matched %d times, expected 1" % (name, old[:60], n))
+B2  vs make-r100-bends.py: 4 changed lines
+    -        '            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)\n'
+    +        '            "limine_version": limine_version,\n'
+    -        if out == text:
+    -            raise SystemExit("%s: substitution changed nothing" % name)
+B3  vs make-r100-bends.py: 2 changed lines
+    -        '            "limine_version": ("999999998.9.9" if limine_version.split(".")[0] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)\n'
+    +        '            "limine_version": ("999999998.9.9" if limine_version.count(".") >= 1 and limine_version.split(".")[1] == "999999999" else limine_version),  # N12 (echo lies for the X-cap spelling only, r100)\n'
