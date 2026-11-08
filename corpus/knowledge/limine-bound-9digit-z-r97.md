@@ -9,7 +9,7 @@ own-work: `tools/check-limine-pins.py` `parse_limine_version()` / `--selftest`,
 (the seven bindings below).
 verified-at: 2026-11-08 (round 97; the instruments are pinned in
 `.ufo/waves/round-97/before/instruments.sha256`).
-recheck: `python3 tools/limine-pin-battery-r97.py --gate tools/check-limine-pins.py --runs 3
+recheck: 180d — `python3 tools/limine-pin-battery-r97.py --gate tools/check-limine-pins.py --runs 3
 --json OUT` (verdict `met`, `families_total 105`); `python3 tools/check-limine-pins.py --selftest`
 (`PASS 39/39`); `python3 tools/check-registry-content.py --revision <REV>` (`status PASS`,
 `bindings 7`).

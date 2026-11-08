@@ -1,11 +1,13 @@
 # The accepted leg of a published numeric bound — Limine `--limine-version`, 1-9 digits per component
 
-`source:` S389 (Python 3 docs, integer string conversion length limitation — opened 2026-11-08),
+source: S389 (Python 3 docs, integer string conversion length limitation — opened 2026-11-08),
 S382/S384 (Limine v12.9.5 `common/lib/config.c`, `host/limine.c`), S386/S387/S388 (Limine v12.9.6
 `common/lib/config.c`, `ChangeLog`, `host/limine.c`), and this lane's own gate bytes
 `tools/check-limine-pins.py` at the round-95 freeze (`7d79ac29…`).
-`verified-at:` 2026-11-08 (round 95). `recheck:` on any change to `parse_limine_version`, to
-`VISIBILITY_ERA_SPLIT`, or to the battery's `REFUSAL-VERSIONS-*` families.
+verified-at: 2026-11-08 (round 95).
+recheck: 180d — on any change to `parse_limine_version`, to `VISIBILITY_ERA_SPLIT`, or to the
+battery's `REFUSAL-VERSIONS-*` families. (Round 97 metadata repair: the three labels are
+line-initial and the cadence is stated; no proposition changed.)
 
 ## The rule this entry lands
 

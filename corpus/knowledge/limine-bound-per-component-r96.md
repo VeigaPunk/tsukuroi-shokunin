@@ -7,7 +7,7 @@ own-work: `tools/check-limine-pins.py` `parse_limine_version()`/
 `--selftest` and `tools/limine-pin-battery-r96.py` (families named below).
 verified-at: 2026-11-08 (round 96; the instruments are pinned in
 `.ufo/waves/round-96/before/instruments.sha256`).
-recheck: `python3 tools/limine-pin-battery-r96.py --gate tools/check-limine-pins.py --runs 3
+recheck: 180d — `python3 tools/limine-pin-battery-r96.py --gate tools/check-limine-pins.py --runs 3
 --json OUT` (verdict `met`, `families_total 103`); `python3 tools/check-limine-pins.py --selftest`
 (`PASS 39/39`).
 
