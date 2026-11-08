@@ -48,6 +48,20 @@ and the family is a **twin** under QUALITY 136 — the round's measured discrimi
 three families `EXPLICIT-VERSION-ECHO`, `EXPLICIT-VERSION-ERA`, `REFUSAL-VERSIONS-9DIGIT-Y`
 (A4; `w1/CriticClaims` F-2).
 
+## Measured this round
+
+`tools/limine-pin-battery-r96.py --gate tools/check-limine-pins.py --runs 3` reads `103/103 met` with
+0 error rows in three canonical runs and in a `git clone --shared` (`.ufo/waves/round-96/after/c1/`,
+`w1/ExecBattery/`, `w1/ReviewBattery/`, `w1/ScribeKnowledge/`); the four bends read `102/102/102/101`
+of 103 with exactly `["EXPLICIT-VERSION-ECHO"]`, `["REFUSAL-VERSIONS-9DIGIT-Y"]` (4 rc-64 refusal
+rows — A3), `["EXPLICIT-VERSION-ERA"]` and `["EXTRA-COMPONENT", "REFUSAL-VERSIONS"]`; the r95
+do-nothing battery reads `99/99 met` on the landed gate and N01/N02/N03 and `98/99
+["REFUSAL-VERSIONS"]` on N04. Own-work era mutants: Z-only and Y-only era readers fail the Y family;
+an X-only reader passes it and is caught by `EXPLICIT-VERSION-ERA` (the Y docstring's claim is
+false — routed to r97). Further unsampled shapes: Z-at-cap (`999999999.999999999.999999999` is
+accepted but no family sends it) and four-component shapes beyond the four enumerated (empty fourth,
+five components, non-ASCII digit — refused by the gate, unsent by the battery).
+
 ## PC4 — what the scope does not cover
 
 - The metadata clauses are the gate's own reporting contract (own-work), not Limine behaviour; the
