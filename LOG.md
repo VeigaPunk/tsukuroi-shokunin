@@ -4266,9 +4266,10 @@ PASS 154/154 (base pinned); six of eight checker mutants killed. Narrowings A1-A
 limits (era-field/echo unasserted on the new members; three C2 scope gaps; M08) are recorded in
 `before/plan-amendments-r97.md`, `w1/*`, and `corpus/lessons/round-97.md`.
 
-## Round 97 — settle
+## Round 97 — measured (`5eb475cd`)
 
-Measured: C1 landed `105/105` ×3 canonical + ×3 clone, 0 error rows; N05 `103/105` ×3 both
+C1 landed `105/105` ×3 canonical + ×3 clone at the freeze tip and ×3 again at `b492f17f` (L1
+receipt `after/c1/l1-c1-gate-runs3.json`), 0 error rows; N05 `103/105` ×3 both
 layouts with `[LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT-Z]` and 6 rc-64 rows; N06 `104/105`
 ×3 both layouts with `[LEADING-ZERO-NORMALIZE]` and 4 rc-64 rows; the r96 control `met 103/103` ×3
 on the gate and both bends. C2 landed `PASS 7/7`, selftest `12/12`; doctored revision (base
@@ -4276,5 +4277,7 @@ on the gate and both bends. C2 landed `PASS 7/7`, selftest `12/12`; doctored rev
 `PASS 154/154`; settled tip `PASS 7/7` and coverage `PASS 157/157`. Corpus: S392 (CPython `int()`),
 `knowledge/limine-bound-9digit-z-r97.md`, `lessons/round-97.md`, census 391 → 392. Registry: three
 r97 rows. The r96 Y-family docstring corrected in the r96 tool (bytes re-derivable at
-`f48d1642`, `f06d90ae…` = the round's control). Amendments A1-A6 in
-`before/plan-amendments-r97.md`. No axis harmed; the gate bytes are unchanged (`7d79ac29…`).
+`f48d1642`, `f06d90ae…` = the round's control). Amendments A1-A7 in
+`before/plan-amendments-r97.md`. The provenance-header gate reads rc 0 at `5eb475cd` (113/113 clean)
+after repairing the r95 entry's line-initial trio and the r95/r96/r97 `recheck:` cadences. No axis
+harmed; the gate bytes are unchanged (`7d79ac29…`).

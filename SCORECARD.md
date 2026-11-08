@@ -7975,3 +7975,29 @@ from the tool bytes each row names (`limine-pins` default/tally/schema; the r96 
 two cells; the r96 calibration checker's tally; the r96 bends generator's variant span) and reads
 `FAIL` with one `RC-VALUE-MISMATCH` per doctored cell on a revision the unchanged coverage gate
 certifies `PASS 154/154`. Capability row: `registry-content-binding`, first working round 97.
+
+## Round 97 — measured outcome (freeze `a57e88cd`, wave `dafcd5df`, settle `b492f17f`, header repair `5eb475cd`; receipts `.ufo/waves/round-97/after/` and `w1/`)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: the version gate's per-component accepted bound at Z, and the accepted leading-zero spelling) | depth 8 → 8 (tied lowest; a sharper instrument, no ordinal uplift) | roster 103 → **105** (`python3 tools/limine-pin-battery-r97.py --gate tools/check-limine-pins.py --runs 3 --json OUT` → `105/105 met` in every run, `failed_families []`, 0 error rows, canonical ×3 + `git clone --shared` ×3 at `a57e88cd`; L1 re-run ×3 at `b492f17f` → `105/105`, 0 error rows, `after/c1/l1-c1-gate-runs3.json`); `N05-z-cap-8` → `103/105` unmet ×3 both layouts, `failed_families` exactly `[LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT-Z]`, 6 rc-64 rows/run; `N06-leading-zero-reject` → `104/105` ×3 both layouts, `[LEADING-ZERO-NORMALIZE]`, 4 rc-64 rows/run; r96 control `f06d90ae…` `met 103/103` ×3 on the landed gate and on both bends, 0 error rows; `--usage-check` 19 cases met (`after/c1/isolation-check.json`: lane/battery invisible) | met on the A3/A7 scope (acceptance + the era's pin answer; blindness is the roster leg) | **met** (author-side; closure to re-derive) |
+| C2 (measured; surface: a registry row's declared values against the tool's bytes) | freshness 9 → 9 (assurance arm; capability `registry-content-binding` first working) | `python3 tools/check-registry-content.py --revision a57e88cd` → `status PASS bindings 7 findings []`; at `b492f17f` the same; `--selftest` → `PASS 12/12`; doctored revisions built on the pinned base `f48d1642` (`46fae1ba`, `9e052291`, `227a4b7c`) → `status FAIL` with exactly six `RC-VALUE-MISMATCH` (one per doctor, each naming its row and derived value), while `tools/check-registry-coverage.py --revision <same>` reads `PASS 154/154 findings 0`; settled tip coverage `PASS 157/157 findings 0` (`after/c2/coverage-tip.json`); constant-derivation patch flips the doctored leg FAIL → PASS; fail-closed: missing tool rc 1 / 3 `RC-DERIVE-FAILED`, missing row rc 1 / `RC-ROW-MISSING`, 7-column table rc 2, non-ancestor rc 2, unresolvable rc 2; mutation: 6/8 one-fault mutants killed (M07 outside-scope, M08 a selftest gap routed to r98) | met | **met** (author-side; closure to re-derive) |
+
+Capabilities — append-only entry: `registry-content-binding` → re-derives seven `SKILL.md` registry
+cell values from the bytes of the tool each row names and fails with one `RC-VALUE-MISMATCH` per
+doctored cell → `python3 tools/check-registry-content.py --revision <REV>` (`PASS 7/7` at `a57e88cd`
+and `b492f17f`; `FAIL` with 6 findings on the doctored revisions) → first working round **97**.
+
+Falsified-or-narrowed this round (all in `before/plan-amendments-r97.md`, A1-A7): A1 the C2 fixture
+recipe's base had to be pinned (a post-freeze clone carries the round's three tools without their
+rows, so the coverage gate's own FAIL masks the blindness leg); A2 the error-row clauses re-read
+against the wave and unchanged; A3 blindness is the roster leg — the r96 `--usage-check` already
+sends `12.09.4`/`00.00.00`; A4 the blindness leg is bound to the pinned `f48d1642` base and the three
+measured C2 gaps are named limits; A5 mutation survivors M07 (outside scope) and M08 (genuine
+selftest gap); A6 the new LZ docstring names the wrong text-comparer member (predicate unaffected;
+r98 correction owed); A7 the new families assert the era's pin answer, not the JSON `visibility_era`
+field and not the echoed version (two conforming gates read `105/105`). Axes now: depth 8,
+coverage 9, operability 9, freshness 9, calibration 9, adjacency 8. No retirement. No axis harmed:
+the gate bytes are unchanged (`7d79ac29…`), the r96 control still reads `103/103`, the coverage gate
+certified `154/154` before this round's rows and `157/157` after them, and the corpus is additive
+(one SOURCES row, one knowledge entry, five lesson mistakes, QUALITY 141).
