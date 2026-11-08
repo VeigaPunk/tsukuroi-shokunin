@@ -1,0 +1,31 @@
+# 11 — the entry's header conformance (QUALITY 8 / tools/check-knowledge-header.py's rules, applied to the seat's file)
+
+The lane gate reads corpus/knowledge/*.md at an immutable revision, so it cannot see a file
+in a seat dir; the same rule set is applied here to the seat's own draft.
+
+$ python3 - <<'EOF'
+source       line 1    source: `corpus/SOURCES.md` S395 (own-work: `tools/limine-pin-battery-r99.py`, sha256
+verified-at  line 14   verified-at: 2026-11-08 (round 99; the instruments are pinned in
+recheck      line 16   recheck: 180d — `python3 tools/limine-pin-battery-r99.py --gate tools/check-limine-pins.py
+verified-at ISO date: 2026-11-08 calendar-valid: True
+recheck cadence/date: True -> 180d
+recheck backtick spans: 7 forbidden-binary invocations: []
+sections: 6
+    ## 1. What the gate reports on an explicit flag
+    ## 2. A family that answers its pins certifies nothing about the fields
+    ## 3. The two committed bends and their exact readings
+    ## 4. What the two new selftest lie kinds certify
+    ## 5. How to re-check this entry
+    ## Limits
+  EOF
+
+$ grep -c '^## ' <entry>
+6
+
+$ grep -n '^## ' <entry>
+28:## 1. What the gate reports on an explicit flag
+84:## 2. A family that answers its pins certifies nothing about the fields
+134:## 3. The two committed bends and their exact readings
+192:## 4. What the two new selftest lie kinds certify
+242:## 5. How to re-check this entry
+257:## Limits

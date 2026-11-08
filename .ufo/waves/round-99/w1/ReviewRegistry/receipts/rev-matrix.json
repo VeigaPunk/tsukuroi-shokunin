@@ -1,0 +1,178 @@
+[
+ {
+  "args": [
+   "--revision",
+   "2dbac669bebc0db8f0f77063e3dd73c4ff842db0",
+   "--branch",
+   "master"
+  ],
+  "case": "R1-side-not-ancestor",
+  "ids": null,
+  "out": "CANNOT-EVALUATE: revision '2dbac669bebc0db8f0f77063e3dd73c4ff842db0' is not an ancestor of master",
+  "rc": 2,
+  "status": null,
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "2dbac669bebc0db8f0f77063e3dd73c4ff842db0",
+   "--branch",
+   "master"
+  ],
+  "case": "R2-mutant-side-not-ancestor",
+  "ids": [],
+  "out": "registry-content: status PASS bindings 7/7 findings 0",
+  "rc": 0,
+  "status": "PASS",
+  "tool": "mutant"
+ },
+ {
+  "args": [
+   "--revision",
+   "2dbac669bebc0db8f0f77063e3dd73c4ff842db0",
+   "--branch",
+   "side"
+  ],
+  "case": "R3-side-with-branch-side",
+  "ids": [],
+  "out": "registry-content: status PASS bindings 7/7 findings 0",
+  "rc": 0,
+  "status": "PASS",
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "edea6d3870de023f3728c51a33c73dfed7b31bdc"
+  ],
+  "case": "R4-hybrid-committed-on-master",
+  "ids": [
+   "RC-CELL-MISSING"
+  ],
+  "out": "FINDING RC-CELL-MISSING SKILL.md:10 make-r96-bends cell 5 no longer states 'VARIANTS (N[0-9]+(?:-N[0-9]+|(?:,N[0-9]+)+))(?![0-9,-])'\nregistry-content: status FAIL bindings 6/7 findings 1",
+  "rc": 1,
+  "status": "FAIL",
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "edea6d3870de023f3728c51a33c73dfed7b31bdc",
+   "--branch",
+   "side"
+  ],
+  "case": "R5-master2-vs-branch-side",
+  "ids": null,
+  "out": "CANNOT-EVALUATE: revision 'edea6d3870de023f3728c51a33c73dfed7b31bdc' is not an ancestor of side",
+  "rc": 2,
+  "status": null,
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "tag-m2",
+   "--branch",
+   "master"
+  ],
+  "case": "R6-tag-on-master2",
+  "ids": [
+   "RC-CELL-MISSING"
+  ],
+  "out": "FINDING RC-CELL-MISSING SKILL.md:10 make-r96-bends cell 5 no longer states 'VARIANTS (N[0-9]+(?:-N[0-9]+|(?:,N[0-9]+)+))(?![0-9,-])'\nregistry-content: status FAIL bindings 6/7 findings 1",
+  "rc": 1,
+  "status": "FAIL",
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "28584f08f98c7048ce86b81c09336895072bcf6b",
+   "--branch",
+   "master"
+  ],
+  "case": "R7-root-no-SKILL",
+  "ids": null,
+  "out": "{\"findings\": [{\"detail\": \"git show 28584f08f98c7048ce86b81c09336895072bcf6b:SKILL.md failed\", \"id\": \"E-TABLE\", \"site\": \"SKILL.md\"}], \"revision\": \"28584f08f98c7048ce86b81c09336895072bcf6b\", \"schema\": \"tsukuroi-registry-content-r99-v1\", \"status\": \"CANNOT_EVALUATE\"}\nCANNOT-EVALUATE: git show 28584f08f98c7048ce86b81c09336895072bcf6b:SKILL.md failed",
+  "rc": 2,
+  "status": null,
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "0000000000000000000000000000000000000000"
+  ],
+  "case": "R8-unresolvable",
+  "ids": null,
+  "out": "CANNOT-EVALUATE: revision '0000000000000000000000000000000000000000' does not resolve",
+  "rc": 2,
+  "status": null,
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "--"
+  ],
+  "case": "R9-dash-dash",
+  "ids": null,
+  "out": "usage: check-registry-content-r99.py [-h] (--revision REVISION | --root ROOT |\n                                     --selftest) [--branch BRANCH]\n                                     [--json JSON]\ncheck-registry-content-r99.py: error: argument --revision: expected one argument",
+  "rc": 2,
+  "status": null,
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "eacce3ba1401698b278e95fb0e547aa5a1bd451b",
+   "--branch",
+   "nosuch"
+  ],
+  "case": "R10-nosuch-branch",
+  "ids": null,
+  "out": "CANNOT-EVALUATE: revision 'eacce3ba1401698b278e95fb0e547aa5a1bd451b' is not an ancestor of nosuch",
+  "rc": 2,
+  "status": null,
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "edea6d3870de023f3728c51a33c73dfed7b31bdc^{tree}"
+  ],
+  "case": "R11-tree-suffix",
+  "ids": null,
+  "out": "CANNOT-EVALUATE: revision 'edea6d3870de023f3728c51a33c73dfed7b31bdc^{tree}' does not resolve",
+  "rc": 2,
+  "status": null,
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "c50fcfcb576cf5f2c1ec7889d5eac83fa709c1e6"
+  ],
+  "case": "R12-tool-keys-doctored-on-master",
+  "ids": [
+   "RC-VALUE-MISMATCH"
+  ],
+  "out": "FINDING RC-VALUE-MISMATCH SKILL.md:10 RC-BEND-SPAN states 'N01-N03', tools/make-r96-bends.py derives 'N01-N05'\nregistry-content: status FAIL bindings 6/7 findings 1",
+  "rc": 1,
+  "status": "FAIL",
+  "tool": "pristine"
+ },
+ {
+  "args": [
+   "--revision",
+   "eacce3ba1401698b278e95fb0e547aa5a1bd451b"
+  ],
+  "case": "R13-master1-clean-ancestor",
+  "ids": [],
+  "out": "registry-content: status PASS bindings 7/7 findings 0",
+  "rc": 0,
+  "status": "PASS",
+  "tool": "pristine"
+ }
+]

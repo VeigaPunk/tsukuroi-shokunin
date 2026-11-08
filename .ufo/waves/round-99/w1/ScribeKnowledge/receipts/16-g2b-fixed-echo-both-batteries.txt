@@ -1,0 +1,21 @@
+# 16 — the r98-carried fixed-echo attack under BOTH batteries (the echo legs' only witness)
+
+The attack gate is the r98 wave's own artifact:
+-rw-r--r-- 1 vgpnk vgpnk 30272 Nov  8 10:19 .ufo/waves/round-98/w1/ReviewBattery/g2b-fixed-echo.py
+
+$ python3 .ufo/waves/round-99/before/controls/do-nothing-battery-r98.py --gate .ufo/waves/round-98/w1/ReviewBattery/g2b-fixed-echo.py --runs 1 --work <scratch> --json OUT
+families_passed 100/105 verdict unmet failed AUTO-ERA-A,AUTO-ERA-B,EXPLICIT-VERSION-ECHO,LEADING-ZERO-NORMALIZE,REFUSAL-VERSIONS-9DIGIT-Z
+
+$ python3 tools/limine-pin-battery-r99.py --gate .ufo/waves/round-98/w1/ReviewBattery/g2b-fixed-echo.py --runs 1 --work <scratch> --json OUT
+families_passed 98/105 verdict unmet failed AUTO-ERA-A,AUTO-ERA-B,EXPLICIT-VERSION-ECHO,LEADING-ZERO-NORMALIZE,REFUSAL-VERSIONS-9DIGIT,REFUSAL-VERSIONS-9DIGIT-Y,REFUSAL-VERSIONS-9DIGIT-Z
+
+=> the r98 battery fails 5 families and does NOT name REFUSAL-VERSIONS-9DIGIT or
+   REFUSAL-VERSIONS-9DIGIT-Y: the X and Y echo legs were invisible to it.
+   The r99 battery fails 7 and names BOTH: the echo legs of the two accepted-cap
+   families are now witnessed by this attack.
+
+The r98 wave's own receipt of the same attack agrees with the r98 control leg here:
+{'schema': 'tsukuroi-limine-pin-battery-r97-v1', 'gate': '/fast/scratch/hyaku/tsukuroi-r98/ReviewBattery/g2b-fixed-echo.py', 'families_total': 105, 'families_passed': 100, 'failed_families': ['AUTO-ERA-A', 'AUTO-ERA-B', 'EXPLICIT-VERSION-ECHO', 'LEADING-ZERO-NORMALIZE', 'REFUSAL-VERSIONS-9DIGIT-Z'], 'verdict': 'unmet'}
+
+$ python3 .ufo/waves/round-95/before/controls/count-runs.py <r99 out> --family REFUSAL-VERSIONS-9DIGIT --family REFUSAL-VERSIONS-9DIGIT-Y --family REFUSAL-VERSIONS-9DIGIT-Z --family EXPLICIT-VERSION-ECHO --family EXPLICIT-VERSION-ERA --family LEADING-ZERO-NORMALIZE
+{'verdict': 'unmet', 'families_passed': 98, 'failed_families': ['AUTO-ERA-A', 'AUTO-ERA-B', 'EXPLICIT-VERSION-ECHO', 'LEADING-ZERO-NORMALIZE', 'REFUSAL-VERSIONS-9DIGIT', 'REFUSAL-VERSIONS-9DIGIT-Y', 'REFUSAL-VERSIONS-9DIGIT-Z'], 'error_rows': 0} {'REFUSAL-VERSIONS-9DIGIT-Y': [0, 4], 'LEADING-ZERO-NORMALIZE': [0, 4], 'EXPLICIT-VERSION-ERA': [4, 0], 'REFUSAL-VERSIONS-9DIGIT-Z': [0, 4], 'REFUSAL-VERSIONS-9DIGIT': [0, 4], 'EXPLICIT-VERSION-ECHO': [0, 4]}

@@ -1,0 +1,57 @@
+# 10 — the r99-vs-r98 battery diff, in full (the predicate says 'exactly two changes')
+
+$ diff tools/limine-pin-battery-r98.py tools/limine-pin-battery-r99.py
+2c2
+< """Round-97 battery for a Limine path-pin gate (tsukuroi lane; successor of the r96 battery).
+---
+> """Round-99 battery for a Limine path-pin gate (tsukuroi lane; successor of the r98 battery).
+70a71,80
+> Round-99 claim (C1, SCORECARD.md "Round 99 — declaration"). The r98 metadata assertion covers the
+> two r97 families only: the X-cap family `REFUSAL-VERSIONS-9DIGIT` (`999999999.9.9`) and the Y-cap
+> family `REFUSAL-VERSIONS-9DIGIT-Y` (`12.999999999.4`, `0.999999999.0`) send explicit flags but
+> never read `limine_version` or `visibility_era`, and the r98 battery's selftest lie kinds never
+> falsify those two fields. The r98 wave measured a Y-only era lie and a Z-echo lie each reading
+> `met 105/105` (`w1/ReviewBattery/g6-y-era-r98.json`; `w1/MutRegistry/B03-*.txt`). r99 sets
+> `check_echo` and `check_era` on the X and Y families and adds two selftest lie kinds,
+> `limine-version` (the echoed value falsified) and `visibility-era` (the era label falsified), so
+> the selftest with a reference gate now fails a gate that lies in either reported field; the
+> roster stays 105 (sharpening, not growth).
+1762c1772,1776
+<     9-digit value, so that bend read `met` 98/98 before this family existed."""
+---
+>     9-digit value, so that bend read `met` 98/98 before this family existed. r99: the case also
+>     asserts the echo (the flag value verbatim, source `flag`) and the `visibility_era` label the
+>     whole tuple selects, closing the r98 Frontier's X-cap field-fidelity limit."""
+>     c.check_echo = True
+>     c.check_era = True
+1800c1814,1818
+<     corrected, the family and its expectation are unchanged."""
+---
+>     corrected, the family and its expectation are unchanged. r99: the case also asserts the echo
+>     (the flag value verbatim, source `flag`) and the `visibility_era` label the whole tuple selects,
+>     closing the r98 G6 Y-cap-only era-lie survivor (`w1/ReviewBattery/g6-y-era-r98.json`, `met 105/105`)."""
+>     c.check_echo = True
+>     c.check_era = True
+2290c2308
+<     return {"schema": "tsukuroi-limine-pin-battery-r97-v1", "gate": gate,
+---
+>     return {"schema": "tsukuroi-limine-pin-battery-r99-v1", "gate": gate,
+2337a2356,2361
+> elif KIND == "limine-version":
+>     if out.get("limine_version"):
+>         out["limine_version"] = "0.0.0"
+> elif KIND == "visibility-era":
+>     if "visibility_era" in out:
+>         out["visibility_era"] = ("pre-12.9.5" if out["visibility_era"] == "12.9.5+" else "12.9.5+")
+2346c2370
+<              "panic-value", "on-panic", "bad-resource", "missing-panic")
+---
+>              "panic-value", "on-panic", "bad-resource", "missing-panic", "limine-version", "visibility-era")
+
+changed-line counts:
+5
+29
+
+$ sha256sum tools/limine-pin-battery-r98.py tools/limine-pin-battery-r99.py
+8198bd848effc4aa2b8f8d800f688ee131e2afe9b61bcac6c663ba71543f2a87  tools/limine-pin-battery-r98.py
+c2e8c8fc87dccef0591323dfb2a589d16540150eaf65628abce6db6373619f99  tools/limine-pin-battery-r99.py

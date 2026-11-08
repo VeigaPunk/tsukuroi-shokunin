@@ -1,0 +1,50 @@
+# 04 — C2 checker legs (context; the entry's scope is C1)
+$ python3 .ufo/waves/round-99/before/dev/make-fixtures.py <scratch>/fixtures
+built /fast/scratch/hyaku/tsukuroi-r99/ScribeKnowledge/fixtures/clean
+built /fast/scratch/hyaku/tsukuroi-r99/ScribeKnowledge/fixtures/hybrid
+built /fast/scratch/hyaku/tsukuroi-r99/ScribeKnowledge/fixtures/restated
+built /fast/scratch/hyaku/tsukuroi-r99/ScribeKnowledge/fixtures/gap
+
+$ python3 tools/check-registry-content-r99.py --selftest
+clean                PASS 
+default-cell         PASS 
+fixtures-cell        PASS 
+schema-cell          PASS 
+roster-pinned-cell   PASS 
+roster-verdict-cell  PASS 
+cases-cell           PASS 
+span-cell            PASS 
+span-gap             PASS 
+span-gap-lie         PASS 
+span-hybrid          PASS 
+span-restated        PASS 
+row-missing          PASS 
+tool-missing         PASS 
+derivation-lie       PASS 
+tally-lie            PASS 
+ancestor             PASS 
+selftest PASS 17/17
+rc=0
+
+--- fixture clean (root mode)
+$ python3 tools/check-registry-content-r99.py --root <fixture>
+registry-content: status PASS bindings 7/7 findings 0
+$ python3 .ufo/waves/round-99/before/controls/do-nothing-checker-r98.py --root <fixture>
+registry-content: status PASS bindings 7/7 findings 0
+--- fixture hybrid (root mode)
+$ python3 tools/check-registry-content-r99.py --root <fixture>
+FINDING RC-CELL-MISSING SKILL.md:10 make-r96-bends cell 5 no longer states 'VARIANTS (N[0-9]+(?:-N[0-9]+|(?:,N[0-9]+)+))(?![0-9,-])'
+registry-content: status FAIL bindings 6/7 findings 1
+$ python3 .ufo/waves/round-99/before/controls/do-nothing-checker-r98.py --root <fixture>
+registry-content: status PASS bindings 7/7 findings 0
+--- fixture restated (root mode)
+$ python3 tools/check-registry-content-r99.py --root <fixture>
+FINDING RC-CELL-AMBIGUOUS SKILL.md:10 make-r96-bends cell 5 mentions 'VARIANTS' 2 times; the first mention is not the cell's value
+registry-content: status FAIL bindings 6/7 findings 1
+$ python3 .ufo/waves/round-99/before/controls/do-nothing-checker-r98.py --root <fixture>
+registry-content: status PASS bindings 7/7 findings 0
+--- fixture gap (root mode)
+$ python3 tools/check-registry-content-r99.py --root <fixture>
+registry-content: status PASS bindings 7/7 findings 0
+$ python3 .ufo/waves/round-99/before/controls/do-nothing-checker-r98.py --root <fixture>
+registry-content: status PASS bindings 7/7 findings 0

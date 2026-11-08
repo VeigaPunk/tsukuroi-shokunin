@@ -1,0 +1,48 @@
+# 14 — the two lie kinds' failure composition, measured on THIS SEAT's own receipts
+
+The wrapper bytes are the pinned battery's own LIE_WRAPPER template (importlib loads
+tools/limine-pin-battery-r99.py; LIE_WRAPPER % (gate_src, kind)); they are committed as bytes under
+receipts/lie-wrappers/ so the run is reproducible from the receipt dir alone:
+
+4fa10dbe27d2ba0a8e0cb2a82814ad0cf3fd2a732c68effee2520608aa1c81a6  .ufo/waves/round-99/w1/ScribeKnowledge/receipts/lie-wrappers/lie-limine-version.py
+ff420acea5521c4b53d5e1c847cd825224abd2be4e59f9d8494c5d761d9b02d9  .ufo/waves/round-99/w1/ScribeKnowledge/receipts/lie-wrappers/lie-visibility-era.py
+
+$ python3 tools/limine-pin-battery-r99.py --gate receipts/lie-wrappers/lie-<kind>.py --runs 3 --work <scratch> --json OUT
+--- c1-lie-limine-version-r99
+families_passed 93/105 verdict unmet failed AUTO-ERA-A,AUTO-ERA-B,AUTO-PROBE-FAIL,AUTO-PROBE-SHAPES,EXPLICIT-VERSION-ECHO,EXTRA-COMPONENT,LEADING-ZERO-NORMALIZE,REFUSAL-VERSIONS,REFUSAL-VERSIONS-10DIGIT,REFUSAL-VERSIONS-9DIGIT,REFUSAL-VERSIONS-9DIGIT-Y,REFUSAL-VERSIONS-9DIGIT-Z
+families_passed 93/105 verdict unmet failed AUTO-ERA-A,AUTO-ERA-B,AUTO-PROBE-FAIL,AUTO-PROBE-SHAPES,EXPLICIT-VERSION-ECHO,EXTRA-COMPONENT,LEADING-ZERO-NORMALIZE,REFUSAL-VERSIONS,REFUSAL-VERSIONS-10DIGIT,REFUSAL-VERSIONS-9DIGIT,REFUSAL-VERSIONS-9DIGIT-Y,REFUSAL-VERSIONS-9DIGIT-Z
+families_passed 93/105 verdict unmet failed AUTO-ERA-A,AUTO-ERA-B,AUTO-PROBE-FAIL,AUTO-PROBE-SHAPES,EXPLICIT-VERSION-ECHO,EXTRA-COMPONENT,LEADING-ZERO-NORMALIZE,REFUSAL-VERSIONS,REFUSAL-VERSIONS-10DIGIT,REFUSAL-VERSIONS-9DIGIT,REFUSAL-VERSIONS-9DIGIT-Y,REFUSAL-VERSIONS-9DIGIT-Z
+--- c1-lie-visibility-era-r99
+families_passed 95/105 verdict unmet failed AUTO-PROBE-FAIL,AUTO-PROBE-SHAPES,EXPLICIT-VERSION-ERA,EXTRA-COMPONENT,LEADING-ZERO-NORMALIZE,REFUSAL-VERSIONS,REFUSAL-VERSIONS-10DIGIT,REFUSAL-VERSIONS-9DIGIT,REFUSAL-VERSIONS-9DIGIT-Y,REFUSAL-VERSIONS-9DIGIT-Z
+families_passed 95/105 verdict unmet failed AUTO-PROBE-FAIL,AUTO-PROBE-SHAPES,EXPLICIT-VERSION-ERA,EXTRA-COMPONENT,LEADING-ZERO-NORMALIZE,REFUSAL-VERSIONS,REFUSAL-VERSIONS-10DIGIT,REFUSAL-VERSIONS-9DIGIT,REFUSAL-VERSIONS-9DIGIT-Y,REFUSAL-VERSIONS-9DIGIT-Z
+families_passed 95/105 verdict unmet failed AUTO-PROBE-FAIL,AUTO-PROBE-SHAPES,EXPLICIT-VERSION-ERA,EXTRA-COMPONENT,LEADING-ZERO-NORMALIZE,REFUSAL-VERSIONS,REFUSAL-VERSIONS-10DIGIT,REFUSAL-VERSIONS-9DIGIT,REFUSAL-VERSIONS-9DIGIT-Y,REFUSAL-VERSIONS-9DIGIT-Z
+
+$ python3 - <<'EOF'  # split the failing families into field-caused vs wrapper-refusal
+===== c1-lie-limine-version-r99.json
+  run1 unmet 93/105 failed=12 error_rows=0
+     field-caused (7): AUTO-ERA-A, AUTO-ERA-B, EXPLICIT-VERSION-ECHO, LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT, REFUSAL-VERSIONS-9DIGIT-Y, REFUSAL-VERSIONS-9DIGIT-Z
+     wrapper-refusal (5): AUTO-PROBE-FAIL, AUTO-PROBE-SHAPES, EXTRA-COMPONENT, REFUSAL-VERSIONS, REFUSAL-VERSIONS-10DIGIT
+  run2 unmet 93/105 failed=12 error_rows=0
+     field-caused (7): AUTO-ERA-A, AUTO-ERA-B, EXPLICIT-VERSION-ECHO, LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT, REFUSAL-VERSIONS-9DIGIT-Y, REFUSAL-VERSIONS-9DIGIT-Z
+     wrapper-refusal (5): AUTO-PROBE-FAIL, AUTO-PROBE-SHAPES, EXTRA-COMPONENT, REFUSAL-VERSIONS, REFUSAL-VERSIONS-10DIGIT
+  run3 unmet 93/105 failed=12 error_rows=0
+     field-caused (7): AUTO-ERA-A, AUTO-ERA-B, EXPLICIT-VERSION-ECHO, LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT, REFUSAL-VERSIONS-9DIGIT-Y, REFUSAL-VERSIONS-9DIGIT-Z
+     wrapper-refusal (5): AUTO-PROBE-FAIL, AUTO-PROBE-SHAPES, EXTRA-COMPONENT, REFUSAL-VERSIONS, REFUSAL-VERSIONS-10DIGIT
+===== c1-lie-visibility-era-r99.json
+  run1 unmet 95/105 failed=10 error_rows=0
+     field-caused (5): EXPLICIT-VERSION-ERA, LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT, REFUSAL-VERSIONS-9DIGIT-Y, REFUSAL-VERSIONS-9DIGIT-Z
+     wrapper-refusal (5): AUTO-PROBE-FAIL, AUTO-PROBE-SHAPES, EXTRA-COMPONENT, REFUSAL-VERSIONS, REFUSAL-VERSIONS-10DIGIT
+  run2 unmet 95/105 failed=10 error_rows=0
+     field-caused (5): EXPLICIT-VERSION-ERA, LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT, REFUSAL-VERSIONS-9DIGIT-Y, REFUSAL-VERSIONS-9DIGIT-Z
+     wrapper-refusal (5): AUTO-PROBE-FAIL, AUTO-PROBE-SHAPES, EXTRA-COMPONENT, REFUSAL-VERSIONS, REFUSAL-VERSIONS-10DIGIT
+  run3 unmet 95/105 failed=10 error_rows=0
+     field-caused (5): EXPLICIT-VERSION-ERA, LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT, REFUSAL-VERSIONS-9DIGIT-Y, REFUSAL-VERSIONS-9DIGIT-Z
+     wrapper-refusal (5): AUTO-PROBE-FAIL, AUTO-PROBE-SHAPES, EXTRA-COMPONENT, REFUSAL-VERSIONS, REFUSAL-VERSIONS-10DIGIT
+  EOF
+
+The wrapper-side failures are mechanical: the wrapper does out = json.loads(p.stdout)
+before it can falsify a field, and a refusal answers rc 64 with an EMPTY stdout, so json.loads("")
+raises and the wrapper exits 1; the refusal family then sees rc 1 where it expects rc 64.
+A representative failing row (from the same JSON):
+  lie receipt: {"family": "REFUSAL-VERSIONS", "passed": false, "kind": "usage", "rows": [{"version": "12.9", "rc": 1, "stdout_bytes": 0, "ok": false}, {"version": "12.9.5.1", "rc": 1, "stdout_bytes": 0, "ok": false}
+  landed gate: {"family": "REFUSAL-VERSIONS", "passed": true, "kind": "usage", "rows": [{"version": "12.9", "rc": 64, "stdout_bytes": 0, "ok": true}, {"version": "12.9.5.1", "rc": 64, "stdout_bytes": 0, "ok": true},

@@ -1,0 +1,97 @@
+# 03 — byte-level anchors, measured (QUALITY 141: byte unit, `bytes.find`/`grep -abo` on pinned bytes)
+
+Instrument integrity gate (run before any measurement is cited):
+  $ cd /home/vgpnk/Projects/shokunin/tsukuroi-shokunin && sha256sum -c .ufo/waves/round-99/before/instruments.sha256
+  -> 17 files OK, exit 0 (see 01-manifest-verify.txt)
+  $ sha256sum tools/check-limine-pins.py tools/limine-pin-battery-r99.py
+  7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32  tools/check-limine-pins.py
+  c2e8c8fc87dccef0591323dfb2a589d16540150eaf65628abce6db6373619f99  tools/limine-pin-battery-r99.py
+
+Both digests are identical to `.ufo/waves/round-99/before/instruments.sha256`
+(`7d79ac29…` for the gate, `c2e8c8fc…` for the r99 battery).
+
+## Commands run
+
+  $ grep -abo '"limine_version"' tools/check-limine-pins.py
+  $ grep -abo '"visibility_era"' tools/check-limine-pins.py
+  $ grep -abo 'check_echo' tools/limine-pin-battery-r99.py
+  $ grep -abo 'check_era' tools/limine-pin-battery-r99.py
+  $ grep -abo 'def meta_ok' tools/limine-pin-battery-r99.py
+
+and the byte-level one-liner (exact expression used for every offset/line/quote below):
+
+  python3 -c "b=open('<path>','rb').read(); off=<N>; line=b[:off].count(b'\n')+1; ls=b.rfind(b'\n',0,off)+1; le=b.find(b'\n',off); print(off,line,b[ls:le].decode())"
+
+(the same expression was run in a heredoc over a list of offsets; it uses `open(p,'rb').read()`
+ and `bytes.find`/index arithmetic on the BYTES, never a decoded-string index.)
+
+## A. Gate `tools/check-limine-pins.py` (sha256 7d79ac29…, len 30286 bytes)
+
+| site | byte offset | line | located quote (≤25 words) |
+|---|---|---|---|
+| MAIN return — `"limine_version"` | 16931 | 316 | `            "limine_version": limine_version,` |
+| MAIN return — `"visibility_era"` | 17037 | 318 | `            "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",` |
+| EARLY (CANNOT-EVALUATE) return — `"limine_version"` | 11230 | 200 | `                "limine_version": limine_version,` |
+| EARLY (CANNOT-EVALUATE) return — `"visibility_era"` | 11344 | 202 | `                "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",` |
+
+Context that identifies each site (read with `sed -n`, no edit):
+  - MAIN return is at lines 314-319, the `return {"schema": "tsukuroi-limine-pins-v3", …}` dict
+    inside `check()` after the pin loop; the two field lines are its 3rd and 5th entries.
+  - EARLY return is at lines 198-203, the `except OSError as e:` branch returning
+    `{"verdict": "CANNOT-EVALUATE", "rc": 2, …, "error": "conf unreadable: …"}`.
+  - The third byte matches are NOT emission sites: 18866 / 19205 are the *consumer* lines
+    (line 357 `r = check(conf, esp, sb, tpm, **({} if ver is None else {"limine_version": ver}))`
+    and line 361 `and (want_era is None or r["visibility_era"] == want_era))`). They are recorded so a
+    reader does not mistake them for a third emission pair.
+
+## B. Battery `tools/limine-pin-battery-r99.py` (sha256 c2e8c8fc…, len 117542 bytes)
+
+`meta_ok` definition: `def meta_ok(c, got):` at BYTE 99305, line 2179.
+
+| site | byte offset | line | located quote (≤25 words) |
+|---|---|---|---|
+| `meta_ok` echo assertion | 99430 | 2181 | `    if c.check_echo and not (got[8] == c.version and got[9] == "flag"):` |
+| `meta_ok` era assertion | 99523 | 2183 | `    if c.check_era and got[10] != ("12.9.5+" if c.era_b() else "pre-12.9.5"):` |
+
+(`grep -abo` for the bare tokens gives 99435 / 99528 — the token inside the line; the row anchors
+the line-start offsets 99430 / 99523, which is what a `bytes.find` of the quoted line returns.)
+
+### `c.check_echo = True` / `c.check_era = True` sites, one per family
+
+| family (roster name) | family function | echo site byte/line | era site byte/line |
+|---|---|---|---|
+| `REFUSAL-VERSIONS-9DIGIT` (X cap, r99) | `fam_refusal_versions_9digit` (def line 1764) | 79015 / 1775 | 79039 / 1776 |
+| `EXPLICIT-VERSION-ECHO` | `fam_explicit_version_echo` (def line 1786) | 79893 / 1792 | — (era not set here) |
+| `EXPLICIT-VERSION-ERA` | `fam_explicit_version_era` (def line 1796) | — (echo not set here) | 80414 / 1801 |
+| `REFUSAL-VERSIONS-9DIGIT-Y` (Y cap, r99) | `fam_refusal_versions_9digit_y` (def line 1805) | 81666 / 1817 | 81690 / 1818 |
+| `REFUSAL-VERSIONS-9DIGIT-Z` | `fam_refusal_versions_9digit_z` (def line 1831) | 83173 / 1840 | 83197 / 1841 |
+| `LEADING-ZERO-NORMALIZE` | `fam_leading_zero_normalize` (def line 1845) | 84390 / 1857 | 84414 / 1858 |
+
+Every one of the ten sites' located line text is exactly `    c.check_echo = True` or
+`    c.check_era = True` (the byte offsets 79015/79893/81666/83173/84390 and
+79039/80414/81690/83197/84414 are the `c` of `c.check_…`; `grep -abo 'check_echo'` /
+`'check_era'` return the same lines at token offsets +1..+2).
+
+The two r99-changed families (the X and Y cap families the claim names) are:
+  - `fam_refusal_versions_9digit` — BYTE 79015 (echo, line 1775) and BYTE 79039 (era, line 1776);
+    the family is `REFUSAL-VERSIONS-9DIGIT` in `FAMILY_ROSTER`/`FAMILIES` (line 2030) and its
+    accepted member is `REFUSAL_DIGIT9 = "9"*9 + ".9.9"` (line 1744) = `999999999.9.9`.
+  - `fam_refusal_versions_9digit_y` — BYTE 81666 (echo, line 1817) and BYTE 81690 (era, line 1818);
+    roster name `REFUSAL-VERSIONS-9DIGIT-Y` (line 2034), members `Y_DIGIT9 = ("12.999999999.4",
+    "0.999999999.0")` (line 1750).
+
+### The two new selftest lie kinds
+
+`LIE_KINDS = (` at BYTE 108277, line 2369; the tuple's 13th and 14th members are at
+  - `"limine-version"` at BYTE 108455, line 2370
+  - `"visibility-era"` at BYTE 108473, line 2370
+(both inside `LIE_KINDS = ("exit-code", …, "missing-panic", "limine-version", "visibility-era")`,
+the last tuple line, which is line 2370.)
+
+The lie-application sites are separate and earlier: `"limine-version":` at BYTE 107815, line 2356
+and `"visibility-era":` at BYTE 107920, line 2359.
+
+## C. Gate docstring phrase (the S394 anchor's third leg, re-measured)
+
+`resolved \`limine_version\` and \`limine_version_source: "probe"\`` at BYTE 4425, line 47
+(`python3 -c "b=open('tools/check-limine-pins.py','rb').read(); print(b.find(b'resolved `limine_version` and `limine_version_source: \"probe\"`'))"`).

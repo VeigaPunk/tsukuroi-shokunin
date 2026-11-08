@@ -1,0 +1,11 @@
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-99/before/controls/bends/N09-y-era.py	2026-11-08 11:01:04.599474122 -0300
+@@ -315,7 +315,7 @@
+     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+             "limine_version": limine_version,
+             "limine_version_source": limine_version_source,
+-            "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
++            "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version.split(".")[1] == "999999999" else ("12.9.5+" if era_b else "pre-12.9.5")),  # N09 (era label lies for Y-cap spellings only, r99)
+             "hash_mismatch_panic": None if panic_setting is None else
+             {"line": panic_setting[0], "value": sanitize(panic_setting[1])},
+             "measured_boot": None if measured_setting is None else

@@ -4300,3 +4300,51 @@ and 0 error rows, N08 `104/105`, r97 control `met 105/105` on gate and both bend
 `14/14` (r98) and `12/12` (r97), M08 mutant `12/14` FAIL, D1/D2/D2lie readings as frozen. Corpus:
 S393 (own-work, the gate's JSON report contract) and
 `knowledge/limine-metadata-assertions-r98.md` (PC1-PC3 + limits); census 392 -> 393, exit 0.
+
+## Round 99 — freeze (`pending`)
+
+Two claims frozen before any candidate score, against pre-round tip `f107da3a`; instruments pinned
+in `.ufo/waves/round-99/before/instruments.sha256` (16 entries). C1 (depth 8, tied lowest):
+`tools/limine-pin-battery-r99.py` keeps the r98 roster at 105 and sets `check_echo`/`check_era` on
+`REFUSAL-VERSIONS-9DIGIT` (X cap) and `REFUSAL-VERSIONS-9DIGIT-Y` (Y cap), closing the r98
+Frontier's two named field-fidelity limits (the metadata assertion bound to the r97 families only;
+the X leg riding on one EXPLICIT case), and adds the selftest lie kinds `limine-version` and
+`visibility-era` (the r98 scoreboard's lie-kind structural gap). C2 (freshness 9):
+`tools/check-registry-content-r99.py` guards the `RC-BEND-SPAN` capture (`(?![0-9,-])`) and marks
+the binding unique (hybrid cell -> `RC-CELL-MISSING`, restated cell -> `RC-CELL-AMBIGUOUS`), and
+adds `span-hybrid`, `span-restated` and a git-fixture `ancestor` case (14 -> 17) that kills the r98
+MutRegistry M07 survivor. Do-nothing controls: the r98 battery (`8198bd84…`, byte-identical to
+`f107da3a`), the unchanged gate (`7d79ac29…`) and the r98 checker (`5bb1441e…`). Bends N09/N11
+emitted by `tools/make-r99-bends.py` (each one clause, exact-once guard); the drafted `N10-z-echo`
+was dropped as a twin (the r98 control already reads `unmet 104/105` on it). The r98 routed defect
+R99-D1 is repaired in this round: the settled-tip coverage receipt for `f107da3a`
+(`PASS 160/160 findings 0`) is committed under `.ufo/waves/round-99/before/`. Corpus: S395
+(own-work, the battery's assertion sites with byte anchors) and
+`knowledge/limine-metadata-cap-families-r99.md`; census 394 -> 395, exit 0.
+
+## Round 99 — wave (`w1`, 14 seats, 0 dead)
+
+One v1 wave: 5 executors (ExecGateRuns, ExecBends, ExecDoNothing, ExecRegistry, ExecDrift), 2 scouts
+(ScoutSources, ScoutFrontier), 2 scribes (ScribeKnowledge, ScribeLesson), 2 reviewers (ReviewBattery,
+ReviewRegistry), 1 critic (CriticClaims), 1 mutation-tester (MutRegistry), 1 connector
+(ConnectorOverlap) — attack roles 4/14 = 28.6 % (floor 25 %), 1 connector (limit 2). Validator 14
+spawn / 0 resume / 14 total, `w1-validate.err` 0 bytes; all 14 settled, 0 dead. Wave findings: C1's
+target holds in both layouts and the two era flags are causal (M2 kills N11's X family, M4 makes N09
+read `met`); the two echo flags and the lie-kind layer have no committed witness (M1/M3/M5-M8
+survive); C2's frozen shapes and the ancestor branch are certified and mutation-killed, while five
+forged cell classes still read PASS. Wording narrowed in `before/plan-amendments-r99.md` A1-A9. Seat
+harm: CriticClaims deleted the shared scratch parent (six sibling dirs + lane `dev`); no committed
+receipt lost; the L1's `--selftest --reference` run died and is not claimed.
+
+## Round 99 — measured (`pending-settle`)
+
+C1: landed gate `105/105 met` x3 canonical + x3 clone (cases 420, 0 error rows); N09 `104/105` x3
+both layouts exactly `[REFUSAL-VERSIONS-9DIGIT-Y]`; N11 `103/105` x3 both layouts exactly
+`[EXPLICIT-VERSION-ERA, REFUSAL-VERSIONS-9DIGIT]`; r98 control `met 105/105` on the gate and N09,
+`104/105 [EXPLICIT-VERSION-ERA]` on N11; lie kinds `93/105` and `95/105`; `--selftest PASS 5/5`.
+C2: landed `PASS 7/7 findings 0` on both checkers at `f107da3a`; `PASS 17/17` (r98 `14/14`); hybrid
+and restated closed with exactly one finding each; M07 `FAIL 16/17` (ancestor only) vs r98 `14/14`;
+coverage `PASS 160/160`. Corpus: S395 mined, `knowledge/limine-metadata-cap-families-r99.md`,
+`lessons/round-99.md` (6 mistakes incl. the seat-harm row), census 394 → 395 exit 0. Registry: three
+r99 rows. The r98 routed defect R99-D1 is repaired with committed tip/settle receipts (160/160 at
+`f107da3a` and `270ca298`; the r97-settle 157/157 re-derived).

@@ -1,0 +1,194 @@
+--- tools/check-registry-content-r98.py	2026-11-08 09:55:37.393069660 -0300
++++ tools/check-registry-content-r99.py	2026-11-08 10:58:11.520434167 -0300
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Round-98 registry CONTENT binding (tsukuroi lane; successor of the r97 checker): re-derives a frozen set of SKILL.md registry
++"""Round-99 registry CONTENT binding (tsukuroi lane; successor of the r98 checker): re-derives a frozen set of SKILL.md registry
+ cells from the bytes of the tool the row names, and fails on any mismatch.
+ 
+ Why it exists (round 97, freshness 9): `tools/check-registry-coverage.py` certifies that every
+@@ -48,6 +48,26 @@
+ and the same tools against a row stating `N01-N03` reads exactly one RC-VALUE-MISMATCH. Selftest
+ tally 12 -> 14. This file is a successor, not an in-place edit: `tools/check-registry-content.py`
+ keeps its r97 bytes and stays the round's do-nothing control.
++
++Round-99 (C2, freshness 9): two r98 survivors are closed, both named in
++`corpus/lessons/round-98.md`'s counter-attack scoreboard.
++
++  * A1 (hybrid capture). The r98 capture `N<digits>(?:-N<digits>|(?:,N<digits>)+)` bound the FIRST
++    arm of a cell stating both forms — `VARIANTS N01-N04,N05` read the derived span `N01-N04` and
++    PASSED while the extra label was silently dropped — and a second, contradictory mention in the
++    same cell was never looked at. r99's capture is `N<digits>(?:-N<digits>|(?:,N<digits>)+)`
++    followed by a boundary guard that refuses a following `,` or `-`, and a cell that mentions
++    `VARIANTS` more than once raises RC-CELL-AMBIGUOUS instead of binding the first mention. Both
++    shapes are fail-closed: a hybrid cell and a restated cell read a finding, never a PASS.
++  * M07 (ancestor branch). `--revision`'s `merge-base --is-ancestor` refusal was outside every
++    selftest case, so a mutant that skipped it survived all three legs (r98 MutRegistry M07). The
++    `ancestor` case builds a two-branch git fixture and runs this file's real CLI on a revision that
++    is NOT an ancestor of the selected branch: the pristine tool reads rc 2 / CANNOT_EVALUATE, the
++    ancestor-skipping mutant reads rc 0 / PASS.
++
++Selftest tally 14 -> 17 (`span-hybrid`, `span-restated`, `ancestor`). This file is a successor, not
++an in-place edit: `tools/check-registry-content-r98.py` keeps its bytes and is this round's
++do-nothing control.
+ """
+ import argparse
+ import ast
+@@ -258,8 +278,8 @@
+      "capture": r"\((\d+) cases", "derive": "selftest_total",
+      "tool": "tools/check-r96-calibration.py"},
+     {"id": "RC-BEND-SPAN", "row": "make-r96-bends", "cell": 5,
+-     "capture": r"VARIANTS (N[0-9]+(?:-N[0-9]+|(?:,N[0-9]+)+))", "derive": "variant_span",
+-     "tool": "tools/make-r96-bends.py"},
++     "capture": r"VARIANTS (N[0-9]+(?:-N[0-9]+|(?:,N[0-9]+)+))(?![0-9,-])", "derive": "variant_span",
++     "unique": True, "tool": "tools/make-r96-bends.py"},
+ )
+ 
+ DERIVERS = {
+@@ -316,6 +336,13 @@
+             continue
+         row = matches[0]
+         cell = row["cells"][binding["cell"]]
++        if binding.get("unique") and len(re.findall(binding["capture"], cell)) > 1:
++            findings.append({"id": "RC-CELL-AMBIGUOUS", "site": "SKILL.md:%d" % row["line"],
++                             "detail": "%s cell %d mentions %r %d times; the first mention is not "
++                                       "the cell's value"
++                                       % (binding["row"], binding["cell"], "VARIANTS",
++                                          len(re.findall(binding["capture"], cell)))})
++            continue
+         captured = re.search(binding["capture"], cell)
+         if not captured:
+             findings.append({"id": "RC-CELL-MISSING", "site": "SKILL.md:%d" % row["line"],
+@@ -386,6 +413,19 @@
+ 
+ FIXTURE_SKILL_GAP = FIXTURE_SKILL.replace("VARIANTS N01-N03", "VARIANTS N01,N03")
+ 
++FIXTURE_BENDS_4 = '''VARIANTS = {
++    "N01-one": ("a", "b"),
++    "N02-two": ("a", "b"),
++    "N03-three": ("a", "b"),
++    "N04-four": ("a", "b"),
++}
++'''
++
++FIXTURE_SKILL_HYBRID = FIXTURE_SKILL.replace("VARIANTS N01-N03", "VARIANTS N01-N04,N05")
++
++FIXTURE_SKILL_RESTATED = FIXTURE_SKILL.replace(
++    "VARIANTS N01-N03", "VARIANTS N01,N03 then VARIANTS N01-N03")
++
+ def build_fixture(base, doctor=None):
+     """Write the four fixture tools + SKILL.md under `base`; `doctor` is (relpath, old, new).
+     A `gap` doctor ("GAP", None, None) writes the non-contiguous VARIANTS fixture whose
+@@ -400,6 +440,16 @@
+             f.write(body)
+         os.chmod(os.path.join(tools, name), 0o755)
+     skill = FIXTURE_SKILL
++    if doctor == ("HYBRID", None, None):
++        with open(os.path.join(tools, "make-r96-bends.py"), "w") as f:
++            f.write(FIXTURE_BENDS_4)
++        os.chmod(os.path.join(tools, "make-r96-bends.py"), 0o755)
++        skill = FIXTURE_SKILL_HYBRID
++    if doctor == ("RESTATED", None, None):
++        with open(os.path.join(tools, "make-r96-bends.py"), "w") as f:
++            f.write(FIXTURE_BENDS_GAP)
++        os.chmod(os.path.join(tools, "make-r96-bends.py"), 0o755)
++        skill = FIXTURE_SKILL_RESTATED
+     if doctor in (("GAP", None, None), ("GAP-LIE", None, None)):
+         with open(os.path.join(tools, "make-r96-bends.py"), "w") as f:
+             f.write(FIXTURE_BENDS_GAP)
+@@ -407,7 +457,9 @@
+         if doctor == ("GAP", None, None):
+             skill = FIXTURE_SKILL_GAP
+         # GAP-LIE keeps skill = FIXTURE_SKILL (contiguous "N01-N03" declared against gap keys)
+-    if doctor is not None and doctor not in (("GAP", None, None), ("GAP-LIE", None, None)):
++    if doctor is not None and doctor not in (("GAP", None, None), ("GAP-LIE", None, None),
++                                              ("HYBRID", None, None), ("RESTATED", None, None),
++                                              ("ANCESTOR", None, None)):
+         rel, old, new = doctor
+         if rel == "SKILL.md":
+             if skill.count(old) != 1:
+@@ -443,6 +495,8 @@
+     ("span-cell", ("SKILL.md", "VARIANTS N01-N03", "VARIANTS N01-N05"), ["RC-VALUE-MISMATCH"]),
+     ("span-gap", ("GAP", None, None), []),
+     ("span-gap-lie", ("GAP-LIE", None, None), ["RC-VALUE-MISMATCH"]),
++    ("span-hybrid", ("HYBRID", None, None), ["RC-CELL-MISSING"]),
++    ("span-restated", ("RESTATED", None, None), ["RC-CELL-AMBIGUOUS"]),
+     ("row-missing", ("REMOVE-ROW", "check-r96-calibration", None), ["RC-ROW-MISSING"]),
+     ("tool-missing", ("REMOVE-TOOL", "check-limine-pins.py", None),
+      ["RC-DERIVE-FAILED", "RC-DERIVE-FAILED", "RC-DERIVE-FAILED"]),
+@@ -452,8 +506,50 @@
+ )
+ 
+ 
++def ancestor_case(base):
++    """r99 (closes r98 MutRegistry M07): the `--revision` ancestor refusal, exercised through this
++    file's real CLI. A two-branch fixture git repo is built in `base`; `side` carries one extra file
++    on top of `master`, so `--revision <side> --branch master` is a revision that is NOT an
++    ancestor. The pristine tool refuses it (rc 2, CANNOT-EVALUATE, no verdict); a mutant that skips
++    `Tree.check_revision` proceeds, reads the same SKILL.md bytes and prints PASS rc 0."""
++    case = os.path.join(base, "ancestor")
++    build_fixture(case, None)
++    env = {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GIT_OPTIONAL_LOCKS": "0",
++           "GIT_PAGER": "cat", "HOME": case,
++           "GIT_AUTHOR_NAME": "tsukuroi-fixture", "GIT_AUTHOR_EMAIL": "fixture@shokunin.local",
++           "GIT_COMMITTER_NAME": "tsukuroi-fixture", "GIT_COMMITTER_EMAIL": "fixture@shokunin.local"}
++    def git(*a):
++        return subprocess.run(["git", "-C", case] + list(a), capture_output=True, text=True,
++                              timeout=120, env=env)
++    if git("init", "-q", "-b", "master").returncode != 0:
++        return ("ancestor", False, "git init failed")
++    if git("add", "-A").returncode != 0 or git("commit", "-q", "-m", "base").returncode != 0:
++        return ("ancestor", False, "fixture commit failed")
++    top = git("rev-parse", "--show-toplevel").stdout.strip()
++    if os.path.realpath(top) != os.path.realpath(case):
++        return ("ancestor", False, "fixture toplevel %r is not %r" % (top, case))
++    master = git("rev-parse", "master").stdout.strip()
++    if git("checkout", "-q", "-b", "side").returncode != 0:
++        return ("ancestor", False, "branch failed")
++    with open(os.path.join(case, "side-only.txt"), "w") as f:
++        f.write("side\n")
++    if git("add", "-A").returncode != 0 or git("commit", "-q", "-m", "side").returncode != 0:
++        return ("ancestor", False, "side commit failed")
++    side = git("rev-parse", "side").stdout.strip()
++    if side == master:
++        return ("ancestor", False, "side equals master")
++    tool = os.path.join(case, "tools", "check-registry-content-r99.py")
++    with open(os.path.abspath(__file__), "rb") as src, open(tool, "wb") as dst:
++        dst.write(src.read())
++    p = subprocess.run([sys.executable, "-I", tool, "--revision", side, "--branch", "master"],
++                       cwd=case, capture_output=True, text=True, timeout=180,
++                       env={"PATH": "/usr/bin:/bin", "LC_ALL": "C", "HOME": case})
++    ok = p.returncode == CANNOT and "CANNOT-EVALUATE" in (p.stdout + p.stderr)
++    return ("ancestor", ok, "rc=%d %s" % (p.returncode, (p.stdout + p.stderr).strip()[:160]))
++
++
+ def selftest():
+-    base = tempfile.mkdtemp(prefix="r97-registry-content-selftest-")
++    base = tempfile.mkdtemp(prefix="r99-registry-content-selftest-")
+     results = []
+     try:
+         for name, doctor, want_ids in SELFTEST_CASES:
+@@ -466,6 +562,7 @@
+             got = sorted(f["id"] for f in findings)
+             ok = (got == sorted(want_ids)) and (rows is not None if not want_ids else True)
+             results.append((name, ok, got if not ok else len(want_ids)))
++        results.append(ancestor_case(base))
+         broke = None
+     finally:
+         shutil.rmtree(base, ignore_errors=True)
+@@ -499,13 +596,13 @@
+             return CANNOT
+         rows, findings = check(tree, work)
+         if rows is None:
+-            payload = {"schema": "tsukuroi-registry-content-r97-v1", "status": "CANNOT_EVALUATE",
++            payload = {"schema": "tsukuroi-registry-content-r99-v1", "status": "CANNOT_EVALUATE",
+                        "revision": a.revision, "findings": findings}
+             print(json.dumps(payload, sort_keys=True))
+             print("CANNOT-EVALUATE: %s" % findings[0]["detail"], file=sys.stderr)
+             return CANNOT
+         status = "PASS" if not findings else "FAIL"
+-        payload = {"schema": "tsukuroi-registry-content-r97-v1", "status": status,
++        payload = {"schema": "tsukuroi-registry-content-r99-v1", "status": status,
+                    "revision": a.revision, "bindings": len(BINDINGS), "rows": len(rows),
+                    "findings": findings}
+         if a.json:

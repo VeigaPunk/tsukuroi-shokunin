@@ -1,0 +1,73 @@
+# 04 — S392 re-open (external) + CONFIG.md rejection candidate
+
+Scratch root: /fast/scratch/hyaku/tsukuroi-r99/ScoutSources (deleted before yield).
+Both fetches are read-only `curl -sS` GETs; no network write, no credential material.
+
+## 4a. S392 re-open — CPython `int()` built-ins page
+
+Commands:
+
+  $ cd /fast/scratch/hyaku/tsukuroi-r99/ScoutSources
+  $ curl -sS -w '%{http_code}\n' -o s392-int.html 'https://docs.python.org/3/library/functions.html#int'
+  $ curl -sSL -w 'http_code=%{http_code} size=%{size_download} url=%{url_effective}\n' \
+        -o s392-int.html 'https://docs.python.org/3/library/functions.html#int'
+  $ wc -c s392-int.html
+  $ sha256sum s392-int.html
+
+Raw output:
+
+  301                      <- first (no -L) attempt: the URL 301-redirects
+  http_code=200 size=331022 url=https://docs.python.org/3/builtins/functions.html
+  331022 s392-int.html
+  d92580dd0e7a02aab9b51fe30885ae59fd924c639324c7e07a90799e8bc721d7  s392-int.html
+
+VERDICT: **identical — no drift.** After following the 301 to the canonical
+`https://docs.python.org/3/builtins/functions.html`, the fetched bytes are
+331022 bytes with sha256 `d92580dd0e7a02aab9b51fe30885ae59fd924c639324c7e07a90799e8bc721d7`,
+i.e. exactly the r98 pin (331022 bytes, sha256 `d92580dd…`).
+
+Three pinned byte offsets re-measured on the fetched bytes with
+`python3` `open(p,'rb').read()` + `bytes.find`:
+
+  len 331022
+  have leading zeros, be surrounded by whitespace -> byte 157767 line 1330
+  id="int" -> byte 153202 line 1302
+  disallows leading zeros -> byte 159315 line 1340
+
+All three are byte-identical to the offsets the S392 row records
+(157767 / 153202 / 159315).
+
+Note on the URL: `https://docs.python.org/3/library/functions.html#int` now 301-redirects to
+`https://docs.python.org/3/builtins/functions.html`; the *content bytes* are unchanged
+(same length, same sha256 as the pin), so the row's anchor stays valid. The redirect is a
+URL-shape change only and the row's `source` cell keeps its original URL.
+
+## 4b. Rejection candidate — Limine v12.9.6 CONFIG.md
+
+Commands:
+
+  $ curl -sS -w '%{http_code}\n' -o limine-config.md \
+        'https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/CONFIG.md'
+  $ wc -c limine-config.md
+  $ sha256sum limine-config.md
+  $ grep -c 'limine_version' limine-config.md
+  $ grep -c 'visibility_era' limine-config.md
+  $ grep -c 'echo'       limine-config.md
+  $ grep -c 'version'    limine-config.md
+
+Raw output:
+
+  200
+  27609 limine-config.md
+  f44f3a19133cb3dc14d6d8b402ed585feb98a36bc4b263c37aa92f621f603763  limine-config.md
+  0        <- limine_version
+  0        <- visibility_era
+  0        <- echo
+  0        <- version
+
+VERDICT: **reject.** The page is reachable (HTTP 200, 27609 bytes, sha256 `f44f3a19…`, byte-identical
+to the r98 rejection measurement) but it mentions none of the gate's JSON fields: `limine_version`,
+`visibility_era`, `echo` and even the bare token `version` all occur 0 times. It documents Limine's
+*config keys* (`timeout:`, `protocol:`, …), not the JSON report contract the round's claims rest on,
+so it grounds none of this round's propositions and is kept only as evidence of taste (contract v1
+rule: rejected rows are kept).

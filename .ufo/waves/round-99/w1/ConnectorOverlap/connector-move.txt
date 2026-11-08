@@ -1,0 +1,71 @@
+# Connector move (bounded, one): the missing ECHO witness for the Y-cap family
+# evidence only; nothing here is a claim of this round and nothing was edited.
+
+== M.1 the round's own named limit (quoted, byte offset) ==
+  BYTE 8487  sha256(plan)=62319128d00b0a1bbb2da59770a3d4cba385d450d3e25834882d8082ca12571f
+    - The X/Y **echo** leg has no spelling-targeted committed bend: N09/N11 falsify `visibility_era`
+      only. The echo legs are exercised by the blanket `lie-limine-version` wrapper (which fails X, Y,
+      Z and LZ) and by the r98-carried fixed-echo attack, not by a one-clause bend of their own.
+
+== M.2 measured: which family asserts which field, r98 vs r99 (awk over frozen bytes) ==
+  --- r98 (tools/limine-pin-battery-r98.py)
+    1778 def fam_explicit_version_echo(c):     c.check_echo = True
+    1787 def fam_explicit_version_era(c):     c.check_era = True
+    1822 def fam_refusal_versions_9digit_z(c):     c.check_echo = True
+    1823 def fam_refusal_versions_9digit_z(c):     c.check_era = True
+    1839 def fam_leading_zero_normalize(c):     c.check_echo = True
+    1840 def fam_leading_zero_normalize(c):     c.check_era = True
+  --- r99 (tools/limine-pin-battery-r99.py)
+    1775 def fam_refusal_versions_9digit(c):     c.check_echo = True
+    1776 def fam_refusal_versions_9digit(c):     c.check_era = True
+    1792 def fam_explicit_version_echo(c):     c.check_echo = True
+    1801 def fam_explicit_version_era(c):     c.check_era = True
+    1817 def fam_refusal_versions_9digit_y(c):     c.check_echo = True
+    1818 def fam_refusal_versions_9digit_y(c):     c.check_era = True
+    1840 def fam_refusal_versions_9digit_z(c):     c.check_echo = True
+    1841 def fam_refusal_versions_9digit_z(c):     c.check_era = True
+    1857 def fam_leading_zero_normalize(c):     c.check_echo = True
+    1858 def fam_leading_zero_normalize(c):     c.check_era = True
+
+== M.3 measured: the Y spellings are sent by exactly one family ==
+    1750:Y_DIGIT9 = ("12.999999999.4", "0.999999999.0")
+    1819:    _era_first_line_panic(c, Y_DIGIT9[c.index % len(Y_DIGIT9)])
+  -> Y_DIGIT9 is defined once, consumed once (fam_refusal_versions_9digit_y) and named only in docstrings.
+
+== M.4 the one-clause shape the committed bends already use (diff vs pristine gate) ==
+    --- .ufo/waves/round-99/before/controls/do-nothing-gate.py	2026-11-08 11:02:43.921601530 -0300
+    +++ .ufo/waves/round-99/before/controls/bends/N09-y-era.py	2026-11-08 11:01:04.599474122 -0300
+    @@ -315,7 +315,7 @@
+         return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+                 "limine_version": limine_version,
+                 "limine_version_source": limine_version_source,
+    -            "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+    +            "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version.split(".")[1] == "999999999" else ("12.9.5+" if era_b else "pre-12.9.5")),  # N09 (era label lies for Y-cap spe
+                 "hash_mismatch_panic": None if panic_setting is None else
+                 {"line": panic_setting[0], "value": sanitize(panic_setting[1])},
+                 "measured_boot": None if measured_setting is None else
+
+== M.5 the proposed one clause (NOT applied; sketch for a later round) ==
+    -            "limine_version": limine_version,
+    +            "limine_version": ("0.0.0" if limine_version.split(".")[1] == "999999999" else limine_version),  # N12 (echo lies for Y-cap spellings only)
+  Same dict literal, same one-line shape as N09; the era label and the pins stay correct, so only meta_ok's echo conjunct can fire.
+
+== M.6 falsifiable prediction (to be measured by an executor seat, not by this seat) ==
+  r99 battery on N12-y-echo: unmet 104/105, failed_families exactly [REFUSAL-VERSIONS-9DIGIT-Y], 0 error rows, x3 both layouts.
+  r98 do-nothing battery on N12-y-echo: met 105/105 (no check_echo on that family) -> the assertion witnessed is r99's.
+  Kill (for a later round that lands it): unmet if either reading differs, or if any non-null error row appears.
+
+== M.7 why it is not a twin under QUALITY 136 ==
+  The r99 plan dropped a Z-only echo bend because the r98 control already caught it (r98 sets check_echo on Z).
+  This clause has the opposite property: r98 is blind to it (M.2), and it exercises the OTHER field of the
+  same family N09 exercises. The r98 mistake R98-FIELD-NOT-ASSERTED is per-field, so a per-field witness is
+  required; a per-family witness (N09) does not cover check_echo.
+
+== M.8 risks ==
+  R1 a critic calls it a twin of N09 (same condition, same family). Answer above (M.7); if the operator agrees with
+     the critic, fall back to the X-cap variant of the same clause: then failed_families is [EXPLICIT-VERSION-ECHO,
+     REFUSAL-VERSIONS-9DIGIT] and the r98 control reads 104/105, i.e. a delta rather than blindness.
+  R2 host load: one bend x 2 layouts x 3 runs is ~6 battery runs; ExecBends already runs 12, so this must not be
+     dispatched concurrently with an existing bend seat.
+  R3 the clause keys on the text spelling, so a future gate that normalizes the echo would fail it for a different
+     reason; the round that lands it must state that the echo is asserted on the spelling, not the number.

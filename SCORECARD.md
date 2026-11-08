@@ -8051,3 +8051,55 @@ is additive (two rows net, one supersession, one entry).
 
 Capability note: no new capability row enters (no new external repertoire); the round sharpens two
 existing instruments, which is a depth/freshness assurance move, not a capability acquisition.
+
+## Round 99 — declaration (frozen before the candidate is scored; controls committed with it)
+
+Inputs read first: the round-98 closure (MANIFEST `rounds[]`, r98, admitted) and its non-author
+spot-check `corpus/lessons/round-98-verifier-spotcheck.md` (routed R99-D1 + the carried wave
+limits); the r98 lesson's five mistakes and its counter-attack scoreboard (survivors: G6 Y-cap-only
+era lie, B03 Z echo with no committed witness, the lie-kind structural gap, M07 ancestor, hybrid
+cell, same-cell restatement); QUALITY 136-141; README § "Round 98" and its Frontier. Full
+declaration, limits and amendment slot: `.ufo/plans/round-99.md` (pinned in
+`before/instruments.sha256`); claims `.ufo/waves/round-99/claims.json`.
+
+Instruments: `tools/limine-pin-battery-r99.py` (roster unchanged 105: the r98 battery with
+`check_echo`/`check_era` on `REFUSAL-VERSIONS-9DIGIT` and `REFUSAL-VERSIONS-9DIGIT-Y`, plus the lie
+kinds `limine-version`/`visibility-era`), `tools/make-r99-bends.py` (N09, N11),
+`tools/check-registry-content-r99.py` (guarded `RC-BEND-SPAN` capture, `unique` binding,
+`span-hybrid`/`span-restated`/`ancestor` cases). Do-nothing controls: the r98 battery
+(`8198bd84…`), the unchanged gate (`7d79ac29…`), the r98 checker (`5bb1441e…`).
+
+| Claim | Axis | Predicate (the same sentence in `claims.json`) | Target | Kill rule | Counting command |
+|---|---|---|---|---|---|
+| C1 (measured; surface: the accepted-cap families' reported fields and the battery's lie-kind coverage) | depth 8 (tied lowest) | `tools/limine-pin-battery-r99.py --gate G --runs 3` is the r98 battery (roster 105) with `check_echo`/`check_era` set on the X-cap `REFUSAL-VERSIONS-9DIGIT` and the Y-cap `REFUSAL-VERSIONS-9DIGIT-Y`, plus `limine-version`/`visibility-era` lie kinds; N09 (Y-only era lie) and N11 (X-cap era lie) are one-clause gate controls | landed 105/105 met x3 both layouts, 0 error rows; N09 104/105 unmet x3 both with exactly `[REFUSAL-VERSIONS-9DIGIT-Y]`, 0 error rows; N11 103/105 unmet x3 both with exactly `[EXPLICIT-VERSION-ERA, REFUSAL-VERSIONS-9DIGIT]`, 0 error rows; r98 control met 105/105 x3 on the gate and on N09, 104/105 on N11 failing exactly `[EXPLICIT-VERSION-ERA]`; both lie kinds make the battery read unmet | any landed run <105/105 or with an error row; any bend run not unmet, with a different failed set, or with error rows; any control leg differing from its frozen reading; a lie kind that does not read unmet; void on instrument drift | `python3 tools/limine-pin-battery-r99.py --gate <GATE> --runs 3 --json <out>` then `.ufo/waves/round-95/before/controls/count-runs.py <out> --family REFUSAL-VERSIONS-9DIGIT --family REFUSAL-VERSIONS-9DIGIT-Y --family REFUSAL-VERSIONS-9DIGIT-Z` |
+| C2 (measured; surface: the registry checker's span capture and its selftest branches) | freshness 9 (assurance arm) | `tools/check-registry-content-r99.py` guards the `RC-BEND-SPAN` capture and marks the binding unique (hybrid -> `RC-CELL-MISSING`, restated -> `RC-CELL-AMBIGUOUS`), and covers the `--revision` ancestor branch with a git fixture | landed PASS 7/7 findings 0; `--selftest PASS 17/17`; M07 mutant FAIL 16/17 with only `ancestor` red; r98 checker PASS on hybrid/restated where r99 FAILs with one frozen finding id each; coverage PASS 160/160 at `f107da3a` | landed not PASS; selftest not 17/17; M07 passing or failing another case; r98 not PASS on both capture fixtures; r99 not FAIL with the frozen id; coverage not PASS at the pinned tip; void on instrument drift | `python3 tools/check-registry-content-r99.py --revision <R> --json <out>`; `python3 tools/check-registry-content-r99.py --selftest`; fixtures by `.ufo/waves/round-99/before/dev/make-fixtures.py <dir>` |
+
+Depth stays 8 and freshness stays 9 (sharper instruments; no ordinal uplift). The r99 C2 checker is a
+successor, not an in-place edit: the r98 checker keeps its bytes and stays the do-nothing control.
+C1 and C2 are causally separable: C1 reads battery JSON, C2 reads the registry table and its fixture
+tools.
+
+## Round 99 — measured outcome (instruments `7d79ac29…`/`c2e8c8fc…`/`b489f5b8…`/`8198bd84…`/`5bb1441e…` at the freeze; wave `w1` 14 seats, 0 dead; receipts `.ufo/waves/round-99/before/dev/` and `w1/`)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: the accepted-cap families' reported fields, and the battery's lie-kind layer) | depth 8 → 8 (tied lowest; a sharper instrument, no ordinal uplift) | landed gate `met 105/105` x3 canonical and x3 clone, `cases 420`, `failed_families []`, 0 error rows (`w1/ExecGateRuns/c1-gate-canonical.json`, `c1-gate-clone.json`; L1 `before/dev/c1-gate-runs1.json`); **N09-y-era** `unmet 104/105` x3 both layouts, exactly `[REFUSAL-VERSIONS-9DIGIT-Y]`, 0 error rows; **N11-x-era** `unmet 103/105` x3 both layouts, exactly `[EXPLICIT-VERSION-ERA, REFUSAL-VERSIONS-9DIGIT]`, 0 error rows (`w1/ExecBends/c1-bend-{N09,N11}-*`); r98 control `met 105/105` x3 on the gate and on N09 (blind), `unmet 104/105` x3 on N11 with exactly `[EXPLICIT-VERSION-ERA]` (`w1/ExecDoNothing/dn-*`); lie kinds `unmet 93/105` (echo) and `95/105` (era), X and Y in the failed set; `--selftest` (no reference) `PASS 5/5`; roster 105, `cases` 420, schema `tsukuroi-limine-pin-battery-r99-v1` | met | **met on its frozen target**, with three narrowed wording clauses (A4 "two behaviour-bearing changes"; A7 the lie kinds are roster-scoped and blind to a per-family removal; A8 the field closure is roster-finite and the X leg is a near-twin). Named mutation debt: battery M5-M8 survive (an arm or a kind removal is invisible to the `unmet` predicate; the reference case list is derived from `LIE_KINDS`), M1/M3 (X/Y echo flags) are killed only by constructed, uncommitted echo bends E1/E2; M2 and M4 are killed by N11 and N09 (the era flags are causal). |
+| C2 (measured; surface: the registry checker's span capture and its selftest branches) | freshness 9 → 9 (assurance arm; no ordinal claim) | landed `PASS 7/7 findings 0` at `f107da3a` (both checkers); `--selftest PASS 17/17` (r98 control `PASS 14/14`); **hybrid** fixture: r98 `PASS 7/7`, r99 `FAIL` exactly one `RC-CELL-MISSING`; **restated**: r98 `PASS 7/7`, r99 `FAIL` exactly one `RC-CELL-AMBIGUOUS`; `clean`/`gap` `PASS 7/7` on both; M07 mutant `FAIL 16/17` with only `ancestor` red and reading rc 0 `PASS`, the same mutant on r98 `PASS 14/14`; a real two-branch probe: pristine rc 2 `CANNOT-EVALUATE`, M07 rc 0; coverage `PASS 160/160 findings 0` at `f107da3a` (and at the r98 settle `270ca298`; the r97-settle `157/157` figure re-derived at `5eb475cd`/`b492f17f`) | met | **met on its frozen target**, with two narrowed wording clauses (A1 the capture's universals; A2 the selftest pins three shapes plus the ancestor branch, not the capture's whole alphabet). Named limits: five forged cell classes still read PASS (space/`;`/`+`/`/`/`and` extra labels, hybrid + clean mention, un-capturable second mention, prose span, letter suffix); checker C5 (a tautological case) survives alone; C4 is killed only by the `17/17` denominator. |
+
+Wave: one v1 wave, 14 seats under `ufo-wave-policy.json` (band 8-16): 5 executors, 2 scouts, 2
+scribes, 2 reviewers, 1 critic, 1 mutation-tester, 1 connector; attack roles (reviewer/critic/
+mutation-tester/labrat) 4/14 = **28.6 %** (floor 25 %), connector seats 1 (limit 2). Validator
+`counts` 14 spawn / 0 resume / 14 total, `w1-validate.err` 0 bytes; all 14 settled, **0 dead**
+(`w1-results.json`). Residual call: none (14 ≥ the §3 floor of 8).
+
+Falsified-or-narrowed this round: A4 (both "exactly two changes" predicates), A1 (the C2 capture's
+fail-closed universals, falsified by executed fixtures xv1/xv2/xv3 and 28 forged shapes), A2 (the
+ancestor case's scope), A7 (the lie-kind closure is field-level only), A8 (roster-finite fields; the
+X leg a near-twin), A9 (a cited twin receipt repaired from a seat's committed bytes). Seat harm:
+`CriticClaims` deleted the shared scratch parent and wiped six sibling scratch dirs plus the lane
+`dev` dir (amendment A6; no committed receipt lost; the L1's `--selftest --reference` run died and is
+not claimed). Axes now: depth 8, coverage 9, operability 9, freshness 9, calibration 9, adjacency 8
+(unchanged). No retirement. No axis harmed: the gate bytes are unchanged (`7d79ac29…`), the r98
+battery and checker keep their bytes and read `met 105/105` / `PASS 7/7` as controls, coverage
+certified `160/160` at the pre-round tip and after this round's three rows, and the corpus is
+additive (one row S395, one entry, six lesson mistakes).

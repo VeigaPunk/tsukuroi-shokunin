@@ -1,0 +1,39 @@
+# 03 — negative-claim sweeps (CORPUS.md: a negative claim carries its sweep)
+
+## S1 — no committed bend of this round falsifies the ECHOED value (only the era label)
+$ for b in N09-y-era N11-x-era; do diff tools/check-limine-pins.py .ufo/waves/round-99/before/controls/bends/$b.py; done
+--- N09-y-era
+<             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+>             "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version.split(".")[1] == "999999999" else ("12.9.5+" if era_b else "
+--- N11-x-era
+<             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+>             "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version.split(".")[0] == "999999999" else ("12.9.5+" if era_b else "
+
+$ grep -c '"limine_version":' in each bend vs the gate (the echo emission line, unchanged)
+N09-y-era bend echo-line count=2 gate=2
+N11-x-era bend echo-line count=2 gate=2
+
+## S2 — the committed bends of this round (the whole set)
+$ ls .ufo/waves/round-99/before/controls/bends/
+N09-y-era.py
+N11-x-era.py
+
+## S3 — roster unchanged: r99 battery vs r98 battery
+$ diff tools/limine-pin-battery-r98.py tools/limine-pin-battery-r99.py | grep -E '^[<>]' | grep -n 'FAMILY_ROSTER\|FAMILIES ='  (empty = roster untouched)
+(no output above = roster literals untouched)
+$ python3 -c 'AST: len(FAMILY_ROSTER) r98 / r99'
+tools/limine-pin-battery-r98.py FAMILY_ROSTER len = 105
+tools/limine-pin-battery-r99.py FAMILY_ROSTER len = 105
+
+## S4 — how many of the 105 families assert each field (the limit's sweep)
+$ python3 - <<'EOF'  # per-family check_echo / check_era assignment sites
+check_echo set in 5 family functions: ['fam_refusal_versions_9digit', 'fam_explicit_version_echo', 'fam_refusal_versions_9digit_y', 'fam_refusal_versions_9digit_z', 'fam_leading_zero_normalize']
+check_era  set in 5 family functions: ['fam_refusal_versions_9digit', 'fam_explicit_version_era', 'fam_refusal_versions_9digit_y', 'fam_refusal_versions_9digit_z', 'fam_leading_zero_normalize']
+families setting NEITHER: 99 of 105
+
+## S5 — the r98 Y-era attack gate exists and is the survivor the r98 wave measured
+$ ls .ufo/waves/round-98/w1/ReviewBattery/g6-y-era.py
+-rw-r--r-- 1 vgpnk vgpnk 30494 Nov  8 10:19 .ufo/waves/round-98/w1/ReviewBattery/g6-y-era.py
+$ diff tools/check-limine-pins.py .ufo/waves/round-98/w1/ReviewBattery/g6-y-era.py | grep '^>' | cut -c1-150
+>                 "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version in ("12.999999999.4","0.999999999.0") else ("12.9.5+" if
+>             "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version in ("12.999999999.4","0.999999999.0") else ("12.9.5+" if era

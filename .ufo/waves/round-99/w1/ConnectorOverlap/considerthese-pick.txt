@@ -1,0 +1,52 @@
+# considerthese/2026-10-26.md — status of all five proposals, and the one pick
+# newest batch on disk: 2026-10-19.md 2026-10-20.md 2026-10-22.md 2026-10-23.md 2026-10-24.md 2026-10-25.md 2026-10-26.md
+
+== P.1 byte offsets of the proposal lines (BYTE level, bytes.find; QUALITY 141) ==
+  Burst-aware reading                      BYTE 3198
+  Counter-attack scoreboard                BYTE 3487
+  Seat-harm incident log                   BYTE 3768
+  Downstream patch-offset check            BYTE 4027
+  Cross-note correction propagation map    BYTE 4281
+  total bytes=4551  sha256=6f49c88d95d5f072678dfdf8cc6f3cff21207e14396924fa4bf7d6d2afdac50b
+
+== P.2 implementation check per proposal (grep over the lane tree) ==
+  Burst-aware reading                      rule -> rc=0 219:112. **Burst-aware reading starts with outcomes, not volume:** when recent rounds arrive in a burst, read each selec
+  Counter-attack scoreboard                rule -> rc=0 226:115. **A frozen counter carries a counter-attack scoreboard (R82-SCOREBOARD):** each round that freezes a counter re
+  Seat-harm incident log                   rule -> rc=0 215:110. **Seat-to-seat harm is tallied per round (R79-SEAT-HARM-LOG):** every round lesson carries a `## Seat harm` tab
+  Cross-note correction propagation map    rule -> rc=0 211:108. **A correction set names every companion that carries the corrected proposition, before it lands (R75-CORRECTIO
+  Downstream patch-offset check            rule -> rc=0 201:103. **A line pin taken from an upstream tag is not a host-build line number, and an entry that cites upstream lines
+
+== P.3 the pick: 'Downstream patch-offset check' — what IS implemented ==
+  frontier row still open: rc=0  844:- Patch-offset host-build check (considerthese/2026-10-26.md "Downstream patch-offset check", partial): needs a host-build measurement outside the frozen legs.
+  a tools/ instrument exists? rc=0 output=''
+  SKILL.md pointer: rc=0  3956:  `alpm-package-anatomy-r41.md`; check `.ufo/waves/round-42/w1/ConsiderPatchOffset/patch-offset.py`).
+  the one-off r42 probe (wave artifact, not a registry gate):
+    total 92
+    drwxr-xr-x 1 vgpnk vgpnk   198 Oct 26 16:54 .
+    drwxr-xr-x 1 vgpnk vgpnk  2464 Oct 26 17:16 ..
+    -rw-r--r-- 1 vgpnk vgpnk   987 Oct 26 16:52 evidence.txt
+    -rw-r--r-- 1 vgpnk vgpnk  1829 Oct 26 16:51 host-and-packaging.txt
+    -rw-r--r-- 1 vgpnk vgpnk 24584 Oct 26 16:54 out.json
+    drwxr-xr-x 1 vgpnk vgpnk   394 Oct 26 16:51 patches
+    -rwxr-xr-x 1 vgpnk vgpnk 20506 Oct 26 16:53 patch-offset.py
+    drwxr-xr-x 1 vgpnk vgpnk   102 Oct 26 16:51 pkg
+    -rw-r--r-- 1 vgpnk vgpnk   231 Oct 26 16:54 RECEIPTS.sha256
+    -rw-r--r-- 1 vgpnk vgpnk 22672 Oct 26 16:54 run.txt
+    -rw-r--r-- 1 vgpnk vgpnk   836 Oct 26 16:51 SHA256SUMS
+  the r40 documentation of the +5 offset: rc=0  110:- **Line numbers are upstream 54d9411, not the installed build** (seat C2RevenPatches). Of the four patches the Arch
+  r40 paragraph:
+    ## Wave-1 corrections — packaging patch (appended 2026-10-26)
+    
+    - **Line numbers are upstream 54d9411, not the installed build** (seat C2RevenPatches). Of the four patches the Arch
+      package applies (PKGBUILD:51-55), `0001-libalpm-invalidate-curl-data-in-child.patch` inserts 5 lines into
+      `_alpm_run_chroot` after util.c:675, so in the installed source every cited util.c line after :675 (EX1 :677-687,
+      EX2 :722-726, EX3 :688-698) sits 5 lines later; the inserted lines change no EX value, and no patch touches trans.c,
+      hook.c or meson_options.txt (`.ufo/waves/round-40/w1/C2RevenPatches.md` §1-§3). The Boundaries bullet "their file
+      scope is a wave item, not assumed here" is answered by that report.
+
+== P.4 contradiction to state, not smooth ==
+  corpus/lessons/round-91.md: rc=0  90:  repaired in `6d181609`; host-build patch-offset probe PASS for uri.c/chainload.c/
+  -> README:844's stated reason ('needs a host-build measurement outside the frozen legs')
+     is stale: a host-build patch-offset probe was run at r91 (limine uri.c/chainload.c/config.c)
+     and at r42 (libalpm, 108 pins). Its substance still holds: no committed, registry-rowed
+     re-runnable instrument exists (no tools/ file, no SKILL gate row).

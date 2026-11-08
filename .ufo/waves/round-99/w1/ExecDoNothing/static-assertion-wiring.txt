@@ -1,0 +1,30 @@
+# C1 static assertion wiring: which families set check_echo / check_era (byte offsets)
+# measured by re.finditer over the pinned bytes; owner = preceding `def fam_*`
+
+== tools/limine-pin-battery-r98.py  bytes=115812  sha256-relevant=see instruments.sha256
+  c.check_echo = True  @byte  78753  -> fam_explicit_version_echo
+  c.check_echo = True  @byte  81743  -> fam_refusal_versions_9digit_z
+  c.check_echo = True  @byte  82960  -> fam_leading_zero_normalize
+  c.check_era = True   @byte  79274  -> fam_explicit_version_era
+  c.check_era = True   @byte  81767  -> fam_refusal_versions_9digit_z
+  c.check_era = True   @byte  82984  -> fam_leading_zero_normalize
+  families asserting echo: ['fam_explicit_version_echo', 'fam_leading_zero_normalize', 'fam_refusal_versions_9digit_z']
+  families asserting era : ['fam_explicit_version_era', 'fam_leading_zero_normalize', 'fam_refusal_versions_9digit_z']
+  fam_refusal_versions_9digit      sets check_echo=False check_era=False
+  fam_refusal_versions_9digit_y    sets check_echo=False check_era=False
+
+== tools/limine-pin-battery-r99.py  bytes=117542  sha256-relevant=see instruments.sha256
+  c.check_echo = True  @byte  79011  -> fam_refusal_versions_9digit
+  c.check_echo = True  @byte  79889  -> fam_explicit_version_echo
+  c.check_echo = True  @byte  81662  -> fam_refusal_versions_9digit_y
+  c.check_echo = True  @byte  83169  -> fam_refusal_versions_9digit_z
+  c.check_echo = True  @byte  84386  -> fam_leading_zero_normalize
+  c.check_era = True   @byte  79035  -> fam_refusal_versions_9digit
+  c.check_era = True   @byte  80410  -> fam_explicit_version_era
+  c.check_era = True   @byte  81686  -> fam_refusal_versions_9digit_y
+  c.check_era = True   @byte  83193  -> fam_refusal_versions_9digit_z
+  c.check_era = True   @byte  84410  -> fam_leading_zero_normalize
+  families asserting echo: ['fam_explicit_version_echo', 'fam_leading_zero_normalize', 'fam_refusal_versions_9digit', 'fam_refusal_versions_9digit_y', 'fam_refusal_versions_9digit_z']
+  families asserting era : ['fam_explicit_version_era', 'fam_leading_zero_normalize', 'fam_refusal_versions_9digit', 'fam_refusal_versions_9digit_y', 'fam_refusal_versions_9digit_z']
+  fam_refusal_versions_9digit      sets check_echo=True check_era=True
+  fam_refusal_versions_9digit_y    sets check_echo=True check_era=True

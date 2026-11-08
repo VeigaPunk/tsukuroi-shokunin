@@ -1,0 +1,20 @@
+# 05 — what the blanket lie kinds' unmet reading is made of (a limit's measurement)
+
+$ python3 tools/limine-pin-battery-r99.py --gate <lie wrapper> --runs 1 --json OUT
+  (the wrapper files are rebuilt from the PINNED battery's own LIE_WRAPPER template:
+   importlib loads tools/limine-pin-battery-r99.py, LIE_WRAPPER % (gate_src, kind))
+
+--- lie kind: limine-version
+wrapper on a non-JSON/usage input: rc=1 stdout='' stderr_tail=['json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)']
+--- lie kind: visibility-era
+wrapper on a non-JSON/usage input: rc=1 stdout='' stderr_tail=['json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)']
+
+$ python3 - <<'EOF'  # the refusal path: the wrapper json.loads('') raises, so the refusal family cannot be reproduced
+gate on a refused flag: rc=64 stdout='' stderr='usage: check-limine-pins.py [-h] [--conf CONF] [--esp ESP]\n                     '
+wrapper: json.loads on that stdout raises JSONDecodeError: 'Expecting value: line 1 column 1 (char 0)'
+
+$ the failed-family lists of the two dev lie receipts (L1's, read from the frozen wave dir)
+c1-lie-limine-version.json unmet 93/105 error_rows 0
+   failed: AUTO-ERA-A, AUTO-ERA-B, AUTO-PROBE-FAIL, AUTO-PROBE-SHAPES, EXPLICIT-VERSION-ECHO, EXTRA-COMPONENT, LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS, REFUSAL-VERSIONS-10DIGIT, REFUSAL-VERSIONS-9DIGIT, REFUSAL-VERSIONS-9DIGIT-Y, REFUSAL-VERSIONS-9DIGIT-Z
+c1-lie-visibility-era.json unmet 95/105 error_rows 0
+   failed: AUTO-PROBE-FAIL, AUTO-PROBE-SHAPES, EXPLICIT-VERSION-ERA, EXTRA-COMPONENT, LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS, REFUSAL-VERSIONS-10DIGIT, REFUSAL-VERSIONS-9DIGIT, REFUSAL-VERSIONS-9DIGIT-Y, REFUSAL-VERSIONS-9DIGIT-Z

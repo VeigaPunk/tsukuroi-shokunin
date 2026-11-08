@@ -1,0 +1,27 @@
+# 02 — LIE_KINDS tuple: the two new members, at byte level
+
+$ python3 - <<'EOF'  # bytes.find on the pinned battery bytes
+  b=open('tools/limine-pin-battery-r99.py','rb').read()
+  for s in ('"limine-version"','"visibility-era"'):
+      print(s, b.find(s.encode()), b[:b.find(s.encode())].count(b'\n')+1)
+  EOF
+"limine-version"     byte 107815  line 2356    elif KIND == "limine-version":
+"limine-version"     byte 108455  line 2370                 "panic-value", "on-panic", "bad-resource", "missing-panic", "limine-version", "visibility-era")
+"visibility-era"     byte 107920  line 2359    elif KIND == "visibility-era":
+"visibility-era"     byte 108473  line 2370                 "panic-value", "on-panic", "bad-resource", "missing-panic", "limine-version", "visibility-era")
+
+## LIE_KINDS tuple line (bytes 108277..)
+tuple starts byte 108277 line 2369
+LIE_KINDS = ("exit-code", "rc-field", "line", "consequence", "status", "verdict", "entry", "panic-line",
+             "panic-value", "on-panic", "bad-resource", "missing-panic", "limine-version", "visibility-era")
+
+## roster / families constants
+CASES_PER_FAMILY Constant(value=4)
+FAMILY_ROSTER 105
+LIE_KINDS 14
+
+## the two new lie kinds' wrapper clauses (LIE_WRAPPER)
+--- KIND == "limine-version"
+KIND == "limine-version":
+--- KIND == "visibility-era"
+KIND == "visibility-era":

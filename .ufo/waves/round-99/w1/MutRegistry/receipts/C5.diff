@@ -1,0 +1,11 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-registry-content-r99.py	2026-11-08 10:58:11.520434167 -0300
++++ muts/checker/C5.py	2026-11-08 11:12:41.699167685 -0300
+@@ -544,7 +544,7 @@
+     p = subprocess.run([sys.executable, "-I", tool, "--revision", side, "--branch", "master"],
+                        cwd=case, capture_output=True, text=True, timeout=180,
+                        env={"PATH": "/usr/bin:/bin", "LC_ALL": "C", "HOME": case})
+-    ok = p.returncode == CANNOT and "CANNOT-EVALUATE" in (p.stdout + p.stderr)
++    ok = True
+     return ("ancestor", ok, "rc=%d %s" % (p.returncode, (p.stdout + p.stderr).strip()[:160]))
+ 
+ 

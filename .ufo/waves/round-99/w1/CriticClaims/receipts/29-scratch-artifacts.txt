@@ -1,0 +1,25 @@
+# Scratch artifact constructions (all re-derived from frozen bytes; scratch deleted before yield)
+
+4fa10dbe27d2ba0a8e0cb2a82814ad0cf3fd2a732c68effee2520608aa1c81a6  /fast/scratch/hyaku/tsukuroi-r99/CriticClaims/lie-limine-version.py
+ff420acea5521c4b53d5e1c847cd825224abd2be4e59f9d8494c5d761d9b02d9  /fast/scratch/hyaku/tsukuroi-r99/CriticClaims/lie-visibility-era.py
+2817ddf6ebf4d6dd737f358b0aff32fd5565cbf65c05006fc91707f59adbf6f0  /fast/scratch/hyaku/tsukuroi-r99/CriticClaims/battery-r99-B03-zecho-off.py
+c6c40c2b3c4f18c2dce30ed805029d679b38681bde5de7d26e79266c35d5b961  /fast/scratch/hyaku/tsukuroi-r99/CriticClaims/E-X-echo-lie.py
+f161057ac64e7c1c9a3b69bf9ed97a0591260808a4b9f03a47c41720cd040f99  /fast/scratch/hyaku/tsukuroi-r99/CriticClaims/E-Y-echo-lie.py
+1ac9857fbea1b8ac7e8d6395128f175454d801c7e9667bf2202f873c328af441  /fast/scratch/hyaku/tsukuroi-r99/CriticClaims/check-registry-content-r99-M07.py
+
+## lie wrappers: exact bytes of LIE_WRAPPER %% (tools/check-limine-pins.py source, kind)
+LIE_KINDS = ('exit-code', 'rc-field', 'line', 'consequence', 'status', 'verdict', 'entry', 'panic-line', 'panic-value', 'on-panic', 'bad-resource', 'missing-panic', 'limine-version', 'visibility-era')
+template head: 'import json, os, subprocess, sys, tempfile\nGATE_SRC = %r\nd = tempfile.mkdtemp(pr'
+template tail: 'f KIND == "missing-panic":\n    for x in pins:\n        if x["status"] == "LP-MISSING" and x["consequence"] == "panic":\n            x["consequence"] = "not-modelled"\nprint(json.dumps(out))\nsys.exit(rc)\n'
+
+## B03 mutant battery: only change = remove 'c.check_echo = True' inside fam_refusal_versions_9digit_z
+## E-X gate: main-return line 316 limine_version -> ("0.0.0" if limine_version == "999999999.9.9" else limine_version)
+## E-Y gate: main-return limine_version -> ("0.0.0" if limine_version in ("12.999999999.4", "0.999999999.0") else limine_version)
+## M07 checker mutant: deleted the three lines p = self._git("merge-base", ...); if p.returncode != 0: raise TableError(...), replaced by 'pass  # M07'
+
+## fixture cells (build_fixture base, doctor, cell)
+xv1: base GAP (keys N01,N03), cell 'VARIANTS N01-N04,N05 then VARIANTS N01,N03'
+xv2: base None (keys N01-N03), cell 'VARIANTS N01-N03 N05'
+xv3: base None, cell 'VARIANTS N01-N03 then VARIANTS N01-N05,N06'
+xv4: base None, cell 'VARIANTS N01-N03 then VARIANTS N01-N05'
+xv5: base HYBRID (keys N01-N04), cell 'VARIANTS N01-N04,N05'

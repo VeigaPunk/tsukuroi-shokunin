@@ -1,0 +1,51 @@
+# r98 carry-over list vs the current tree — seat ConnectorOverlap, round 99
+# lane root /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+HEAD: f107da3afe511f7db8cdc30235a992b774903158
+
+== CO-1. before/instruments.sha256 verified? ==
+$ sha256sum -c .ufo/waves/round-99/before/instruments.sha256
+tools/limine-pin-battery-r99.py: OK
+tools/make-r99-bends.py: OK
+tools/check-registry-content-r99.py: OK
+tools/check-limine-pins.py: OK
+tools/check-registry-coverage.py: OK
+tools/check-r96-calibration.py: OK
+tools/limine-pin-battery-r98.py: OK
+tools/check-registry-content-r98.py: OK
+.ufo/waves/round-99/before/controls/do-nothing-battery-r98.py: OK
+.ufo/waves/round-99/before/controls/do-nothing-gate.py: OK
+.ufo/waves/round-99/before/controls/do-nothing-checker-r98.py: OK
+.ufo/waves/round-99/before/controls/bends/N09-y-era.py: OK
+.ufo/waves/round-99/before/controls/bends/N11-x-era.py: OK
+.ufo/waves/round-99/before/dev/make-fixtures.py: OK
+.ufo/waves/round-95/before/controls/count-runs.py: OK
+.ufo/plans/round-99.md: OK
+  rc=0  OK_lines=16  listed=16
+
+== CO-2. is the after/c2/coverage-tip.json pointer still dangling (R99-D1)? ==
+  PRESENT  .ufo/waves/round-97/after/c2/coverage-tip.json
+  ABSENT   .ufo/waves/round-98/after/c2/coverage-tip.json
+  r98 after/c2 listing: content-freeze.json content-freeze.txt coverage-freeze.json
+  live citations of the literal path outside this wave's w1/:
+    ./corpus/lessons/round-97-verifier-spotcheck.md:105:- Settled tip: `after/c2/coverage-tip.json` → `PASS`, `registered 157`, `tools_total 157`,
+    ./corpus/lessons/round-98-verifier-spotcheck.md:113:non-committed `after/c2/coverage-tip.json`. The `160/160` figure itself is consistent — 157 base rows
+    ./.ufo/plans/round-99.md:117:`.ufo/waves/round-99/before/`, and the r98 pointer to a non-committed `after/c2/coverage-tip.json` is
+    ./.ufo/waves/round-98/after/report-draft.md:110:| settled tip | coverage `PASS 157/157` | content `PASS 7/7`; coverage `PASS 160/160` after the three r98 rows |
+    ./SCORECARD.md:7984:| C2 (measured; surface: a registry row's declared values against the tool's bytes) | freshness 9 → 9 (assurance arm; capability `registry-c
+
+== CO-3. does .ufo/waves/round-99/before/ already hold the tip receipt? ==
+    .ufo/waves/round-99/before/c2-content-tip-f107da3a.json
+    .ufo/waves/round-99/before/census-before-after.txt
+    .ufo/waves/round-99/before/r99-d1-coverage-r98settle-270ca298.txt
+    .ufo/waves/round-99/before/r99-d1-coverage-tip-f107da3a.txt
+  tip coverage receipt (r99-d1-coverage-tip-f107da3a.txt):
+    {"branch":"master","branch_tip":"f107da3afe511f7db8cdc30235a992b774903158","counts":{"findings":0,"missing":0,"registered":160,"rows_total":160,"tools_total":160},"findings":[],"revision":"f107da3afe511f7db8cdc30235a992b774903158","status":"PASS"}
+  tip content receipt (c2-content-tip-f107da3a.json):
+    {
+     "bindings": 7,
+     "findings": [],
+     "revision": "f107da3afe511f7db8cdc30235a992b774903158",
+     "rows": 160,
+     "schema": "tsukuroi-registry-content-r99-v1",
+     "status": "PASS"
+    }

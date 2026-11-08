@@ -1,0 +1,132 @@
+# 08 — the r98 G6 survivor, re-derived by this seat (own receipt)
+
+The r98 wave's G6 attack gate is the r98 wave's own artifact:
+-rw-r--r-- 1 vgpnk vgpnk 30494 Nov  8 10:19 .ufo/waves/round-98/w1/ReviewBattery/g6-y-era.py
+
+$ diff tools/check-limine-pins.py .ufo/waves/round-98/w1/ReviewBattery/g6-y-era.py | grep '^>' | cut -c1-150
+>                 "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version in ("12.999999999.4","0.999999999.0") else ("12.9.5+" if
+>             "visibility_era": (("pre-12.9.5" if era_b else "12.9.5+") if limine_version in ("12.999999999.4","0.999999999.0") else ("12.9.5+" if era
+
+$ python3 .ufo/waves/round-99/before/controls/do-nothing-battery-r98.py --gate .ufo/waves/round-98/w1/ReviewBattery/g6-y-era.py --runs 3 --work <scratch> --json <out>
+families_passed 105/105 verdict met failed -
+families_passed 105/105 verdict met failed -
+families_passed 105/105 verdict met failed -
+
+$ python3 .ufo/waves/round-95/before/controls/count-runs.py <out> --family REFUSAL-VERSIONS-9DIGIT --family REFUSAL-VERSIONS-9DIGIT-Y --family REFUSAL-VERSIONS-9DIGIT-Z --family EXPLICIT-VERSION-ERA --family EXPLICIT-VERSION-ECHO --family LEADING-ZERO-NORMALIZE
+{
+ "runs": [
+  {
+   "verdict": "met",
+   "families_passed": 105,
+   "families_total": 105,
+   "failed_families": [],
+   "cases": 420,
+   "error_rows": 0,
+   "named": {
+    "REFUSAL-VERSIONS-9DIGIT-Y": [
+     4,
+     0
+    ],
+    "EXPLICIT-VERSION-ECHO": [
+     4,
+     0
+    ],
+    "EXPLICIT-VERSION-ERA": [
+     4,
+     0
+    ],
+    "REFUSAL-VERSIONS-9DIGIT-Z": [
+     4,
+     0
+    ],
+    "LEADING-ZERO-NORMALIZE": [
+     4,
+     0
+    ],
+    "REFUSAL-VERSIONS-9DIGIT": [
+     4,
+     0
+    ]
+   }
+  },
+  {
+   "verdict": "met",
+   "families_passed": 105,
+   "families_total": 105,
+   "failed_families": [],
+   "cases": 420,
+   "error_rows": 0,
+   "named": {
+    "EXPLICIT-VERSION-ECHO": [
+     4,
+     0
+    ],
+    "REFUSAL-VERSIONS-9DIGIT-Z": [
+     4,
+     0
+    ],
+    "LEADING-ZERO-NORMALIZE": [
+     4,
+     0
+    ],
+    "REFUSAL-VERSIONS-9DIGIT-Y": [
+     4,
+     0
+    ],
+    "REFUSAL-VERSIONS-9DIGIT": [
+     4,
+     0
+    ],
+    "EXPLICIT-VERSION-ERA": [
+     4,
+     0
+    ]
+   }
+  },
+  {
+   "verdict": "met",
+   "families_passed": 105,
+   "families_total": 105,
+   "failed_families": [],
+   "cases": 420,
+   "error_rows": 0,
+   "named": {
+    "REFUSAL-VERSIONS-9DIGIT-Z": [
+     4,
+     0
+    ],
+    "EXPLICIT-VERSION-ERA": [
+     4,
+     0
+    ],
+    "EXPLICIT-VERSION-ECHO": [
+     4,
+     0
+    ],
+    "REFUSAL-VERSIONS-9DIGIT": [
+     4,
+     0
+    ],
+    "REFUSAL-VERSIONS-9DIGIT-Y": [
+     4,
+     0
+    ],
+    "LEADING-ZERO-NORMALIZE": [
+     4,
+     0
+    ]
+   }
+  }
+ ],
+ "families": [
+  "REFUSAL-VERSIONS-9DIGIT",
+  "REFUSAL-VERSIONS-9DIGIT-Y",
+  "REFUSAL-VERSIONS-9DIGIT-Z",
+  "EXPLICIT-VERSION-ERA",
+  "EXPLICIT-VERSION-ECHO",
+  "LEADING-ZERO-NORMALIZE"
+ ]
+}
+
+=> the r98 control battery reads met 105/105 on a gate that lies in visibility_era exactly for
+   the two Y-cap spellings: the r98 roster was blind to the field on those spellings.

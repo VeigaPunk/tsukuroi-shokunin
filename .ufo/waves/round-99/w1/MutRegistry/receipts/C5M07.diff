@@ -1,0 +1,20 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-registry-content-r99.py	2026-11-08 10:58:11.520434167 -0300
++++ /fast/scratch/hyaku/tsukuroi-r99/MutRegistry/muts/checker/C5M07.py	2026-11-08 11:15:31.820007893 -0300
+@@ -544,7 +544,7 @@
+     p = subprocess.run([sys.executable, "-I", tool, "--revision", side, "--branch", "master"],
+                        cwd=case, capture_output=True, text=True, timeout=180,
+                        env={"PATH": "/usr/bin:/bin", "LC_ALL": "C", "HOME": case})
+-    ok = p.returncode == CANNOT and "CANNOT-EVALUATE" in (p.stdout + p.stderr)
++    ok = True
+     return ("ancestor", ok, "rc=%d %s" % (p.returncode, (p.stdout + p.stderr).strip()[:160]))
+ 
+ 
+@@ -590,7 +590,7 @@
+     try:
+         tree = Tree(ROOT if a.revision else os.path.abspath(a.root), a.revision, a.branch)
+         try:
+-            tree.check_revision()
++            pass
+         except TableError as exc:
+             print("CANNOT-EVALUATE: %s" % exc, file=sys.stderr)
+             return CANNOT

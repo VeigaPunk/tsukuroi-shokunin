@@ -1,0 +1,19 @@
+# QUALITY-136 twin test: (spelling, fixture constructor, asserted fields) per family
+REFUSAL_DIGIT9 == EXPLICIT_VERSION_META[3]:
+  REFUSAL_DIGIT9 = '999999999.9.9'
+  EXPLICIT_VERSION_META = ('12.9.4', '12.9.5', '12.9.6', '999999999.9.9')
+  equal(REFUSAL_DIGIT9, META[3]) = True
+  Y_DIGIT9 = ('12.999999999.4', '0.999999999.0')
+--- fam_refusal_versions_9digit
+  fixture call: ['_era_first_line_panic(c, REFUSAL_DIGIT9)']
+  flags: ['c.check_echo = True', 'c.check_era = True']
+--- fam_refusal_versions_9digit_y
+  fixture call: ['_era_first_line_panic(c, Y_DIGIT9[c.index % len(Y_DIGIT9)])']
+  flags: ['c.check_echo = True', 'c.check_era = True']
+--- fam_explicit_version_echo
+  fixture call: ['_explicit_fixture(c, EXPLICIT_VERSION_META[c.index % len(EXPLICIT_VERSION_META)])']
+  flags: ['c.check_echo = True']
+--- fam_explicit_version_era
+  fixture call: ['_explicit_fixture(c, EXPLICIT_VERSION_META[c.index % len(EXPLICIT_VERSION_META)])']
+  flags: ['c.check_era = True']
+--- _explicit_fixture body: '"""r96: an era-sensitive fixture (first physical line an entry) whose expected pins already\n    encode the era the version selects, so the metadata assertions are the family\'s only extra."""\n    _era_first_line_panic(c, version)'

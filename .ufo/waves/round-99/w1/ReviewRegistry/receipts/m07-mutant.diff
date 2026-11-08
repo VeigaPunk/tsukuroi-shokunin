@@ -1,0 +1,13 @@
+--- tools/check-registry-content-r99.py
++++ m07-ancestor-skip-mutant.py
+@@ -243,8 +243,8 @@
+         p = self._git("rev-parse", "--verify", self.revision + "^{commit}", check=False)
+         if p.returncode != 0:
+             raise TableError("revision %r does not resolve" % self.revision)
+-        p = self._git("merge-base", "--is-ancestor", self.revision, self.branch, check=False)
+-        if p.returncode != 0:
++        p = type("R", (), {"returncode": 0})()
++        if False:
+             raise TableError("revision %r is not an ancestor of %s" % (self.revision, self.branch))
+ 
+     def read(self, rel):
