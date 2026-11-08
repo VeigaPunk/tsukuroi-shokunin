@@ -132,3 +132,39 @@ records which revision the frozen sentence names; it does not widen or narrow th
 raised the ambiguity.
 
 Artifacts: `.ufo/waves/round-100/w1/SentinelHarm.md`, `.ufo/waves/round-100/w1/ExecRegistry/*`.
+
+## Amendment slot — A2-A7 (recorded 2026-11-08 from wave artifacts, before filing)
+
+The wave's two independent attackers (ReviewBends, CriticClaims) converged on the same narrowings;
+each amendment cites its artifact. The frozen target numbers are unchanged: every one of them is
+re-derived PASS in `after/c1/` and `after/c2/`.
+
+- **A2 — C1's "ONLY the returned JSON `limine_version` line" is narrowed to the main return.**
+  Both bends change the final verdict return's entry (BYTE 16931); the gate's early
+  `conf unreadable` return also emits `limine_version` (BYTE 11230) and is untouched, so a cap
+  spelling on an unreadable conf is not falsified and no claim is made about that path.
+  Artifact: `.ufo/waves/round-100/w1/ReviewBends/receipts/direct-path-and-field-probe.json`;
+  `.ufo/waves/round-100/w1/CriticClaims.md` C1.3 / its A1.
+- **A3 — C1's X-leg unit.** The r98 control's *run* is already `unmet` on the N12 article; at the
+  family unit the control flips exactly `EXPLICIT-VERSION-ECHO` from the landed gate's `met`, and
+  r99 adds exactly `REFUSAL-VERSIONS-9DIGIT`. "Never a met-to-unmet flip" is therefore a run-level
+  statement, not a family-level one. Artifact: `w1/ReviewBends/receipts/canon-*.json` (its A2).
+- **A4 — the plan's paraphrase of the r99 Frontier is corrected to its own words.** The Frontier
+  says "no spelling-targeted committed bend", not "no bend has ever exercised": the blanket r99
+  `lie-limine-version` wrapper exercises the field (`unmet 93/105`, X/Y/Z/LZ named, 0 error rows).
+  Artifact: `w1/ReviewBends/receipts/lie-limine-version-r99.json` (its A3).
+- **A5 — C1's N13 payload.** `N13-y-echo`'s replacement is the fixed string `12.999999998.4`, so for
+  the `0.999999999.0` spelling the reported first component also changes; the *trigger* is the second
+  component. Artifact: `w1/CriticClaims.md` C1.4 / its A2.
+- **A6 — C2's join grammar.** The tokeniser skips empty tokens, so `VARIANTS and N01-N03`,
+  `VARIANTS N01-N03 and` and `VARIANTS N01; ; N02; N03` read PASS; only a non-empty part that is not
+  an `N<digits>`/`N<digits>-N<digits>` token is `RC-CELL-MISSING`. Artifact:
+  `w1/CriticClaims.md` C2.4 / its A3.
+- **A7 — C2's set vs keys (sharpening, no claim change).** `RC-BEND-SPAN` compares against the
+  `N<digits>`-prefixed labels of the bound tool's literal `VARIANTS` keys (unprefixed keys are not
+  bound), and a mixed-width range normalises to the first token's zero-padding width. Artifact:
+  `w1/CriticClaims.md` C2.3 / its A4.
+
+No frozen predicate, counter, kill rule or target number is widened or narrowed by A2-A7: the claim
+sentences in `.ufo/waves/round-100/claims.json` stay as frozen, and the report's verdicts use the
+narrowed unit each amendment names.

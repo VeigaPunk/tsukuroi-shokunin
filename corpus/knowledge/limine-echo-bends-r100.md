@@ -86,3 +86,12 @@ answers "does the registry row still state the tool's whole label set at the gra
 write?", and its control is the predecessor checker that cannot. Both keep their predecessors' bytes
 as controls, so a later round can re-run the same article against the do-nothing instrument and
 re-derive the difference.
+
+## Correction (append-only, round 100)
+
+- S397's quoted `fullmatch` sentence is `If the whole string matches the regular expression
+  pattern, return a corresponding Match.` (BYTE 112171 of the 257722-byte fetch; the word is
+  `Match`, the class), not "match object"; the wrong phrase does not occur at that offset.
+- S396's generator anchors pair `BYTE 2615` (the N12 emission clause) with `BYTE 3365` (the N13
+  emission clause; 3384 is the N13 lie literal inside it). The table above cites 2615/3384 from the
+  first writing; the clause-start pair is 2615/3365.
