@@ -1,0 +1,16 @@
+Fixture recipe (round 97 C2; reproducible with build-doctored-fixture.sh):
+1. git clone --shared <lane> <scratch>/doctored  (base = the lane's master at freeze)
+2. mkdir <clone>/fixture; cp <lane>/tools/check-registry-content.py <clone>/fixture/
+3. Six content-only substitutions in <clone>/SKILL.md, each asserted to match exactly once:
+     "default `auto`"            -> "default `12.9.4`"
+     "(39 fixtures"              -> "(88 fixtures"
+     "roster 103 ("              -> "roster 99 ("
+     "FAMILY_ROSTER, 103,"       -> "FAMILY_ROSTER, 99,"
+     "--selftest` (7 cases"      -> "--selftest` (29 cases"
+     "r96 VARIANTS N01-N04"      -> "r96 VARIANTS N01-N05"
+4. Commit in the clone only, identity tsukuroi-fixture <fixture@shokunin.local>.
+5. Legs:
+     python3 <clone>/fixture/check-registry-content.py --revision <rev>
+     python3 <clone>/tools/check-registry-coverage.py --revision <rev>
+The checker rides at fixture/, not tools/, so the coverage gate's tool set stays 154 and its verdict
+is a fair blindness reading.
