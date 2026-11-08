@@ -1,0 +1,28 @@
+# receipt: registry binding coverage (operative table rows vs C2's 7 cells)
+$ python3 base_cellshape.py <lane> <rev>   (four revisions)
+f48d1642: operative rows=154  bound=4  unbound=150  bindable-shape rows=21  unbound-with-shape=17  no-shape=133
+  unbound-with-shape list: ['append-receipt', 'check-cited-receipts-r62', 'check-line-endings-r64', 'count-mp-rows-r71', 'count-resume-rows-r84', 'hibernate-resume', 'limine-pin-battery-r87', 'limine-pin-battery-r88', 'limine-pin-battery-r89', 'limine-pin-battery-r90', 'limine-pin-battery-r91', 'limine-pin-battery-r92', 'limine-pin-battery-r93', 'limine-pin-battery-r94', 'limine-pin-battery-r95', 'make-r94-bends', 'scorecard-unique-sections-r55']
+
+b3be3f90: operative rows=157  bound=4  unbound=153  bindable-shape rows=24  unbound-with-shape=20  no-shape=133
+  unbound-with-shape list: ['append-receipt', 'check-cited-receipts-r62', 'check-line-endings-r64', 'check-registry-content', 'count-mp-rows-r71', 'count-resume-rows-r84', 'hibernate-resume', 'limine-pin-battery-r87', 'limine-pin-battery-r88', 'limine-pin-battery-r89', 'limine-pin-battery-r90', 'limine-pin-battery-r91', 'limine-pin-battery-r92', 'limine-pin-battery-r93', 'limine-pin-battery-r94', 'limine-pin-battery-r95', 'limine-pin-battery-r97', 'make-r94-bends', 'make-r97-bends', 'scorecard-unique-sections-r55']
+
+1cfeb5d5: operative rows=157  bound=4  unbound=153  bindable-shape rows=24  unbound-with-shape=20  no-shape=133
+  unbound-with-shape list: ['append-receipt', 'check-cited-receipts-r62', 'check-line-endings-r64', 'check-registry-content', 'count-mp-rows-r71', 'count-resume-rows-r84', 'hibernate-resume', 'limine-pin-battery-r87', 'limine-pin-battery-r88', 'limine-pin-battery-r89', 'limine-pin-battery-r90', 'limine-pin-battery-r91', 'limine-pin-battery-r92', 'limine-pin-battery-r93', 'limine-pin-battery-r94', 'limine-pin-battery-r95', 'limine-pin-battery-r97', 'make-r94-bends', 'make-r97-bends', 'scorecard-unique-sections-r55']
+
+$ python3 shape_compare.py <lane>   (r97 capture vs r98 capture on the same table)
+operative rows (r98 selector): 160
+r97-capture: bindable-shape rows=27  bound=4  unbound-with-shape=23  no-shape=133
+r98-capture: bindable-shape rows=27  bound=4  unbound-with-shape=23  no-shape=133
+
+# coverage gate readings
+$ python3 tools/check-registry-coverage.py --revision <rev>
+b3be3f90c2e32400d4e2692b2656ec9a1ba14a8a -> {"branch":"master","branch_tip":"1cfeb5d5089097fdffef761ad0e2b8dfa75a2793","counts":{"findings":0,"missing":0,"registered":157,"rows_total":157,"tools_total":157},"findings":[],"revision":"b3be3f90c2e32400d4e2692b2656ec9a1ba14a8a","status":"PASS"}
+1cfeb5d5089097fdffef761ad0e2b8dfa75a2793 -> {"branch":"master","branch_tip":"1cfeb5d5089097fdffef761ad0e2b8dfa75a2793","counts":{"findings":3,"missing":3,"registered":157,"rows_total":157,"tools_total":160},"findings":[{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/check-registry-content-r98.py"},{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/limine-pin-battery-r98.py"},{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/make-r98-bends.py"}],"revision":"1cfeb5d5089097fdffef761ad0e2b8dfa75a2793","status":"FAIL"}
+
+# checker selftests
+$ python3 tools/check-registry-content-r98.py --selftest
+tally-lie            PASS 
+selftest PASS 14/14
+$ python3 tools/check-registry-content.py --selftest   (do-nothing control)
+tally-lie            PASS 
+selftest PASS 12/12

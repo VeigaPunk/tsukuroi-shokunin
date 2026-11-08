@@ -1,0 +1,11 @@
+--- /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/pristine/check-registry-content-r98.py	2026-11-08 10:04:22.139254402 -0300
++++ /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/mutants/M01.py	2026-11-08 10:06:37.914674559 -0300
+@@ -324,7 +324,7 @@
+             continue
+         declared = captured.group(1)
+         try:
+-            derived = derive(binding, tree, work)
++            derived = declared  # M01: derive() never consulted
+         except (ValueError, OSError, SyntaxError, TableError) as exc:
+             findings.append({"id": "RC-DERIVE-FAILED", "site": "SKILL.md:%d" % row["line"],
+                              "detail": "%s derived from %s: %s"

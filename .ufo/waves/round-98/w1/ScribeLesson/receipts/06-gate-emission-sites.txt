@@ -1,0 +1,18 @@
+== early CANNOT-EVALUATE return (lines 196-204) ==
+196:             text = f.read().decode("utf-8", "surrogateescape")
+197:     except OSError as e:
+198:         return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "on_panic": None,
+199:                 "unverified_image_lines": [],
+200:                 "limine_version": limine_version,
+201:                 "limine_version_source": limine_version_source,
+202:                 "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+203:                 "error": "conf unreadable: %s" % sanitize(str(e))}
+204:     panic_setting = None
+== main return (lines 314-320) ==
+314:         verdict, rc = "HEALTHY", 0
+315:     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+316:             "limine_version": limine_version,
+317:             "limine_version_source": limine_version_source,
+318:             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+319:             "hash_mismatch_panic": None if panic_setting is None else
+320:             {"line": panic_setting[0], "value": sanitize(panic_setting[1])},

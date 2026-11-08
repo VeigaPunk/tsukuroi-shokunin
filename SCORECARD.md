@@ -8001,3 +8001,53 @@ coverage 9, operability 9, freshness 9, calibration 9, adjacency 8. No retiremen
 the gate bytes are unchanged (`7d79ac29…`), the r96 control still reads `103/103`, the coverage gate
 certified `154/154` before this round's rows and `157/157` after them, and the corpus is additive
 (one SOURCES row, one knowledge entry, five lesson mistakes, QUALITY 141).
+
+## Round 98 — declaration (frozen before the candidate is scored; controls committed with it)
+
+Inputs read first: the round-97 closure (MANIFEST `rounds[]`, r97, `admitted`) and its non-author
+spot-check `corpus/lessons/round-97-verifier-spotcheck.md` routed R97-D1..D4; the r97 lesson
+(R97-N05-COUPLED, R97-SPEC-KEY, R97-LZ-DOCSTRING-TEXT, R97-CHAR-VS-BYTE, R97-DOCTOR-NOT-UNIQUE);
+QUALITY 139-141; README § "Round 97" and its Frontier (A6 docstring owed, A7 field/echo coverage,
+M08 selftest case, C2's 150 unbound rows and three measured gaps). Full declaration, limits and
+amendment slot: `.ufo/plans/round-98.md` (frozen bytes `.ufo/waves/round-98/before/plan-frozen.md`);
+claims `.ufo/waves/round-98/claims.json`; instruments `before/instruments.sha256` (27 entries).
+
+Instruments: `tools/limine-pin-battery-r98.py` (roster unchanged 105: the r97 battery with
+`check_echo`/`check_era` set on `REFUSAL-VERSIONS-9DIGIT-Z` and `LEADING-ZERO-NORMALIZE`, plus the
+corrected LZ docstring), `tools/make-r98-bends.py` (N07 era-field-lie, N08 echo-norm),
+`tools/check-registry-content-r98.py` (comma-span capture; selftest 12 -> 14), do-nothing controls
+`before/controls/do-nothing-battery-r97.py` (`e678c34f…`), `do-nothing-gate.py` (`7d79ac29…`),
+`do-nothing-checker-r97.py` (`2daf5926…`), and the doctored-fixture recipe building D1/D2/D2lie on
+the pinned base `b3be3f90`.
+
+| Claim | Axis | Predicate (the same sentence in `claims.json`) | Target | Kill rule | Counting command |
+|---|---|---|---|---|---|
+| C1 (measured; surface: the two r97 families' metadata assertions) | depth 8 (tied lowest) | `tools/limine-pin-battery-r98.py --gate G --runs 3` is the r97 battery (roster 105) with `check_echo` and `check_era` set on `REFUSAL-VERSIONS-9DIGIT-Z` and `LEADING-ZERO-NORMALIZE`, so each case asserts the flag spelling echoed verbatim with source `flag` and the era label the tuple selects; the LZ docstring's text-comparer sentence is corrected (the discriminator is `12.000000009.000000005`, text orders it era A while `int()` reads 12.9.5) | landed 105/105 met x3 both layouts, 0 error rows; N07 103/105 unmet x3 both with exactly `[LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT-Z]` and 0 error rows; N08 104/105 x3 both with exactly `[LEADING-ZERO-NORMALIZE]` and 0 error rows; r97 control met 105/105 x3 on the gate and both bends | any landed run below 105/105 or with an error row; any bend reading other than the frozen set/count; any do-nothing leg differing; void on instrument drift | `python3 tools/limine-pin-battery-r98.py --gate <GATE> --runs 3 --work <scratch> --json <out>` + `count-runs.py <out> --family REFUSAL-VERSIONS-9DIGIT-Z --family LEADING-ZERO-NORMALIZE` |
+| C2 (measured; surface: the registry checker's span capture and selftest) | freshness 9 (assurance arm) | `tools/check-registry-content-r98.py` extends the `RC-BEND-SPAN` capture to `N<digits>-N<digits>` or `N<digits>[,N<digits>]...` and pins the non-contiguous branch with `span-gap` and `span-gap-lie` | landed PASS 7/7; selftest 14/14; M08 mutant FAILS selftest 12/14 and D2 discriminates (r98 PASS / M08 FAIL; lie twin inverts); D1 r98 FAIL exactly one RC-VALUE-MISMATCH vs r97 RC-CELL-MISSING; coverage PASS 157/157 on every doctored revision | landed not PASS; selftest not 14/14; M08 passing selftest or failing to discriminate on D2; D1 not exactly one RC-VALUE-MISMATCH; coverage not PASS 157/157; void on instrument drift | `python3 tools/check-registry-content-r98.py --revision <R>` / `--selftest`; doctored legs by `sh .ufo/waves/round-98/before/fixtures/build-doctored-fixture-r98.sh` |
+
+Depth stays 8, freshness stays 9 (a sharper instrument and a test-complete drift gate; no ordinal
+uplift). C1 and C2 are causally separable: C1 reads battery JSON, C2 reads the registry table and
+the `make-r96-bends` bytes; neither needs the other's change.
+
+## Round 98 — measured outcome (instruments `7d79ac29…`/`8198bd84…`/`2d8f4f6e…`/`45d8d00d…`/`5bb1441e…` at the freeze `1cfeb5d5`; receipts in `.ufo/waves/round-98/before/dev/` and `w1/`)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: the two r97 families' metadata assertions) | depth 8 → 8 (tied lowest; a sharper instrument, no ordinal uplift) | landed gate `met 105/105` x3 canonical (`before/dev/c1-gate-runs3.json`, `w1/ExecGateRuns/c1-gate-canonical.json`) and x3 clone (`c1-gate-clone.json`), 0 error rows; `N07-era-field-lie` `103/105` unmet x3 canonical + x3 clone with exactly `[LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT-Z]` and 0 error rows; `N08-echo-norm` `104/105` x3 both layouts with exactly `[LEADING-ZERO-NORMALIZE]`, 0 error rows; r97 control `met 105/105` x3 on the gate and on both bends (`w1/ExecDoNothing/`), control bytes `e678c34f…` = `b3be3f90:tools/limine-pin-battery-r97.py` | met | **met** (author-side; closure to re-derive). Attacks: 5/6 killed (g1 102/105, g2b 100/105, g3 104/105, g4 102/105, g5b 100/105); **g6 Y-only era lie survives 105/105** — predicate narrowed by A4 (Z/LZ scope), named limit routed r99 |
+| C2 (measured; surface: the registry checker's span capture and selftest) | freshness 9 → 9 (assurance arm; no ordinal claim) | landed `PASS 7/7 findings 0` on both checkers at `b3be3f90`; selftest `PASS 14/14` (was 12/12); M08 mutant `FAIL 12/14` with exactly `span-gap` + `span-gap-lie` red (was `PASS 12/12`); D1 `FAIL` exactly one `RC-VALUE-MISMATCH` (r97 `RC-CELL-MISSING`); D2 `PASS` with M08 `FAIL` one; D2lie `FAIL` one with M08 `PASS`; coverage `PASS 157/157 findings 0` on every doctored revision; settled tip content `PASS 7/7`, coverage `PASS 160/160` after the three r98 rows | met | **met** (author-side; closure to re-derive). Named limits added by the wave: hybrid arm F1, duplicate mention F2, spaced/lowercase forms (A3), M07's untested ancestor branch, the r98 battery's unchanged JSON schema token (A7); the unbound-row count corrected 150 -> 153 at the base / 156 at the tip (A6) |
+
+Falsified-or-narrowed this round (all recorded in `before/plan-amendments-r98.md`): A1 the capture is
+an ordered alternation, so a hybrid cell binds its first arm (F1) — named limit, not a target change;
+A2 a wave receipt named for M08 measured a comma-always mutant (2/14), so the M08 kill is carried by
+the L1 receipt and ExecRegistry's independent 12/14; A3 spaced comma forms and lowercase labels read
+`RC-CELL-MISSING` (fail-closed) — the capture's stated alphabet is narrowed; A4 the predicate's
+"lies in either field" universal is false for Y spellings (g6 `met 105/105`) and is narrowed to a
+Z/LZ spelling; A5 the X-cap's field fidelity rides on one `EXPLICIT-VERSION-ERA` case, not on
+`REFUSAL-VERSIONS-9DIGIT`. Axes now: depth 8, coverage 9, operability 9, freshness 9, calibration 9,
+adjacency 8. No retirement. No axis harmed: the gate bytes are unchanged (`7d79ac29…`), the r97
+battery and checker keep their landed bytes and read `105/105` / `PASS 12/12` as controls, the
+coverage gate certified `157/157` before this round's rows and `160/160` after them, and the corpus
+is additive (two rows net, one supersession, one entry).
+
+Capability note: no new capability row enters (no new external repertoire); the round sharpens two
+existing instruments, which is a depth/freshness assurance move, not a capability acquisition.

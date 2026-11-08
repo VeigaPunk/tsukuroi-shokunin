@@ -1,0 +1,34 @@
+# Mutant M07 Survival Verification — Tsukuroi Round 98 Wave w1
+Source: /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/receipts/checker-summary.txt
+
+## 1. Mutant M07 Definition
+In tools/check-registry-content-r98.py:226-228:
+```python
+# original:
+p = self._git("merge-base", "--is-ancestor", self.revision, self.branch, check=False)
+if p.returncode != 0:
+    raise TableError("revision %r is not an ancestor of %s" % (self.revision, self.branch))
+# mutant M07:
+pass  # M07: ancestor check skipped
+```
+
+## 2. Measured Outcomes across All Wave Legs
+- `--selftest`:
+  Command: python3 /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/mutants/M07.py --selftest
+  Result: selftest PASS 14/14 (exit code 0)
+- `base` (revision b3be3f90):
+  Result: status PASS bindings 7/7 findings 0 (rc=0)
+- `D1` (make-r96-bends row VARIANTS N01-N04 -> N01,N03):
+  Result: status FAIL bindings 6/7 findings 1 [RC-VALUE-MISMATCH] (rc=1)
+- `D2` (make-r96-bends keys N01,N03 + row N01,N03):
+  Result: status PASS bindings 7/7 findings 0 (rc=0)
+- `D2lie` (keys N01,N03 + row N01-N03):
+  Result: status FAIL bindings 6/7 findings 1 [RC-VALUE-MISMATCH] (rc=1)
+
+## 3. Root Cause Analysis
+- `tools/check-registry-content-r98.py` implements two workspace abstractions:
+  1. `DirWorkspace` (used by `--root DIR` and exclusively inside `--selftest`)
+  2. `GitWorkspace` (used by `--revision REV` for git commits)
+- `--selftest` constructs fixtures inside temporary directories using `tempfile.mkdtemp` and evaluates them via `DirWorkspace`.
+- `--selftest` contains ZERO test cases testing `GitWorkspace` or verifying that a non-ancestor commit hash is rejected with `TableError` / exit code 2.
+- Consequently, mutant M07 deletes the ancestor check with complete impunity, passing `--selftest 14/14` and matching the un-mutated checker across all git-backed legs.

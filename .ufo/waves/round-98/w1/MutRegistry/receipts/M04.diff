@@ -1,0 +1,14 @@
+--- /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/pristine/check-registry-content-r98.py	2026-11-08 10:04:22.139254402 -0300
++++ /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/mutants/M04.py	2026-11-08 10:06:37.914968350 -0300
+@@ -306,10 +306,7 @@
+     for binding in BINDINGS:
+         site = "%s[%d]" % (binding["row"], binding["cell"])
+         matches = by_name.get(binding["row"])
+-        if not matches:
+-            findings.append({"id": "RC-ROW-MISSING", "site": site,
+-                             "detail": "no operative row named %r" % binding["row"]})
+-            continue
++        # M04: RC-ROW-MISSING guard removed
+         if len(matches) != 1:
+             findings.append({"id": "RC-ROW-AMBIGUOUS", "site": site,
+                              "detail": "%d operative rows named %r" % (len(matches), binding["row"])})

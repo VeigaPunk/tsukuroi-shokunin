@@ -1,0 +1,37 @@
+# L0 Collision Cross-Check — Tsukuroi Round 98 Wave w1
+Source: /home/vgpnk/Projects/shokunin/.ufo/l0-questions.md (391 lines)
+
+## 1. Automated Token Sweeps
+- Command 1:
+  grep -nE "check_echo|visibility_era|limine_version_source|check-registry-content|derive_variant_span" /home/vgpnk/Projects/shokunin/.ufo/l0-questions.md
+  Output count: 0 matches
+
+- Command 2:
+  grep -nE "limine-pins|limine-pin-battery|VARIANTS" /home/vgpnk/Projects/shokunin/.ufo/l0-questions.md
+  Output count: 0 matches
+
+## 2. Analysis of Thematic Hits
+Inspection of lines touching registry tables, Limine bootloader, or version assertions:
+
+1. Line 174 (kotoba | round-73):
+   "considerthese/2026-10-25.md item 2 proposes moving the gate registry out of SKILL.md into verifiers/REGISTRY.md, but PROTOCOL.md line 398 makes SKILL.md the lane registry home and closure grades no gate conformant without a row there; may a pointer registry (rows elsewhere, SKILL.md pointing at them) be used, or must the rows stay in SKILL.md? Not blocking: the round dropped the claim."
+   Relation to Round 98: Zero collision. Confirms SKILL.md remains the fleet-mandated home for tool registry tables, confirming tsukuroi's binding of SKILL.md rows in C2.
+
+2. Line 302 (kaidoku | round-86):
+   "R86-C2 (gate registry row re-derived by running it) met its frozen measure at 4cc03025 (0/5 -> 5/5, `.ufo/waves/round-86/l1/scores/c2-at-integration.json`) but is not admitted: operability is not an owned lane axis (SCORECARD: "fleet axis, unowned proxy"), so no owned score can move. Operator ruling needed: may kaidoku own operability (name a scored row), or must registry-verification claims name an owned axis? Report: `.ufo/reports/round-86/kaidoku.md`."
+   Relation to Round 98: Zero collision. Tsukuroi claims freshness (an owned axis in tsukuroi, SCORECARD score 9) for C2, not operability.
+
+3. Line 383 (tsukuroi | round-86):
+   "HOST INCIDENT (boot chain): r86 wave seat ScoutHost ran `sudo objcopy --dump-section .cmdline=<out> /boot/EFI/Linux/<uki>` at 18:11:21-22 -03; with no output file objcopy rewrote both UKIs in place (5 PE header bytes each: TimeDateStamp 136-138, CheckSum 216-217; all section payloads byte-identical per the seat). /boot/limine.conf BLAKE2b pins now mismatch ... With hash_mismatch_panic: no, limine is expected to warn and wait for a keypress at next boot. Decision requested: re-run limine-entry-tool (or kernel-install/UKI rebuild) to re-pin, or accept? The lane did not touch /boot further..."
+   Relation to Round 98: Zero collision. Historical host incident. Round 98 tests synthetic Limine configs and version flags in scratch; zero touches to /boot.
+
+4. Line 385 (kumitate | round-96) and Line 387 (kumitate | round-99):
+   Fleet sources-census.sh reader inconsistencies regarding carriage returns in "## Registry" headers and whitespace trimming in used-by paths.
+   Relation to Round 98: Zero collision. Concerns fleet census tooling parsing SOURCES.md; zero bearing on check-registry-content-r98.py or check-limine-pins.py.
+
+5. Lines 390-391 (tsukuroi | round-92):
+   "GH013 CREDENTIAL INCIDENT: wave seat ExecIsolationProbe dumped the real process environment into .ufo/waves/round-92/w1/ExecIsolationProbe/probe-outside.txt; 2 live 1Password service-account token lines ... resolved inside the lane."
+   Relation to Round 98: Zero collision. Historical resolved credential dump; unrelated to round 98 surfaces.
+
+## 3. Verdict
+PASS. Zero collisions with open or routed L0 items across all 391 lines.

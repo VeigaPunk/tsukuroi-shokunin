@@ -1,0 +1,56 @@
+# receipt: drift sweep (the seat's named commands)
+$ git grep -n "105/105" -- corpus SCORECARD.md LOG.md | wc -l
+28
+-- the same at the freeze commit HEAD --
+24
+
+$ git grep -n "A7\|field-only\|echo" -- corpus/README.md corpus/lessons/round-97.md
+corpus/README.md:370:| `knowledge/alpm-package-anatomy-r41.md` | The package-file side of the pacman-state plane at pacman `54d9411` as built by Arch `7.1.0.r9.g54d9411-3`, with alpm-package(7) from `extra/alpm-docs 0.13.0-1`, deepening the plane whose transaction position is `knowledge/pacman-transaction-order-r39.md` (TO1–TO8), whose exec environment is `knowledge/pacman-exec-environment-r40.md` and whose `backup` handling is `knowledge/pacman-backup-files-r35.md`: the format's required root members `.BUILDINFO` `.MTREE` `.PKGINFO` plus optional `.INSTALL` (PA1); libalpm requires only `.PKGINFO` on load — a file with no `.PKGINFO` root entry fails with "missing package metadata", an empty name or version is refused, a version without a dash is refused, `.MTREE` is read only on a full load and `.BUILDINFO` is passed over like every other unhandled dot file (PA2); makepkg lists with `LC_COLLATE=C` and bash `dotglob`, so the dot files sort ahead of the data files and the metadata sits at the beginning of the archive (PA3), while the partial load's stop is the loader's — the first non-dot entry after `.PKGINFO` (`be_package.c`, S228); install keeps `.INSTALL`/`.CHANGELOG`/`.MTREE` as `install`/`changelog`/`mtree` (mode 0644) in the local database entry and skips every other root dot file, `.PKGINFO` and `.BUILDINFO` included (PA4); `.MTREE` is a gzip mtree listing that excludes itself (PA5); `pacman -Qkk` runs `check_pkg_full` on the kept mtree, and a missing or unopenable mtree returns 0 with the "no mtree file" notice (silent under `--quiet`), so the package adds zero errors (PA6); PKGBUILD(5)'s Packaging Functions section gives the working directory of the five functions it names — `package()`/`prepare()`/`build()`/`check()` in `$srcdir`, `verify()` in `$startdir`, `package()` under fakeroot — and none for the split `package_<name>()` or `pkgver()` (PA7, packaging-side); vercmp order — epoch (absent = 0), then version, then release only when both carry one, so any epoch 1 build outranks every epoch 0 build and `1.0` equals `1.0-5` (PA8); the host column reads this host's local database (1409 entries: mtree 1409 of 1409, install 51 of 1409, changelog 0, dot files 0, mtree gzip 1409 of 1409, self-listed 0), its `vercmp` and its `man PKGBUILD` | S227–S236 in `../SOURCES.md` (nine pinned upstream documents — alpm-package(7), `be_package.c`, `makepkg.sh.in`, `add.c`, `check.c`, `PKGBUILD.5.asciidoc`, `version.c`, `be_local.c`, `query.c` — plus the own-work capture `.ufo/waves/round-41/frozen/hostcap/`, `MANIFEST.sha256`); `lessons/round-41.md` Gate (rows S227–S236 and the assimilation re-grounding that meets round 38's flip); counter `../tools/check-package-anatomy-r41.py` (frozen at `e479fdc5`, sha256 `c83e29a4…`); `../SCORECARD.md` "Round 41 — declaration" |
+corpus/README.md:381:PA5), the local database (PA4), the `-Qkk` loop (PA6) and the version comparison (PA8); PA7 states a build recipe, is
+corpus/README.md:404:re-grounding of the staged `alpm-package-anatomy-r26.md` theme, which admits PA1, PA7 and PA8 re-grounded and keeps the
+corpus/README.md:1138:- The battery never reads `visibility_era`, and it compares the echoed `limine_version` only on AUTO
+corpus/README.md:1139:  cases (`auto_ok` short-circuits when `c.auto is None`); M06 (echo `99.9.9` for a `999999999.9.9`
+corpus/README.md:1157:`families_total 103`) adds `EXPLICIT-VERSION-ECHO` (an explicit flag is echoed with source `flag`),
+corpus/README.md:1161:families (`N01` echo, `N02` Y-cap, `N03` era label, `N04` extra components), and the r95 battery is
+corpus/README.md:1170:  cases still compare the echo through `auto_ok`, and a probe-failure row emits no JSON to read.
+corpus/README.md:1226:contract, opened this round: `limine_version` echoes the flag spelling verbatim with source
+corpus/README.md:1228:`tools/limine-pin-battery-r98.py` keeps the r97 roster at 105 and sets `check_echo` + `check_era`
+corpus/README.md:1231:spellings) and `N08-echo-norm` (echo replaced by the numeric tuple) read `103/105` and `104/105`,
+corpus/README.md:1232:while the r97 battery is blind to both at `met 105/105` — the r97 A7 limit closed. The
+corpus/README.md:1242:  `REFUSAL-VERSIONS-9DIGIT-Y` still set neither `check_echo` nor `check_era`, so a field lie on
+corpus/README.md:1246:- The echo assertion fixes the gate's current contract (verbatim spelling). A gate that starts
+corpus/README.md:1247:  canonicalizing the echo fails the LZ family by design; the entry's PC1 is what must be
+corpus/lessons/round-97.md:98:| C1 | era field lies while pins answer era B (`attack1-eraA-field`) | `w1/ReviewBattery/attack-1-field.txt` | **survives** `105/105` ×3 — the families never read `visibility_era` (A7 limit) |
+corpus/lessons/round-97.md:99:| C1 | echo normalized for leading-zero members (`attack2-echo-norm`) | `w1/ReviewBattery/attack-2.txt` | **survives** `105/105` ×3 — the LZ family never reads the echo (A7 limit) |
+corpus/lessons/round-97.md:110:leading zeros is unsent" are closed as families; what remains is the field/echo coverage of the new
+corpus/lessons/round-97.md:111:members (A7), the C2 checker's 150 unbound rows and its three measured gaps (A4), and MutRegistry's
+-- count --
+19
+-- the same at the freeze commit HEAD --
+12
+
+# byte-level offsets (QUALITY 141: measured on the BYTES, not a decoded index)
+$ grep -abo '105/105' corpus/lessons/round-97.md
+10319:105/105
+10510:105/105
+$ grep -abo 'A7 limit' corpus/lessons/round-97.md
+10378:A7 limit
+10563:A7 limit
+$ grep -abo '150 unbound' corpus/README.md corpus/lessons/round-97.md .ufo/plans/round-98.md SCORECARD.md
+corpus/README.md:139562:150 unbound
+corpus/lessons/round-97.md:11591:150 unbound
+.ufo/plans/round-98.md:1453:150 unbound
+.ufo/plans/round-98.md:9361:150 unbound
+SCORECARD.md:1130379:150 unbound
+$ grep -abo 'The battery never reads .visibility_era' corpus/README.md
+130479:The battery never reads `visibility_era`
+$ grep -abo 'REFUSAL-VERSIONS-9DIGIT-Y. still set neither' corpus/README.md
+138764:REFUSAL-VERSIONS-9DIGIT-Y` still set neither
+
+# the r98 frontier bullet that carries the X/Y limit, verbatim from the bytes
+byte offset 138669
+The metadata assertion is bound to the two r97 families only. `REFUSAL-VERSIONS-9DIGIT` and
+  `REFUSAL-VERSIONS-9DIGIT-Y` still set neither `check_echo` nor `check_era`, so a field lie on
+  their spellings is uncertified; `EXPLICIT-VERSION-ECHO`/`-ERA` cover other members.
+- `N07`'s lie is targeted by construction; a field lie on a spelling with neither a 9-digit third
+  compon

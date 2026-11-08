@@ -1,0 +1,56 @@
+# REJECT CANDIDATE — limine CONFIG.md v12.9.6
+
+$ curl -sSL -o limine-config-v12.9.6.md -w "final_url=%{url_effective} http=%{http_code} bytes=%{size_download}\\n" https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/CONFIG.md
+final_url=https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/CONFIG.md http=200 bytes=27609
+
+$ sha256sum limine-config-v12.9.6.md
+f44f3a19133cb3dc14d6d8b402ed585feb98a36bc4b263c37aa92f621f603763  limine-config-v12.9.6.md
+
+$ wc -c limine-config-v12.9.6.md
+27609 limine-config-v12.9.6.md
+
+## token counts (case-insensitive, grep -o -F)
+  limine_version         0
+  limine_version_source  0
+  visibility_era         0
+  echo                   0
+  int(                   0
+  leading zero           0
+  version                0
+  JSON                   0
+
+## what the page actually is (headings)
+1:# Limine configuration file
+3:## Location of the config file
+28:### Config via SMBIOS
+38:## Structure of the config file
+43:### Menu entries and sub-entries
+68:### Options
+383:## Paths
+462:## Macros
+481:### Built-in macros
+
+## REASON FOR REJECTION
+  (a) It does NOT state the gate's JSON fields: `limine_version`, `limine_version_source` and `visibility_era`
+      occur 0 times each in the 27609 bytes (measured above). The page is upstream's limine.conf
+      reference (config-file location, structure, options, paths, macros) — it says nothing about
+      any JSON report contract, so it cannot ground S393's teaches cell or any r98 claim about the
+      gate's emitted fields.
+  (b) It does NOT state echo semantics: the token `echo` occurs 0 times; there is no
+      sentence saying a version string is echoed verbatim or normalised. S393's echo claim is
+      therefore grounded ONLY in the own-work source (the gate bytes), which is where the row
+      puts it (own-work, tier A).
+  (c) It does NOT touch the round's other source: the token `version` occurs 0 times in the
+      whole page and `leading zero` 0 times, so it cannot ground S392's int() leading-zero
+      statement either, and it does not mention the 12.9.5 era split.
+  => REJECTED for round 98: the page is a plausible-but-unrelated upstream document. Admitting it
+     would support neither C1 (the Z/LZ echo+era assertion) nor C2 (the registry span capture).
+
+## corroborating rejects (same round, measured the same way)
+  https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/USAGE.md   http=200 10710 bytes  sha256 db32c4e05427322fc5c4be70773a3dacbc2e36ff9a94fdfc862172d993a90329
+      limine_version/visibility_era/limine_version_source/echo/int(/leading zero/version = 0/0/0/0/0/0/0
+  https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/README.md  http=200  2947 bytes  sha256 318ff36ad960adf3fc3d01eb250e1d30753155dd8b5ced92332db5b2f607b0ce
+      limine_version/visibility_era/limine_version_source/echo/int(/leading zero = 0/0/0/0/0/0 ; `version` = 2 (both in the word "version" of a build/README sentence)
+  https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/limine.1    http=404   14 bytes  sha256 d5558cd419c8d46bdc958064cb97f963d1ea793866414c025906ec15033512ed (path does not exist at the tag)
+
+# pinned copy kept in this seat: pins/limine-CONFIG-v12.9.6.md (sha256 f44f3a19133cb3dc14d6d8b402ed585feb98a36bc4b263c37aa92f621f603763, 27609 bytes)

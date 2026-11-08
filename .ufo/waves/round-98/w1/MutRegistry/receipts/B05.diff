@@ -1,0 +1,14 @@
+--- /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/pristine/limine-pin-battery-r98.py	2026-11-08 10:04:22.139819612 -0300
++++ /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/mutants-battery/B05.py	2026-11-08 10:07:45.131926079 -0300
+@@ -363,7 +363,10 @@
+         version = self.version
+         if version == "auto":
+             version = "12.9.4" if self.auto in (None, "fail") else self.auto
+-        return tuple(int(p) for p in version.split(".")) >= (12, 9, 5)
++        parts = version.split(".")
++        if parts[2] == "999999999":  # B05: era inverted for the 9-digit Z spelling
++            return tuple(int(p) for p in parts) < (12, 9, 5)
++        return tuple(int(p) for p in parts) >= (12, 9, 5)
+ 
+     def global_lines(self):
+         """V1/V2: the physical lines in the global section. Before 12.9.5: every line before the

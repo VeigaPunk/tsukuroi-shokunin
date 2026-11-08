@@ -1,0 +1,15 @@
+# receipt: r98 registry-row additions (worktree SKILL.md, uncommitted at the time of this seat's run)
+# the three r98 tools' rows, and the r98 row's own pinned-values cell
+5944:| limine-pin-battery-r98 | gate | `python3 tools/limine-pin-battery-r98.py --gate <PATH> [--runs <N>=1>] [--work <DIR>] [--json <FILE>]`, `--selftest [--reference <GATE>]`, `--isolation-check`, `--usage-check --gate <PATH>` | 0 met (every family in the literal FAMILY_ROSTER, 105, passed all 4 cases, with the r98 metadata assertions); 1 unmet; 2 usage/could-not-evaluate (no `--gate`, `--runs` below 1, FAMILIES differs from FAMILY_ROSTER, or `bwrap` absent) | `python3 tools/limine-pin-battery-r98.py --selftest` (5 cases: roster-literal, absent, constant-HEALTHY, non-JSON, constant-DEGRADED) | r98 roster 105 (unchanged from r97: `REFUSAL-VERSIONS-9DIGIT-Z` and `LEADING-ZERO-NORMALIZE` now set `check_echo`/`check_era`); bytes pinned in `.ufo/waves/round-98/before/instruments.sha256` | committed wave artifacts read-only; `--work` scratch | tsukuroi |
+5945:| make-r98-bends | library | `python3 tools/make-r98-bends.py` | 0 every VARIANTS entry written (two one-clause bends N07-N08); 1 a substitution matched a count other than one - the loop stops there; 2 unused (the tool parses no argv: arguments such as `--help` are ignored and it writes) | none (the exact-once substitution guard is its check; the emitted bends are pinned in the r98 freeze manifest) | r98 VARIANTS N07-N08 | writes `.ufo/waves/round-98/before/controls/bends/` only | tsukuroi |
+5946:| check-registry-content-r98 | gate | `python3 tools/check-registry-content-r98.py --revision <REV> [--branch master]`, `--root <DIR>`, `--selftest` | 0 PASS (every binding in BINDINGS matches); 1 findings (RC-ROW-MISSING, RC-ROW-AMBIGUOUS, RC-CELL-MISSING, RC-VALUE-MISMATCH, RC-DERIVE-FAILED); 2 usage/could-not-evaluate (unreadable table, revision not landed, bad arguments) | `python3 tools/check-registry-content-r98.py --selftest` (14 cases: the r97 twelve plus `span-gap` and `span-gap-lie` pinning the non-contiguous VARIANTS branch) | r98 seven bindings over 4 rows, `RC-BEND-SPAN` accepting `N<digits>-N<digits>` or `N<digits>[,N<digits>]...`; bytes pinned in `.ufo/waves/round-98/before/instruments.sha256`; the other 156 rows stay presence-only | committed reads; selftest private fixtures | tsukuroi |
+
+# operative row count in the worktree (r98 checker's own selector)
+worktree operative rows: 160  bound: 4  unbound: 156
+unbound = 156
+
+# the '150 unbound' figure: what the operative table actually holds, by revision
+f48d1642: operative rows=154 bound=4 unbound=150
+b3be3f90: operative rows=157 bound=4 unbound=153
+1cfeb5d5: operative rows=157 bound=4 unbound=153
+worktree  : operative rows=160 bound=4 unbound=156

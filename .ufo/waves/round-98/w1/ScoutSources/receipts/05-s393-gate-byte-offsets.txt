@@ -1,0 +1,29 @@
+# S393 byte offsets on the pinned gate bytes (byte level, QUALITY 141)
+# file: tools/check-limine-pins.py sha256 7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32 30286 bytes
+
+$ grep -abo "\"limine_version\": limine_version" tools/check-limine-pins.py
+11230:"limine_version": limine_version
+16931:"limine_version": limine_version
+
+$ grep -abo "\"visibility_era\": \"12.9.5+\" if era_b else \"pre-12.9.5\"" tools/check-limine-pins.py
+11344:"visibility_era": "12.9.5+" if era_b else "pre-12.9.5"
+17037:"visibility_era": "12.9.5+" if era_b else "pre-12.9.5"
+
+$ grep -abo "resolved `limine_version` and `limine_version_source: \"probe\"" tools/check-limine-pins.py
+4425:resolved `limine_version` and `limine_version_source: "probe"`
+
+# row S393 expects: 11230 ("limine_version": limine_version) ; 11344 ("visibility_era": ...) ; 4425 (docstring phrase)
+# measured        : 11230 ; 11344 ; 4425  -> ALL THREE MATCH
+
+# what those offsets are (line numbers derived by counting newlines in the same bytes)
+  11230 -> line 200  (the CANNOT-EVALUATE error return of check())
+  11344 -> line 202  (the CANNOT-EVALUATE error return of check())
+  4425  -> line 47  (the module docstring, the --limine-version auto paragraph)
+  16931 -> line 316  (the main return of check(), same "limine_version": limine_version text)
+  17037 -> line 318  (the main return of check(), same "visibility_era" text)
+
+# NOTE (measured, not asserted): the row cites the offsets 11230/11344 and says "main return after parsing";
+# those two offsets are the SAME two field names in the EARLY-RETURN (CANNOT-EVALUATE) branch of check()
+# (lines 200-202); the identical field text in the main return sits at 16931/17037 (lines 316-318).
+# Both emissions carry the same values (era_b is computed before either return), so the teaches
+# cell is unaffected; but the "main return" pointer does not describe the bytes at 11230/11344.

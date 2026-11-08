@@ -1,0 +1,32 @@
+# S392 re-open (external)
+
+$ curl -sSL -o s392.html -w "HTTP %{http_code} bytes %{size_download}\\n" https://docs.python.org/3/library/functions.html#int
+HTTP 200 bytes 331022
+
+$ sha256sum s392.html
+d92580dd0e7a02aab9b51fe30885ae59fd924c639324c7e07a90799e8bc721d7  s392.html
+
+$ wc -c s392.html
+331022 s392.html
+
+# redirect chain (no -L)
+$ curl -sS -o /dev/null -w "no-follow http=%{http_code} redirect=%{redirect_url}\\n" https://docs.python.org/3/library/functions.html
+no-follow http=301 redirect=https://docs.python.org/3/builtins/functions.html
+
+$ curl -sSL -o s392b.html -w "final_url=%{url_effective} http=%{http_code} redirects=%{num_redirects} bytes=%{size_download}\\n" https://docs.python.org/3/library/functions.html#int
+final_url=https://docs.python.org/3/builtins/functions.html http=200 redirects=1 bytes=331022
+d92580dd0e7a02aab9b51fe30885ae59fd924c639324c7e07a90799e8bc721d7  s392b.html
+
+$ cmp s392.html s392b.html
+IDENTICAL
+
+# r97 pin comparison
+r97 pin (corpus/SOURCES.md S392 row): sha256 d92580dd0e7a02aab9b51fe30885ae59fd924c639324c7e07a90799e8bc721d7, 331022 bytes
+live fetch    : sha256 d92580dd0e7a02aab9b51fe30885ae59fd924c639324c7e07a90799e8bc721d7, 331022 bytes
+verdict      : BYTE-IDENTICAL (no drift)
+
+# against the r97 committed snapshot pins
+BYTE-IDENTICAL to .ufo/waves/round-97/w1/ScoutSources/pins/int-functions.html
+
+# pinned copy kept in this seat: pins/int-functions.html (sha256 d92580dd0e7a02aab9b51fe30885ae59fd924c639324c7e07a90799e8bc721d7, 331022 bytes)
+# scratch (/fast/scratch/hyaku/tsukuroi-r98/ScoutSources) removed before yield; all values above were taken from these bytes.

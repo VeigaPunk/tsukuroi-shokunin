@@ -1,0 +1,6 @@
+'N01,N03' -> 'N01,N03' | comma pair -> captures whole. Claimed form.
+'N01,N03 ' -> 'N01,N03' | trailing space -> captures N01,N03 (space outside capture).
+'n01,n03' -> None | lowercase -> no capture (RC-CELL-MISSING). Claim pattern uppercase: not covered, not claimed.
+'N01,N03,N05' -> 'N01,N03,N05' | 3-label chain -> full chain captured. Claim/plan 'N01,N03' example + plan limit 'N<digits>,N<digits>...' with ellipsis covers.
+'N01, N03' -> None | comma+space -> None (RC-CELL-MISSING), not VALUE-MISMATCH. Neither claim nor plan limit mentions space.
+'N01 ,N03' -> None | space before comma -> None, same.

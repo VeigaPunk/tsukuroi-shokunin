@@ -4281,3 +4281,22 @@ r97 rows. The r96 Y-family docstring corrected in the r96 tool (bytes re-derivab
 `before/plan-amendments-r97.md`. The provenance-header gate reads rc 0 at `5eb475cd` (113/113 clean)
 after repairing the r95 entry's line-initial trio and the r95/r96/r97 `recheck:` cadences. No axis
 harmed; the gate bytes are unchanged (`7d79ac29…`).
+
+## Round 98 — freeze (`1cfeb5d5`)
+
+Two claims frozen at `1cfeb5d5` against pre-round tip `b3be3f90`; instruments pinned in
+`.ufo/waves/round-98/before/instruments.sha256` (27 entries). C1 (depth 8): the r97 A7 limit is
+closed — `tools/limine-pin-battery-r98.py` sets `check_echo`/`check_era` on
+`REFUSAL-VERSIONS-9DIGIT-Z` and `LEADING-ZERO-NORMALIZE` (roster unchanged 105), and the LZ
+docstring's text-comparer sentence is corrected (R97-D3/A6: the discriminator is
+`12.000000009.000000005`). C2 (freshness 9): `tools/check-registry-content-r98.py` binds the comma
+span form and adds `span-gap` / `span-gap-lie` selftest cases (12 -> 14), closing the r97 M08
+survivor. Do-nothing controls: the r97 battery (`e678c34f…`, byte-identical to `b3be3f90`), the
+unchanged gate (`7d79ac29…`) and the r97 checker (`2daf5926…`). Bends N07/N08 emitted by
+`tools/make-r98-bends.py` (each one clause, exact-once guard). Doctored fixtures D1/D2/D2lie built
+on the pinned base by `before/fixtures/build-doctored-fixture-r98.sh`. Development receipts:
+landed gate `105/105` x3, N07 `103/105` x3 with `[LEADING-ZERO-NORMALIZE, REFUSAL-VERSIONS-9DIGIT-Z]`
+and 0 error rows, N08 `104/105`, r97 control `met 105/105` on gate and both bends; C2 selftest
+`14/14` (r98) and `12/12` (r97), M08 mutant `12/14` FAIL, D1/D2/D2lie readings as frozen. Corpus:
+S393 (own-work, the gate's JSON report contract) and
+`knowledge/limine-metadata-assertions-r98.md` (PC1-PC3 + limits); census 392 -> 393, exit 0.

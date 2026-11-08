@@ -1,0 +1,32 @@
+== derive_variant_span function ==
+165:def derive_variant_span(text, _arg):
+166-    tree = ast.parse(text, filename="<bound-tool>")
+167-    keys = None
+168-    for node in tree.body:
+169-        if isinstance(node, ast.Assign) and any(
+170-                isinstance(t, ast.Name) and t.id == "VARIANTS" for t in node.targets):
+171-            if not isinstance(node.value, ast.Dict):
+172-                raise ValueError("VARIANTS is not a literal dict")
+173-            keys = [k.value for k in node.value.keys if isinstance(k, ast.Constant)]
+174-    if not keys:
+175-        raise ValueError("no module-level VARIANTS dict")
+176-    labels = sorted({re.match(r"(N[0-9]+)", k).group(1) for k in keys
+177-                     if re.match(r"(N[0-9]+)", k)})
+178-    if not labels:
+179-        raise ValueError("VARIANTS keys carry no N<digits> label")
+180-    numbers = [int(x[1:]) for x in labels]
+181-    if numbers != list(range(numbers[0], numbers[0] + len(numbers))):
+182-        return ",".join(labels)
+183-    return "%s-%s" % (labels[0], labels[-1])
+184-
+185-
+186-def parse_tally(stdout):
+187-    """The printed self-test tally of the bound tools: `selftest PASS N/N`, `PASS N/N`, or
+188-    `PASS (N cases, N passed, M failed)`; a FAIL line is a failed derivation."""
+189-    for line in stdout.splitlines():
+190-        m = re.search(r"(?:^|\s)(PASS|FAIL)\s+\((\d+) cases,\s*(\d+) passed,\s*(\d+) failed\)", line)
+191-        if m:
+192-            if m.group(1) != "PASS" or m.group(4) != "0":
+193-                raise ValueError("self-test tally is %r" % line.strip())
+194-            return (int(m.group(2)), int(m.group(3)))
+195-        m = re.search(r"(PASS|FAIL)\s+(\d+)/(\d+)\s*$", line.strip())

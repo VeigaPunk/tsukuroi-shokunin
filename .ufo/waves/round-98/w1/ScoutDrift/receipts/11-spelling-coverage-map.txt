@@ -1,0 +1,31 @@
+# receipt: the spelling-coverage map (which family asserts echo/era for each version spelling)
+# built by constructing each family's Case in-process (import of the pinned r98 battery)
+$ python3 spellmap.py <lane>
+version                            auto     pass_ver | echo-asserted-by | era-asserted-by
+0.9.999999999                      None     True   | REFUSAL-VERSIONS-9DIGIT-Z    | REFUSAL-VERSIONS-9DIGIT-Z   
+0.999999999.0                      None     True   | -- NONE --                   | -- NONE --                  
+000000000.000000000.000000000      None     True   | LEADING-ZERO-NORMALIZE       | LEADING-ZERO-NORMALIZE      
+000000012.9.4                      None     True   | LEADING-ZERO-NORMALIZE       | LEADING-ZERO-NORMALIZE      
+12.000000009.000000005             None     True   | LEADING-ZERO-NORMALIZE       | LEADING-ZERO-NORMALIZE      
+12.09.4                            None     True   | LEADING-ZERO-NORMALIZE       | LEADING-ZERO-NORMALIZE      
+12.9.4                             None     False  | -- NONE --                   | -- NONE --                  
+12.9.4                             None     True   | EXPLICIT-VERSION-ECHO        | EXPLICIT-VERSION-ERA        
+12.9.5                             None     True   | EXPLICIT-VERSION-ECHO        | EXPLICIT-VERSION-ERA        
+12.9.6                             None     True   | EXPLICIT-VERSION-ECHO        | EXPLICIT-VERSION-ERA        
+12.9.999999999                     None     True   | REFUSAL-VERSIONS-9DIGIT-Z    | REFUSAL-VERSIONS-9DIGIT-Z   
+12.999999999.4                     None     True   | -- NONE --                   | -- NONE --                  
+999999999.9.9                      None     True   | EXPLICIT-VERSION-ECHO        | EXPLICIT-VERSION-ERA        
+auto                               12.9.4   True   | -- NONE --                   | -- NONE --                  
+auto                               12.9.6   True   | -- NONE --                   | -- NONE --                  
+auto                               fail     True   | -- NONE --                   | -- NONE --                  
+auto                               shapes   True   | -- NONE --                   | -- NONE --                  
+
+spellings with NEITHER echo nor era asserted by any family (7):
+    12.9.4 auto= None pass_version= False
+    auto auto= 12.9.4 pass_version= True
+    auto auto= 12.9.6 pass_version= True
+    auto auto= fail pass_version= True
+    auto auto= shapes pass_version= True
+    12.999999999.4 auto= None pass_version= True
+    0.999999999.0 auto= None pass_version= True
+echo-only spellings: 0  era-only: 0  both: 10

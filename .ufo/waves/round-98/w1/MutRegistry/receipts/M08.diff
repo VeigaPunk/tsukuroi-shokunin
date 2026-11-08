@@ -1,0 +1,11 @@
+--- /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/pristine/check-registry-content-r98.py	2026-11-08 10:04:22.139254402 -0300
++++ /fast/scratch/hyaku/tsukuroi-r98/MutRegistry/mutants/M08.py	2026-11-08 10:06:37.915214570 -0300
+@@ -178,7 +178,7 @@
+     if not labels:
+         raise ValueError("VARIANTS keys carry no N<digits> label")
+     numbers = [int(x[1:]) for x in labels]
+-    if numbers != list(range(numbers[0], numbers[0] + len(numbers))):
++    if numbers[:1] != list(range(numbers[0], numbers[0] + 1)):  # M08: first label only
+         return ",".join(labels)
+     return "%s-%s" % (labels[0], labels[-1])
+ 

@@ -1,0 +1,40 @@
+# the era families' expected pin consequence, from the frozen dev receipt
+$ python3 -c "import json; d=json.load(open('.ufo/waves/round-98/before/dev/c1-gate-runs3.json'))…"
+LEADING-ZERO-NORMALIZE     echo=12.09.4                        want_consequence=prompt  got_consequence=prompt  passed=True
+LEADING-ZERO-NORMALIZE     echo=000000012.9.4                  want_consequence=prompt  got_consequence=prompt  passed=True
+LEADING-ZERO-NORMALIZE     echo=12.000000009.000000005         want_consequence=panic   got_consequence=panic   passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=12.9.999999999                 want_consequence=panic   got_consequence=panic   passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=0.9.999999999                  want_consequence=prompt  got_consequence=prompt  passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=12.9.999999999                 want_consequence=panic   got_consequence=panic   passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=0.9.999999999                  want_consequence=prompt  got_consequence=prompt  passed=True
+LEADING-ZERO-NORMALIZE     echo=000000000.000000000.000000000  want_consequence=prompt  got_consequence=prompt  passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=12.9.999999999                 want_consequence=panic   got_consequence=panic   passed=True
+LEADING-ZERO-NORMALIZE     echo=12.09.4                        want_consequence=prompt  got_consequence=prompt  passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=0.9.999999999                  want_consequence=prompt  got_consequence=prompt  passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=12.9.999999999                 want_consequence=panic   got_consequence=panic   passed=True
+LEADING-ZERO-NORMALIZE     echo=000000012.9.4                  want_consequence=prompt  got_consequence=prompt  passed=True
+LEADING-ZERO-NORMALIZE     echo=12.000000009.000000005         want_consequence=panic   got_consequence=panic   passed=True
+LEADING-ZERO-NORMALIZE     echo=000000000.000000000.000000000  want_consequence=prompt  got_consequence=prompt  passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=0.9.999999999                  want_consequence=prompt  got_consequence=prompt  passed=True
+LEADING-ZERO-NORMALIZE     echo=12.09.4                        want_consequence=prompt  got_consequence=prompt  passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=12.9.999999999                 want_consequence=panic   got_consequence=panic   passed=True
+LEADING-ZERO-NORMALIZE     echo=000000012.9.4                  want_consequence=prompt  got_consequence=prompt  passed=True
+LEADING-ZERO-NORMALIZE     echo=12.000000009.000000005         want_consequence=panic   got_consequence=panic   passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=0.9.999999999                  want_consequence=prompt  got_consequence=prompt  passed=True
+LEADING-ZERO-NORMALIZE     echo=000000000.000000000.000000000  want_consequence=prompt  got_consequence=prompt  passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=12.9.999999999                 want_consequence=panic   got_consequence=panic   passed=True
+REFUSAL-VERSIONS-9DIGIT-Z  echo=0.9.999999999                  want_consequence=prompt  got_consequence=prompt  passed=True
+
+# the gate's own prompt condition (why 'no' is the value that yields prompt)
+258:    prompt = (panic_setting is not None and panic_setting[1].lower() == "no" and not secure_boot)
+
+# the battery's meta_ok, verbatim
+2161:def meta_ok(c, got):
+2162-    """r96: an explicit-version case asserts the echo/source leg and/or the era leg it declares."""
+2163-    if c.check_echo and not (got[8] == c.version and got[9] == "flag"):
+2164-        return False
+2165-    if c.check_era and got[10] != ("12.9.5+" if c.era_b() else "pre-12.9.5"):
+2166-        return False
+2167-    return True
+2168-
+2169-

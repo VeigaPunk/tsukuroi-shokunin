@@ -1219,3 +1219,37 @@ registry cells to the bytes of the tool each row names and reads `FAIL` with one
   survives all three legs (routed to r98 as a selftest case).
 - Still open from r96: the r92 launcher residuals, the r93 probe pre-release caveat, and r89's
   blanks-before-CRLF, ESP containment and empty labels.
+
+## Round 98 — the reported metadata fields, and a span capture that binds the comma form
+
+New ground: `knowledge/limine-metadata-assertions-r98.md` (S393 own-work — the gate's JSON report
+contract, opened this round: `limine_version` echoes the flag spelling verbatim with source
+`flag`, and `visibility_era` is `pre-12.9.5` / `12.9.5+` from the whole tuple; S392 re-opened).
+`tools/limine-pin-battery-r98.py` keeps the r97 roster at 105 and sets `check_echo` + `check_era`
+on `REFUSAL-VERSIONS-9DIGIT-Z` and `LEADING-ZERO-NORMALIZE`, so each case asserts the fields its
+own call emits; the two one-clause bends `N07-era-field-lie` (label swapped only for Z/LZ
+spellings) and `N08-echo-norm` (echo replaced by the numeric tuple) read `103/105` and `104/105`,
+while the r97 battery is blind to both at `met 105/105` — the r97 A7 limit closed. The
+`fam_leading_zero_normalize` docstring's text-comparer sentence is corrected (R97-D3/A6: the
+discriminator is `12.000000009.000000005`; the text comparer orders it era A while `int()` reads
+12.9.5). `tools/check-registry-content-r98.py` extends the `RC-BEND-SPAN` capture to the comma form
+and adds `span-gap` / `span-gap-lie` selftest cases (12 -> 14): the r97 MutRegistry M08 survivor
+now dies on both the selftest (12/14) and the D2 doctored revision, which the mutant reads PASS.
+
+### Frontier (round-98 addition)
+
+- The metadata assertion is bound to the two r97 families only. `REFUSAL-VERSIONS-9DIGIT` and
+  `REFUSAL-VERSIONS-9DIGIT-Y` still set neither `check_echo` nor `check_era`, so a field lie on
+  their spellings is uncertified; `EXPLICIT-VERSION-ECHO`/`-ERA` cover other members.
+- `N07`'s lie is targeted by construction; a field lie on a spelling with neither a 9-digit third
+  component nor a leading-zero component is outside that bend's clause.
+- The echo assertion fixes the gate's current contract (verbatim spelling). A gate that starts
+  canonicalizing the echo fails the LZ family by design; the entry's PC1 is what must be
+  re-decided, not the family bent.
+- The `RC-BEND-SPAN` capture binds `N<digits>-N<digits>` and `N<digits>[,N<digits>]...`; prose
+  after the span in the same cell, lowercase labels and non-`N` label families are outside it.
+- Still open from r97: the C2 checker's unbound rows — **153 of 157** at the pre-round base `b3be3f90`
+  (156 of 160 after this round's rows; amendment A6) — and its three measured gaps (uncovered
+  cells of bound rows, tool+cell co-doctoring, printed-tally parsing); from r96: the r92 launcher
+  residuals, the r93 probe pre-release caveat; from r89: blanks before CR-LF, ESP containment and
+  empty labels.

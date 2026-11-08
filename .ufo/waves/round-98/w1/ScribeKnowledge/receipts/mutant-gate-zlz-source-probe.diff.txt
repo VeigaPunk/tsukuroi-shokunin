@@ -1,0 +1,15 @@
+=== diff of the mutant against the pinned gate ===
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-98/w1/ScribeKnowledge/receipts/mutant-gate-zlz-source-probe.py	2026-11-08 10:20:31.640972669 -0300
+@@ -314,7 +314,7 @@
+         verdict, rc = "HEALTHY", 0
+     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+             "limine_version": limine_version,
+-            "limine_version_source": limine_version_source,
++            "limine_version_source": ("probe" if (len(limine_version.split(".")[2]) == 9 or any(len(p) > 1 and p.startswith("0") for p in limine_version.split("."))) else limine_version_source),
+             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+             "hash_mismatch_panic": None if panic_setting is None else
+             {"line": panic_setting[0], "value": sanitize(panic_setting[1])},
+=== sha256 of both ===
+7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32  tools/check-limine-pins.py
+e076a2f7229eed9c28a54b5396136f324cdd660f331851f8d8013769b8d36835  .ufo/waves/round-98/w1/ScribeKnowledge/receipts/mutant-gate-zlz-source-probe.py

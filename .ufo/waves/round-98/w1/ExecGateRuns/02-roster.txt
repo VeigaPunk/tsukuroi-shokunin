@@ -1,0 +1,341 @@
+CMD: python3 -c AST import of battery
+Traceback (most recent call last):
+  File "<string>", line 10, in <module>
+    vals[t.id]=ast.literal_eval(node.value)
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/usr/lib/python3.14/ast.py", line 106, in literal_eval
+    return _convert(node_or_string)
+  File "/usr/lib/python3.14/ast.py", line 95, in _convert
+    return dict(zip(map(_convert, node.keys),
+                    map(_convert, node.values)))
+  File "/usr/lib/python3.14/ast.py", line 105, in _convert
+    return _convert_signed_num(node)
+  File "/usr/lib/python3.14/ast.py", line 79, in _convert_signed_num
+    return _convert_num(node)
+  File "/usr/lib/python3.14/ast.py", line 70, in _convert_num
+    _raise_malformed_node(node)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/ast.py", line 67, in _raise_malformed_node
+    raise ValueError(msg + f': {node!r}')
+ValueError: malformed node or string on line 1915: Name(id='fam_positive', ctx=Load())
+rc=0
+--- grep check_echo/check_era ---
+64:`met 105/105` (ReviewBattery attack-1-field / attack-2, plan amendments A7). r98 sets `check_echo`
+65:and `check_era` on `REFUSAL-VERSIONS-9DIGIT-Z` and `LEADING-ZERO-NORMALIZE`, so each case also
+313:        self.check_echo = False  # r96: assert the echoed version + source of an explicit flag
+314:        self.check_era = False   # r96: assert visibility_era for an explicit flag
+1778:    c.check_echo = True
+1787:    c.check_era = True
+1822:    c.check_echo = True
+1823:    c.check_era = True
+1839:    c.check_echo = True
+1840:    c.check_era = True
+2163:    if c.check_echo and not (got[8] == c.version and got[9] == "flag"):
+2165:    if c.check_era and got[10] != ("12.9.5+" if c.era_b() else "pre-12.9.5"):
+rc=0
+--- LZ docstring region ---
+fam_leading_zero_normalize line 1827
+r97 C1 (`parse_limine_version`'s documented normalization, unsampled by the r96 roster —
+`M08-leading-zero` survived 103/103): a component written with leading zeros is in-bound and,
+because the gate compares `int()` values, selects its era from the NUMERIC tuple, not the text.
+Members: `12.09.4` and `000000012.9.4` (era A), `12.000000009.000000005` (era B) and
+`000000000.000000000.000000000` (era A). A gate that refuses leading zeros (`p[0] != '0'`)
+refuses the case; one that compares the raw TEXT against 12.9.5 orders `"12.09.4"` as era A
+(correct) but `"12.000000009.000000005"` as era A (wrong — int() reads 12.9.5, era B) and fails
+on that member. (r97 correction R97-D3/A6: the earlier sentence named the wrong member and
+direction; measured, `"000000012.9.4"` orders era A both ways and does not discriminate.) r98:
+the case also asserts the echo (the flag spelling verbatim — `12.09.4` echoes `12.09.4`, not
+`12.9.4` — with source `flag`) and the `visibility_era` label, closing the r97 A7 limit.
+---
+CMD2 roster via import (AST literal for roster only)
+FAMILY_ROSTER len = 105
+CASES_PER_FAMILY = 4
+FAMILIES literal = LITERAL-FAIL:malformed node or string on line 1915: Name(id='fam_positive', ctx=Load())
+Z present = True
+LZ present = True
+--- grep CASES_PER_FAMILY / FAMILIES def ---
+316:        self.index = 0           # r96: the family's case ordinal (0..CASES_PER_FAMILY-1)
+1914:FAMILIES = {
+2021:CASES_PER_FAMILY = 4
+2024:FAMILY_ROSTER = (
+2254:        plan = [f for f in FAMILY_ROSTER for _ in range(CASES_PER_FAMILY)]
+2287:    passed = sorted(f for f, v in fams.items() if len(v) == CASES_PER_FAMILY and all(v))
+2289:    met = len(passed) == len(FAMILY_ROSTER) and len(log) == len(FAMILY_ROSTER) * CASES_PER_FAMILY
+2360:    CASES_PER_FAMILY times and each one-field lie wrapped around it must read unmet; without it the
+2380:            full = all(counts.get(f) == CASES_PER_FAMILY for f in FAMILY_ROSTER)
+--- lines 1770-1850 (Z/LZ families) ---
+
+
+def fam_explicit_version_echo(c):
+    """r96 C1 (closes the r95 survivor M06): an explicit `--limine-version` — one per case:
+    `12.9.4`, `12.9.5`, `12.9.6`, `999999999.9.9` — must be ECHOED in the JSON's `limine_version`
+    and named with source `flag`. A gate that answers the pins correctly but echoes a different
+    version (the r95 M06 mutant, `99.9.9`) fails; the r95 roster compared the echo only on AUTO
+    cases (`auto_ok` short-circuits when `c.auto is None`) and read that mutant met 99/99."""
+    c.check_echo = True
+    _explicit_fixture(c, EXPLICIT_VERSION_META[c.index % len(EXPLICIT_VERSION_META)])
+
+
+def fam_explicit_version_era(c):
+    """r96 C1 (the never-read era field): the same four explicit versions must report
+    `visibility_era` selected from the WHOLE tuple — `pre-12.9.5` below the split, `12.9.5+` at or
+    above — while answering the era's own pins. A gate that reports the wrong label, or selects the
+    era from the first component alone, fails; the r95 roster never read the field."""
+    c.check_era = True
+    _explicit_fixture(c, EXPLICIT_VERSION_META[c.index % len(EXPLICIT_VERSION_META)])
+
+
+def fam_refusal_versions_9digit_y(c):
+    """r96 C1 (the per-component accepted leg the r95 Frontier names next): a boundary member whose
+    cap sits in the SECOND component — `12.999999999.4` (era B) and `0.999999999.0` (era A) — is a
+    real version: the gate must accept it (rc 1 for this fixture's mismatch pin, never rc 64) and
+    answer from the era the whole tuple selects. A gate that bounds only X (the r95 leg) accepts
+    both; one that applies `<= 8` to Y refuses the cap member and fails. LIMIT (r96 CriticClaims
+    F-4, corrected here in r97): an era reader that looks at X alone is NOT caught by this family —
+    X=12 and X=0 answer era B and era A correctly for these two members; that reader is caught by
+    `EXPLICIT-VERSION-ERA` on its `12.9.4` row. The r96 docstring claimed otherwise; the sentence is
+    corrected, the family and its expectation are unchanged."""
+    _era_first_line_panic(c, Y_DIGIT9[c.index % len(Y_DIGIT9)])
+
+
+# r97: the third component at the same published cap (unsampled by the r96 roster — MutBound's
+# `M06-z-cap-8` survived 103/103), and the leading-zero form the gate normalizes through int()
+# (the r96 survivor `M08-leading-zero`). Both are accepted versions, so the expected answer is the
+# era's own: era B -> `panic`, era A -> `prompt` on this first-line-entry fixture.
+Z_DIGIT9 = ("12.9.999999999", "0.9.999999999")
+LEADING_ZERO_VALUES = ("12.09.4", "000000012.9.4", "12.000000009.000000005",
+                       "000000000.000000000.000000000")
+
+
+def fam_refusal_versions_9digit_z(c):
+    """r97 C1 (the Z leg of QUALITY 139's boundary rule): a boundary member whose cap sits in the
+    THIRD component — `12.9.999999999` (era B) and `0.9.999999999` (era A) — is a real version: the
+    gate must accept it (rc 1 for this fixture's mismatch pin, never rc 64) and answer from the era
+    the whole tuple selects. A gate that bounds only X and Y (the r95/r96 legs) accepts both; one
+    that applies `<= 8` to Z refuses the cap member and fails. The r96 battery is blind to the same
+    bend (it reads `met` 103/103), so this family is the Z leg's only witness. r98: the case also
+    asserts the echo (the flag value verbatim, source `flag`) and the `visibility_era` label the
+    whole tuple selects, closing the r97 A7 limit (a field-only lie read 105/105 on the r97 battery)."""
+    c.check_echo = True
+    c.check_era = True
+    _era_first_line_panic(c, Z_DIGIT9[c.index % len(Z_DIGIT9)])
+
+
+def fam_leading_zero_normalize(c):
+    """r97 C1 (`parse_limine_version`'s documented normalization, unsampled by the r96 roster —
+    `M08-leading-zero` survived 103/103): a component written with leading zeros is in-bound and,
+    because the gate compares `int()` values, selects its era from the NUMERIC tuple, not the text.
+    Members: `12.09.4` and `000000012.9.4` (era A), `12.000000009.000000005` (era B) and
+    `000000000.000000000.000000000` (era A). A gate that refuses leading zeros (`p[0] != '0'`)
+    refuses the case; one that compares the raw TEXT against 12.9.5 orders `"12.09.4"` as era A
+    (correct) but `"12.000000009.000000005"` as era A (wrong — int() reads 12.9.5, era B) and fails
+    on that member. (r97 correction R97-D3/A6: the earlier sentence named the wrong member and
+    direction; measured, `"000000012.9.4"` orders era A both ways and does not discriminate.) r98:
+    the case also asserts the echo (the flag spelling verbatim — `12.09.4` echoes `12.09.4`, not
+    `12.9.4` — with source `flag`) and the `visibility_era` label, closing the r97 A7 limit."""
+    c.check_echo = True
+    c.check_era = True
+    _era_first_line_panic(c, LEADING_ZERO_VALUES[c.index % len(LEADING_ZERO_VALUES)])
+
+
+def fam_extra_component(c):
+    """r96 C1 (the four-component shape the r95 Frontier lists as not sent at battery level): a
+    version with a fourth component — `12.9.6.1`, `12.9.6.1.0`, `12.9.6.99`, `12.9.6.7` — is outside
+    the gate's published `X.Y.Z` grammar and must be refused rc 64 with empty stdout; `12.9.6` is
+    the same-list positive control and must answer a verdict (rc 0 on the healthy fixture), so a
+    blanket refuser fails too. A gate that accepts the extra component (parsing only the first
+    three) answers a verdict where the refusal is expected and fails."""
+--- lines 1-80 (roster header) ---
+#!/usr/bin/env python3
+"""Round-97 battery for a Limine path-pin gate (tsukuroi lane; successor of the r96 battery).
+
+What it decides: whether a gate `GATE --conf FILE --esp DIR [--secure-boot-enforced 0|1]
+[--tpm-present 0|1] [--limine-version X.Y.Z|auto]` follows the Limine pin rule set R1-R7 and R9-R10
+below, the reporting contracts R8 (optional fields), V1 (global-section visibility of
+`hash_mismatch_panic` and `measured_boot`), V2 (the version-selected visibility rule: pre-12.9.5 vs
+12.9.5+), V3 (`auto` = the installed-version probe) and U1 (`unverified_image_lines` reporting), for
+each of the families in FAMILY_ROSTER, on fixtures generated fresh per run with OS-entropy names,
+bytes and layouts, the whole case list shuffled per run; every case must return exactly the expected
+(rc, verdict, sorted per-pin (line, status, consequence), on_panic, unverified_image_lines) within
+20 s, plus R8's optional fields. Verdict `met` only when every family in the literal FAMILY_ROSTER
+passed every case.
+
+Round-94 claims (C1 and C2, SCORECARD.md "Round 94 — declaration"). C1 (depth): the r93 battery's
+`REFUSAL-VERSIONS` family certifies ten out-of-range spellings but never a ten-digit component, so
+the surviving mutant M13 (refusal bound `<= 10`) passes every family; the `AUTO-PROBE-FAIL` family
+sends only `exit 1` and never the no-parsable-version, suffixed pre-release, or stderr-only probe shapes. r94 adds
+`REFUSAL-VERSIONS-10DIGIT` (a finite enumeration of ten-digit values) and `AUTO-PROBE-SHAPES`
+(no-parsable stdout and a stderr version), so the 9-digit component cap and the probe's certified
+failure shapes each have a family whose expected answer changes when the clause is bent. C2
+(operability 9, assurance/capability): the gate's `--limine-version auto` (r93 V3) becomes the default
+(r94 V4) — `--live` probes the installed bootloader unless an explicit `X.Y.Z` is given — and the
+probe regex gains its not-word-char suffix guard; the three AUTO families keep certifying the
+observable result.
+
+Round-95 claim (C1, SCORECARD.md "Round 95 — declaration"). The r94 roster certifies only the REFUSED
+side of the gate's published 1-9-digit component bound: `REFUSAL-VERSIONS-10DIGIT` sends ten-digit
+values and never the boundary member, and the declared `REFUSAL_DIGIT9` constant is
+referenced nowhere. A gate whose bound is bent to `<= 8` (over-strict: it refuses the in-bound
+9-digit member `999999999.9.9`) therefore reads `met` 98/98. r95 adds `REFUSAL-VERSIONS-9DIGIT`:
+the accepted boundary member itself, sent as the version of an era-sensitive fixture (the file's
+first line is an entry label), whose expected answer (`panic`) changes under the `<= 8` bend and
+under any gate that accepts the value but reads it as era A. The family is the accepted leg
+QUALITY 139 requires next to the r94 refused leg.
+
+Round-96 claim (C1, SCORECARD.md "Round 96 — declaration"). The r95 roster never reads the JSON
+metadata it is judging: it compares the echoed `limine_version` only on AUTO cases (`auto_ok`
+short-circuits when `c.auto is None`, so the mutant M06 that echoes `99.9.9` for an explicit
+`--limine-version` reads 99/99), it never reads `visibility_era`, its accepted leg is X-certified
+only (a bend of the Y component's bound to `<= 8` reads met 99/99), and it sends no four-component
+version. r96 adds four families: `EXPLICIT-VERSION-ECHO` and `EXPLICIT-VERSION-ERA` (an era-sensitive
+fixture per explicit version `12.9.4`/`12.9.5`/`12.9.6`/`999999999.9.9`; the JSON must echo the flag
+value with source `flag`, and select/report the era from that value), `REFUSAL-VERSIONS-9DIGIT-Y` (the accepted Y leg:
+`12.999999999.4` era B and `0.999999999.0` era A, each accepted with the era's own answer) and
+`EXTRA-COMPONENT` (`12.9.6.1`-shaped four-component values refused rc 64 with empty stdout, with
+`12.9.6` as the same-list positive control). Each family is killed by its own one-clause bend; the
+r95 do-nothing battery is blind to all four.
+
+Round-97 claim (C1, SCORECARD.md "Round 97 — declaration"). The r96 roster certifies QUALITY 139's
+accepted bound at X (r95's `REFUSAL-VERSIONS-9DIGIT`) and Y (`REFUSAL-VERSIONS-9DIGIT-Y`) only: the
+r96 Frontier names the Z component's 9-digit boundary as uncertified (`MutBound`'s `M06-z-cap-8`
+survives 103/103, and with it a gate that accepts the value but reads it in the wrong era is
+invisible), and the leading-zero normalization its `parse_limine_version` docstring states is unsent
+at family level (`M08-leading-zero` survives 103/103). r97 adds `REFUSAL-VERSIONS-9DIGIT-Z`
+(`12.9.999999999` era B, `0.9.999999999` era A, each accepted with the era's own answer) and
+`LEADING-ZERO-NORMALIZE` (`12.09.4`, `000000012.9.4` era A, `12.000000009.000000005` era B,
+`000000000.000000000.000000000` era A), roster 103 -> 105. Each is killed by its own one-clause
+bend (`N05-z-cap-8`, `N06-leading-zero-reject`) and the r96 battery is blind to both.
+
+Round-98 claim (C1, SCORECARD.md "Round 98 — declaration"). The r97 battery's two new families
+answer their pins but never read the JSON metadata those same calls emit: the r97 wave measured a
+gate that lies in `visibility_era` and one that normalizes the echoed `limine_version` reading
+`met 105/105` (ReviewBattery attack-1-field / attack-2, plan amendments A7). r98 sets `check_echo`
+and `check_era` on `REFUSAL-VERSIONS-9DIGIT-Z` and `LEADING-ZERO-NORMALIZE`, so each case also
+asserts the flag spelling echoed verbatim with source `flag` and the era label the whole tuple
+selects; the roster stays 105 (sharpening, not growth). The `fam_leading_zero_normalize` docstring
+is corrected in the same commit (R97-D3/A6: the text-comparer discriminator is
+`12.000000009.000000005`, and the text comparer orders it era A while `int()` reads 12.9.5).
+
+ISOLATION (C1 of round 92; the contract a control must be measured against): the battery copies the
+gate's bytes into a private directory that holds nothing else, then runs it as `bwrap --unshare-all
+--die-with-parent --new-session --clearenv` with only `/usr` and `/etc` read-only, a fresh `/dev`, a
+fresh `/proc`, a fresh `/tmp`, the case directory read-only and the gate-copy read-only mounted, cwd
+set to the case directory, `PATH=/usr/bin HOME=/tmp LC_ALL=C TMPDIR=/tmp`, and `python3 -I` (isolated
+mode: no script directory on sys.path, PYTHON* variables ignored). The sandbox therefore exposes no
+path to the battery's source, to the lane tree or to the caller's environment; `--isolation-check`
+prints what a probe process actually sees. The one deliberate exception is V3: a case that carries
+a fake `limine` adds `<case>/bin` before `/usr/bin` on PATH, so the gate's probe reads the case's
+binary — the fake is the case input, not an oracle, and it is committed as bytes under the case dir.
+---count FAMILY_ROSTER lines---
+FAMILY_ROSTER = (
+    "POSITIVE", "MISMATCH-EARLY", "MISMATCH-LATE", "MISSING", "HASH-LENGTH", "HASH-NONHEX",
+    "HASH-UPPER", "COMMENT-DECOY", "KEY-CASE", "WHITESPACE-CRLF", "LAST-HASH", "GZ-RAW",
+    "UNRESOLVED", "PANIC-DEFAULT", "PANIC-NO-ONLY", "PANIC-FIRST", "SECUREBOOT", "OPTIONAL-SKIP",
+    "MULTI-FAULT", "UNHASHED-DECOYS", "MALFORMED-INPUT", "HOST-SHAPE",
+    "KEY-SPACING", "NO-PAREN", "FORMAT-BEFORE-RESOLVE", "OPTIONAL-HASH-FORMAT", "FIRST-URI-SEP",
+    "PAREN-PATH", "EMPTY-ROOT-RESOURCE", "ROOT-ON-BOOT", "PANIC-KEY-CASE", "SB-FLAG-ZERO",
+    "PANIC-RAW-DECOY", "CONF-UNREADABLE", "ALL-PIN-KEYS", "PANIC-NON-NO", "ENTRY-LABEL",
+    "PANIC-METADATA",
+    "BLANK-CLASS", "OPTIONAL-MISSING", "OPTIONAL-UNRESOLVED", "EMPTY-PIN-LIST", "DOUBLE-DOLLAR",
+    "ENTRY-LABEL-EDGES", "PANIC-VALUE-BLANKS", "CR-INTERNAL", "RESOURCE-CASE", "KEY-EQUALS",
+    "EMPTY-PATH", "OPTIONAL-KEY-CASE",
+    "EFI-IMAGE-MISSING", "NON-EFI-MISSING", "PATH-PRECEDENCE", "FIRST-PATH", "FIRST-PROTOCOL",
+    "ENTRY-SCOPE", "PROTOCOL-DECOY", "BAD-RESOURCE", "BAD-RESOURCE-OPTIONAL", "VALID-RESOURCES",
+    "BAD-OVER-UNRESOLVED", "FORMAT-BEFORE-BAD", "MEASURED-TPM1", "MEASURED-TPM0",
+    "MEASURED-TPM-ABSENT", "MEASURED-SB", "MEASURED-VALUE-CASE", "MEASURED-FIRST", "MEASURED-DECOY",
+    "MEASURED-IN-ENTRY", "LARGE-FILE", "NON-UTF8", "PANIC-AFTER-PIN",
+    "GLOBAL-VS-ENTRY", "FIRST-LINE-ENTRY", "PANIC-GLOBAL-ONLY", "MEASURED-GLOBAL-ONLY",
+    "UNVERIFIED-IMAGE", "UNVERIFIED-MIXED", "UNVERIFIED-NON-EFI", "UNVERIFIED-IMAGE-PATH",
+    "UNVERIFIED-SORTED",
+    "ERA-FLE-PANIC-A", "ERA-FLE-PANIC-B", "ERA-FLE-MEASURED-A", "ERA-FLE-MEASURED-B",
+    "ERA-GLOBAL-KEY-A", "ERA-GLOBAL-KEY-B", "ERA-DEFAULT",
+    "ERA-EXACT-125", "ERA-B-FIRST-BODY", "ERA-B-U1", "REFUSAL-VERSIONS",
+    "AUTO-ERA-A", "AUTO-ERA-B", "AUTO-PROBE-FAIL",
+    "REFUSAL-VERSIONS-10DIGIT", "REFUSAL-VERSIONS-9DIGIT", "AUTO-PROBE-SHAPES",
+    "EXPLICIT-VERSION-ECHO", "EXPLICIT-VERSION-ERA", "REFUSAL-VERSIONS-9DIGIT-Y",
+    "EXTRA-COMPONENT", "REFUSAL-VERSIONS-9DIGIT-Z", "LEADING-ZERO-NORMALIZE",
+)
+
+
+def build(fam, rng, root):
+    c = Case(fam, rng)
+    c.index = _SEQ.get(fam, 0)
+    _SEQ[fam] = c.index + 1
+    FAMILIES[fam](c)
+    d = tempfile.mkdtemp(prefix="c", dir=root)
+    esp = os.path.join(d, rname(rng, ""))
+    os.makedirs(esp)
+    for rel, data in c.files.items():
+        p = os.path.join(esp, *rel.split("/"))
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        with open(p, "wb") as f:
+            f.write(data)
+    conf = os.path.join(d, rname(rng, ".conf"))
+    if c.conf_dir:
+        os.makedirs(conf)
+    elif not c.conf_missing:
+        with open(conf, "w", newline="", encoding="utf-8", errors="surrogateescape") as f:
+            f.write(c.eol.join(c.lines) + c.eol)
+    if not c.sb and c.sbflag is None and rng.random() < 0.3:
+        c.sbflag = "0"
+    if not c.tpm_fixed:
+        c.tpm = rng.choice([None, "0", "1"])
+    if c.auto is not None:
+        b = os.path.join(d, "bin")
+        os.makedirs(b)
+        fake = os.path.join(b, "limine")
+        with open(fake, "w") as f:
+            if c.auto == "fail":
+                f.write("#!/bin/sh\nexit 1\n")
+            elif c.auto == "shapes":
+                # r94: the certified no-parsable-version shape (no version at all), then the
+                # suffixed pre-release answer (`12.9.6-rc1`), then a version on stderr. The probe
+                # reads stdout only, so the stderr copy is never its answer; a gate that reads
+                # stderr answers a verdict and fails.
+                f.write("#!/bin/sh\necho \"no version here\"\necho \"Limine 12.9.6-rc1\"\necho \"Limine 12.9.6\" >&2\n")
+            else:
+                f.write("#!/bin/sh\necho \"Limine %s\"\n" % c.auto)
+        os.chmod(fake, 0o755)
+    return c, d, conf, esp
+
+
+BWRAP = shutil.which("bwrap")
+
+
+def sandbox_argv(gate, case_dir, inner, path="/usr/bin"):
+    """C1 ISOLATION: wrap `inner` (the gate argv) in the bwrap allowlist described in the module
+    docstring. Only /usr, /etc, a fresh /dev, /proc, /tmp, the gate-copy file and the case directory
+    are visible; the caller's environment is cleared. `path` is the sole V3 exception: a case that
+    carries a fake `limine` puts its own `bin/` in front of `/usr/bin`."""
+    return [BWRAP, "--unshare-all", "--die-with-parent", "--new-session", "--clearenv",
+            "--dev", "/dev", "--proc", "/proc", "--tmpfs", "/tmp",
+            "--ro-bind", "/usr", "/usr", "--ro-bind", "/etc", "/etc",
+            "--symlink", "usr/lib", "/lib", "--symlink", "usr/lib", "/lib64",
+            "--symlink", "usr/bin", "/bin", "--symlink", "usr/bin", "/sbin",
+            "--ro-bind", gate, gate, "--ro-bind", case_dir, case_dir,
+            "--chdir", case_dir, "--setenv", "PATH", path, "--setenv", "HOME", "/tmp",
+            "--setenv", "LC_ALL", "C", "--setenv", "TMPDIR", "/tmp", "--"] + inner
+
+
+def case_path(case_dir, c):
+    """V3: the PATH a case runs with — its own fake `limine`, then the real /usr/bin."""
+    if c is not None and c.auto is not None and os.path.isdir(os.path.join(case_dir, "bin")):
+        return os.path.join(case_dir, "bin") + ":/usr/bin"
+    return "/usr/bin"
+
+
+def copy_gate(gate, work):
+    """C1: the gate runs from a private directory that holds nothing but the gate's bytes, so a
+    sibling-path lookup for the battery finds nothing."""
+    d = tempfile.mkdtemp(prefix="gate-", dir=work)
+    dst = os.path.join(d, "gate.py")
+    shutil.copyfile(gate, dst)
+    return d, dst
+
+
+def run_gate(gate, conf, esp, c, cwd):
+    inner = [sys.executable, "-I", gate, "--conf", conf, "--esp", esp]
+    if c.pass_version:
+        inner += ["--limine-version", c.version]
+    # r94 C2/V4: ERA-DEFAULT omits the flag, so the gate now probes. Inside the sandbox the
+    # host's real `limine` answers 12.9.4, so the default family's expectation (12.9.4 answers)

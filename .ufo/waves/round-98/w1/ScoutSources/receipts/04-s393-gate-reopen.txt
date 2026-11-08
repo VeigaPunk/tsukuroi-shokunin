@@ -1,0 +1,105 @@
+# S393 re-open (own-work): the pinned gate on a leading-zero spelling and a Z spelling
+
+# gate: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-limine-pins.py
+# gate sha256 (from .ufo/waves/round-98/before/instruments.sha256): 7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32
+# fixture: scratch-local limine.conf (one entry, one OK blake2b pin) + scratch-local esp/boot.efi
+# command: python3 -I <gate> --conf <scratch>/limine.conf --esp <scratch>/esp --limine-version <SPELLING>
+
+## run 1 — leading-zero spellings and Z spellings
+[
+  {
+    "findings": [],
+    "flag": "12.09.4",
+    "limine_version": "12.09.4",
+    "limine_version_source": "flag",
+    "rc": 0,
+    "verdict": "HEALTHY",
+    "visibility_era": "pre-12.9.5"
+  },
+  {
+    "findings": [],
+    "flag": "000000012.9.4",
+    "limine_version": "000000012.9.4",
+    "limine_version_source": "flag",
+    "rc": 0,
+    "verdict": "HEALTHY",
+    "visibility_era": "pre-12.9.5"
+  },
+  {
+    "findings": [],
+    "flag": "12.000000009.000000005",
+    "limine_version": "12.000000009.000000005",
+    "limine_version_source": "flag",
+    "rc": 0,
+    "verdict": "HEALTHY",
+    "visibility_era": "12.9.5+"
+  },
+  {
+    "findings": [],
+    "flag": "12.9.999999999",
+    "limine_version": "12.9.999999999",
+    "limine_version_source": "flag",
+    "rc": 0,
+    "verdict": "HEALTHY",
+    "visibility_era": "12.9.5+"
+  },
+  {
+    "findings": [],
+    "flag": "0.9.999999999",
+    "limine_version": "0.9.999999999",
+    "limine_version_source": "flag",
+    "rc": 0,
+    "verdict": "HEALTHY",
+    "visibility_era": "pre-12.9.5"
+  },
+  {
+    "findings": [],
+    "flag": "12.9.4",
+    "limine_version": "12.9.4",
+    "limine_version_source": "flag",
+    "rc": 0,
+    "verdict": "HEALTHY",
+    "visibility_era": "pre-12.9.5"
+  },
+  {
+    "findings": [],
+    "flag": "12.9.5",
+    "limine_version": "12.9.5",
+    "limine_version_source": "flag",
+    "rc": 0,
+    "verdict": "HEALTHY",
+    "visibility_era": "12.9.5+"
+  }
+]
+
+## run 2 — the all-zero member and 12.9.6
+[
+  {
+    "findings": [],
+    "flag": "000000000.000000000.000000000",
+    "limine_version": "000000000.000000000.000000000",
+    "limine_version_source": "flag",
+    "rc": 0,
+    "verdict": "HEALTHY",
+    "visibility_era": "pre-12.9.5"
+  },
+  {
+    "findings": [],
+    "flag": "12.9.6",
+    "limine_version": "12.9.6",
+    "limine_version_source": "flag",
+    "rc": 0,
+    "verdict": "HEALTHY",
+    "visibility_era": "12.9.5+"
+  }
+]
+
+## reading against the S393 row teaches cell
+row teaches: "An explicit `--limine-version` is echoed in `limine_version` exactly as the flag spelled it,
+             with source `flag`, and `visibility_era` is `pre-12.9.5` below 12.9.5 and `12.9.5+` at or above it"
+measured: every spelling above echoes VERBATIM (12.09.4 -> "12.09.4", 000000012.9.4 -> "000000012.9.4",
+          12.000000009.000000005 -> "12.000000009.000000005", 12.9.999999999 -> "12.9.999999999",
+          0.9.999999999 -> "0.9.999999999", 000000000.000000000.000000000 -> verbatim), source "flag" in every run,
+          and visibility_era follows the NUMERIC tuple: (12,9,4)->pre-12.9.5, (12,9,5)->12.9.5+,
+          (12,9,999999999)->12.9.5+, (0,9,999999999)->pre-12.9.5, (0,0,0)->pre-12.9.5, (12,9,6)->12.9.5+.
+verdict: S393 teaches cell RE-DERIVES from the pinned gate bytes.
