@@ -242,3 +242,13 @@ Narrowings, each citing its artifact:
 6. **A3 postdates C1's first gate receipts.** C1's after legs and every C2 gate/usage receipt are
    re-measured on the final bytes (`35c1088b…`/`aef33925…`) in both layouts
    (`after/c1-controls/{after-clone-final,canonical-after-final}`, `after/c2-gate-{canonical,clone}.txt`).
+
+## Amendment A8 (2026-11-08, at filing) — the manifest pins the instruments only, and its own sha is recorded
+
+The freeze manifest is back to a single purpose: it lists **instruments** (the gate, both batteries, the five
+channel controls, the four C2 bends, the three generators, the two runner scripts and the 13 pinned source
+files) — 28 lines, sha256 `2996f88656ddc1a126a549357bfcf1f074aef6d1e651948cfabd1503c925252c`. `sha256sum -c .ufo/waves/round-92/before/freeze-manifest.sha256` exits 0 at
+this commit. Declaration files (`.ufo/plans/round-92.md`, `SCORECARD.md`, `corpus/...`, `SKILL.md`,
+`claims.json`) are deliberately NOT in it: they were amended after the freeze (A1-A8) and are bound by commit
+and by the instrument ledger above (A7), which is exactly the narrowing A7 §2 filed. A receipt whose
+instrument sha is not a row of that ledger is the void condition.

@@ -90,6 +90,12 @@ written by the closure, not by this lane).
   rejection is the red-before, the pushed blob's `grep -c` = 0 the green. VCS resolution (kasegi r94
   precedent): the unpushed revision was squashed into the working copy, which dropped it; no force push,
   no remote history rewrite.
+- **M6 (`landing`, misroot) — an r91 seat's plan draft sat at the fleet root.** Class: `landing`. The
+  pre-report sweep found `plans/round-91.md` (2630 B, 01:00, an older draft of the r91 narrowing
+  amendment) untracked at the fleet root; the lane holds the final text at `.ufo/plans/round-91.md`
+  (3381 B). Fix: copied byte-exact to `tsukuroi-shokunin/plans/round-91.md` (`cmp` identical), the fleet
+  copy deleted; `.ufo/reports/round-83/souji.md` and `round-85/chousa.md` are other lanes' strays and were
+  not touched.
 ## Wave summary
 
 (pending WAVE-DONE)

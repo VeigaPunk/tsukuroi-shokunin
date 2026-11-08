@@ -7740,7 +7740,9 @@ end to end on real inventory in both layouts (AXES.md §Capabilities).
 |---|---|---|---|
 | battery-oracle-isolation | Runs any gate under a launcher that closes the five read channels to the judge's oracle (private copy + `bwrap --unshare-all --clearenv` + `python3 -I`), certifies each channel with a control that scores the target when the channel is open (82/82 against the r91 battery) and reads 0/89 with 0 error rows when it is closed, and prints what a probe actually sees (`--isolation-check`) | `bash tools/limine-pin-battery-r92.py --isolation-check`; `after/c1-controls/{before-clone,before-clone-fixed,after-clone-final,canonical-after-final}/summary.tsv`; QUALITY 132 | round 92 |
 
-## Round 92 — measured outcome (measured at `e9fce481` plus the final receipts; C1 met on the differential reading of amendment A7 §1, C2 met on the narrowed predicate of amendment A5)
+## Round 92 — measured outcome (instruments `35c1088b…`/`aef33925…` landed at `689623fd`; receipts at `22b5bc10`
+and the ledger commit; C1 met on the differential reading of amendment A7 §1, C2 met on the narrowed
+predicate of amendment A5)
 
 | Claim | Axis | Before → after (counting command) | Target | Verdict |
 |---|---|---|---|---|
