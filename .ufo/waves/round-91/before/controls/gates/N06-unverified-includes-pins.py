@@ -183,6 +183,7 @@ def check(conf, esp, secure_boot, tpm=None):
         if kv is None:
             continue
         unverified.append(img_ln)
+    unverified.sort()
     prompt = (panic_setting is not None and panic_setting[1].lower() == "no" and not secure_boot)
     pins = []
     for lineno, key, written, entry_name, value, uri in raw_pins:

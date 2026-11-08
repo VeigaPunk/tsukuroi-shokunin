@@ -38,7 +38,7 @@ NEAR = {
     # V1: first-line-entry exception inverted (cut even when first line is entry)
     "N04-first-line-inverted": ("V1 first-line-is-entry keeps whole file visible", "FIRST-LINE-ENTRY", [
         ('            if first_entry is not None and lineno == first_entry and first_entry != 1:\n',
-         '            if first_entry is not None and lineno == first_entry and lineno != 1:\n')]),
+         '            if first_entry is not None and lineno == first_entry and first_entry == 1:\n')]),
     # U1: unverified_image_lines field omitted entirely
     "N05-no-unverified-field": ("U1 unverified_image_lines reported", "UNVERIFIED-IMAGE UNVERIFIED-MIXED UNVERIFIED-NON-EFI UNVERIFIED-IMAGE-PATH UNVERIFIED-SORTED", [
         ('            "unverified_image_lines": unverified,\n', '')]),
@@ -52,17 +52,16 @@ NEAR = {
          '    image_lines = {b.get("path", b.get("image_path")) for b in bodies}\n')]),
     # U1: unverified list unsorted
     "N08-unverified-unsorted": ("U1 sorted ascending", "UNVERIFIED-SORTED", [
-        ('    for img_ln in sorted(image_lines):\n', '    for img_ln in image_lines:\n')]),
+        ('    unverified.sort()\n', '')]),
     # U1: unverified uses last-wins path instead of first
     "N09-unverified-last-path": ("U1 first path else first image_path", "UNVERIFIED-IMAGE-PATH", [
         ('    image_lines = {b.get("path", b.get("image_path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}\n',
          '    image_lines = {b.get("image_path", b.get("path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}\n')]),
     # V1: panic_setting reads first key anywhere (not just global) — whole-file first-wins
-    "N10-panic-first-anywhere": ("V1 FIRST visible in global section", "PANIC-GLOBAL-ONLY", [
+    "N10-panic-first-anywhere": ("V1 FIRST visible in global section", "PANIC-AFTER-PIN PANIC-GLOBAL-ONLY GLOBAL-VS-ENTRY", [
         ('        if in_global and key == "hash_mismatch_panic" and panic_setting is None:\n',
-         '        if key == "hash_mismatch_panic" and panic_setting is None and not in_global is False:\n')]),
+         '        if key == "hash_mismatch_panic" and panic_setting is None:\n')]),
 }
-
 
 def patch(src, pairs, name):
     for old, new in pairs:

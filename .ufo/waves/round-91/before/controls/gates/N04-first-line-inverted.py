@@ -152,7 +152,7 @@ def check(conf, esp, secure_boot, tpm=None):
     for lineno, raw in enumerate(lines, 1):
         stripped = raw.replace("\r", "").strip(" \t")
         if stripped.startswith("/"):
-            if first_entry is not None and lineno == first_entry and lineno != 1:
+            if first_entry is not None and lineno == first_entry and first_entry == 1:
                 in_global = False
             entry = sanitize(stripped.lstrip("/").lstrip("+").strip()) or entry
             body = {}
@@ -184,6 +184,7 @@ def check(conf, esp, secure_boot, tpm=None):
             continue
         if parse_uri(kv[2]) is None:
             unverified.append(img_ln)
+    unverified.sort()
     prompt = (panic_setting is not None and panic_setting[1].lower() == "no" and not secure_boot)
     pins = []
     for lineno, key, written, entry_name, value, uri in raw_pins:

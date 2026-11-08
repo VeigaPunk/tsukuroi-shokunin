@@ -178,7 +178,7 @@ def check(conf, esp, secure_boot, tpm=None):
     # (no '(', no '):/', empty path, or no '#' after '):/') is reported, sorted, in
     # unverified_image_lines. It changes no pin verdict.
     unverified = []
-    for img_ln in image_lines:
+    for img_ln in sorted(image_lines):
         kv = split_key(lines[img_ln - 1])
         if kv is None:
             continue
