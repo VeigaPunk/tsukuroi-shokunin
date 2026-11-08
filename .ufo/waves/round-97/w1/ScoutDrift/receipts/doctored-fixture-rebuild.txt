@@ -1,0 +1,79 @@
+ScoutDrift — round 97 w1 — C2 doctored-fixture re-derivation in scratch (own clone, own commit)
+
+Scratch root: /fast/scratch/hyaku/tsukuroi-r97/ScoutDrift
+No lane file was written by this seat except under .ufo/waves/round-97/w1/ScoutDrift/.
+
+--- LEG 1: doctored fixture on the LANE MASTER tip (a57e88cd, the freeze commit) ---
+
+$ git clone --shared --bare -q <lane> origin.git
+$ git clone -q origin.git doctored
+$ git -C doctored rev-parse --show-toplevel
+/fast/scratch/hyaku/tsukuroi-r97/ScoutDrift/doctored          (== clone path: asserted before the commit)
+$ git -C doctored rev-parse master
+a57e88cd57f30bae206d908b534508d9463bf734
+$ python3 - doctored   # the six content-only substitutions, each asserted to match exactly once
+six substitutions applied, each exactly once
+$ git -C doctored -c user.name=tsukuroi-fixture -c user.email=fixture@shokunin.local add -A
+$ git -C doctored -c user.name=tsukuroi-fixture -c user.email=fixture@shokunin.local commit -q -m "..."
+$ git -C doctored rev-parse HEAD
+7226c7892c5a8987c6f87c21e443b141eb714028
+$ git -C doctored push -q origin master
+$ git -C doctored rev-parse refs/remotes/origin/master
+7226c7892c5a8987c6f87c21e443b141eb714028
+
+$ python3 doctored/fixture/check-registry-content.py --revision 7226c7892c5a8987c6f87c21e443b141eb714028
+FINDING RC-VALUE-MISMATCH SKILL.md:5923 RC-ENTRY-DEFAULT states '12.9.4', tools/check-limine-pins.py derives 'auto'
+FINDING RC-VALUE-MISMATCH SKILL.md:5923 RC-SELFTEST-COUNT states '88', tools/check-limine-pins.py derives '39'
+FINDING RC-VALUE-MISMATCH SKILL.md:5938 RC-ROSTER-VERDICT states '99', tools/limine-pin-battery-r96.py derives '103'
+FINDING RC-VALUE-MISMATCH SKILL.md:5938 RC-ROSTER-PINNED states '99', tools/limine-pin-battery-r96.py derives '103'
+FINDING RC-VALUE-MISMATCH SKILL.md:5940 RC-CAL-SELFTEST states '29', tools/check-r96-calibration.py derives '7'
+FINDING RC-VALUE-MISMATCH SKILL.md:5939 RC-BEND-SPAN states 'N01-N05', tools/make-r96-bends.py derives 'N01-N04'
+registry-content: status FAIL bindings 1/7 findings 6
+content rc=1
+
+$ python3 doctored/tools/check-registry-coverage.py --revision 7226c7892c5a8987c6f87c21e443b141eb714028
+{"branch":"master","branch_tip":"7226c789...","counts":{"findings":3,"missing":3,"registered":154,"rows_total":154,"tools_total":157},"findings":[{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/check-registry-content.py"},{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/limine-pin-battery-r97.py"},{"detail":"no operative row names this regular tools/ file","id":"REGISTRY-ROW-MISSING","site":"tools/make-r97-bends.py"}],"revision":"7226c789...","status":"FAIL"}
+coverage rc=1
+
+READING: with the lane master as the fixture base, the coverage gate does NOT read PASS 154/154 on the
+doctored revision -- it reads FAIL with 3 REGISTRY-ROW-MISSING findings, because the freeze commit
+a57e88cd added the round's three tools under tools/ with no operative registry row. The content
+checker still reads FAIL with exactly six RC-VALUE-MISMATCH findings (the six doctors fire, one per
+doctor). This is the drift the lane's own amendment A1 records and corrects by pinning the fixture
+base to the pre-round tip.
+
+--- LEG 2: doctored fixture on the PINNED PRE-ROUND BASE (f48d1642) ---
+
+$ git clone --shared --bare -q <lane> origin2.git
+$ git -C origin2.git update-ref refs/heads/master f48d16428d8bb92fd6cf546a745bff5b624e3f18
+$ git clone -q origin2.git doctored2
+$ git -C doctored2 rev-parse --show-toplevel
+/fast/scratch/hyaku/tsukuroi-r97/ScoutDrift/doctored2        (== clone path: asserted before the commit)
+$ git -C doctored2 rev-parse master
+f48d16428d8bb92fd6cf546a745bff5b624e3f18
+$ python3 - doctored2   # the same six substitutions, each asserted to match exactly once
+six substitutions applied, each exactly once
+$ git -C doctored2 -c user.name=tsukuroi-fixture -c user.email=fixture@shokunin.local add -A
+$ git -C doctored2 -c user.name=tsukuroi-fixture -c user.email=fixture@shokunin.local commit -q -m "..."
+$ git -C doctored2 rev-parse HEAD
+b32708311ec6cde422dbf01f290889d3e4b2d81f
+$ git -C doctored2 push -q origin master
+
+$ python3 doctored2/fixture/check-registry-content.py --revision b32708311ec6cde422dbf01f290889d3e4b2d81f
+FINDING RC-VALUE-MISMATCH SKILL.md:5923 RC-ENTRY-DEFAULT states '12.9.4', tools/check-limine-pins.py derives 'auto'
+FINDING RC-VALUE-MISMATCH SKILL.md:5923 RC-SELFTEST-COUNT states '88', tools/check-limine-pins.py derives '39'
+FINDING RC-VALUE-MISMATCH SKILL.md:5938 RC-ROSTER-VERDICT states '99', tools/limine-pin-battery-r96.py derives '103'
+FINDING RC-VALUE-MISMATCH SKILL.md:5938 RC-ROSTER-PINNED states '99', tools/limine-pin-battery-r96.py derives '103'
+FINDING RC-VALUE-MISMATCH SKILL.md:5940 RC-CAL-SELFTEST states '29', tools/check-r96-calibration.py derives '7'
+FINDING RC-VALUE-MISMATCH SKILL.md:5939 RC-BEND-SPAN states 'N01-N05', tools/make-r96-bends.py derives 'N01-N04'
+registry-content: status FAIL bindings 1/7 findings 6
+content rc=1
+
+$ python3 doctored2/tools/check-registry-coverage.py --revision b32708311ec6cde422dbf01f290889d3e4b2d81f
+{"branch":"master","branch_tip":"b3270831...","counts":{"findings":0,"missing":0,"registered":154,"rows_total":154,"tools_total":154},"findings":[],"revision":"b3270831...","status":"PASS"}
+coverage rc=0
+
+READING: on the pinned pre-round base the two legs reproduce the claim exactly and independently:
+content FAIL with six RC-VALUE-MISMATCH (one per doctor), coverage PASS 154/154 with 0 findings.
+The blindness leg is therefore base-dependent: it holds at f48d1642 and does NOT hold at the freeze
+tip a57e88cd (Leg 1 above).

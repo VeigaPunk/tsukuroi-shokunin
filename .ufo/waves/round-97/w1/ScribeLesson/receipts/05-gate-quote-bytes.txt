@@ -1,0 +1,23 @@
+# Gate quote re-verification at the cited byte (self-run)
+
+$ cd .ufo/waves/round-97/w1/ScribeLesson
+$ python3 -c "read pins/functions.html bytes; slice at each cited offset; compare"
+pin bytes 331022 sha256 d92580dd0e7a02aab9b51fe30885ae59fd924c639324c7e07a90799e8bc721d7
+
+## A) read as BYTE offsets (the SOURCES.md convention)
+byte 157622 cited 'have leading zeros, be surrounded by whitespace,' -> ABSENT  b'e"><span class="pre">+</span></code> or <code cl'
+byte 159164 cited 'also disallows leading zeros:'                  -> ABSENT  b'ers"><span class="std std-ref'
+byte 153028 cited 'id="int"'                                       -> ABSENT  b'an class'
+
+## B) the TRUE byte offsets of the same three sites in the same pinned file
+byte 157767 b'have leading zeros, be surrounded by whitespace,'
+byte 159310 b'also disallows leading zeros:'
+byte 153202 b'id="int"'
+
+## C) the same three offsets read as CHARACTER offsets (utf-8 decoded) - they land exactly
+char 157622 'have leading zeros, be surrounded by whitespace,'
+char 159159 'also disallows leading zeros:'
+char 153058 'id="int"'
+
+## D) contrast: the r96 row S391 cites byte 157525 on the sys pin and lands exactly
+byte 157525 -> b'id="sys.int_info.default_max_str_digits">\n<span cl'

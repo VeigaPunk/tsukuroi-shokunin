@@ -14,12 +14,18 @@ mkdir -p "$S" "$D"
 rm -rf "$C" "$ORIGIN"
 # a synthetic bare origin in scratch, so the coverage gate's landed-revision rule
 # (refs/remotes/origin/master) has a real remote to read; the lane repo is only read.
+# The base is PINNED to the pre-round tip (the round's baseline), so the fixture is reproducible
+# after the freeze commit added the round's own three tools.
+BASE=f48d16428d8bb92fd6cf546a745bff5b624e3f18
 git clone --shared --bare -q "$LANE" "$ORIGIN"
+git -C "$ORIGIN" update-ref refs/heads/master "$BASE"
 git clone -q "$ORIGIN" "$C"
 [ "$(git -C "$C" rev-parse --show-toplevel)" = "$C" ] || { echo "fixture toplevel mismatch" >&2; exit 1; }
 BASE=$(git -C "$C" rev-parse master)
+[ "$BASE" = f48d16428d8bb92fd6cf546a745bff5b624e3f18 ] || { echo "fixture base is not the pinned pre-round tip: $BASE" >&2; exit 1; }
 mkdir -p "$C/fixture"
 cp "$LANE/tools/check-registry-content.py" "$C/fixture/check-registry-content.py"
+sha256sum "$LANE/tools/check-registry-content.py" | tee "$D/doctored-checker.sha256"
 python3 - "$C" <<'PY'
 import sys
 p = sys.argv[1] + "/SKILL.md"

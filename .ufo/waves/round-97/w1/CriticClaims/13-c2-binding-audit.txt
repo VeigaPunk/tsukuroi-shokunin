@@ -1,0 +1,15 @@
+RC-ENTRY-DEFAULT | row limine-pins cell 2 | capture default `([A-Za-z0-9.]+)` | derive argparse_default | tool tools/check-limine-pins.py
+RC-SELFTEST-COUNT | row limine-pins cell 4 | capture \((\d+) fixtures | derive selftest_total | tool tools/check-limine-pins.py
+RC-SCHEMA | row limine-pins cell 5 | capture schema `([A-Za-z0-9-]+)` | derive json_schema | tool tools/check-limine-pins.py
+RC-ROSTER-VERDICT | row limine-pin-battery-r96 cell 3 | capture FAMILY_ROSTER,\s*(\d+), | derive roster_size | tool tools/limine-pin-battery-r96.py
+RC-ROSTER-PINNED | row limine-pin-battery-r96 cell 5 | capture roster (\d+) \( | derive roster_size | tool tools/limine-pin-battery-r96.py
+RC-CAL-SELFTEST | row check-r96-calibration cell 4 | capture \((\d+) cases | derive selftest_total | tool tools/check-r96-calibration.py
+RC-BEND-SPAN | row make-r96-bends cell 5 | capture VARIANTS (N\d+-N\d+) | derive variant_span | tool tools/make-r96-bends.py
+rows 154
+RC-ENTRY-DEFAULT line 5923 captured 'auto' cell_head `python3 tools/check-limine-pins.py --conf <FILE> --esp <DIR> [--secure-boot-enforced {0,1}] [--tpm-present {0,1}] [--limine-version X.Y.Z]` (default `auto`, th
+RC-SELFTEST-COUNT line 5923 captured '39' cell_head `python3 tools/check-limine-pins.py --selftest` (39 fixtures, asserting rc, the sorted per-pin (line, status, consequence), `on_panic` and `unverified_image_lin
+RC-SCHEMA line 5923 captured 'tsukuroi-limine-pins-v3' cell_head R1-R7, R9, R10 (r90), V1/U1 (r91) and V2 (r92) frozen in the `limine-pin-battery-r92` docstring; schema `tsukuroi-limine-pins-v3` with `limine_version`/`visibil
+RC-ROSTER-VERDICT line 5938 captured '103' cell_head 0 met (every family in the literal FAMILY_ROSTER, 103, passed all 4 cases); 1 unmet; 2 usage/could-not-evaluate (no `--gate`, `--runs` below 1, FAMILIES differs
+RC-ROSTER-PINNED line 5938 captured '103' cell_head r96 roster 103 (99 r95 families + `EXPLICIT-VERSION-ECHO`, `EXPLICIT-VERSION-ERA`, `REFUSAL-VERSIONS-9DIGIT-Y`, `EXTRA-COMPONENT`); bytes pinned in `.ufo/waves/
+RC-CAL-SELFTEST line 5940 captured '7' cell_head `python3 tools/check-r96-calibration.py --selftest` (7 cases: clean + one fault per F1-F6)
+RC-BEND-SPAN line 5939 captured 'N01-N04' cell_head r96 VARIANTS N01-N04

@@ -1,0 +1,12 @@
+--- orig.py	2026-11-08 08:48:57.016974175 -0300
++++ mutants/M06.py	2026-11-08 08:50:54.400702672 -0300
+@@ -94,8 +94,7 @@
+             headings.append((int(match.group(1)), index))
+     if not headings:
+         raise TableError("no exact Gate and probe registry heading")
+-    highest = max(number for number, _ in headings)
+-    selected = [(number, index) for number, index in headings if number == highest]
++    selected = [headings[0]]
+     if len(selected) != 1:
+         raise TableError("round%d heading is duplicated" % highest)
+     start = selected[0][1]

@@ -1,0 +1,8 @@
+=== grep default= ===
+501:    ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)
+502:    ap.add_argument("--tpm-present", choices=("0", "1"), default=None)
+503:    ap.add_argument("--limine-version", default="auto",
+=== schema literal ===
+315:    return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+=== SKILL 5923 raw ===
+| limine-pins | gate | `python3 tools/check-limine-pins.py --conf <FILE> --esp <DIR> [--secure-boot-enforced {0,1}] [--tpm-present {0,1}] [--limine-version X.Y.Z]` (default `auto`, the installed-version probe since r94/V4; an explicit `X.Y.Z` selects the era by hand; or `sudo python3 tools/check-limine-pins.py --live`, read-only; receipts `.ufo/waves/round-94/after/live-c2-*.json`) | 0 HEALTHY; 1 DEGRADED (any LP-MISMATCH, LP-MISSING, LP-HASH-FORMAT or LP-BAD-RESOURCE pin); 2 CANNOT-EVALUATE (conf unreadable, or any LP-UNRESOLVED pin, including a path that leaves the ESP root); 64 usage (a `--limine-version` outside `X.Y.Z` or `auto`, and a failed installed-version probe, are refused, never defaulted) | `python3 tools/check-limine-pins.py --selftest` (39 fixtures, asserting rc, the sorted per-pin (line, status, consequence), `on_panic` and `unverified_image_lines`; exit 0 PASS / 1 FAIL) | R1-R7, R9, R10 (r90), V1/U1 (r91) and V2 (r92) frozen in the `limine-pin-battery-r92` docstring; schema `tsukuroi-limine-pins-v3` with `limine_version`/`visibility_era`; sources S350-S353, S361, S362, S374-S376, S379, S380 (S381 community lead only) | read-only over the named conf/ESP (or `/boot` with sudo); `--selftest` writes only under `$TMPDIR` | tsukuroi |

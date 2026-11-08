@@ -1,0 +1,33 @@
+# Red/green pair for mistake (a): the r96 Y-family docstring era claim
+# repo /home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+# red rev  = f48d16428d8bb92fd6cf546a745bff5b624e3f18  (r96 pre-round tip)
+# green rev= a57e88cd57f30bae206d908b534508d9463bf734  (r97 freeze; carries the LIMIT sentence)
+
+## 1. the FALSE sentence (red: present in r96, absent in r97)
+git show f48d1642:tools/limine-pin-battery-r96.py | grep -c "answers era B for"  -> 1
+git show a57e88cd:tools/limine-pin-battery-r97.py | grep -c "answers era B for"  -> 0
+
+## 2. the seat-spec literal command (ONE-LINE form) -- reads 0 on BOTH revs:
+git show f48d1642:tools/limine-pin-battery-r96.py | grep -c "LIMIT (r96 CriticClaims F-4"  -> 0
+git show a57e88cd:tools/limine-pin-battery-r97.py | grep -c "LIMIT (r96 CriticClaims F-4"  -> 0
+   reason: the sentence is line-wrapped in the source ("LIMIT (r96 CriticClaims\n    F-4,"),
+   so the one-line pattern cannot match it. The run wins; this command does NOT discriminate.
+
+## 3. a command that DOES discriminate (cross-line form, grep -cPzo):
+git show f48d1642:tools/limine-pin-battery-r96.py | grep -cPzo "LIMIT \(r96 CriticClaims\s+F-4"  -> 0
+git show a57e88cd:tools/limine-pin-battery-r97.py | grep -cPzo "LIMIT \(r96 CriticClaims\s+F-4"  -> 1
+
+## 4. the single-line prefix form (also discriminating):
+git show f48d1642:tools/limine-pin-battery-r96.py | grep -c "LIMIT (r96 CriticClaims"  -> 0
+git show a57e88cd:tools/limine-pin-battery-r97.py | grep -c "LIMIT (r96 CriticClaims"  -> 1
+
+## 5. the raw sentence as it sits in the r97 bytes:
+' to Y refuses the cap member and fails. LIMIT (r96 CriticClaims\n    F-4, corrected here in r97): an era reader that looks at X alone is NOT caught by this family —\n    X=12 and X=0 answer era B and era A correctly for these two members; that reader is caught by\n    `EXPLICIT-VERSION-ERA` on its `12.'
+
+## 6. the r96 bytes that carried the false claim:
+'e that bounds only X (the r95 leg) accepts\n    both; one that applies `<= 8` to Y refuses the cap member and fails, and one that reads the era\n    from X alone answers era B for `0.999999999.0` and fails."""\n    _era_first_line_panic(c, Y_D'
+
+## 7. residual: the false sentence still stands in the lane at the r97 freeze
+grep -rn "answers era B for" tools/ ->
+tools/limine-pin-battery-r96.py:1776:    from X alone answers era B for `0.999999999.0` and fails."""
+

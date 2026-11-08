@@ -1,0 +1,13 @@
+--- orig.py	2026-11-08 08:48:57.016974175 -0300
++++ mutants/M04.py	2026-11-08 08:50:54.400615282 -0300
+@@ -296,10 +296,6 @@
+     for binding in BINDINGS:
+         site = "%s[%d]" % (binding["row"], binding["cell"])
+         matches = by_name.get(binding["row"])
+-        if not matches:
+-            findings.append({"id": "RC-ROW-MISSING", "site": site,
+-                             "detail": "no operative row named %r" % binding["row"]})
+-            continue
+         if len(matches) != 1:
+             findings.append({"id": "RC-ROW-AMBIGUOUS", "site": site,
+                              "detail": "%d operative rows named %r" % (len(matches), binding["row"])})

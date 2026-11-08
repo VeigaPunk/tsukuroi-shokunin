@@ -1,0 +1,12 @@
+$ sed -n '91,101p' tools/check-limine-pins.py
+def parse_limine_version(text):
+    """V2: `X.Y.Z`, ASCII digits only (1-9 digits per component; leading zeros are accepted and
+    normalized by int(), e.g. `12.09.4` == `12.9.4`), -> (X, Y, Z); anything else -> None (usage
+    error, rc 64). A component longer than 9 digits is refused rather than handed to int(), which
+    raises above 4300 digits (round-92 ReviewGate F1)."""
+    if not isinstance(text, str):
+        return None
+    parts = text.split(".")
+    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+        return None
+    return tuple(int(p) for p in parts)

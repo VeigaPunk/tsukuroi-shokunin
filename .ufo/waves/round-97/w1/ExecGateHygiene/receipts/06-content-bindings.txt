@@ -1,0 +1,41 @@
+2:"""Round-97 registry CONTENT binding (tsukuroi lane): re-derives a frozen set of SKILL.md registry
+8:`limine-pins` reading `default 12.9.4` and `88 fixtures` still reading `PASS 151/151`
+10:the finding. This checker closes that class for the cells named in BINDINGS: each binding captures a
+13:BINDINGS (frozen; the row -> cell -> derivation map is this tuple, not a hand-edited table in prose):
+14:  RC-ENTRY-DEFAULT   limine-pins / entry command     `default \\`auto\\``   <- the gate's argparse default
+15:  RC-SELFTEST-COUNT  limine-pins / self-test         `(39 fixtures`          <- the gate's `--selftest` tally
+16:  RC-SCHEMA          limine-pins / pinned values     `schema \\`...\\``       <- the gate's JSON schema literal
+24:Named limits (frozen with the bindings):
+25:  * Only the cells in BINDINGS are bound. The other rows of the operative table stay presence-only
+39:Exit: 0 PASS (every binding matches); 1 findings (each printed as `FINDING <id> <site> <detail>`);
+231:BINDINGS = (
+232:    {"id": "RC-ENTRY-DEFAULT", "row": "limine-pins", "cell": 2,
+234:     "tool": "tools/check-limine-pins.py"},
+235:    {"id": "RC-SELFTEST-COUNT", "row": "limine-pins", "cell": 4,
+237:     "tool": "tools/check-limine-pins.py"},
+238:    {"id": "RC-SCHEMA", "row": "limine-pins", "cell": 5,
+240:     "tool": "tools/check-limine-pins.py"},
+263:def derive(binding, tree, work):
+264:    source = tree.read(binding["tool"]).decode("utf-8", "replace")
+265:    if binding["derive"] == "selftest_total":
+268:            dst = os.path.join(tmp, os.path.basename(binding["tool"]))
+283:    return str(DERIVERS[binding["derive"]](source, None))
+296:    for binding in BINDINGS:
+297:        site = "%s[%d]" % (binding["row"], binding["cell"])
+298:        matches = by_name.get(binding["row"])
+301:                             "detail": "no operative row named %r" % binding["row"]})
+305:                             "detail": "%d operative rows named %r" % (len(matches), binding["row"])})
+308:        cell = row["cells"][binding["cell"]]
+309:        captured = re.search(binding["capture"], cell)
+313:                                       % (binding["row"], binding["cell"], binding["capture"])})
+317:            derived = derive(binding, tree, work)
+321:                                       % (binding["id"], binding["tool"], str(exc)[:160])})
+326:                                       % (binding["id"], declared, binding["tool"], derived)})
+364:| limine-pins | gate | `python3 tools/check-limine-pins.py` (default `auto`) | 0 ok;1 bad;2 cannot | `python3 tools/check-limine-pins.py --selftest` (3 fixtures) | schema `tsukuroi-fixture-gate-v1` | none | fixture |
+375:    for name, body in (("check-limine-pins.py", FIXTURE_GATE),
+418:    ("tool-missing", ("REMOVE-TOOL", "check-limine-pins.py", None),
+420:    ("derivation-lie", ("tools/check-limine-pins.py", 'default="auto"', 'default="12.9.4"'),
+480:                   "revision": a.revision, "bindings": len(BINDINGS), "rows": len(rows),
+487:        print("registry-content: status %s bindings %d/%d findings %d"
+488:              % (status, len(BINDINGS) - len([f for f in findings if f["id"].startswith("RC-")]),
+489:                 len(BINDINGS), len(findings)))

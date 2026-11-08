@@ -1,0 +1,20 @@
+S392 locator re-measurement (round 97, after the wave; the pre-fix cell said byte 157622)
+
+pin: .ufo/waves/round-97/after/gate/functions.html
+  bytes 331022  sha256 d92580dd0e7a02aab9b51fe30885ae59fd924c639324c7e07a90799e8bc721d7
+
+byte-level search (grep -abo, grep 3.12):
+  157767:have leading zeros, be surrounded by whitespace,
+  153202:id="int"
+  159315:disallows leading zeros
+
+decoded-string index (the pre-fix method, str.find on the utf-8 decode):
+  char 157622 for the same phrase; char 153028 for id="int"
+  non-ASCII characters before the phrase: 89
+  => 157622 + 89 non-ASCII chars (each 2 bytes here) + 145 - 89 ... the delta is 145 bytes,
+     so the character index is 145 lower than the byte offset; the two units are not interchangeable.
+
+why the lane's own instruments cannot see it: no lane gate reads a SOURCES anchor's offset; the
+independent scribe re-measured with `grep -abo` (w1/ScribeKnowledge/receipts/pc2-int-doc-anchors.txt)
+and its 157767 exposed the unit error. The row is uncommitted work-in-progress (S392 is not in
+a57e88cd), so it is authored correctly in place rather than superseded.

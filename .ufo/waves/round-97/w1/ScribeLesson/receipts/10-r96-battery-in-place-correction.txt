@@ -1,0 +1,42 @@
+# The r96 battery was corrected IN PLACE by the L1 during the wave (after the ScribeLesson
+# residual was first observed). Re-read at the ScribeLesson write time.
+
+$ git diff -- tools/limine-pin-battery-r96.py
+diff --git i/tools/limine-pin-battery-r96.py w/tools/limine-pin-battery-r96.py
+index 6e18b238..bc6379ed 100755
+--- i/tools/limine-pin-battery-r96.py
++++ w/tools/limine-pin-battery-r96.py
+@@ -1772,8 +1772,12 @@ def fam_refusal_versions_9digit_y(c):
+     cap sits in the SECOND component — `12.999999999.4` (era B) and `0.999999999.0` (era A) — is a
+     real version: the gate must accept it (rc 1 for this fixture's mismatch pin, never rc 64) and
+     answer from the era the whole tuple selects. A gate that bounds only X (the r95 leg) accepts
+-    both; one that applies `<= 8` to Y refuses the cap member and fails, and one that reads the era
+-    from X alone answers era B for `0.999999999.0` and fails."""
++    both; one that applies `<= 8` to Y refuses the cap member and fails. LIMIT (r96 CriticClaims
++    F-4, corrected in r97): an era reader that looks at X alone is NOT caught by this family -- X=12
++    and X=0 answer era B and era A correctly for these two members; that reader is caught by
++    `EXPLICIT-VERSION-ERA` on its `12.9.4` row. The sentence this docstring carried is withdrawn; the
++    family and its expectation are unchanged. Bytes of the r96 landed tool are re-derivable at
++    `f48d1642:tools/limine-pin-battery-r96.py` (sha256 f06d90ae...)."""
+     _era_first_line_panic(c, Y_DIGIT9[c.index % len(Y_DIGIT9)])
+ 
+ 
+
+$ sha256sum tools/limine-pin-battery-r96.py
+0d98b5bd0ac0ce68671b7355256c41aec636b7842be1a6069b707e6954007eab  tools/limine-pin-battery-r96.py
+$ git show HEAD:tools/limine-pin-battery-r96.py | sha256sum
+f06d90ae4f0069d41bd1a88da8ebc9e4818bff761a0f30df9e09fbdffae73bba  -
+$ sha256sum .ufo/waves/round-97/before/controls/do-nothing-battery-r96.py
+f06d90ae4f0069d41bd1a88da8ebc9e4818bff761a0f30df9e09fbdffae73bba  .ufo/waves/round-97/before/controls/do-nothing-battery-r96.py
+
+$ grep -c "answers era B for" tools/limine-pin-battery-r96.py
+0
+$ grep -c "LIMIT (r96 CriticClaims" tools/limine-pin-battery-r96.py
+1
+
+$ sha256sum -c .ufo/waves/round-96/before/instruments.sha256   # the r96 manifest, in the worktree
+tools/limine-pin-battery-r96.py: FAILED
+sha256sum: WARNING: 1 computed checksum(s) did NOT match
+
+$ grep -rn "answers era B for" . --include="*.py" --include="*.md" | grep -v "^./.ufo/waves/" | wc -l
+1
