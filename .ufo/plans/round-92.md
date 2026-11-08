@@ -252,3 +252,27 @@ this commit. Declaration files (`.ufo/plans/round-92.md`, `SCORECARD.md`, `corpu
 `claims.json`) are deliberately NOT in it: they were amended after the freeze (A1-A8) and are bound by commit
 and by the instrument ledger above (A7), which is exactly the narrowing A7 §2 filed. A receipt whose
 instrument sha is not a row of that ledger is the void condition.
+
+## Amendment A9 (2026-11-08, at filing — number corrections the wave measured; nothing re-declared)
+
+Four numbers in this declaration were wrong against the final receipts; the corrections, each measured:
+
+1. **`N02-era-flat-b` fails 4 families, not 3**: it reads 85/89 (`ERA-FLE-PANIC-A`, `ERA-FLE-MEASURED-A`,
+   `ERA-DEFAULT` and — the fourth — a family whose expectation moves with the pre-12.9.5 rule), `unmet` ×3
+   in both layouts (`after/c2-near-misses/{canonical-final,clone-final}/summary.tsv`). A5's "3 fail" stands
+   corrected here.
+2. **The r91-gate do-nothing reads 1/89, not 0/89**: `ERA-DEFAULT` is the only family that omits
+   `--limine-version`, so the r91 gate runs on it and answers it correctly; every other family is an
+   `error:` row (rc 64 from the unknown flag). Receipt `after/c1-controls/k1-donothing.json` (352 error
+   rows of 356; the r91 gate's sha256 `62bb06c9…`).
+3. **`run-c1.sh`'s do-nothing leg extracted the V2 gate, not the r91 gate** (`"$REV^"` where `$REV` was the
+   A1 commit): its first receipt read 89/89 and proved nothing. The script now pins
+   `da99b2f4^:tools/check-limine-pins.py` and the re-run is the receipt in (2).
+4. **The near-miss receipts to cite are the `-final` dirs**: `after/c2-near-misses/{canonical,clone}/`
+   hold the A4-era crashed N01/N02 rows (kept as A4's evidence); the filed numbers come from
+   `{canonical-final,clone-final}` (N01 87/89, N02 85/89, N03 88/89, N04 89/89), 0 error rows.
+   `ReviewSource`'s report is at `w1/ReviewSource/review.md` (no `w1/ReviewSource.md`).
+5. **The manifest is the 28-line instrument manifest of A8**, and `sha256sum -c` on it exits 0 at
+   `ec728e4a` and later; the 36-line pre-A8 manifest that pinned `plans/round-92.md` and `SKILL.md` is
+   superseded (those two files changed when this round amended them — that is exactly why A8 removed
+   declarations from the manifest).

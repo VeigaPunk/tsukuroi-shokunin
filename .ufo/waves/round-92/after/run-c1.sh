@@ -51,7 +51,9 @@ echo "=== no-regression: r91 battery scores the r92 gate (82/82 expected) ==="
 python3 "$LANE/tools/limine-pin-battery-r91.py" --gate "$LANE/tools/check-limine-pins.py" --runs 1 \
   --work "$S/work/noreg" | tee "$A/r91-battery-on-r92-gate.txt"
 echo "=== do-nothing K1: r91 gate under the r92 battery (0/89, error rows expected) ==="
-git -C "$LANE" show "$REV^:tools/check-limine-pins.py" > "$S/r91-gate.py"
+# the do-nothing gate is the r91 bytes, i.e. the parent of the FREEZE commit (da99b2f4^);
+# "$REV^" was the V2 gate itself and made this leg read 89/89 (A9 correction)
+git -C "$LANE" show da99b2f4^:tools/check-limine-pins.py > "$S/r91-gate.py"
 python3 "$LANE/tools/limine-pin-battery-r92.py" --gate "$S/r91-gate.py" --runs 1 \
   --work "$S/work/k1" --json "$A/k1-donothing.json" | tee "$A/k1-donothing.txt"
 echo ALL-DONE
