@@ -49,6 +49,45 @@ advanced: the r95 "four-component shape not sent at battery level" bullet, corre
   none in r95; r96's C2 F6 makes the sentence machine-checkable. Fix: the r96 report states the
   numeral the checker compares, and `check-r96-calibration.py --report` is run before filing.
 
+- **R96-N02-ERRORROWS** — class: frozen target vs instrument reading (a QUALITY 140 miss one round
+  after the rule entered). The first draft of C1's target said every bend leg carries "0 error
+  rows"; the N02 bend refuses the four Y-family cases, so its receipt carries four `error` rows per
+  run (ExecBend `bend-N02*.json`, ExecBattery `c1-bend-N02-y-cap-8.json`). Captured-by: QUALITY 140
+  (the rule existed; the L1's development run printed the verdict but did not inspect the error-row
+  field). Fix: A3 (post-wave, recorded in `before/plan-amendments-A1-A2.md`) narrows the clause to
+  the bend's own refusal rows and the report prints the counts; a development run now inspects every
+  field of the target sentence, not only the verdict line.
+- **R96-FREEZE-DRIFT** — class: frozen bytes vs worktree. A post-freeze whitespace fix to
+  `tools/check-r96-calibration.py` left the worktree (`ad894667…`) off the freeze manifest
+  (`7ff63524…`) for ~6 minutes of the wave; two seats read the drift (ExecDoNothing §4,
+  ExecControls D1) and the L1 restored the pinned bytes (`sha256sum -c` 17 × OK at scoring).
+  Captured-by: the C2 void clause itself (checker-vs-manifest) — it caught the drift because a seat
+  ran the manifest check. Fix: instruments are frozen by digest and a repair that needs different
+  behaviour is an amendment plus a re-pin, never a worktree edit; the pinned checker passed after a
+  wrap-only reflow of the r95 emitter, so no re-pin was needed.
+- **R96-F6-PROVENANCE-LIMIT** — class: counter scope. F6 binds the report's count sentence to the
+  file at the ledger path, not to the round that produced it; a copied r95 ledger plus a matching
+  report reads PASS (ExecControls D2). Captured-by: none. Fix: recorded as a named limit in the
+  report and the knowledge entry; binding the ledger's provenance is a later round's claim.
+
+- **R96-EXTRA-TWIN** — class: claimed discrimination vs measured. `EXTRA-COMPONENT` was declared as
+  closing a class the r95 roster lacked; CriticClaims F-2 measured that the r95 roster alone kills
+  the same bend (98/99 unmet, `REFUSAL-VERSIONS` — its `12.9.5.1` row) and that the r95 instrument's
+  `--usage-check` already sends `12.9.6.1`. Captured-by: QUALITY 136's twin clause (not applied
+  before the freeze). Fix: A4 narrows the claim to a three-family discrimination delta and records
+  the family as coverage broadening.
+- **R96-Y-DOCSTRING-ERA** — class: instrument text vs measured behaviour. `fam_refusal_versions_9digit_y`'s
+  docstring says an X-only era reader fails that family; CriticClaims F-4 built the reader and
+  measured it **passing** the Y family and failing `EXPLICIT-VERSION-ERA`. Captured-by: none (a
+  docstring claim is not covered by a battery family). Fix: the frozen battery bytes are not edited
+  this round (the void clause); routed to r97 as a docstring correction with its own manifest, and
+  recorded in the README Frontier.
+- **R96-C2-REMEDY-CHECKLIST** — class: claim naming vs counter scope. C2's frozen sentence said the
+  checker "counts" six mismatch classes; CriticClaims F-3 measured F1/F3/F4 as substring presence,
+  F5 as a receipt lint and only F6 as a number binding. Captured-by: the critic seat. Fix: A5
+  narrows the sentence to six remedy conditions and names F6's first-match limit; binding the
+  ledger's provenance is a later round's claim.
+
 ## Counter-attack scoreboard (considerthese/2026-10-26.md, mined 2026-11-08)
 
 The proposal "counter-attack scoreboard … track how many attack arms the wave fielded, how many

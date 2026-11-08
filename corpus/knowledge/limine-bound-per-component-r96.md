@@ -38,9 +38,13 @@ fail both a wrong echo (`N01-echo-wrong`) and an inverted era label (`N03-era-la
 `12.9.6.1`, `12.9.6.1.0`, `12.9.6.99` and `12.9.6.7` are refused rc 64 with empty stdout, while
 `12.9.6` is the same-list positive control (rc 0 on a healthy fixture) so a blanket refuser fails
 too (`EXTRA-COMPONENT`; bend `N04-extra-components`, which accepts only the first three components,
-reads `unmet`). The class **was** sampled once before this round: `REFUSAL_VERSIONS` contains
-`12.9.5.1`, so the r95 Frontier's "not sent at battery level" sentence is corrected here — r96
-broadens the class (four shapes plus a positive control) rather than closing a first.
+reads `unmet`). The class **was** sampled before this round — twice: the r95 family roster carries
+`12.9.5.1` (it alone kills the bend, 98/99 unmet) and the r95 instrument's `--usage-check` mode
+already sends `12.9.6.1`. The r95 Frontier's "not sent at battery level" is therefore corrected here
+for both the roster and the instrument; r96 broadens the class (four shapes plus a positive control)
+and the family is a **twin** under QUALITY 136 — the round's measured discrimination delta is the
+three families `EXPLICIT-VERSION-ECHO`, `EXPLICIT-VERSION-ERA`, `REFUSAL-VERSIONS-9DIGIT-Y`
+(A4; `w1/CriticClaims` F-2).
 
 ## PC4 — what the scope does not cover
 
@@ -52,5 +56,9 @@ broadens the class (four shapes plus a positive control) rather than closing a f
 - The battery's isolation is the r92 contract (private gate copy, `bwrap --unshare-all`,
   `python3 -I`); its residual channels (argv via `/proc`, host fingerprint, writable gate-copy
   parent, `/dev` writes) stay named and open in the r92 A6 and the r93 Frontier.
+- The Z component's 9-digit boundary and a 9-digit component with leading zeros are **unsent**:
+  `MutBound`'s `M06-z-cap-8` and `M08-refusal-9digit-below-1e8` survive 103/103 (the landed gate
+  accepts `12.9.999999999` and `000000001.0.0`; the mutants refuse them), so QUALITY 139's boundary
+  rule is certified at family level for X and Y only (r96 Frontier).
 - The probe reads the first `X.Y.Z` of `limine --version`; a pre-release answer would read as the
   release (r93 Frontier, not re-measured here).

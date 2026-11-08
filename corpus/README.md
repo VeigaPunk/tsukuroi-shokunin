@@ -1169,6 +1169,16 @@ the class was sampled once, and r96 broadens it.
   cases still compare the echo through `auto_ok`, and a probe-failure row emits no JSON to read.
 - `EXTRA-COMPONENT` enumerates four four-component spellings; an empty component, five components
   and non-ASCII digits stay unsampled at family level (the gate's selftest covers `12.9` and `12.9.x`).
+- The Z component's 9-digit boundary is **uncertified**: MutBound's `M06-z-cap-8` survives 103/103
+  (the landed gate accepts `12.9.999999999`; the mutant refuses it), and a 9-digit component with
+  leading zeros (`000000001.0.0`) is unsent — `M08` survives 103/103 (MutBound F1/F2). QUALITY 139's
+  boundary rule therefore holds at family level for X and Y only.
+- `EXTRA-COMPONENT` is a **twin** under QUALITY 136: the r95 roster alone kills its bend through the
+  pre-existing `12.9.5.1` row, and the r95 `--usage-check` already sends `12.9.6.1` (CriticClaims
+  F-2; A4 records the measured discrimination delta as three families).
+- The calibration checker's F6 binds the first numeric occurrence of each verdict class, so prose
+  ordering can select which sentence it reads (CriticClaims F-3 E4); the ledger's provenance is
+  bound by `scripts/hyaku/prefile-falsification.py`, not by F6 (ExecControls D2).
 - Still open from r95: the registry gate's content binding (row presence, not cell content);
   the r92 launcher residuals; the r93 probe pre-release caveat; r89's blanks-before-CRLF, ESP
   containment and empty labels.
