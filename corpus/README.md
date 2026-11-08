@@ -1161,7 +1161,8 @@ rc 64, with `12.9.6` as the same-list positive control). Four one-clause bends e
 families (`N01` echo, `N02` Y-cap, `N03` era label, `N04` extra components), and the r95 battery is
 blind to the three new families; on N04 it fails only through its pre-existing `12.9.5.1` row — the
 r95 Frontier sentence that said the four-component shape was not sent at battery level is corrected:
-the class was sampled once, and r96 broadens it.
+the class reached the r95 instrument twice (the roster's `12.9.5.1` row and the `--usage-check` value
+`12.9.6.1`), and r96 broadens it a third time.
 
 ### Frontier (round-96 addition)
 

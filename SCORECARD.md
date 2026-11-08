@@ -7930,3 +7930,27 @@ recorded the hash, so the binding is created here and the r95 predicate is not r
 Tip receipt (r95 routed 6): `.ufo/waves/round-96/before/c2-tip-b8f878c8.json` records
 `check-registry-coverage.py --revision b8f878c8…` = `PASS`, findings 0, 151/151 registered — the r95
 tip value is measured, not derived.
+
+## Round 96 — measured outcome (freeze `38adc4ed`, A1-A5 in `before/plan-amendments-A1-A2.md`; receipts `.ufo/waves/round-96/after/` and `w1/`)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: the gate's reported version/source/era and the per-component accepted leg) | depth 8 → 8 (tied lowest; a sharper instrument, no ordinal uplift) | roster 99 → **103** (`python3 tools/limine-pin-battery-r96.py --gate tools/check-limine-pins.py --runs 3 --json OUT` → `103/103 met` in every run, 0 error rows, canonical + clone at `38adc4ed`); four new names: `EXPLICIT-VERSION-ECHO`, `EXPLICIT-VERSION-ERA`, `REFUSAL-VERSIONS-9DIGIT-Y`, `EXTRA-COMPONENT`; bends ×3 both layouts: N01 `102/103` `["EXPLICIT-VERSION-ECHO"]` 0 err, N02 `102/103` `["REFUSAL-VERSIONS-9DIGIT-Y"]` **4 err** (its own rc-64 refusals, A3), N03 `102/103` `["EXPLICIT-VERSION-ERA"]` 0 err, N04 `101/103` `["EXTRA-COMPONENT","REFUSAL-VERSIONS"]` 0 err; r95 do-nothing battery: `99/99 met` on the gate and N01/N02/N03, `98/99 unmet ["REFUSAL-VERSIONS"]` on N04 | met on A3+A4 (three new-class families + one coverage twin; exact bend families and counts) | **met on A3+A4**, author-side; the strict frozen text ("four families", "0 error rows" on every bend) is falsified by CriticClaims F-1/F-2 and MutBound F4 — the amendments narrow, they do not rewrite |
+| C2 (measured; surface: the six routed r95 self-assessment defects) | calibration 9 → 9 (assurance repair, no ordinal uplift) | `python3 tools/check-r96-calibration.py --root R --report F --tsv T`: pre-round `73c47107` + r95 report/ledger → `FAIL`, findings F1-F6 (10 rows); landed tree + filed report + committed ledger → `PASS`, `findings []`; `--selftest` `PASS 7/7`; one-fault fixtures fire exactly their own id (A1: counts 1/2/2/2/1/1) | 0 findings after, six classes before, self-test 7/7, id-exact controls | **met on A5** (six remedy conditions, not a re-measurement of r95 facts; F6 is the only count binding and binds the first numeric occurrence — named limit) |
+
+Falsified-or-narrowed this round (all in `before/plan-amendments-A1-A2.md`): A1 (`fails exactly its
+own finding` → its own id; F2/F3/F4 can emit two findings of one id), A2 (frozen-checker worktree
+drift 07:47-07:54, restored; void clause evaluated on the manifest bytes), A3 (N02's four refusal
+error rows; 0-error clause scoped), A4 (`EXTRA-COMPONENT` is a QUALITY 136 twin; the r95 roster and
+`--usage-check` already sample the class; measured discrimination delta three families), A5 (the C2
+checker is a six-remedy checklist; F6 binds the first numeric occurrence; F1/F3/F4 are substring
+conditions and F3 is blind to code-only edits). Axes now: depth 8, coverage 9, operability 9,
+freshness 9, calibration 9, adjacency 8. No retirement. No axis harmed: the gate bytes are unchanged
+(`7d79ac29…`), the r95 roster still reads `99/99 met` on the gate, and the corpus is additive
+(entry + one SOURCES row, 389 → 390).
+
+Frontier (measured this round): the Z-component 9-digit boundary and a 9-digit component with
+leading zeros are uncertified (`MutBound` M06/M08 survive `103/103`); the r96 Y-family docstring's
+era claim is false (an X-only era reader passes Y, fails ERA — CriticClaims F-4, routed to r97);
+the calibration checker does not bind ledger provenance (ExecControls D2) and its F6 is
+first-match (ReviewCalibration).

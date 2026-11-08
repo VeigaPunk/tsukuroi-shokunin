@@ -16,8 +16,8 @@ recheck: `python3 tools/limine-pin-battery-r96.py --gate tools/check-limine-pins
 1-9 digits each (`parse_limine_version()`), because handing an unbounded component to `int()` raises
 above CPython's decimal-conversion digit limit — the 4300-digit default S389 states, whose
 configured value S390 names (`sys.int_info.default_max_str_digits`, "The default value for
-sys.get_int_max_str_digits() when it is not otherwise explicitly configured.", byte 157653 of the
-2026-11-08 pin, sha256 `a7e00587…`). The bound is therefore **per component**: `999999999.9.9` (X at
+sys.get_int_max_str_digits() when it is not otherwise explicitly configured.", byte 157851 of the
+2026-11-08 pin, sha256 `a7e00587…`; the attribute id is at byte 157525). The bound is therefore **per component**: `999999999.9.9` (X at
 the cap) and `12.999999999.4` (Y at the cap) are both in-bound versions, and `0.999999999.0` is the
 same cap below the era split. Round 95 certified only the X member; the r96 family
 `REFUSAL-VERSIONS-9DIGIT-Y` sends the Y members (both eras), and a gate that applies `<= 8` to Y
