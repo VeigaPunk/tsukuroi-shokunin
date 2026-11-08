@@ -121,3 +121,138 @@ the probe, would still measure its own claim.
 ## Amendments (appended after data; never an in-place rewrite)
 
 (none yet)
+
+## Amendment A1 (2026-11-08, after the freeze; controls only) — the C2 do-nothing leg refuses all `auto`
+## values, so `AUTO-PROBE-FAIL` passes on it
+
+The frozen C2 do-nothing sentence read "the r92 gate … rejects `auto` with rc 64, so all three auto
+families fail on it". Measured (`.ufo/waves/round-93/after/c2-donothing-r92-gate.{json,txt}`, one run):
+`families_passed 94/96 verdict unmet failed AUTO-ERA-A,AUTO-ERA-B`, 8 error rows. `AUTO-PROBE-FAIL`
+PASSES on the r92 gate, because a gate that refuses every `auto` value satisfies a family that expects
+a refusal when the probe fails. The predicate, target and kill rule of C2 are unchanged: the claim
+never says the do-nothing fails all three families; only the control sentence did. `AUTO-PROBE-FAIL`'s
+discrimination against a silent fallback is N06's leg (probe failure -> 12.9.4), measured separately.
+The control sentence is narrowed to: the r92 do-nothing leg proves `AUTO-ERA-A` and `AUTO-ERA-B`
+unreachable without V3, and N06 proves `AUTO-PROBE-FAIL` is not vacuous. Lesson M2 records the class
+(a refusal-shaped control cannot certify a refusal family).
+
+## Amendment A2 (2026-11-08, after the wave's attack receipts; claim-wording narrowings only) — what
+## the wave falsified, and what the claims now say
+
+No predicate arithmetic, target, kill rule or counting command changes; the frozen instruments and
+controls are untouched (a byte edit after the freeze would void every receipt). Each narrowing names
+the wave artifact that forced it.
+
+**C1-1 — N02's label.** The declaration called N02 "the era-B cut one line late". ReviewBattery F1
+and ReviewGate F4 measured the bend's real shape: the replacement
+`lineno == first_entry + 1` lives inside the `if stripped.startswith("/")` branch, so the transition
+never fires on an entry line and the era-B cut is **suppressed** (on a 12.9.4 config whose first entry
+is line 2 the landed gate answers `panic`; N02 answers `prompt` with the key visible). The target
+"N02's `failed_families` contains `ERA-B-FIRST-BODY`" still holds; the parenthetical now reads
+"N02 (era-B cut suppressed)". The r92 M13 class ("cut one line late") is measured by **no** committed
+bend; the corrected bend is routed to the next freeze.
+Artifacts: `.ufo/waves/round-93/w1/ReviewBattery/probes-n02-nocut.txt`,
+`.ufo/waves/round-93/w1/ReviewGate.md` F4, `after/bend-N02-first-body.json`.
+
+**C1-2 — the refusal set's tenth member.** "Each of ten values outside `X.Y.Z`" is false for
+`"9"*5000 + ".0.0"`: that string is X.Y.Z-shaped, and its refusal follows from the gate's published
+1-9-digit component cap (`check-limine-pins.py:96`), not from the battery's V2 paragraph
+(ReviewBattery F2; MutEra M13 shows a 10-digit component survives the roster). The claim now reads
+"nine values outside `X.Y.Z` plus one X.Y.Z-shaped value whose first component exceeds the gate's
+1-9-digit bound"; the cap's text and a ten-digit row are routed to the next freeze.
+Artifacts: `.ufo/waves/round-93/w1/ReviewBattery/probes-run_usage.txt`,
+`.ufo/waves/round-93/w1/MutEra.md` (M13).
+
+**C1-3 — "empty stdout".** `run_usage` asserts `p.stdout.strip() == ""`, so a whitespace-only
+refusal output passes (ReviewBattery F3, measured `stdout_bytes=1`, `ok=True`). The claim now reads
+"empty-or-whitespace-only stdout"; the landed gate writes nothing to stdout, so no receipt changes.
+Artifact: `.ufo/waves/round-93/w1/ReviewBattery/probes-run_usage.txt` (`b_newline_stdout_rc64`).
+
+**C2-1 — the mechanism clause and its certifier.** "Resolves the installed bootloader by running
+`limine --version` read-only" is certified by the live run's syscall trace (ExecLive:
+`execve("/usr/bin/limine", ["limine","--version"])`, `O_RDONLY` opens only) and the gate's
+`probe-version` selftest rows — **not** by the battery's AUTO families: CriticForgers' f6 (a gate
+that reads `<cwd>/bin/limine`'s source instead of executing it) reads `96/96 met`. The claim now
+splits the two: the battery families certify the observable result (reported version, source, era,
+refusal); the mechanism is certified by the live trace and the selftest.
+Artifacts: `.ufo/waves/round-93/w1/CriticForgers.md` §3 (`f6.json`),
+`.ufo/waves/round-93/w1/ExecLive/strace-gate-live.txt`, `after/live-c2.json`.
+
+**C2-2 — "when the probe fails".** The certified failure shapes are: binary absent (live,
+`PATH=/nonexistent` → rc 64, 0 B stdout), nonzero exit with no output (`AUTO-PROBE-FAIL`'s fake
+`exit 1`), no parsable stdout (selftest `probe-version`; ExecLive cases c/e), and the 5 s timeout
+(selftest/live d: `None` at 5.012 s). The claim does **not** cover: non-UTF-8 stdout (ReviewGate F2:
+`UnicodeDecodeError` is uncaught by `OSError/SubprocessError` → exit 1, measured counterexample), a
+nonzero exit **with** a version on stdout (MutAuto M04), a two-component probe answer (MutAuto M03),
+or the battery observing the 5 s budget at all (M05/M11; M12's 25 s block surfaces as `timeout`
+error rows, never as a refusal). The claim now reads: "refuses (rc 64, empty stdout) on the four
+certified failure shapes"; the three uncertified shapes are routed to the next freeze as a gate fix
+(`errors="replace"`, `(?![\w.-])` suffix guard, a `default` source label) plus families.
+Artifacts: `.ufo/waves/round-93/w1/ReviewGate.md` F1/F2, `.ufo/waves/round-93/w1/MutAuto.md`
+(M03/M04/M05/M11/M12).
+
+**C2/docstring — the leakage sentence, routed not fixed.** The battery docstring still says
+"Fixtures carry no answer … no expected value on disk"; CriticForgers §3 measured it false for the
+AUTO families (the fake's literal source encodes the expected version/refusal). The claim does not
+repeat that sentence, and editing the frozen battery now would void every receipt, so the docstring
+rewording and the decoy-line hardening (`# Limine 12.9.2 (fixture metadata)` before the echo) are
+routed to the next freeze.
+Artifacts: `.ufo/waves/round-93/w1/CriticForgers.md` §3, `f6.json`.
+
+**Process note — the void leg.** The 14-line freeze manifest verifies 14/14 at `c633f49a`; in the
+worktree its `.ufo/plans/round-93.md` line changes only by this file's own permitted appended
+amendments (A1, A2). The kill rule's "instrument byte" leg is therefore read against
+`.ufo/waves/round-93/before/instruments.sha256` (13 lines, instruments + controls only), which
+verifies clean at the landing tip; see ExecBends `freeze-check.txt`, ReviewBattery, MutAuto and
+ReviewGate F3, all of which measured the same split.
+
+## Amendment A3 (2026-11-08, from CriticClaims F3/F4/F7; claim-wording narrowings and the missing clone
+## leg) — the live parenthetical, the parse clause, and the C1 clone runs
+
+No arithmetic, target, kill rule or counting command changes; the frozen instruments and controls stay
+byte-identical.
+
+**C2-3 — the live `rc 1` parenthetical is a privileged receipt.** The frozen predicate said "`--live
+--limine-version auto` on this host prints `limine_version` 12.9.4 … (rc 1, the two operator-owned pin
+mismatches at lines 30 and 38)". `/boot` is `0700 root:root`, so the lane user cannot read
+`/boot/limine.conf`: the unprivileged invocation prints the same `limine_version 12.9.4` and
+`limine_version_source probe` with rc 2 `CANNOT-EVALUATE` and `error: conf unreadable`
+(`w1/ExecLive/live.stdout`), while the rc-1/pins-30-38 receipt is the L1's root run
+(`after/live-c2.json`, `/boot` digest `cmp`-identical, read-only). The claim now states both shapes and
+their producers: the root receipt for the pin verdict, the unprivileged run for the fields.
+Artifacts: `.ufo/waves/round-93/w1/CriticClaims.md` F3, `w1/ExecLive/live.stdout`,
+`after/live-c2.json`.
+
+**C2-4 — the parse clause is "first X.Y.Z after `limine`".** The frozen wording said "the first
+`X.Y.Z` in its output". The gate's `probe_limine_version` regex is
+`(?i)\blimine\s+v?(\d+\.\d+\.\d+)\b`: the version must immediately follow the word `limine` (optional
+`v`). Measured counterexamples (CriticClaims §5): a bare `12.9.6` → `None`; `Limine version: 12.9.6` →
+`None`; `gcc 13.2.1` then `Limine 12.9.6` → `12.9.6`; `Limine 12.9.5.1` → `12.9.5`;
+`Limine 12.9.6-rc1` → `12.9.6`. The claim now reads "the first `X.Y.Z` immediately following `limine`
+(case-insensitive, optional `v`); a bare `X.Y.Z`, a version after other text, or a two-component answer
+is a probe failure". The suffix/extra-component leniency is a named limit (routed: add `(?![\w.-])`
+and a bare-version family next freeze).
+Artifacts: `.ufo/waves/round-93/w1/CriticClaims/evidence.md` §5,
+`.ufo/waves/round-93/w1/ReviewGate.md` F1.
+
+**C2-5 — the timeout's certifier.** The declaration's Named limits said the 5 s timeout was certified
+by the `probe-version` selftest row; that row tests parse/exit/absent and **not** the timeout. The
+timeout is implemented (`timeout=5`, `TimeoutExpired` is a `SubprocessError`) and exercised by
+ExecLive's `d_fake_sleep6` probe: `None` at 5.012 s (`w1/ExecLive/probe-isolated.json`). The Named
+limits sentence is corrected to name that receipt; no claim number changes.
+Artifacts: `w1/CriticClaims/evidence.md` §5, `w1/ExecLive/probe-isolated.json`.
+
+**C1-4 — the clone bend leg is now ×3.** CriticClaims F7 correctly read the clone receipts as one run
+per C1 bend. The missing leg is supplied by this round's own clone run at the freeze commit:
+`after/clone-gate.json` (landed gate, 3 runs, `96/96 met`) and `after/clone-bend-N0{1,2,3,4}.json`
+(3 runs each, `unmet` with the named family, 0 error rows), in addition to ExecReplicate's
+one-run-each cross-check. The target "each ×3 both layouts" is now evidenced by committed receipts;
+the earlier one-run receipts stay as corroboration.
+Artifacts: `after/clone-gate.json`, `after/clone-bend-N01-exact-split.json`,
+`after/clone-bend-N02-first-body.json`, `after/clone-bend-N03-era-b-u1.json`,
+`after/clone-bend-N04-accept-any.json`, `w1/CriticClaims.md` F7.
+
+**Reading rule for "0 error rows".** CriticClaims F2 and ReviewBattery F5 are right that a usage-family
+failure always carries `error: null` (its detail lives in `rows`/`got`), so "0 error rows" is not a
+clean-case proof by itself. The claim's clean-case proof is `failed_families` naming the family in every
+run plus the `error: null` count; the report and SCORECARD cite both, never the error count alone.
