@@ -1,0 +1,9 @@
+Pins fetched 2026-11-08 with curl from the URLs in URLS.txt (tag URLs, no clone).
+v12.9.4 config.c sha256 aafc9c41… equals the r91 pin's aafc9c41… (byte-identical, no cmp run needed).
+v12.9.5 config.c sha256 a940acae… equals v12.9.6 config.c: the whole file is byte-identical between the
+two releases, so the create_menu_tree() cut is one rule for both.
+diff <(sed -n '298,410p' v12.9.5) <(sed -n '298,410p' v12.9.6) -> empty, rc 0.
+Cut anchors in v12.9.5/v12.9.6 (raw, 1-based): 328-330 `if (p > config_addr) { *(p - 1) = '\0'; }`;
+362-365 label-end NUL (`if (*p == '\n') { *p = '\0'; p++; }`); reads after the build: config_ready 666,
+menu_tree = create_menu_tree() 668, config_get_value 733+.
+v12.9.4 cut (raw): config_ready 638, create_menu_tree 640, cut 642-650 with the `c > config_addr` guard at 648.

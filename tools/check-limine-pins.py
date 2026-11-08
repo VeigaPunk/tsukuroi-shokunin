@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only Limine path-pin gate (tsukuroi rounds 87, 90 and 91; Limine v12.9.4 rules).
+"""Read-only Limine path-pin gate (tsukuroi rounds 87, 90, 91 and 92; Limine v12.9.4 and v12.9.5+ rules).
 
 Hashes every file a `limine.conf` path pin names and says what Limine will do at boot.
 The rule set is frozen in tools/limine-pin-battery-r91.py (R1-R7, R9, R10, V1, U1; the r90 rules
@@ -32,6 +32,13 @@ S374-S376). Summary:
     `/` entry line) UNLESS line 1 is itself an entry line (config.c 642-650: the buffer cut is skipped when
     `c == config_addr`, i.e. no bytes precede the first `/`; round 91 V1). An entry body's hash_mismatch_panic
     or measured_boot is invisible to config_get_value.
+  - which visibility rule applies is selected by `--limine-version` (round 92 V2; default 12.9.4, the host
+    package): BEFORE 12.9.5 the r91 rule above holds; FROM 12.9.5 on, `create_menu_tree()` parses in place
+    and NUL-terminates the buffer at the end of the first entry's label line (v12.9.6 raw 328-330 cuts
+    before the first entry line, raw 362-365 NULs the end of its label), so the first-line exception is
+    GONE: when line 1 is an entry line the global section is empty and both keys are invisible. The reads
+    run after the tree build (v12.9.4 raw 638-650; v12.9.6 raw 666-668 `config_ready`/`create_menu_tree`,
+    reads at raw 733+). An unknown or malformed version is a usage error (rc 64), never a silent default.
   - unverified_image_lines (round 91 U1): the image line of an efi chainload entry whose value is not a
     pin URI (`boot():/path#hash` shape) is reported as a line-number list. uri_resolve returns false with no
     message for a value with no `(`, no `):/`, or no `#` after `):/`, and uri_open returns NULL; chainload
@@ -39,6 +46,7 @@ S374-S376). Summary:
 
 Usage:
   check-limine-pins.py --conf FILE --esp DIR [--secure-boot-enforced 0|1] [--tpm-present 0|1]
+                       [--limine-version X.Y.Z]
   sudo check-limine-pins.py --live            # /boot/limine.conf, ESP /boot, Secure Boot from efivars
   check-limine-pins.py --selftest
 Output: one JSON object on stdout {verdict, rc, on_panic, pins[{line, key, entry, uri, status, consequence, ...}],
@@ -65,6 +73,19 @@ SB_VAR = "/sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032
 FAULTS = ("LP-MISMATCH", "LP-MISSING", "LP-HASH-FORMAT", "LP-BAD-RESOURCE")
 RESOURCES = frozenset({"hdd", "odd", "boot", "guid", "uuid", "fslabel", "tftp"})
 EFI_PROTOCOLS = frozenset({"efi", "uefi", "efi_chainload"})
+
+
+def parse_limine_version(text):
+    """V2: `X.Y.Z`, ASCII digits only, -> (X, Y, Z); anything else -> None (usage error, rc 64)."""
+    if not isinstance(text, str):
+        return None
+    parts = text.split(".")
+    if len(parts) != 3 or not all(p.isascii() and p.isdigit() for p in parts):
+        return None
+    return tuple(int(p) for p in parts)
+
+
+VISIBILITY_ERA_SPLIT = (12, 9, 5)   # first upstream release with the create_menu_tree() cut
 
 
 def split_key(raw):
@@ -129,13 +150,19 @@ def on_panic_of(measured_setting, secure_boot, tpm):
     return "halt" if tpm else "menu"
 
 
-def check(conf, esp, secure_boot, tpm=None):
+def check(conf, esp, secure_boot, tpm=None, limine_version="12.9.4"):
+    version = parse_limine_version(limine_version)
+    if version is None:
+        raise ValueError("bad limine version: %r" % (limine_version,))
+    era_b = version >= VISIBILITY_ERA_SPLIT
     try:
         with open(conf, "rb") as f:
             text = f.read().decode("utf-8", "surrogateescape")
     except OSError as e:
         return {"verdict": "CANNOT-EVALUATE", "rc": 2, "pins": [], "on_panic": None,
                 "unverified_image_lines": [],
+                "limine_version": limine_version,
+                "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
                 "error": "conf unreadable: %s" % sanitize(str(e))}
     panic_setting = None
     measured_setting = None
@@ -143,11 +170,11 @@ def check(conf, esp, secure_boot, tpm=None):
     body = None          # the current entry's first protocol/path/image_path key lines
     bodies = []
     raw_pins = []
-    # V1 (r91; config.c raw 642-650): the config buffer is cut at the newline before the first
-    # entry line, unless that first '/'-line is also the file's first physical line (guard
-    # `c > config_addr`), in which case the whole file stays visible. hash_mismatch_panic and
-    # measured_boot are read only from the global section: every physical line before the first
-    # entry line, or every line when the first entry line is line 1.
+    # V1 (r91; config.c raw 642-650) and V2 (r92; v12.9.6 raw 328-330, 362-365): the config buffer is
+    # cut at the first entry line. Before 12.9.5 the cut is skipped when that '/'-line is also the file's
+    # first physical line (guard `c > config_addr`) and the whole file stays visible; from 12.9.5 on,
+    # create_menu_tree() parses in place and NUL-terminates at the first entry's label end, so there is
+    # no exception: when line 1 is an entry line the global section is empty.
     lines = text.split("\n")
     first_entry = None
     for i, raw in enumerate(lines, 1):
@@ -158,7 +185,7 @@ def check(conf, esp, secure_boot, tpm=None):
     for lineno, raw in enumerate(lines, 1):
         stripped = raw.replace("\r", "").strip(" \t")
         if stripped.startswith("/"):
-            if first_entry is not None and lineno == first_entry and first_entry != 1:
+            if first_entry is not None and lineno == first_entry and (era_b or first_entry != 1):
                 in_global = False
             entry = sanitize(stripped.lstrip("/").lstrip("+").strip()) or entry
             body = {}
@@ -248,7 +275,9 @@ def check(conf, esp, secure_boot, tpm=None):
         verdict, rc = "CANNOT-EVALUATE", 2
     else:
         verdict, rc = "HEALTHY", 0
-    return {"schema": "tsukuroi-limine-pins-v2", "verdict": verdict, "rc": rc,
+    return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+            "limine_version": limine_version,
+            "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
             "hash_mismatch_panic": None if panic_setting is None else
             {"line": panic_setting[0], "value": sanitize(panic_setting[1])},
             "measured_boot": None if measured_setting is None else
@@ -282,14 +311,18 @@ def selftest():
         ha = hashlib.blake2b(b"kernel-a").hexdigest()
         bad = ha[:-1] + ("0" if ha[-1] != "0" else "1")
 
-        def case(name, lines, sb, want_rc, want, tpm=None, want_op=None):
+        def case(name, lines, sb, want_rc, want, tpm=None, want_op=None, ver=None, want_unv=None,
+                 want_era=None):
             conf = os.path.join(work, name + ".conf")
             with open(conf, "w", newline="") as f:
                 f.write("\n".join(lines) + "\n")
-            r = check(conf, esp, sb, tpm)
+            r = check(conf, esp, sb, tpm, **({} if ver is None else {"limine_version": ver}))
             got = [(p["line"], p["status"], p["consequence"]) for p in r["pins"]]
-            ok = r["rc"] == want_rc and got == want and (want_op is None or r["on_panic"] == want_op)
-            results.append((name, ok, r["rc"], got + [("on_panic", r["on_panic"])]))
+            ok = (r["rc"] == want_rc and got == want and (want_op is None or r["on_panic"] == want_op)
+                  and (want_unv is None or r["unverified_image_lines"] == want_unv)
+                  and (want_era is None or r["visibility_era"] == want_era))
+            results.append((name, ok, r["rc"], got + [("on_panic", r["on_panic"]),
+                                                      ("unv", r["unverified_image_lines"])]))
 
         case("ok", ["/e", "path: boot():/EFI/Linux/a.efi#" + ha], False, 0, [(2, "OK", "none")])
         case("upper", ["/e", "PATH: boot():/EFI/Linux/a.efi#" + ha.upper()], False, 0, [(2, "OK", "none")])
@@ -338,6 +371,46 @@ def selftest():
              True, 0, [(3, "OK", "none")], want_op="halt-if-tpm")
         case("measured-case", ["measured_boot: Yes", "/e", "path: boot():/EFI/Linux/a.efi#" + ha],
              False, 0, [(3, "OK", "none")], tpm=True, want_op="menu")
+        # round 91 V1/U1 coverage: global-section scoping and the unverified-image list
+        case("v1-entry-body", ["hash_mismatch_panic: no", "/e", "protocol: efi",
+                               "path: boot():/EFI/Linux/a.efi#" + bad], False, 1,
+             [(4, "LP-MISMATCH", "prompt")], want_unv=[])
+        case("v1-body-invisible", ["timeout: 5", "/e", "protocol: efi",
+                                   "path: boot():/EFI/Linux/a.efi#" + bad,
+                                   "hash_mismatch_panic: no"], False, 1,
+             [(4, "LP-MISMATCH", "panic")], want_unv=[])
+        case("v1-body-invisible-era-b", ["timeout: 5", "/e", "protocol: efi",
+                                         "path: boot():/EFI/Linux/a.efi#" + bad,
+                                         "hash_mismatch_panic: no"], False, 1,
+             [(4, "LP-MISMATCH", "panic")], ver="12.9.6", want_era="12.9.5+")
+        case("u1-unverified", ["/e", "protocol: efi", "path: /EFI/Linux/a.efi"], False, 0, [],
+             want_unv=[3])
+        case("u1-pin-not-listed", ["/e", "protocol: efi", "path: boot():/EFI/Linux/a.efi#" + bad],
+             False, 1, [(3, "LP-MISMATCH", "panic")], want_unv=[])
+        # round 92 V2: the first-line-is-entry visibility flip at 12.9.5
+        first_entry = ["/e", "protocol: efi", "path: boot():/EFI/Linux/a.efi#" + bad,
+                       "hash_mismatch_panic: no"]
+        case("era-a-first-entry", first_entry, False, 1, [(3, "LP-MISMATCH", "prompt")], ver="12.9.4",
+             want_era="pre-12.9.5")
+        case("era-b-first-entry", first_entry, False, 1, [(3, "LP-MISMATCH", "panic")], ver="12.9.6",
+             want_era="12.9.5+")
+        case("era-b-global-key", ["hash_mismatch_panic: no", "/e", "protocol: efi",
+                                  "path: boot():/EFI/Linux/a.efi#" + bad], False, 1,
+             [(4, "LP-MISMATCH", "prompt")], ver="12.9.5", want_era="12.9.5+")
+        case("era-default", first_entry, False, 1, [(3, "LP-MISMATCH", "prompt")])
+        measured_first = ["/e", "protocol: efi", "path: boot():/EFI/Linux/a.efi#" + ha,
+                          "measured_boot: yes"]
+        case("era-a-measured", measured_first, False, 0, [(3, "OK", "none")], tpm="1",
+             want_op="halt", ver="12.9.4")
+        case("era-b-measured", measured_first, False, 0, [(3, "OK", "none")], tpm="1",
+             want_op="menu", ver="12.9.6")
+        results.append(("version-parser",
+                        parse_limine_version("12.9.4") == (12, 9, 4)
+                        and parse_limine_version("12.9.6") > VISIBILITY_ERA_SPLIT
+                        and parse_limine_version("12.9") is None
+                        and parse_limine_version("12.9.x") is None
+                        and parse_limine_version("") is None,
+                        "-", []))
         r = check(os.path.join(work, "absent.conf"), esp, False)
         results.append(("conf-absent", r["rc"] == 2 and r["pins"] == [], r["rc"], r["pins"]))
     finally:
@@ -363,21 +436,26 @@ def main():
     ap.add_argument("--esp")
     ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)
     ap.add_argument("--tpm-present", choices=("0", "1"), default=None)
+    ap.add_argument("--limine-version", default="12.9.4")
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
+    if parse_limine_version(a.limine_version) is None:
+        ap.print_usage(sys.stderr)
+        print("check-limine-pins: --limine-version must be X.Y.Z", file=sys.stderr)
+        return 64
     tpm = None if a.tpm_present is None else a.tpm_present == "1"
     if a.live:
         conf, esp = a.conf or "/boot/limine.conf", a.esp or "/boot"
         sb = live_secure_boot() if a.secure_boot_enforced is None else a.secure_boot_enforced == "1"
-        r = check(conf, esp, bool(sb), tpm)
+        r = check(conf, esp, bool(sb), tpm, a.limine_version)
         r["secure_boot_source"] = "efivar" if a.secure_boot_enforced is None else "argument"
         if sb is None:
             r["secure_boot_source"] = "efivar unreadable; treated as not enforced"
     elif a.conf and a.esp:
-        r = check(a.conf, a.esp, a.secure_boot_enforced == "1", tpm)
+        r = check(a.conf, a.esp, a.secure_boot_enforced == "1", tpm, a.limine_version)
     else:
         ap.print_usage(sys.stderr)
         return 64

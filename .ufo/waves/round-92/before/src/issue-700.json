@@ -1,0 +1,102 @@
+{
+  "url": "https://api.github.com/repos/Limine-Bootloader/Limine/issues/700",
+  "repository_url": "https://api.github.com/repos/Limine-Bootloader/Limine",
+  "labels_url": "https://api.github.com/repos/Limine-Bootloader/Limine/issues/700/labels{/name}",
+  "comments_url": "https://api.github.com/repos/Limine-Bootloader/Limine/issues/700/comments",
+  "events_url": "https://api.github.com/repos/Limine-Bootloader/Limine/issues/700/events",
+  "html_url": "https://github.com/Limine-Bootloader/Limine/issues/700",
+  "id": 6065681283,
+  "node_id": "I_kwDOCyGGac8AAAABaYrzgw",
+  "number": 700,
+  "title": "Global options after the first entry are ignored, unless the file starts with an entry",
+  "user": {
+    "login": "LeeeeT",
+    "id": 95910070,
+    "node_id": "U_kgDOBbd4tg",
+    "avatar_url": "https://avatars.githubusercontent.com/u/95910070?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/LeeeeT",
+    "html_url": "https://github.com/LeeeeT",
+    "followers_url": "https://api.github.com/users/LeeeeT/followers",
+    "following_url": "https://api.github.com/users/LeeeeT/following{/other_user}",
+    "gists_url": "https://api.github.com/users/LeeeeT/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/LeeeeT/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/LeeeeT/subscriptions",
+    "organizations_url": "https://api.github.com/users/LeeeeT/orgs",
+    "repos_url": "https://api.github.com/users/LeeeeT/repos",
+    "events_url": "https://api.github.com/users/LeeeeT/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/LeeeeT/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "labels": [
+
+  ],
+  "state": "closed",
+  "locked": false,
+  "assignees": [
+
+  ],
+  "milestone": null,
+  "comments": 4,
+  "created_at": "2026-10-27T18:52:23Z",
+  "updated_at": "2026-10-27T22:43:43Z",
+  "closed_at": "2026-10-27T22:43:43Z",
+  "assignee": null,
+  "author_association": "NONE",
+  "issue_field_values": [
+
+  ],
+  "type": null,
+  "active_lock_reason": null,
+  "sub_issues_summary": {
+    "total": 0,
+    "completed": 0,
+    "percent_completed": 0
+  },
+  "issue_dependencies_summary": {
+    "blocked_by": 0,
+    "total_blocked_by": 0,
+    "blocking": 0,
+    "total_blocking": 0
+  },
+  "body": "CONFIG.md says that global options \"can appear anywhere in the file\". Limine ignores a global option that comes after the first entry, but only when some text comes before that first entry.\n\n### Cause\n\nAfter Limine builds the menu tree, it ends the config text at the first entry. On `v12.x`, `create_menu_tree()` in `common/lib/config.c` does this:\n\n```c\nif (p > config_addr) {\n    *(p - 1) = '\\0';\n}\n```\n\nIn 12.9.4, `init_config()` does the same with `c[-1] = 0`. After that, `config_get_value(NULL, ...)` sees only the text before the first entry.\n\nIf the file starts with an entry, `p == config_addr`, so nothing is cut. Then global options work in all positions. Thus the result depends on whether one line comes before the first entry.\n\n### Steps to reproduce\n\nLimine 12.9.4, UEFI (QEMU with OVMF). The `path` does not need to exist.\n\nConfig A:\n\n```\ndefault_entry: 1\n/Shell\n    protocol: efi\n    path: boot():/EFI/BOOT/none.efi\ntimeout: no\neditor_enabled: no\n```\n\nConfig B is config A without the first line.\n\n### Result\n\n- A: \"Booting automatically in 5...\" shows, and the menu shows \"E Edit\". Limine ignores `timeout: no` and `editor_enabled: no`.\n- B: no countdown, and no editor. Limine uses both options.\n\n### Expected result\n\nBoth configs give the same result. Either Limine reads global options anywhere, as CONFIG.md says, or CONFIG.md says that global options must come before the first entry, and Limine applies that rule to all files.\n\n### Real-world effect\n\nNixOS adds `boot.loader.limine.extraConfig` above the global options that it makes. If a user puts an entry in `extraConfig` (for example, a Windows entry at the top of the menu), Limine ignores all the generated global options: `timeout`, `editor_enabled`, `default_entry`, `hash_mismatch_panic`, the wallpaper and others. The menu then boots automatically after 5 seconds, although the user set no timeout.\n",
+  "closed_by": {
+    "login": "Mintsuki",
+    "id": 36459316,
+    "node_id": "MDQ6VXNlcjM2NDU5MzE2",
+    "avatar_url": "https://avatars.githubusercontent.com/u/36459316?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/Mintsuki",
+    "html_url": "https://github.com/Mintsuki",
+    "followers_url": "https://api.github.com/users/Mintsuki/followers",
+    "following_url": "https://api.github.com/users/Mintsuki/following{/other_user}",
+    "gists_url": "https://api.github.com/users/Mintsuki/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/Mintsuki/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/Mintsuki/subscriptions",
+    "organizations_url": "https://api.github.com/users/Mintsuki/orgs",
+    "repos_url": "https://api.github.com/users/Mintsuki/repos",
+    "events_url": "https://api.github.com/users/Mintsuki/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/Mintsuki/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "reactions": {
+    "url": "https://api.github.com/repos/Limine-Bootloader/Limine/issues/700/reactions",
+    "total_count": 0,
+    "+1": 0,
+    "-1": 0,
+    "laugh": 0,
+    "hooray": 0,
+    "confused": 0,
+    "heart": 0,
+    "rocket": 0,
+    "eyes": 0
+  },
+  "timeline_url": "https://api.github.com/repos/Limine-Bootloader/Limine/issues/700/timeline",
+  "performed_via_github_app": null,
+  "state_reason": "completed",
+  "pinned_comment": null
+}
