@@ -1040,7 +1040,7 @@ r89 frontier bullets "Held-out clauses" (except containment and the empty label)
 - Visibility (V1): global-section scoping is live in the gate
   (`tools/check-limine-pins.py` `in_global`, config.c 642-650); battery
   82/82 met x3 canonical + clone at the landed tip. Claims narrowed
-  (`plans/round-91.md`): F3 missing-sort blindness, F2 oracle-import
+  (`.ufo/plans/round-91.md`): F3 missing-sort blindness, F2 oracle-import
   discrimination and freeze-manifest battery binding are NOT established.
 - Unverified image lines (U1): `unverified_image_lines` covers the
   silent no-shape fail (uri.c 46-75) and the unhashed-but-shaped case

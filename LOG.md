@@ -4015,7 +4015,7 @@ scoping, U1 `unverified_image_lines`, S1 sanitize, dead-block removal.
 
 **C1 measured** 82/82 x3 canonical and clone at the landed tip
 (`.ufo/waves/round-91/after/measured/`); narrowed in
-`plans/round-91.md` (F2 oracle-import 80/82, F3 missing-sort 82/82,
+`.ufo/plans/round-91.md` (F2 oracle-import 80/82, F3 missing-sort 82/82,
 freeze-manifest battery binding NOT established; K2 broken duplicate
 `--tpm-present`, N10 duplicates N01). **C2 exploratory** (depth 8):
 `limine-unverified-image-r91` (S374-S376, uri.c/chainload.c/config.c

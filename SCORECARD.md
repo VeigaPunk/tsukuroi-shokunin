@@ -7666,7 +7666,7 @@ C2 entry.
 Gate `check-limine-pins.py` gains `unverified_image_lines` field and global-section scoping for
 `hash_mismatch_panic`/`measured_boot`. Selftest 25/25 PASS.
 
-## Round 91 — final measured outcome (narrowed claims, see `plans/round-91.md`)
+## Round 91 — final measured outcome (narrowed claims, see `.ufo/plans/round-91.md`)
 
 **C1 (measured, operability 9, narrowed):** the gate reads V1 visibility
 and reports U1 `unverified_image_lines`; the frozen battery
