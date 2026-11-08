@@ -1,0 +1,34 @@
+RECEIPT 02 — the FIX, made executable: clause-level re-read of a frozen target
+Seat: ScribeLesson (round-95, w1). Scratch script: /fast/scratch/hyaku/tsukuroi-r95/ScribeLesson/clause-reread.py
+The script is copied next to this receipt as clause-reread.py.
+
+=== The pre-A1 frozen target, re-read against ONE development run of the instrument ===
+$ python3 clause-reread.py --variant pre-A1 --landed-r95 ... --n05-r95 ... --dn94-landed ... --dn94-n05 ...
+FAIL C1-N05-error-rows      | N05: 98/99 unmet in each of three runs in both layouts, failed_families == ["REFUSAL-VERSIONS-9DIGIT"], 0 error rows
+     observed: error rows in the N05 run: 4
+FAIL C1-DN94-LANDED-VERDICT | the r94 do-nothing battery on the landed gate: unmet 98/99
+     observed: verdict met 98/98 failed [] error rows 0
+PASS C1-DN94-N05-VERDICT    | the r94 do-nothing battery on N05: met 98/98 in each of three runs
+     observed: verdict met 98/98 failed [] error rows 0
+variant pre-A1: clauses 3, failing 2
+EXIT=1
+
+=== The A1 (narrowed) target, re-read against the SAME runs ===
+$ python3 clause-reread.py --variant A1 ...
+PASS C1-LANDED-R95          | Landed gate with the r95 battery: 99/99 met, failed_families [], 0 error rows
+     observed: verdict met 99/99 failed [] error rows 0
+PASS C1-N05-R95             | N05-strict-8 with the r95 battery: 98/99 unmet, failed_families exactly ["REFUSAL-VERSIONS-9DIGIT"]
+     observed: verdict unmet 98/99 failed ['REFUSAL-VERSIONS-9DIGIT'] error rows 4
+PASS C1-N05-ERROR-TEXT      | its four N05 case rows carry the battery's error text (rc 64, no JSON)
+     observed: error rows: 4, all bad-output/rc=64: True
+PASS C1-DN94-LANDED-MET     | Landed gate with the r94 do-nothing battery: met 98/98, 0 error rows, 0 REFUSAL-VERSIONS-9DIGIT rows in case_log
+     observed: verdict met 98/98 failed [] error rows 0, REFUSAL-VERSIONS-9DIGIT rows 0
+PASS C1-DN94-N05-MET        | N05-strict-8 with the r94 do-nothing battery: met 98/98, 0 error rows, 0 REFUSAL-VERSIONS-9DIGIT rows in case_log
+     observed: verdict met 98/98 failed [] error rows 0, REFUSAL-VERSIONS-9DIGIT rows 0
+variant A1: clauses 5, failing 0
+EXIT=0
+
+READING: the same checker FAILS two clauses of the pre-A1 target and PASSES all five
+clauses of the A1 target.  The fix is not a restatement: it is a check that
+returns FAIL on the sentences that were wrong.  A sentence that cannot fail is
+not a check.

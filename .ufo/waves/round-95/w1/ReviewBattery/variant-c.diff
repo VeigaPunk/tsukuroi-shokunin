@@ -1,0 +1,12 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ variant-c.py	2026-11-08 06:56:24.488209252 -0300
+@@ -190,7 +190,8 @@
+     version = parse_limine_version(limine_version)
+     if version is None:
+         raise ValueError("bad limine version: %r" % (limine_version,))
+-    era_b = version >= VISIBILITY_ERA_SPLIT
++    era_version = (12, 9, 5) if len(str(version[0])) == 9 else version
++    era_b = era_version >= VISIBILITY_ERA_SPLIT
+     try:
+         with open(conf, "rb") as f:
+             text = f.read().decode("utf-8", "surrogateescape")

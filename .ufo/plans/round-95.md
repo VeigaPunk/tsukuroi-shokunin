@@ -148,6 +148,42 @@ Free-text slot. After the freeze, an amendment may NARROW a claim to what the in
 recorded here with the artifact that falsified the wider sentence. No amendment may widen a target or
 re-define a predicate after a seat has scored it (fleet lesson, kumitate r42).
 
+- **A4 (post-scoring scope correction, citing wave artifacts).** Two sentences claimed more than
+  their instruments. (a) C1/A1 say the do-nothing battery "cannot see the bend"; that is true of its
+  **family roster** (98/98 met, 0 nine-digit rows) but not of the same frozen bytes' `--usage-check`
+  leg, which does see the cap (`999999999.0.0` wants rc 0 and the bend answers rc 64;
+  `w1/ExecDoNothing.md`). The claim's sentence is therefore "the r94 **family roster** has no in-bound
+  9-digit case", and the counting command is the roster run. (b) C2's predicate lists the
+  `limine-pins` content cells after a colon as if the registry gate's `PASS` asserted them; it does
+  not — `w1/ExecRegistry.md` §6 and `w1/ReviewRegistry.md` show a real table with wrong content still
+  reads `PASS 151/151`, and the gate binds no row name to its path. The enforceable sentence is: the
+  gate's `PASS` certifies row presence, kind, verdict-map completeness, orphan paths, selftest-flag
+  resolution and the counts; the two `limine-pins` cells are certified by a direct `git show` grep at
+  the measured revision and by `tools/check-limine-pins.py --selftest` (`selftest PASS 39/39`), not by
+  the registry gate. C2's void clause is likewise corrected: the freeze manifest does not pin
+  `tools/check-registry-coverage.py` or `SKILL.md`, so "void if the registry gate bytes differ from
+  the freeze manifest" is unverifiable; the void rule binds the sha256 of
+  `tools/check-registry-coverage.py` recorded in the C2 receipt at the measured revision
+  (`sha256sum tools/check-registry-coverage.py`). No target number changes.
+
+- **A3 (post-scoring narrowing, 2026-11-08T07:3x-03:00, citing a wave artifact).** C1's predicate
+  called `999999999.9.9` "the largest in-bound member of the gate's published 1-9-digit component cap".
+  `w1/ReviewBattery.md` F1 falsifies that superlative: the cap admits
+  `999999999.999999999.999999999`, which the landed gate accepts (rc 1, `DEGRADED`, era `12.9.5+`;
+  `w1/ReviewBattery/boundary-probe.txt`), and the battery sends neither that value nor any 9-digit Y
+  or Z position — a bend of Y's bound to `<= 8` still reads `met` 99/99
+  (`w1/ReviewBattery/middle-bound-probe.txt`). The claim is narrowed to the sentence the instrument
+  enforces: **"a boundary member of the gate's published 1-9-digit component cap: the first
+  component is 999,999,999 (the largest nine-digit value), with the second and third components at
+  9"**. The description "era B: 999999999 is at or above the 12.9.5 split, so the key is invisible"
+  stays; the observable it names (`panic`) is the enforced one. Declared limits carried from
+  `w1/ReviewBattery.md` F1-F3: the true component-wise maximum and 9-digit Y/Z positions are not
+  sent; the battery's `got` tuple carries no `visibility_era`, so the era *mechanism* is unclaimed
+  (variant c clamping the era tuple reads `met` 99/99); the echoed `limine_version` is recorded but
+  not compared for explicit-version cases (variant d reads `met`). `claims.json` is left byte-frozen
+  (it is pinned in `before/instruments.sha256`); this amendment supersedes the predicate's superlative
+  and is the ledger's `narrowing` pointer.
+
 - **A2 (pre-scoring wording fix, 2026-11-08T07:0x-03:00, before the wave was dispatched).** C2's
   predicate said the registry gate "reports `status` `clean`"; the gate's actual clean token is
   `PASS` (`status FAIL` at the pre-round tip, `status PASS` at `b66e6be5`). The predicate, target and

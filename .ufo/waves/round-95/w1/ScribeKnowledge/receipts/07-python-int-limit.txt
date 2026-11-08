@@ -1,0 +1,15 @@
+# 08 — the CPython 4300-digit limit, observed on this host (read-only; no install)
+$ python3 -VV
+Python 3.14.8 (main, Oct  2 2026, 10:23:31) [GCC 16.2.1 20260810]
+
+$ python3 -c "import sys; print(sys.int_info.default_max_str_digits)"
+4300
+
+$ python3 -c "int('2'*5432)"
+    int('2'*5432)
+    ~~~^^^^^^^^^^
+ValueError: Exceeds the limit (4300 digits) for integer string conversion: value has 5432 digits; use sys.set_int_max_str_digits() to increase the limit
+
+# the pinned S389 page carries the same sentences (ScoutSources/pins/python-3-stdtypes.html)
+$ grep -c 4300 <pin>
+7

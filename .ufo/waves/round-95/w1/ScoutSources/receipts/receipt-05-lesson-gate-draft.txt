@@ -1,0 +1,68 @@
+RECEIPT-05 — the `## Gate` section draft lines for the round-95 lesson
+Seat: ScoutSources (round-95, w1). Date: 2026-11-08.
+The L1 integrates the lesson; the ScribeLesson seat writes corpus/lessons/round-95.md. These are the
+draft lines the ScribeLesson seat can paste verbatim (shape matched to corpus/lessons/round-94.md
+§ "Gate": a table of `row | URL opened | tier | located quote (≤25 words)`, then an "Admitted:" line,
+then a "Rejected / refused this round:" line).
+
+================================================================================
+DRAFT `## Gate` SECTION
+================================================================================
+## Gate (sources opened this round; contract `CORPUS.md` §SOURCES.md)
+
+Candidates opened 2026-11-08 by the ScoutSources seat (URL, access date, located quote; ≤25 words
+each). Receipt: `.ufo/waves/round-95/w1/ScoutSources/report.md` and its `receipts/` directory.
+
+| row | URL opened | tier | located quote (≤25 words) |
+|---|---|---|---|
+| S389 (new) | https://docs.python.org/3/library/stdtypes.html#integer-string-conversion-length-limitation (version-pinned form: https://docs.python.org/3.15/library/stdtypes.html#integer-string-conversion-length-limitation — byte-identical today) | A | "The default limit is 4300 digits as provided in sys.int_info.default_max_str_digits." (§ "Integer string conversion length limitation", byte 785297 of the 815447-byte pin, sha256 `6bf2ce2b…`) |
+| S389 (new), the ValueError sentence | same URL, same section | A | "When an operation would exceed the limit, a ValueError is raised:" (byte 782228 of the same pin) |
+| S386 (re-opened) | https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/common/lib/config.c | A | "if (p > config_addr) { *(p - 1) = '\0'; }" (raw 328-330, inside `create_menu_tree()`) |
+| S387 (re-opened) | https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/ChangeLog | A | "A config whose first line is an entry has had no global options since 12.9.5." (12.9.6 Miscellaneous, raw 13-16) |
+| S388 (re-opened) | https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/host/limine.c | A | "puts(\"Limine \" LIMINE_VERSION);" (raw 2035; `--version-only` print raw 2031) |
+
+Access date for all five rows: 2026-11-08.
+
+Admitted: one new row, `S389`, `status mined`, `used-by corpus/knowledge/limine-bound-9digit-r95.md,
+corpus/lessons/round-95.md`. S386, S387 and S388 are re-opened, not new: all three still resolve
+(HTTP 200) and their sha256 values reproduce the lane's own r94 frozen copies
+(`.ufo/waves/round-94/before/src/`) byte-for-byte — `a940acae…` (config.c), `ab280b45…` (ChangeLog),
+`4da21c7c…` (host/limine.c) — so they still agree with the entry's two claims ("the cut applies from
+12.9.5 on"; "the version prints as `Limine X.Y.Z`"). Their `used-by` cells are unchanged by this
+round's re-open (S389 is the only new row; SOURCES 388 → 389).
+
+Rejected / refused this round: none — every URL opened this round resolved with HTTP 200. (The two
+leads the r94 round rejected — `https://man.archlinux.org/man/limine.8`, 404, and the GitHub
+release-API JSON, a pointer plus a gpg recipe — were not re-opened this round and are not re-cited
+here; they remain rejected on the r94 record.)
+
+Anchor changes logged this round: none in place; S389 is a new row. Status changes this round: none
+in place.
+
+Spot-check result: this seat re-opened the three Limine sources the entry cites and the new Python
+docs source, and re-derived the cut's release boundary from upstream bytes rather than from the
+entry's own prose: `common/lib/config.c` is byte-identical at tags v12.9.5 and v12.9.6
+(`a940acae…`), differs at v12.9.4 (`aafc9c41…`, 24554 bytes, and the cut is absent there), and
+`host/limine.c` is byte-identical at v12.9.5 and v12.9.6 (`4da21c7c…`). The 12.9.5 boundary is
+therefore corroborated twice: upstream's ChangeLog sentence and the absence of the cut one tag
+earlier.
+
+Host freshness note carried into this round's lesson: `pacman -Si limine` reports the packaged
+version 12.9.4-1 from a local sync database dated 2026-10-22, and the installed binary answers
+`Limine 12.9.4`; upstream's live `extra/limine` is 12.9.6-1 (build 2026-10-28) and upstream's
+latest GitHub release is still v12.9.6. The host's lag does not touch this round's era answers: the
+r95 family's era is computed from the version the battery SENDS (999999999.9.9 ≥ 12.9.5 → era B),
+not from the host's installed limine, and only the r94 `ERA-DEFAULT` family (which omits
+`--limine-version` and therefore probes the host) is host-coupled.
+
+================================================================================
+NOTES FOR THE ScribeLesson SEAT (not part of the pasted text)
+================================================================================
+- The S389 quote is ≤25 words; the ValueError sentence is a second, separate ≤25-word quote from the
+  same section — the row cites both, the table lists both.
+- The receipt to name in the lesson is `.ufo/waves/round-95/w1/ScoutSources/report.md` plus
+  `.ufo/waves/round-95/w1/ScoutSources/receipts/` (receipt-01 = the Python pin and its offsets,
+  receipt-02 = the three Limine re-opens, receipt-03 = the host freshness measurement,
+  receipt-04 = the SOURCES row draft and its census validation, receipt-05 = this file).
+- If the ScribeLesson seat wrote its `## Gate` section before this receipt existed, it should say
+  which sources it opened itself; if after, it can cite this receipt by path.

@@ -1,0 +1,76 @@
+# receipt: freeze manifest verification at the current tree (round 95, seat ScoutDrift)
+# lane: /home/vgpnk/Projects/shokunin/tsukuroi-shokunin ; HEAD=a302e6888e338f5e6ceb342dd17d7b7ea87b8463 (detached) ; branch master
+
+$ cat .ufo/waves/round-95/before/instruments.sha256
+7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32  tools/check-limine-pins.py
+a51dca18d3c7641664a2f64476a7abc2bb14ff1133772f109ac73490828b9ebb  tools/limine-pin-battery-r95.py
+57669e190e3e695956c0c4bca4302050daef62dd1b3ce8f9d7f98b869ba97554  tools/make-r95-bends.py
+a1dead8b9aae8ece7e3272607420ead3e4887673f4d4373a926bac381b3d66cb  .ufo/waves/round-95/before/controls/bends/N05-strict-8.py
+666eace66ca27e34350c9878f8a681e02e2d143de6c62506dc28953bc38908e4  .ufo/waves/round-95/before/controls/count-runs.py
+d66b4a59778f8d5d006259d275875f95f002430b0e41990a111d73b6dc7bb503  .ufo/waves/round-95/before/controls/do-nothing-battery-r94.py
+7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32  .ufo/waves/round-95/before/controls/do-nothing-gate-r94.py
+e9795dfcfcae170b625319121684b45ba4733f5f4c37900f7044537b1ae5d4d2  .ufo/waves/round-95/claims.json
+41b15c4e762503aa1482fcb1cf1dacacdcb9a02eb9f090b0a48c8756e1502454  .ufo/waves/round-95/before/plan-frozen.md
+
+$ sha256sum -c .ufo/waves/round-95/before/instruments.sha256
+tools/check-limine-pins.py: OK
+tools/limine-pin-battery-r95.py: OK
+tools/make-r95-bends.py: OK
+.ufo/waves/round-95/before/controls/bends/N05-strict-8.py: OK
+.ufo/waves/round-95/before/controls/count-runs.py: OK
+.ufo/waves/round-95/before/controls/do-nothing-battery-r94.py: OK
+.ufo/waves/round-95/before/controls/do-nothing-gate-r94.py: OK
+.ufo/waves/round-95/claims.json: OK
+.ufo/waves/round-95/before/plan-frozen.md: OK
+EXIT=0
+
+$ sha256sum -c .ufo/waves/round-95/before/freeze-manifest.sha256
+tools/check-limine-pins.py: OK
+tools/limine-pin-battery-r95.py: OK
+tools/make-r95-bends.py: OK
+.ufo/waves/round-95/before/controls/bends/N05-strict-8.py: OK
+.ufo/waves/round-95/before/controls/count-runs.py: OK
+.ufo/waves/round-95/before/controls/do-nothing-battery-r94.py: OK
+.ufo/waves/round-95/before/controls/do-nothing-gate-r94.py: OK
+.ufo/waves/round-95/claims.json: OK
+.ufo/waves/round-95/before/plan-frozen.md: OK
+EXIT=0
+
+$ diff .ufo/waves/round-95/before/instruments.sha256 .ufo/waves/round-95/before/freeze-manifest.sha256
+IDENTICAL (byte-equal)
+
+# does the manifest name the LIVE .ufo/plans/round-95.md ? (the round-94 defect)
+GREP_EXIT=1 (1 = NOT named -> r94 defect closed)
+9:41b15c4e762503aa1482fcb1cf1dacacdcb9a02eb9f090b0a48c8756e1502454  .ufo/waves/round-95/before/plan-frozen.md
+
+# is the registry gate (tools/check-registry-coverage.py) pinned anywhere in the round-95 manifests?
+0
+(0 = NOT pinned)
+
+# frozen-copy vs live-plan bytes at each freeze commit
+2abddda5 live plan   : 6d060775d98b060932aae29d2aebf2204c2e702c82a4610d8881e54e9c69c8a7  -
+2abddda5 plan-frozen : 6d060775d98b060932aae29d2aebf2204c2e702c82a4610d8881e54e9c69c8a7  -
+a2ed6eee live plan   : 46e6f268f4311da5dd6b91d7e353968bf7758c9279afd8fed276b537dcb4e187  -
+a2ed6eee plan-frozen : 46e6f268f4311da5dd6b91d7e353968bf7758c9279afd8fed276b537dcb4e187  -
+884ed06b live plan   : 41b15c4e762503aa1482fcb1cf1dacacdcb9a02eb9f090b0a48c8756e1502454  -
+884ed06b plan-frozen : 41b15c4e762503aa1482fcb1cf1dacacdcb9a02eb9f090b0a48c8756e1502454  -
+
+# manifest history (each amendment re-pinned the claims.json + plan-frozen lines)
+884ed06b round-95: wave w1 dispatch (13 seats) + C2 receipts + freeze A2
+a2ed6eee round-95: freeze A1 — C1 target narrowed to the instruments' actual error/roster behaviour
+2abddda5 round-95: freeze — accepted-bound battery leg (C1) and registry repair (C2)
+
+$ diff <manifest@2abddda5> <manifest@a2ed6eee>   (freeze -> A1)
+8,9c8,9
+< 26d38bc08f3d4959a8c3948d5227a8e9f8538613da22df1654b8098c729654bb  .ufo/waves/round-95/claims.json
+< 6d060775d98b060932aae29d2aebf2204c2e702c82a4610d8881e54e9c69c8a7  .ufo/waves/round-95/before/plan-frozen.md
+---
+> b44edbd8df20a8a1376cf89d528d7c01c5e22910f11335c19669631a08cff7cb  .ufo/waves/round-95/claims.json
+> 46e6f268f4311da5dd6b91d7e353968bf7758c9279afd8fed276b537dcb4e187  .ufo/waves/round-95/before/plan-frozen.md
+$ diff <manifest@a2ed6eee> <manifest@884ed06b>   (A1 -> A2)
+8,9c8,9
+< b44edbd8df20a8a1376cf89d528d7c01c5e22910f11335c19669631a08cff7cb  .ufo/waves/round-95/claims.json
+< 46e6f268f4311da5dd6b91d7e353968bf7758c9279afd8fed276b537dcb4e187  .ufo/waves/round-95/before/plan-frozen.md
+---
+> e9795dfcfcae170b625319121684b45ba4733f5f4c37900f7044537b1ae5d4d2  .ufo/waves/round-95/claims.json
+> 41b15c4e762503aa1482fcb1cf1dacacdcb9a02eb9f090b0a48c8756e1502454  .ufo/waves/round-95/before/plan-frozen.md

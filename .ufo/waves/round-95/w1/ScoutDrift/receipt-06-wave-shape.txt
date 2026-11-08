@@ -1,0 +1,41 @@
+# receipt: wave shape and attack share (round 95, seat ScoutDrift)
+
+$ python3 -c (parse w1-spec.json items: name / role / axes)
+wave: w1 | maxLanes: 16 | items: 13
+  connector        1
+  critic           1
+  executor         4
+  mutation-tester  1
+  reviewer         2
+  scout            2
+  scribe           2
+names/roles:
+  ExecBattery      executor         axes=['depth']
+  ExecBend         executor         axes=['depth']
+  ExecDoNothing    executor         axes=['depth']
+  ExecRegistry     executor         axes=['operability']
+  ScoutSources     scout            axes=['freshness']
+  ScoutDrift       scout            axes=['calibration']
+  ScribeKnowledge  scribe           axes=['depth']
+  ScribeLesson     scribe           axes=['calibration']
+  ReviewBattery    reviewer         axes=['depth']
+  ReviewRegistry   reviewer         axes=['operability']
+  CriticClaims     critic           axes=['depth', 'operability']
+  MutBound         mutation-tester  axes=['depth']
+  ConnectorOverlap connector        axes=['adjacency']
+  plan-declared attack roles (reviewer+critic+mutation-tester): 4/13 = 30.8%
+  ledger attack roles (ATTACK_ROLES incl. connector):            5/13 = 38.5%
+
+$ grep -n 'Round size' scripts/hyaku/lane-addendum.md | head -2   (the floor)
+≥25 % attack seats (reviewer, critic, mutation-tester, labrat), at most 2 connector seats; residual ≤4 seats in one ordinary task call, counted in the round total.
+ONE v1 wave of 8–16 seats under `ufo-wave-policy.json` (band 8–16), ≥25 % attack seats (reviewer, critic, mutation-tester, labrat), at most 2 connector seats;
+
+$ grep -n 'ATTACK_ROLES' -A4 scripts/hyaku/prefile-falsification.py
+58:ATTACK_ROLES = frozenset({
+59-    "reviewer", "security-reviewer", "critic", "mutation-tester",
+60-    "sentinel", "connector", "revenger", "labrat",
+61-})
+62-VERDICTS = frozenset({"falsifies-wording", "falsifies-number", "neutral"})
+--
+86:        if str(row.get("agent", "")).strip() in ATTACK_ROLES:
+87-            seats.append(str(row.get("name", "")).strip())

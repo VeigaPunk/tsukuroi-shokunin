@@ -1,0 +1,22 @@
+RECEIPT 01 — the r94 N04-decoy class: a control that is never invoked
+Seat: ScribeLesson (round-95, w1). Read-only.
+
+=== The bend that introduced the decoy ===
+$ grep -n 'LIM_STD_VERSION\|_stale_default' .ufo/waves/round-94/before/controls/bends/N04-stale-tree.py
+108:    _stale_default = os.environ.get("LIM_STD_VERSION", "12.9.4")  # N04 (decoy, never invoked)
+
+=== AST load-site count for the bound name (is it ever READ?) ===
+$ python3 -c "import ast; ... Name(id='_stale_default', ctx=Load) ..."
+load sites for _stale_default: []
+store sites for _stale_default: [108]
+=> the value is ASSIGNED once and never READ: the substituted control is never invoked.
+
+=== r94's own reading of that bend (committed receipt, r94) ===
+$ python3 - <<'EOF' ... json.load('.ufo/waves/round-94/after/bend-N04.json')
+run 0 met 98 / 98 []
+run 1 met 98 / 98 []
+run 2 met 98 / 98 []
+
+READING: the r94 N04 bend is a DECOY — the name it binds is never read, so the
+battery reads met 98/98 and the bend proves nothing.  That is the round-94 instance of
+the family 'a sentence about the instrument that no run ever exercises'.

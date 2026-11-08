@@ -1,0 +1,39 @@
+# receipt: .ready artifact bookkeeping (round 95, seat ScoutDrift)
+
+$ ls -la .ufo/waves/round-95/ | grep ready
+-rw-r--r-- 1 vgpnk vgpnk   169 Nov  8 06:54 w1.ready
+-rw-r--r-- 1 vgpnk vgpnk   453 Nov  8 06:54 w1.ready.dispatched
+
+$ git ls-files .ufo/waves/round-95 | grep ready   (tracked at the tip)
+.ufo/waves/round-95/w1.ready
+
+$ git ls-tree HEAD .ufo/waves/round-95/ --name-only | grep ready   (in the landed tree)
+.ufo/waves/round-95/w1.ready
+
+$ git log --oneline --all -- .ufo/waves/round-95/w1.ready.dispatched   (any commit?)
+(empty = never committed)
+
+$ for r in 84..95: tracked ready / dispatched files
+round-84: 2 1
+round-85: 2 1
+round-86: 2 1
+round-87: 2 1
+round-88: 2 1
+round-89: 2 1
+round-90: 2 1
+round-91: 2 1
+round-92: 2 1
+round-93: 2 1
+round-94: 0 0
+round-95: 1 0
+(first number = files matching 'w1.ready', second = 'w1.ready.dispatched')
+
+$ git status --porcelain | grep ready
+?? .ufo/waves/round-95/w1.ready.dispatched
+
+--- content of the two artifacts ---
+$ cat .ufo/waves/round-95/w1.ready
+{"lane": "tsukuroi", "round": 95, "wave": "w1", "dispatch": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-95/w1-dispatch.json", "l1": "TsukuroiR95"}
+$ cat .ufo/waves/round-95/w1.ready.dispatched
+2026-11-08T06:54:44
+{"ExecBattery": "ExecBattery", "ExecBend": "ExecBend", "ExecDoNothing": "ExecDoNothing", "ExecRegistry": "ExecRegistry", "ScoutSources": "ScoutSources-17", "ScoutDrift": "ScoutDrift-3", "ScribeKnowledge": "ScribeKnowledge", "ScribeLesson": "ScribeLesson-11", "ReviewBattery": "ReviewBattery-5", "ReviewRegistry": "ReviewRegistry", "CriticClaims": "CriticClaims-17", "MutBound": "MutBound", "ConnectorOverlap": "ConnectorOverlap-25"}

@@ -1,0 +1,24 @@
+# 01 — gate clauses (read-only greps on tools/check-limine-pins.py)
+$ sha256sum tools/check-limine-pins.py
+7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32  tools/check-limine-pins.py
+$ grep -n 'len(p) <= 9' tools/check-limine-pins.py
+99:    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+$ sed -n '91,101p' tools/check-limine-pins.py
+def parse_limine_version(text):
+    """V2: `X.Y.Z`, ASCII digits only (1-9 digits per component; leading zeros are accepted and
+    normalized by int(), e.g. `12.09.4` == `12.9.4`), -> (X, Y, Z); anything else -> None (usage
+    error, rc 64). A component longer than 9 digits is refused rather than handed to int(), which
+    raises above 4300 digits (round-92 ReviewGate F1)."""
+    if not isinstance(text, str):
+        return None
+    parts = text.split(".")
+    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+        return None
+    return tuple(int(p) for p in parts)
+$ grep -n 'VISIBILITY_ERA_SPLIT' tools/check-limine-pins.py
+104:VISIBILITY_ERA_SPLIT = (12, 9, 5)   # first upstream release with the create_menu_tree() cut
+193:    era_b = version >= VISIBILITY_ERA_SPLIT
+447:                        and parse_limine_version("12.9.6") > VISIBILITY_ERA_SPLIT
+$ sed -n '104p;193p' tools/check-limine-pins.py
+VISIBILITY_ERA_SPLIT = (12, 9, 5)   # first upstream release with the create_menu_tree() cut
+    era_b = version >= VISIBILITY_ERA_SPLIT

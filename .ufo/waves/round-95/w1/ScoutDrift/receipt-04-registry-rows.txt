@@ -1,0 +1,26 @@
+# receipt: C2 registry rows + gate reading at the landed tip (round 95, seat ScoutDrift)
+# HEAD=a302e6888e338f5e6ceb342dd17d7b7ea87b8463 (detached at the wave-dispatch commit); branch master
+
+$ git show 884ed06b:SKILL.md | grep -nE '^\| (limine-pin-battery-r94|make-r94-bends|limine-pin-battery-r95|make-r95-bends) \|'
+5934:| limine-pin-battery-r94 | gate | `python3 tools/limine-pin-battery-r94.py --gate <PATH> [--runs <N>=1>] [--work <DIR>] [--json <FILE>]`, `--self
+5935:| make-r94-bends | gate | `python3 tools/make-r94-bends.py` | 0 emitted (four one-clause bends); 1 a substitution matched a count other than one,
+5936:| limine-pin-battery-r95 | gate | `python3 tools/limine-pin-battery-r95.py --gate <PATH> [--runs <N>=1>] [--work <DIR>] [--json <FILE>]`, `--self
+5937:| make-r95-bends | gate | `python3 tools/make-r95-bends.py` | 0 emitted (the one-clause bend `N05-strict-8`); 1 a substitution matched a count ot
+
+$ git show 884ed06b:SKILL.md | grep -n '^| limine-pins |'  (default + selftest tally cells)
+39 fixtures
+default `auto`
+
+$ python3 tools/check-registry-coverage.py --revision 884ed06bdc7681ad73e757cf8a02bee21de2c480
+{"branch":"master","branch_tip":"a302e6888e338f5e6ceb342dd17d7b7ea87b8463","counts":{"findings":0,"missing":0,"registered":151,"rows_total":151,"tools_total":151},"findings":[],"revision":"884ed06bdc7681ad73e757cf8a02bee21de2c480","status":"PASS"}
+EXIT=0
+
+$ python3 tools/check-registry-coverage.py --selftest
+PASS (23 cases, 23 passed, 0 failed)
+EXIT=0
+
+$ grep -c 'check-registry-coverage' .ufo/waves/round-95/before/instruments.sha256   (the C2 void clause's referent)
+0
+
+$ sha256sum tools/check-registry-coverage.py   (the bytes C2's void clause should pin)
+6fcb2d0a5f1b2493aa505e179aa013b479e2a06894152d3b206e017720a24812  tools/check-registry-coverage.py

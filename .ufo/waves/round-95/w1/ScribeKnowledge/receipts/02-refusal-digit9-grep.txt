@@ -1,0 +1,25 @@
+# 02 — REFUSAL_DIGIT9 before/after (grep -c), and the roster counts
+$ sha256sum tools/limine-pin-battery-r94.py tools/limine-pin-battery-r95.py
+d66b4a59778f8d5d006259d275875f95f002430b0e41990a111d73b6dc7bb503  tools/limine-pin-battery-r94.py
+a51dca18d3c7641664a2f64476a7abc2bb14ff1133772f109ac73490828b9ebb  tools/limine-pin-battery-r95.py
+
+$ grep -c REFUSAL_DIGIT9 tools/limine-pin-battery-r94.py
+1
+$ grep -c REFUSAL_DIGIT9 tools/limine-pin-battery-r95.py
+3
+
+$ grep -n REFUSAL_DIGIT9 tools/limine-pin-battery-r94.py
+1684:REFUSAL_DIGIT9 = "9" * 9 + ".9.9"  # X.Y.Z-shaped, first component 999,999,999: the cap's boundary member, ACCEPTED
+$ grep -n REFUSAL_DIGIT9 tools/limine-pin-battery-r95.py
+29:values and never the largest in-bound member, and the declared `REFUSAL_DIGIT9` constant is
+1694:REFUSAL_DIGIT9 = "9" * 9 + ".9.9"  # X.Y.Z-shaped, first component 999,999,999: the cap's boundary member, ACCEPTED
+1715:    _era_first_line_panic(c, REFUSAL_DIGIT9)
+
+# occurrences (grep -o | wc -l)
+r94: 1
+r95: 3
+
+# 03 — FAMILY_ROSTER measured by AST parse (no execution of the battery)
+r95 FAMILY_ROSTER: 99 names, 99 unique, has REFUSAL-VERSIONS-9DIGIT: True
+r94 FAMILY_ROSTER: 98 names, 98 unique, has REFUSAL-VERSIONS-9DIGIT: False
+r95 - r94 = ['REFUSAL-VERSIONS-9DIGIT']

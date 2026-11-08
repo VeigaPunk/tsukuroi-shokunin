@@ -1,0 +1,114 @@
+RECEIPT-03 — host freshness: packaged limine vs the installed binary, and the era question
+Seat: ScoutSources (round-95, w1). Date: 2026-11-08. All reads are read-only; NO pacman transaction
+(no -S/-Sy/-Syu/-U/-R; `pacman -Si` is a query against the existing local sync database).
+
+--- 1. pacman -Si limine (read-only query against the local sync db) ---------
+$ pacman -Si limine
+Repository      : extra
+Name            : limine
+Version         : 12.9.4-1
+Description     : An advanced, portable, multiprotocol bootloader
+Architecture    : x86_64
+URL             : https://github.com/Limine-Bootloader/Limine
+Licenses        : BSD-2-Clause
+Groups          : None
+Provides        : None
+Depends On      : glibc
+Optional Deps   : None
+Conflicts With  : None
+Replaces        : None
+Download Size   : 899.65 KiB
+Installed Size  : 5376.61 KiB
+Packager        : Robin Candau <antiz@archlinux.org>
+Build Date      : Tue 20 Oct 2026 04:34:10 AM -03
+Validated By    : SHA-256 Sum  Signature
+
+  PACKAGED Version/Release = 12.9.4-1   (pkgver 12.9.4, pkgrel 1)
+  Build Date of that package build: 2026-10-20
+  Local sync db freshness: `stat -c '%n %y' /var/lib/pacman/sync/extra.db`
+      /var/lib/pacman/sync/extra.db 2026-10-22 01:40:04 -0300   (8846663 bytes)
+  -> the local sync database is dated 2026-10-22; `pacman -Si` therefore reports the 12.9.4-1
+     build that was current at that date, with no network refresh (no -Sy was run).
+
+--- 2. The installed binary's own answer ------------------------------------
+$ command -v limine
+/usr/bin/limine
+$ limine --version
+Limine 12.9.4
+Copyright (C) 2019-2026 Mintsuki, 2026 Kamila Szewczyk, and contributors.
+Limine is distributed under the terms of the BSD-2-Clause license.
+There is ABSOLUTELY NO WARRANTY, to the extent permitted by law.
+(exit status 0; first line is "Limine 12.9.4")
+
+$ pacman -Qi limine   ->  Version: 12.9.4-1  (installed == the packaged version in the local db)
+
+  INSTALLED version = 12.9.4-1 ; installed binary answers "Limine 12.9.4"
+  => the installed binary MATCHES the version the local sync db advertises. The host is NOT behind
+     the packaged version according to `pacman -Si` on this host's own database.
+
+--- 3. Cross-check against the live upstream package index (read-only GET) --
+$ curl -sSL 'https://archlinux.org/packages/extra/x86_64/limine/json/'   (HTTP 200)
+  pkgname limine, pkgbase limine, repo extra, pkgver "12.9.6", pkgrel "1",
+  filename limine-12.9.6-1-x86_64.pkg.tar.zst, build_date 2026-10-28T07:52:55Z,
+  last_update 2026-10-28T08:00:46.502Z, packager Antiz
+
+  => upstream's current `extra/limine` is 12.9.6-1, TWO releases ahead of this host's 12.9.4-1.
+     The local sync db (2026-10-22) predates the 12.9.6 build (2026-10-28), which is why
+     `pacman -Si` still reads 12.9.4-1. This is the same observation the r94 scout recorded
+     (corpus/lessons/round-94-verifier-spotcheck.md §3 and the r94 ScoutSource report §4.1);
+     it is unchanged today.
+
+$ curl -sSL 'https://api.github.com/repos/Limine-Bootloader/Limine/releases/latest'  (HTTP 200)
+  tag_name v12.9.6, published_at 2026-10-27T23:16:30Z, prerelease false, draft false
+  => v12.9.6 is still upstream's latest release, so the pinned tag is the current one; the pins
+     are not behind upstream.
+
+--- 4. DOES THE HOST-BEHIND FACT CHANGE ANY ERA ANSWER? --------------------
+The gate's era split is a constant, not a host reading:
+  tools/check-limine-pins.py:104  VISIBILITY_ERA_SPLIT = (12, 9, 5)  # first upstream release
+                                                                       # with the create_menu_tree() cut
+  tools/check-limine-pins.py:193  era_b = version >= VISIBILITY_ERA_SPLIT
+  tools/check-limine-pins.py:202  "visibility_era": "12.9.5+" if era_b else "pre-12.9.5"
+  tools/limine-pin-battery-r95.py:321-326  the battery's own era_b() uses the same (12, 9, 5)
+                                            tuple and the same comparison.
+
+Consequences, measured from the code and the receipts above:
+
+  (a) The ERA answers that C1 turns on are computed from the VERSION STRING the battery sends,
+      never from the host's installed limine. The r95 family sends "999999999.9.9" explicitly:
+        tools/limine-pin-battery-r95.py:1694  REFUSAL_DIGIT9 = "9" * 9 + ".9.9"
+        tools/limine-pin-battery-r95.py:1715  _era_first_line_panic(c, REFUSAL_DIGIT9)
+      and `pass_version` is True there, so the battery passes `--limine-version 999999999.9.9`
+      (battery line 1981-1982) instead of probing. (999999999, 9, 9) >= (12, 9, 5) is True, so the
+      family is era B, i.e. the first-line key is INVISIBLE and the answer is `panic`.
+      => The host's 12.9.4 vs 12.9.6 does NOT change the r95 family's era or its expected answer.
+      This is the same structure as the r94 ten-digit family, which pins c.version = "12.9.4"
+      (battery line 1699-1700) for its healthy leg.
+
+  (b) The host-coupled leg is the r94 `ERA-DEFAULT` family, which OMITS `--limine-version`
+      (battery line 1637: `_era_first_line_panic(c, "12.9.4", pass_version=False)`; comment at
+      battery lines 1983-1986) and therefore lets the gate probe the host's real `limine`.
+      On THIS host the probe answers 12.9.4 -> era A -> the first-line key is VISIBLE -> the
+      expected answer is `prompt`. If the host's limine were upgraded to 12.9.6, the same family
+      would probe 12.9.6 -> era B -> `panic`, and the r94 expectation of `prompt` would need
+      re-baselining. This is a recheck trigger, not a present error: the host is at 12.9.4 today.
+
+  (c) Nothing in C1 or C2's frozen sentences depends on the host's installed limine version.
+      C1's predicate names the version the FIXTURE carries (999999999.9.9); C2's predicate names
+      the registry table in SKILL.md and the gate's own counts. The host's limine version enters
+      only the ERA-DEFAULT family of the battery's roster.
+
+--- 5. TOOLING --------------------------------------------------------------
+No tool was installed, upgraded or removed this round by this seat: every command used is a
+preinstalled coreutils/curl/python3/pacman binary. No `pacman` transaction of any kind was run
+(`-Si` and `-Qi` are queries). No host sysctl, service or kernel parameter was touched. No git or
+jj mutation was run in the lane; `git rev-parse`/`git status` were read-only.
+
+--- 6. LANE STATE (read-only) -----------------------------------------------
+$ git -C /home/vgpnk/Projects/shokunin/tsukuroi-shokunin rev-parse --show-toplevel
+/home/vgpnk/Projects/shokunin/tsukuroi-shokunin
+$ git rev-parse HEAD            -> 884ed06bdc7681ad73e757cf8a02bee21de2c480
+$ git rev-parse refs/heads/master -> 884ed06bdc7681ad73e757cf8a02bee21de2c480
+$ git symbolic-ref -q HEAD      -> (no output)  HEAD detached
+$ git status --porcelain        -> only untracked round-95 wave artifacts (other seats' files)
+The only files this seat wrote are under .ufo/waves/round-95/w1/ScoutSources/ .

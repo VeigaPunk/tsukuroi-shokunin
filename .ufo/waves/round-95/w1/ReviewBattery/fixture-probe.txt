@@ -1,0 +1,30 @@
+== fixture 1 conf lines (family REFUSAL-VERSIONS-9DIGIT, version '999999999.9.9')
+ 1 | /0m-04tw
+ 2 |   protocol: efi
+ 3 |   path: boot():/-zz3vodwqrj.efi#fdba4b2d4eeca6fa10511b115aabbacd75b5368aec5dce8d00a987b7ca629e7c3b2d59762f6048f15e7f952836d798da5799a0c43618086567d16d2cfc133038
+ 4 | hash_mismatch_panic: no
+ 5 | /xqdmh
+ 6 |   protocol:	efi 
+ 7 |   path: boot():/zgc1ooi6/2adq_3ns.efi#16ef51c04626d01703f19579c4460cc2d9181532e034cbac24de252a3968102f57d12b42ce2b101f82300576213f94be8e4982f8868c70662230ad707158ad92
+== fixture 1 expectations
+finish()      : (1, 'DEGRADED', [(3, 'LP-MISMATCH', 'panic'), (7, 'OK', 'none')])
+want_on_panic : menu
+r1_panic()    : None
+global_lines  : []
+era_b()       : True
+first line starts with '/': True
+ESP files     : ['-zz3vodwqrj.efi', 'zgc1ooi6/2adq_3ns.efi']
+== fixture freshness (two builds, same family)
+conf byte-identical: False
+file-name sets intersect: []
+== direct gate runs on fixture 1 with --limine-version '999999999.9.9'
+landed     rc=1 verdict=DEGRADED pins=[(3, 'LP-MISMATCH', 'panic'), (7, 'OK', 'none')] on_panic=menu visibility_era=12.9.5+ limine_version=999999999.9.9 source=flag
+variant-a  rc=64 stdout=<non-JSON> stderr='              [--secure-boot-enforced {0,1}] [--tpm-present {0,1}]\n                    [--limine-version LIMINE_VERSION] [--live] [--selftest]\ncheck-limine-pins: --limine-version must be X.Y.Z or auto'
+variant-b  rc=1 verdict=DEGRADED pins=[(3, 'LP-MISMATCH', 'prompt'), (7, 'OK', 'none')] on_panic=menu visibility_era=pre-12.9.5 limine_version=999999999.9.9 source=flag
+variant-c  rc=1 verdict=DEGRADED pins=[(3, 'LP-MISMATCH', 'panic'), (7, 'OK', 'none')] on_panic=menu visibility_era=12.9.5+ limine_version=999999999.9.9 source=flag
+variant-d  rc=1 verdict=DEGRADED pins=[(3, 'LP-MISMATCH', 'panic'), (7, 'OK', 'none')] on_panic=menu visibility_era=12.9.5+ limine_version=12.9.4 source=flag
+== landed gate positive/negative controls on the same fixture
+version='12.9.4'           rc=1 verdict=DEGRADED era=pre-12.9.5
+version='12.9.6'           rc=1 verdict=DEGRADED era=12.9.5+
+version='999999999.9.9'    rc=1 verdict=DEGRADED era=12.9.5+
+version='999999999.0.0'    rc=1 verdict=DEGRADED era=12.9.5+

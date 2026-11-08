@@ -1,0 +1,93 @@
+RECEIPT-01 — Python docs `integer-string-conversion-length-limitation` (the new row S389's source)
+Seat: ScoutSources (round-95, w1). Access date: 2026-11-08. Method: read-only GET (curl -sSL).
+
+--- 1. FETCH (the URL the seat was given) -----------------------------------
+$ curl -sSL -w '\nHTTP_STATUS:%{http_code}\nSIZE:%{size_download}\nURL_EFFECTIVE:%{url_effective}\n' \
+    -o python-3-stdtypes.html \
+    'https://docs.python.org/3/library/stdtypes.html#integer-string-conversion-length-limitation'
+HTTP_STATUS:200
+SIZE:815447
+URL_EFFECTIVE:https://docs.python.org/3/builtins/stdtypes.html
+   (1 redirect: /3/library/stdtypes.html -> /3/builtins/stdtypes.html)
+
+$ sha256sum python-3-stdtypes.html
+6bf2ce2ba49d30974485266d70aecd4c4eb89334eb73367f3f99bfa036c7e9a8  python-3-stdtypes.html
+$ wc -c python-3-stdtypes.html
+815447 python-3-stdtypes.html
+
+--- 2. FETCH (the version-pinned alias, fetched as a cross-check) -----------
+$ curl -sSL -w 'HTTP=%{http_code} final=%{url_effective}\n' -o python-3.15-builtins-stdtypes.html \
+    'https://docs.python.org/3.15/library/stdtypes.html#integer-string-conversion-length-limitation'
+HTTP=200 final=https://docs.python.org/3.15/builtins/stdtypes.html
+sha256 6bf2ce2ba49d30974485266d70aecd4c4eb89334eb73367f3f99bfa036c7e9a8  (815447 bytes)
+$ cmp python-3.15-builtins-stdtypes.html python-3-stdtypes.html   -> IDENTICAL
+   The rolling /3/ alias currently serves byte-identical 3.15.2 content to the /3.15/ pin.
+
+--- 3. PAGE IDENTITY --------------------------------------------------------
+<title>Built-in Types — Python 3.15.2 documentation</title>      (byte 1561)
+"Last updated on Nov 08, 2026 (07:53 UTC)."                   (Sphinx build stamp — MOVING)
+Anchor present: <section id="integer-string-conversion-length-limitation">  (byte 780197)
+Inner span anchor: <span id="int-max-str-digits">                          (byte 780256)
+Heading text: "Integer string conversion length limitation"
+id="int_max_str_digits" is NOT present on this page (the span is id="int-max-str-digits").
+
+--- 4. RAW BYTE OFFSETS IN THE PINNED COPY (pins/python-3-stdtypes.html) --
+780197  <section id="integer-string-conversion-length-limitation">
+780256  <span id="int-max-str-digits">
+782228  When an operation would exceed the limit          (the ValueError sentence)
+783329  Exceeds the limit (4300 digits) for integer string conversion   (the ValueError message)
+785297  The default limit is 4300 digits                   (the default-limit sentence)
+785568  The lowest limit that can be configured is 640 digits
+   (all offsets are byte offsets in the 815447-byte pinned file; the same bytes are reachable in
+    the /3.15/ pin because the two files are identical.)
+
+--- 5. THE TWO QUOTED SENTENCES (rendered text, each <= 25 words) -----------
+Q1 (contains `4300`, the default conversion limit) — 10 words:
+   "The default limit is 4300 digits as provided in sys.int_info.default_max_str_digits."
+   locator: section id="integer-string-conversion-length-limitation", byte 785297 of the pin.
+
+Q2 (contains `ValueError`) — 11 words:
+   "When an operation would exceed the limit, a ValueError is raised:"
+   locator: same section, byte 782228 of the pin.
+
+Q3 (the raised exception's own text, in the page's first example) — 14 words:
+   "ValueError: Exceeds the limit (4300 digits) for integer string conversion: value has 5432 digits"
+   locator: same section, byte 783329 of the pin (message text follows the "ValueError:" token).
+
+Supporting sentences in the same section (not the quoted pair, recorded for the L1):
+   "The lowest limit that can be configured is 640 digits as provided in
+    sys.int_info.str_digits_check_threshold."                       (byte 785568)
+   "The limit is applied to the number of digit characters in the input or output string when a
+    non-linear conversion algorithm would be involved.  Underscores and the sign are not counted
+    towards the limit."
+   "This limit only applies to decimal or other non-power-of-two number bases. Hexadecimal, octal,
+    and binary conversions are unlimited."
+   "Added in version 3.11."
+
+--- 6. HOST-SIDE CONFIRMATION OF THE DOCUMENTED BEHAVIOUR (read-only) -------
+$ python3 -c "import sys; print(sys.version); print(sys.int_info.default_max_str_digits); \
+              print(sys.int_info.str_digits_check_threshold)"
+3.14.8 (main,  Oct  2 2026, 10:23:31) [GCC 16.2.1 20260810]
+4300
+640
+
+$ python3 -c "for n in (9,10,4300,4301): ..."
+9 digits  -> ok, len(str(v))= 9
+10 digits -> ok, len(str(v))= 10
+4300 digits -> ok, len(str(v))= 4300
+4301 digits -> ValueError: Exceeds the limit (4300 digits) for integer string conversion:
+               value has 4301 digits; use sys.set_int_max_str_digits() to increase the limit
+
+$ python3 -c "int('2'*5000)"  -> ValueError (same 4300-digit limit)
+   So the documented ValueError is observable on this host's CPython 3.14.8 as well as documented
+   for 3.15.2; the 4300 default and the 640 floor are the same numbers the page states.
+
+--- 7. WHAT THIS SOURCE IS AND IS NOT FOR THE LANE -------------------------
+It is the upstream statement of the CPython int<->str decimal-conversion digit limit (4300 by
+default, 640 floor) and of the ValueError raised past it. It is the documented reason the gate
+refuses a version component before handing it to int(): `tools/check-limine-pins.py`
+`parse_limine_version()` (line 92-101) caps each component at 9 digits and its docstring says
+"A component longer than 9 digits is refused rather than handed to int(), which raises above 4300
+digits (round-92 ReviewGate F1)".
+It is NOT a Limine source and NOT a statement about Limine's own version format; Limine sources
+are separate rows (S386/S387/S388, re-opened in receipt-02).

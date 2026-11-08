@@ -1,0 +1,22 @@
+# 06 — where the extra-component shape IS and IS NOT exercised (r95 battery, read-only)
+$ grep -n '12.9.6.1' tools/limine-pin-battery-r95.py
+153:     and `12.9.6.1` are probe failures), and select V1/V2 from that value; the JSON's
+2299:        cases = [("12.9", 64), ("abc", 64), ("12.9.6.1", 64), ("", 64), ("9" * 5000 + ".0.0", 64),
+
+$ grep -n 'AUTO_PROBE_SHAPES = ' -A 1 tools/limine-pin-battery-r95.py
+1718:AUTO_PROBE_SHAPES = ("no version here", "12.9.6-rc1", "stderr:12.9.6")
+1719-
+
+$ sed -n '1938p' tools/limine-pin-battery-r95.py   # the shapes fake (stdout only: no-parsable, -rc1; stderr copy)
+                f.write("#!/bin/sh\necho \"no version here\"\necho \"Limine 12.9.6-rc1\"\necho \"Limine 12.9.6\" >&2\n")
+
+$ grep -n 'Limine 12.9.6.1' tools/limine-pin-battery-r95.py   # the probe's extra-component answer, sent by NO family
+(grep rc=1 -> no match means no family sends it)
+
+$ grep -n '12.9.5.1' tools/limine-pin-battery-r95.py   # the four-component REFUSAL value, sent by REFUSAL-VERSIONS
+1643:REFUSAL_VERSIONS = ("12.9", "12.9.5.1", "abc", "", " 12.9.5", "12.9.5 ", "+12.9.5", "12..5",
+
+# the r94 verifier's own words (corpus/lessons/round-94-verifier-spotcheck.md:245-247)
+9. **Coverage gaps to keep on the frontier** (ReviewBattery F1/F2, disclosed): the `12.9.6.1`
+   extra-component shape is not exercised at battery level, and an over-strict `<= 8` gate scores
+   `met` 98/98 (measured in `w1/MutDigit10/results-r94.json`).

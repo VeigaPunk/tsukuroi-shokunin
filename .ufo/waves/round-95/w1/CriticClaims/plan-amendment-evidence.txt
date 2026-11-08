@@ -1,0 +1,46 @@
+--- plan A1/A2 vs body ---
+**Target.** Landed gate: `99/99` met in each of three runs, `failed_families []`, 0 error rows, in the
+canonical lane and in a `git clone`; N05: `98/99` unmet in each of three runs in both layouts,
+`failed_families == ["REFUSAL-VERSIONS-9DIGIT"]`, 0 error rows; the r94 do-nothing battery on N05:
+`met` `98/98` in each of three runs (the before instrument cannot see the bend — the blindness this
+revision R, reports `status` `clean` with `counts.findings 0`, `counts.missing 0`,
+`counts.tools_total 151` and `counts.registered 151`: the operative registry table in `SKILL.md`
+carries rows for the r94 tools `limine-pin-battery-r94.py` / `make-r94-bends.py` and the r95 tools
+`limine-pin-battery-r95.py` / `make-r95-bends.py`, and its `limine-pins` row names the default
+`auto` and the selftest tally 39 (not `12.9.4` / 37).
+
+**Target.** `status clean`, `findings 0`, `missing 0`, `tools_total 151`, `registered 151` at the
+landed revision; the `limine-pins` cell reads `default auto` and `39`; the gate's own `--selftest`
+passes.
+
+**Kill rule.** Unmet if any count differs, if `status` is not `clean`, if the `limine-pins` row still
+names `default 12.9.4` or a 37-case selftest, or if `check-registry-coverage.py --selftest` does not
+pass. Void if the registry gate bytes differ from the freeze manifest at scoring time.
+- **A3 (post-scoring narrowing, 2026-11-08T07:3x-03:00, citing a wave artifact).** C1's predicate
+  called `999999999.9.9` "the largest in-bound member of the gate's published 1-9-digit component cap".
+  `w1/ReviewBattery.md` F1 falsifies that superlative: the cap admits
+  `999999999.999999999.999999999`, which the landed gate accepts (rc 1, `DEGRADED`, era `12.9.5+`;
+  `w1/ReviewBattery/boundary-probe.txt`), and the battery sends neither that value nor any 9-digit Y
+  or Z position — a bend of Y's bound to `<= 8` still reads `met` 99/99
+  (`w1/ReviewBattery/middle-bound-probe.txt`). The claim is narrowed to the sentence the instrument
+  enforces: **"a boundary member of the gate's published 1-9-digit component cap: the first
+  component is 999,999,999 (the largest nine-digit value), with the second and third components at
+  9"**. The description "era B: 999999999 is at or above the 12.9.5 split, so the key is invisible"
+  stays; the observable it names (`panic`) is the enforced one. Declared limits carried from
+  `w1/ReviewBattery.md` F1-F3: the true component-wise maximum and 9-digit Y/Z positions are not
+  sent; the battery's `got` tuple carries no `visibility_era`, so the era *mechanism* is unclaimed
+  (variant c clamping the era tuple reads `met` 99/99); the echoed `limine_version` is recorded but
+  not compared for explicit-version cases (variant d reads `met`). `claims.json` is left byte-frozen
+  (it is pinned in `before/instruments.sha256`); this amendment supersedes the predicate's superlative
+  and is the ledger's `narrowing` pointer.
+
+- **A2 (pre-scoring wording fix, 2026-11-08T07:0x-03:00, before the wave was dispatched).** C2's
+  predicate said the registry gate "reports `status` `clean`"; the gate's actual clean token is
+  `PASS` (`status FAIL` at the pre-round tip, `status PASS` at `b66e6be5`). The predicate, target and
+  kill rule now say `PASS`. Evidence: `.ufo/waves/round-95/after/c2-before-c0a20cef.json` and
+  `c2-after-b66e6be5.json` (the L1's own runs, committed as receipts). No target was widened.
+
+- **A1 (pre-scoring narrowing, 2026-11-08T06:5x-03:00, before any seat was dispatched and before any
+  receipt existed).** C1's first frozen target said the N05 leg reads "0 error rows" and that the r94
+  do-nothing battery on the landed gate reads "unmet 98/99". Both sentences are wrong about the
+  instruments. (a) `N05-strict-8` refuses the 9-digit value with rc 64 and no JSON, so the battery

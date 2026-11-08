@@ -1115,3 +1115,34 @@ v12.9.6 ChangeLog's only visibility sentence is the #700 documentation note, and
   docstring (CriticForgers f6), not closed.
 - The `auto` default is now the gate's default: a host upgraded without the flag is judged by the
   probed binary's era, and `999999999.0.0` (accepted) certifies the 9-digit cap from inside.
+
+## Round 95 — the accepted leg of the 1-9-digit component cap
+
+New ground: `knowledge/limine-bound-9digit-r95.md` (S389) — a published numeric bound is a two-legged
+contract, and the lane held only the refused leg. `tools/limine-pin-battery-r95.py` (99 families) adds
+`REFUSAL-VERSIONS-9DIGIT`: `999999999.9.9`, a boundary member with the first component at the cap,
+sent as the `--limine-version` of an era-sensitive fixture, where the accepted answer is rc 1 /
+`DEGRADED` / the LP-MISMATCH pin with consequence `panic`. The one-clause bend `N05-strict-8`
+(`<= 9` → `<= 8`) reads `98/99 unmet` with the family named in every run and layout, while the r94
+roster is blind to the same bend (`98/98 met`, 0 nine-digit rows) — the before instrument has no
+in-bound 9-digit case. Seven of eight one-clause gate mutants die (M01/M03/M07 on the new family
+alone); M06 survives. QUALITY 139's accepted leg is now executed by a family, not only by a usage
+roster row.
+
+### Frontier (round-95 addition)
+
+- The accepted leg is **X-certified only**: the cap is per component, so `999999999.999999999.999999999`
+  is in-bound and the gate accepts it, but a bend of **Y**'s bound to `<= 8` still reads `met` 99/99
+  (`w1/ReviewBattery.md` F1, `middle-bound-probe.txt`). A per-component accepted family is next.
+- The battery never reads `visibility_era`, and it compares the echoed `limine_version` only on AUTO
+  cases (`auto_ok` short-circuits when `c.auto is None`); M06 (echo `99.9.9` for a `999999999.9.9`
+  run) survives 99/99 (`w1/MutBound.md`; `w1/ConnectorOverlap.md` proposes a `flag_ok` predicate).
+- The r94 `ERA-DEFAULT` family is host-coupled (it omits the flag and reads the installed binary);
+  a limine upgrade to 12.9.6 would need that one family re-baselined. The host's packaged and
+  installed limine are both 12.9.4-1 while upstream `extra/limine` is 12.9.6-1 (`w1/ScoutSources.md`
+  §3) — no era answer moves, because the r95 family pins its own version.
+- The registry gate certifies row presence, not content: a real table with `limine-pins` reading
+  `default 12.9.4` and `88 fixtures` still reads `PASS 151/151`, and no check binds a row's name to
+  its path (`w1/ExecRegistry.md` §6, `w1/ReviewRegistry.md`). A content-binding check is next.
+- Still open from r94: the `12.9.6.1` extra-component shape (not sent at battery level); the r92
+  launcher residuals; r89's blanks-before-CRLF, ESP containment and empty labels.

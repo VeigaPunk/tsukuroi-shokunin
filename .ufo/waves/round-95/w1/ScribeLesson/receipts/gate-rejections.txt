@@ -1,0 +1,15 @@
+RECEIPT — ScribeLesson rejected sources (round-95, w1)
+Seat: ScribeLesson. Access date: 2026-11-08. Method: read-only GET (curl -sS).
+
+=== R1. Arch manual page for limine(8) ===
+$ curl -sS -o rejected-man-limine.8 -w 'HTTP %{http_code} bytes %{size_download}\n' 'https://man.archlinux.org/man/limine.8'
+HTTP 404 bytes 2706
+$ grep -o -i 'page not found' rejected-man-limine.8 | head -2
+page not found
+page not found
+-> REJECTED: the page does not exist (HTTP 404); the lane registers no limine(8) man page. Not evidence of anything.
+
+=== R2. GitHub release API for the v12.9.6 tag ===
+$ curl -sS -o rejected-gh-release.json -w 'HTTP %{http_code} bytes %{size_download}\n' 'https://api.github.com/repos/Limine-Bootloader/Limine/releases/tags/v12.9.6'
+HTTP 200 bytes 26652
+-> REJECTED as a SOURCES row: the release JSON body states no Limine behaviour; it points at the ChangeLog and at tarball signature material. Kept as a wave-directory locator, not evidence.

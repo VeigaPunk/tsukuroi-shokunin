@@ -1,0 +1,115 @@
+RECEIPT-02 — re-open of the pinned Limine sources the round's knowledge entry cites (S386, S387, S388)
+Seat: ScoutSources (round-95, w1). Access date: 2026-11-08. Method: read-only GET (curl -sSL).
+
+Question asked: do the entry's cited Limine sources still resolve, and do they still agree with the
+entry's two claims — (a) "the cut applies from 12.9.5 on", (b) "the version prints as `Limine X.Y.Z`"?
+
+================================================================================
+A. S386 — https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/common/lib/config.c
+================================================================================
+HTTP status: 200
+bytes:       23351
+sha256:      a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60
+local copy:  pins/limine-12.9.6-common_lib_config.c
+
+Cross-check against the lane's own r94 freeze copy:
+  sha256sum .ufo/waves/round-94/before/src/limine-v12.9.6-common_lib_config.c
+  a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60
+  -> IDENTICAL to today's fetch. The pin reproduces byte-for-byte.
+
+LOCATED QUOTE (<=25 words) — the cut itself:
+  "if (p > config_addr) { *(p - 1) = '\0'; }"
+  locator: raw lines 328-330, inside `create_menu_tree()` (raw 298-407):
+      328:     if (p > config_addr) {
+      329:         *(p - 1) = '\0';
+      330:     }
+  A second anchor in the same function (raw 362-365) is the label-end NUL:
+      if (*p == '\n') { *p = '\0'; p++; }
+
+WHAT THIS SUPPORTS for "the cut applies from 12.9.5 on":
+  The cut is present at the v12.9.6 tag, and the file is byte-identical to the v12.9.5 tag's file
+  (measured below), so the cut is a 12.9.5-era change, not a 12.9.6 one.
+
+================================================================================
+B. S387 — https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/ChangeLog
+================================================================================
+HTTP status: 200
+bytes:       122099
+sha256:      ab280b451ee6f56bad5684d44eda5c94bf43d2c17e9e651b8e84b433584d03ba
+local copy:  pins/limine-12.9.6-ChangeLog
+
+Cross-check against the lane's own r94 freeze copy:
+  sha256sum .ufo/waves/round-94/before/src/limine-v12.9.6-ChangeLog
+  ab280b451ee6f56bad5684d44eda5c94bf43d2c17e9e651b8e84b433584d03ba
+  -> IDENTICAL to today's fetch.
+
+LOCATED QUOTE (<=25 words) — the upstream sentence that names 12.9.5:
+  "A config whose first line is an entry has had no global options since 12.9.5."
+  (15 words; it is a truncation of the two-line upstream sentence, which continues
+   "whereas every option in it used to count as global. Fixes #700.")
+  locator: raw lines 13-16, 12.9.6 release block, `Miscellaneous:` subsection:
+      13:  - Document that global options must come before the first entry, as
+      14:    has been the case since 4.0. A config whose first line is an entry
+      15:    has had no global options since 12.9.5, whereas every option in it
+      16:    used to count as global. Fixes #700.
+  Full 25-word variant (also <=25):
+  "A config whose first line is an entry has had no global options since 12.9.5, whereas every option
+   in it used to count as global."   (25 words; raw lines 14-16)
+  Block header for the locator: raw 3 "*** Release 12.9.6 ***", raw 5 "Noteworthy changes compared
+  to the previous release, 12.9.5:", raw 12 "Miscellaneous:".
+
+WHAT THIS SUPPORTS for "the cut applies from 12.9.5 on":
+  Directly and in upstream's own words: the change of behaviour ("no global options" when the
+  first line is an entry) is dated 12.9.5.
+
+================================================================================
+C. S388 — https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/host/limine.c
+================================================================================
+HTTP status: 200
+bytes:       69050
+sha256:      4da21c7cceae238075612643b845cb63e06cc184977e950d5e6374329bc31ec0
+local copy:  pins/limine-12.9.6-host_limine.c
+
+Cross-check against the lane's own r94 freeze copy:
+  sha256sum .ufo/waves/round-94/before/src/limine-v12.9.6-host_limine.c
+  4da21c7cceae238075612643b845cb63e06cc184977e950d5e6374329bc31ec0
+  -> IDENTICAL to today's fetch.
+
+LOCATED QUOTE (<=25 words) — the version print:
+  "puts(\"Limine \" LIMINE_VERSION);"
+  locator: raw line 2035 (the `--version` print), in `version()`:
+      2031:        puts(LIMINE_VERSION);        <- the bare version (`--version-only`)
+      2035:    puts("Limine " LIMINE_VERSION);  <- the `--version` line
+  Related locators in the same file:
+      2002: #define LIMINE_VERSION "%VERSION%"   (the substituted version string)
+      2089-2091: the `--version` dispatch into `version()`
+  The version macro is `%VERSION%` at build time, so at runtime the line prints
+  "Limine X.Y.Z" — e.g. on this host `limine --version` prints "Limine 12.9.4" (receipt-03).
+
+WHAT THIS SUPPORTS for "the version prints as `Limine X.Y.Z`":
+  The literal concatenation "Limine " + LIMINE_VERSION on stdout, and the bare LIMINE_VERSION on
+  the `--version-only` line.
+
+================================================================================
+D. THE BYTE COMPARISON THAT DATES THE CUT (three tags, all fetched today)
+================================================================================
+https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.5/common/lib/config.c
+  HTTP 200, 23351 bytes, sha256 a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60
+https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.4/common/lib/config.c
+  HTTP 200, 24554 bytes, sha256 aafc9c410a250efc9674e3c93e839d32ae2731ba2ca60bb7f5edd7ad5828fba8
+  grep -n 'p > config_addr' on the v12.9.4 file -> NO MATCH (the cut is absent at v12.9.4)
+
+  v12.9.6 config.c sha256 == v12.9.5 config.c sha256 (a940acae...)   -> the two are the same bytes
+  v12.9.4 config.c differs (aafc9c41..., 24554 bytes) and has no cut -> the cut was added in 12.9.5
+
+https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.5/host/limine.c
+  HTTP 200, 69050 bytes, sha256 4da21c7cceae238075612643b845cb63e06cc184977e950d5e6374329bc31ec0
+  -> identical to the v12.9.6 file: the version-print code did not change between the tags.
+
+https://raw.githubusercontent.com/limine-bootloader/limine/v12.9.5/ChangeLog
+  HTTP 200, 121313 bytes, sha256 d2e08cc4a4bffc4b598b9baf43435cbf05f2c76edcaf89f9ba18f35c42b51779
+  -> differs from the v12.9.6 ChangeLog (122099 bytes): only the 12.9.6 release block was prepended
+     (the 12.9.6 ChangeLog's raw 1-16 are the 12.9.6 header and its two entries).
+
+VERDICT ON THE RE-OPEN: all three rows resolve (HTTP 200), all three sha256 values reproduce the
+lane's own r94 frozen copies byte-for-byte, and all three still support the entry's two claims.

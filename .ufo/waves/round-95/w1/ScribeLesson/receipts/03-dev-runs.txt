@@ -1,0 +1,76 @@
+RECEIPT 03 — the ONE development run per leg that the A1 narrowing was derived from
+Seat: ScribeLesson (round-95, w1). All runs in scratch /fast/scratch/hyaku/tsukuroi-r95/ScribeLesson/.
+Every JSON below is under .ufo/waves/round-95/w1/ScribeLesson/ (this seat's dir).
+
+=== L1: landed gate, r95 battery, --runs 1 ===
+$ python3 tools/limine-pin-battery-r95.py --gate tools/check-limine-pins.py --runs 1 --work <scratch> --json .ufo/waves/round-95/w1/ScribeLesson/dev-check-landed-r95.json
+families_passed 99/99 verdict met failed -
+
+=== L2: N05-strict-8 bend, r95 battery, --runs 1 ===
+$ python3 tools/limine-pin-battery-r95.py --gate .ufo/waves/round-95/before/controls/bends/N05-strict-8.py --runs 1 --work <scratch> --json .ufo/waves/round-95/w1/ScribeLesson/dev-check-n05-r95.json
+families_passed 98/99 verdict unmet failed REFUSAL-VERSIONS-9DIGIT
+
+=== L3: landed gate, r94 do-nothing battery, --runs 1 ===
+$ python3 .ufo/waves/round-95/before/controls/do-nothing-battery-r94.py --gate tools/check-limine-pins.py --runs 1 --work <scratch> --json .ufo/waves/round-95/w1/ScribeLesson/dev-check-dn94-r94.json
+families_passed 98/98 verdict met failed -
+
+=== L4: N05 bend, r94 do-nothing battery, --runs 1 ===
+$ python3 .ufo/waves/round-95/before/controls/do-nothing-battery-r94.py --gate .ufo/waves/round-95/before/controls/bends/N05-strict-8.py --runs 1 --work <scratch> --json .ufo/waves/round-95/w1/ScribeLesson/dev-check-dn94-n05.json
+families_passed 98/98 verdict met failed -
+
+=== Parsed case_log accounting (the clauses A1 turned on) ===
+dev-check-landed-r95.json    verdict met    99/99 failed []                               error_rows 0 nine_digit_rows 4
+dev-check-n05-r95.json       verdict unmet  98/99 failed ['REFUSAL-VERSIONS-9DIGIT']      error_rows 4 nine_digit_rows 4
+dev-check-dn94-r94.json      verdict met    98/98 failed []                               error_rows 0 nine_digit_rows 0
+dev-check-dn94-n05.json      verdict met    98/98 failed []                               error_rows 0 nine_digit_rows 0
+
+=== The four N05 error rows, verbatim (one of them) ===
+{
+ "family": "REFUSAL-VERSIONS-9DIGIT",
+ "passed": false,
+ "sbflag": null,
+ "tpm": "1",
+ "want": [
+  1,
+  "DEGRADED",
+  [
+   [
+    3,
+    "LP-MISMATCH",
+    "panic"
+   ],
+   [
+    7,
+    "OK",
+    "none"
+   ]
+  ],
+  "menu"
+ ],
+ "got": null,
+ "error": "bad-output: JSONDecodeError rc=64 stderr=usage: gate.py [-h] [--conf CONF] [--esp ESP] [--secure-boot-enforced {0,1}]\n               [--tpm-present {0,1}] [--limine-version LIMINE_VERSION]\n               [--live] [--selftest]\ncheck-limine-pins: --limine-version must be X.Y.Z or auto\n"
+}
+distinct error texts: 1
+
+=== x3 repeats of the two legs the A1 clauses bind (same commands, --runs 3) ===
+$ python3 tools/limine-pin-battery-r95.py --gate <N05 bend> --runs 3 --json .ufo/waves/round-95/w1/ScribeLesson/dev-check-n05-r95-x3.json
+families_passed 98/99 verdict unmet failed REFUSAL-VERSIONS-9DIGIT
+families_passed 98/99 verdict unmet failed REFUSAL-VERSIONS-9DIGIT
+families_passed 98/99 verdict unmet failed REFUSAL-VERSIONS-9DIGIT
+$ python3 .ufo/waves/round-95/before/controls/do-nothing-battery-r94.py --gate tools/check-limine-pins.py --runs 3 --json .ufo/waves/round-95/w1/ScribeLesson/dev-check-dn94-r94-x3.json
+families_passed 98/98 verdict met failed -
+families_passed 98/98 verdict met failed -
+families_passed 98/98 verdict met failed -
+
+dev-check-n05-r95-x3.json    run 0 verdict unmet  98/99 failed ['REFUSAL-VERSIONS-9DIGIT']      error_rows 4 nine_digit_rows 4
+dev-check-n05-r95-x3.json    run 1 verdict unmet  98/99 failed ['REFUSAL-VERSIONS-9DIGIT']      error_rows 4 nine_digit_rows 4
+dev-check-n05-r95-x3.json    run 2 verdict unmet  98/99 failed ['REFUSAL-VERSIONS-9DIGIT']      error_rows 4 nine_digit_rows 4
+dev-check-dn94-r94-x3.json   run 0 verdict met    98/98 failed []                               error_rows 0 nine_digit_rows 0
+dev-check-dn94-r94-x3.json   run 1 verdict met    98/98 failed []                               error_rows 0 nine_digit_rows 0
+dev-check-dn94-r94-x3.json   run 2 verdict met    98/98 failed []                               error_rows 0 nine_digit_rows 0
+
+=== The registry gate at the landed revision (C2's instrument, for the Routed ledger) ===
+$ python3 tools/check-registry-coverage.py --revision b66e6be5cf3506aff427c3c4fd59deaa8f45d0ca
+{"branch":"master","branch_tip":"884ed06bdc7681ad73e757cf8a02bee21de2c480","counts":{"findings":0,"missing":0,"registered":151,"rows_total":151,"tools_total":151},"findings":[],"revision":"b66e6be5cf3506aff427c3c4fd59deaa8f45d0ca","status":"PASS"}
+$ python3 tools/check-registry-coverage.py --selftest
+PASS (23 cases, 23 passed, 0 failed)

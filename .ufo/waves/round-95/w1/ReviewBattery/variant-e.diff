@@ -1,0 +1,11 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ variant-e.py	2026-11-08 06:58:24.136428149 -0300
+@@ -320,7 +320,7 @@
+             {"line": panic_setting[0], "value": sanitize(panic_setting[1])},
+             "measured_boot": None if measured_setting is None else
+             {"line": measured_setting[0], "value": sanitize(measured_setting[1])},
+-            "tpm_present": tpm, "on_panic": on_panic_of(measured_setting, secure_boot, tpm),
++            "tpm_present": tpm, "on_panic": "halt" if len(str(version[0])) == 9 else on_panic_of(measured_setting, secure_boot, tpm),
+             "secure_boot_enforced": secure_boot, "pins": pins,
+             "unverified_image_lines": unverified,
+             "findings": sorted("%s line %d" % (p["status"], p["line"]) for p in pins if p["status"] != "OK")}

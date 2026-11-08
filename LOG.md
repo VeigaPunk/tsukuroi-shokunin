@@ -4136,3 +4136,57 @@ Outcome: C1 honestly stopped (N04), C2 `met` on both live shapes after the privi
 (C2-1). C1's deliverable is the finding in `w1/CriticClaims.md` F2 and plan A3: a decoy bend that
 does not bite cannot be certified, and the "×3" sentence must stop promising stability the battery
 never measured.
+
+## Round 95 — freeze (`2abddda5`, A1 `a2ed6eee`)
+
+Declared 2 claims, both on distinct axes. C1 (depth 8, tied lowest): the battery gains the ACCEPTED
+leg of the gate's published 1-9-digit component bound — family `REFUSAL-VERSIONS-9DIGIT` sending
+`999999999.9.9` to an era-sensitive fixture, plus the one-clause bend `N05-strict-8`. C2 (operability
+9): the lane's registry gate, red at the tip with 2 `REGISTRY-ROW-MISSING`, is repaired with four
+rows and two `limine-pins` cells. Instruments frozen before any candidate score:
+`tools/limine-pin-battery-r95.py` `a51dca18…` (99 families), `tools/make-r95-bends.py` `57669e19…`,
+the bend `a1dead8b…`, the r94 do-nothing copies (`d66b4a59…`, `7d79ac29…`), `claims.json`
+`26d38bc0…` and the frozen plan copy; `sha256sum -c before/instruments.sha256` → 9 × OK.
+A1 (pre-scoring narrowing, `a2ed6eee`): the first frozen target sentence claimed the N05 leg carries
+0 error rows and the r94 battery on the landed gate reads `unmet 98/99`; one development run shows the
+bend refuses rc 64 (four `error` rows, the refusal receipt) and the r94 roster reads `met 98/98` on
+its own 98 families (0 nine-digit rows). Target/kill rewritten to the instruments' actual behaviour;
+no target widened.
+
+## Round 95 — C2 (`b66e6be5`)
+
+Four rows added to the operative registry table (`limine-pin-battery-r94`, `make-r94-bends`,
+`limine-pin-battery-r95`, `make-r95-bends`) and the `limine-pins` row repaired (`default auto`,
+`(39 fixtures`, receipt pointer to the r94 live receipts, the 64 cell naming the probe-failure
+refusal). `check-registry-coverage.py --revision c0a20cef…` → FAIL findings 2 / 149 tools / 147 rows;
+`--revision b66e6be5…` → PASS 0 / 151 / 151; `--selftest` PASS 23/23; `check-limine-pins.py
+--selftest` PASS 39/39.
+
+## Round 95 — wave (`884ed06b`)
+
+One v1 wave, 13 seats (4 executors, 2 scouts, 2 scribes, 2 reviewers, 1 critic, 1 mutation-tester,
+1 connector; 4 attack roles = 31 %), dispatched through the inline handoff: spec, validator dispatch
+(`counts` 13/0/13) and `w1.ready` + `w1.ready.dispatched` all committed (the r94 routed-2 debt).
+A2 (pre-scoring wording): the registry gate's clean token is `PASS`, not `clean`.
+
+## Round 95 — settle
+
+Wave findings landed and integrated: `w1/ExecBattery` (landed gate 99/99 met ×3 canonical and ×3
+clone, 0 error rows), `w1/ExecBend` (N05 98/99 unmet ×3 both layouts, family named, four rc-64 error
+rows), `w1/ExecDoNothing` (r94 roster blind: 98/98 met ×3 on N05 and on the gate, 0 nine-digit rows),
+`w1/ExecRegistry` (C2 PASS at both revisions; registry gate does not bind name→path or verify content),
+`w1/MutBound` (7/8 mutants killed; M06 echo-truncation survives), `w1/ReviewBattery` (C1's "largest
+in-bound member" superlative falsified by a per-component probe; A3 narrows), `w1/ReviewRegistry`
+(emitter rows' kind/exits/scope cells false; corrected in `a302e688`), `w1/ScoutSources` (S389 row
+opened and census-clean; host 12.9.4-1 vs upstream 12.9.6-1, no era answer moves), `w1/ScoutDrift`
+(plan/claims/frontier drift walk), `w1/ScribeKnowledge` (entry draft, re-parsed receipts),
+`w1/ScribeLesson` (lesson draft with the A1 mistake and the N04-decoy family), `w1/CriticClaims`
+(clause-by-clause ledger draft; C2 void clause found vacuous → A4), `w1/ConnectorOverlap` (no sibling
+duplicate/contradiction; M06 echo gap → `flag_ok` proposal for r96). A3 (post-scoring narrowing: the
+cap is per component, so the superlative is withdrawn to "a boundary member, first component at the
+cap") and A4 (do-nothing blindness is the roster's, not the instrument's; the registry gate's PASS
+certifies row presence, not content, so the `limine-pins` cells are carried by a direct grep plus the
+gate's 39/39 selftest, and C2's void rule binds the registry gate's recorded sha256 instead of the
+freeze manifest). Corpus: `knowledge/limine-bound-9digit-r95.md` (S389), `lessons/round-95.md`,
+`SOURCES.md` 388 → 389, README round-95 section + Frontier, SCORECARD round-95 rows. Census
+`sources-census.sh validate --root … tsukuroi` exit 0 (389 rows, 0 E-findings).

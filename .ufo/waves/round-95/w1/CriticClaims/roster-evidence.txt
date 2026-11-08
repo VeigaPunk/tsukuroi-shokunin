@@ -1,0 +1,23 @@
+--- battery roster ---
+FAMILY_ROSTER 99 unique 99
+FAMILIES 99 cases_per_family 4
+REFUSAL_DIGIT9 999999999.9.9
+REFUSAL_DIGIT10 ('1234567890.0.0', '0.1234567890.0', '0.0.1234567890', '1234567890.1234567890.1234567890')
+digit9 in roster True
+--- r94 do-nothing battery ---
+FAMILY_ROSTER 98 unique 98
+digit9 in roster False
+--- largest accepted version under gate parse ---
+99:    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+--- gate docstring bound ---
+def parse_limine_version(text):
+    """V2: `X.Y.Z`, ASCII digits only (1-9 digits per component; leading zeros are accepted and
+    normalized by int(), e.g. `12.09.4` == `12.9.4`), -> (X, Y, Z); anything else -> None (usage
+    error, rc 64). A component longer than 9 digits is refused rather than handed to int(), which
+    raises above 4300 digits (round-92 ReviewGate F1)."""
+    if not isinstance(text, str):
+        return None
+    parts = text.split(".")
+    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+        return None
+    return tuple(int(p) for p in parts)

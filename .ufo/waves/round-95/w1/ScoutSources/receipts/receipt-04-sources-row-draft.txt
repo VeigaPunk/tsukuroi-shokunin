@@ -1,0 +1,120 @@
+RECEIPT-04 — the SOURCES registry row draft (S389) and the census validation of it
+Seat: ScoutSources (round-95, w1). Date: 2026-11-08.
+
+================================================================================
+1. IS THE ID S389 FREE?
+================================================================================
+$ grep -oE '^\| S[0-9]{3,}' corpus/SOURCES.md | grep -oE 'S[0-9]+' | sort -u | tail -5
+S384
+S385
+S386
+S387
+S388
+$ grep -cE '^\| S[0-9]{3,}' corpus/SOURCES.md
+388
+$ grep -rn 'S389' . --include='*.md' --include='*.json' --include='*.tsv' | grep -v 'w1-spec.json\|w1-dispatch.json'
+(no output — the only S389 hits in the repo are this round's own dispatch files, which quote the
+ seat instructions, not a registry row)
+
+=> S389 IS FREE. The registry's highest id is S388; the row count is 388. The new row makes 389.
+
+================================================================================
+2. THE DRAFTED ROW (exact bytes; copy into corpus/SOURCES.md inside the
+   `## Registry` section, immediately after the S388 row, before `## Paths`)
+================================================================================
+| S389 | Python 3 documentation — integer string conversion length limitation, version-pinned — https://docs.python.org/3.15/library/stdtypes.html#integer-string-conversion-length-limitation | docs | A | The CPython int↔str decimal-conversion digit limit and the ValueError it raises past it — the upstream reason a version component is length-checked before it is handed to `int()` | § "Integer string conversion length limitation" (`<section id="integer-string-conversion-length-limitation">`, byte 780197 of the pinned copy; inner span `id="int-max-str-digits"` byte 780256); the `4300` sentence at byte 785297, the `ValueError` sentence at byte 782228; page title "Built-in Types — Python 3.15.2 documentation"; fetched 2026-11-08, 815447 bytes, sha256 `6bf2ce2b…` (the rolling `/3/library/stdtypes.html` alias serves the same bytes today) | the default conversion limit is 4300 digits — "The default limit is 4300 digits as provided in sys.int_info.default_max_str_digits." — and a conversion past it raises `ValueError` ("When an operation would exceed the limit, a ValueError is raised:"), which is why a version component is refused on its digit count rather than parsed | mined | 2026-11-08 | on-release | corpus/knowledge/limine-bound-9digit-r95.md, corpus/lessons/round-95.md |
+
+Column-by-column (the lane's schema is 11 columns; the census parses NF==13):
+  id        S389
+  source    Python 3 documentation — integer string conversion length limitation, version-pinned
+            — https://docs.python.org/3.15/library/stdtypes.html#integer-string-conversion-length-limitation
+  kind      docs                (census kind enum: spec|docs|paper|code|tool|dataset|talk|book|community|own-work)
+  tier      A                   (census tier enum A|B|C)
+  scope     The CPython int↔str decimal-conversion digit limit and the ValueError it raises past it
+            — the upstream reason a version component is length-checked before it is handed to `int()`
+  anchor    § "Integer string conversion length limitation" (<section id="integer-string-conversion-length-limitation">,
+            byte 780197 of the pinned copy; inner span id="int-max-str-digits" byte 780256); the `4300`
+            sentence at byte 785297, the `ValueError` sentence at byte 782228; page title "Built-in
+            Types — Python 3.15.2 documentation"; fetched 2026-11-08, 815447 bytes, sha256 `6bf2ce2b…`
+            (the rolling /3/library/stdtypes.html alias serves the same bytes today)
+  teaches   the default conversion limit is 4300 digits — "The default limit is 4300 digits as provided in
+            sys.int_info.default_max_str_digits." — and a conversion past it raises `ValueError` ("When an
+            operation would exceed the limit, a ValueError is raised:"), which is why a version component is
+            refused on its digit count rather than parsed
+  status    mined
+  opened    2026-11-08
+  recheck   on-release           (census accepts a symbolic cadence; the Python docs page is version-pinned
+                                 to /3.15/ so the locator does not drift with the next Python release)
+  used-by   corpus/knowledge/limine-bound-9digit-r95.md, corpus/lessons/round-95.md
+
+Style notes (matched to the S386-S388 rows, the immediately preceding neighbours):
+  - the source cell starts with a human title, an em-dash, then the URL (as every row does);
+  - the anchor cell names the section heading, the byte offsets inside the pinned copy, the page
+    title and the fetched digest+size — the same "tag/raw-lines/sha256" shape S386-S388 use;
+  - the teaches cell carries the ≤25-word located quote in double quotes, then the teaching;
+  - `mined` is the status (this is the only status the census treats as "used"); `on-release` is the
+    cadence the two Python-docs rows already use.
+
+Note on the URL choice: the seat's brief named the rolling alias
+`https://docs.python.org/3/library/stdtypes.html#integer-string-conversion-length-limitation`. The row
+carries the VERSION-PINNED form `/3.15/library/stdtypes.html#...` for the reason S385's own cell
+records ("a version-pinned URL keeps the locator from drifting with the next Python release") — and
+because the two URLs serve byte-identical content today (same sha256 6bf2ce2b…, 815447 bytes, verified
+by `cmp`), the pinned form is strictly the more stable locator. Both are recorded in
+receipts/pin-table.tsv and receipt-01. If the L1 prefers the brief's literal alias, the ONLY cell that
+changes is the URL inside the source cell; the anchor's offsets and digest stay valid (identical bytes).
+
+================================================================================
+3. THE CENSUS VALIDATION OF THE DRAFTED ROW (read-only, run in SCRATCH)
+================================================================================
+Method: a lane-shaped copy of the tree was made under
+  /fast/scratch/hyaku/tsukuroi-r95/ScoutSources/lanetest/
+  (corpus/SOURCES.md + corpus/knowledge/ + corpus/lessons/ + corpus/QUALITY.md + SKILL.md + tools/
+   all COPIED, not symlinked, so nothing could reach the lane), the S389 row inserted immediately
+   after S388, and the two used-by targets created as empty placeholders (they are the files the
+   ScribeKnowledge / ScribeLesson seats draft and the L1 lands).
+
+$ bash scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin \
+      --file .../lanetest/corpus/SOURCES.md --today 2026-11-08
+EXIT=0
+$ ... | grep 'S389'  ->  (no output)      # S389 draws NO finding of any code
+$ ... | grep -c 'W04' ->  57               # the same 57 standing W04s the lane's own registry
+                                          # already has (baseline census on the lane's real
+                                          # corpus/SOURCES.md also prints 57 W04 + 1 W01)
+$ ... | tail -2
+file	W04	S387 duplicate url raw.githubusercontent.com/limine-bootloader/limine/v12.9.6/ChangeLog across scopes
+file	ok	.../lanetest/corpus/SOURCES.md
+
+So: no E01 (field count), no E02 (id form), no E03 (duplicate id), no E04 (duplicate url+scope),
+no E05/E06/E07 (kind/tier/status enums), no E08 (opened date), no E09 (recheck cadence),
+no E10, no E11 (used-by present), no E12 (row inside the Registry section), and no W01/W03/W04
+raised by the new row. The row is census-clean.
+
+Baseline for comparison — the lane's REAL registry, unchanged, read-only:
+$ bash scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi
+... 57 W04 lines + 1 W01 line (S381, pre-existing) ...
+tsukuroi	ok	/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/corpus/SOURCES.md
+EXIT=0
+
+================================================================================
+4. ORDERING DEPENDENCY THE L1 MUST HONOUR (an E11 will fire otherwise)
+================================================================================
+The census's E11 rule checks that each used-by path EXISTS ON DISK under the lane root. The two
+paths this row names do not exist yet at the time of writing:
+$ ls corpus/knowledge/limine-bound-9digit-r95.md corpus/lessons/round-95.md
+ls: cannot access 'corpus/knowledge/limine-bound-9digit-r95.md': No such file or directory
+ls: cannot access 'corpus/lessons/round-95.md': No such file or directory
+They are the files the ScribeKnowledge and ScribeLesson seats are drafting this wave (per
+.ufo/waves/round-95/w1-spec.json). The row's used-by cell is correct as written and becomes
+E11-clean the moment the L1 lands those two files; the row must therefore be integrated together
+with (or after) them, and `sources-census.sh validate` should be re-run after the landing to confirm
+zero E11. The same dependency already governs S386-S388 (their used-by paths are the r94 entry and
+lesson), so this is the lane's normal ordering, not a new constraint.
+
+================================================================================
+5. WHAT WAS NOT DONE (scope)
+================================================================================
+corpus/SOURCES.md was NOT edited — the row above is a draft for the L1 to integrate, exactly as the
+seat brief requires ("Do not append to corpus/SOURCES.md yourself"). No corpus/knowledge/ file was
+written. No instrument, plan, claims file, SKILL.md or tool was touched. No git or jj mutation was
+run in the lane. The scratch tree was deleted after the measurement (see the report).

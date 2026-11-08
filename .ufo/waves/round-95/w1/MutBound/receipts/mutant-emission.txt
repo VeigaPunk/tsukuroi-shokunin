@@ -1,0 +1,64 @@
+--- tools/check-limine-pins.py
++++ M01-bound-8.py
+@@ -98,3 +98,3 @@
+     parts = text.split(".")
+-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
++    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 8 for p in parts):  # M01 component bound <= 8
+         return None
+--- tools/check-limine-pins.py
++++ M02-bound-10.py
+@@ -98,3 +98,3 @@
+     parts = text.split(".")
+-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
++    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 10 for p in parts):  # M02 component bound <= 10
+         return None
+--- tools/check-limine-pins.py
++++ M03-reject-9digit-literal.py
+@@ -98,3 +98,3 @@
+     parts = text.split(".")
+-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
++    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts) or text == "999999999.9.9":  # M03 reject the exact 9-digit member
+         return None
+--- tools/check-limine-pins.py
++++ M04-era-strict.py
+@@ -192,3 +192,3 @@
+         raise ValueError("bad limine version: %r" % (limine_version,))
+-    era_b = version >= VISIBILITY_ERA_SPLIT
++    era_b = version > VISIBILITY_ERA_SPLIT  # M04 strict split (12.9.5 reads era A)
+     try:
+--- tools/check-limine-pins.py
++++ M05-no-bound.py
+@@ -98,3 +98,3 @@
+     parts = text.split(".")
+-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
++    if len(parts) != 3 or not all(p.isascii() and p.isdigit() for p in parts):  # M05 no digit-count bound
+         return None
+--- tools/check-limine-pins.py
++++ M06-echo-truncated.py
+@@ -535,2 +535,3 @@
+         return 64
++    r["limine_version"] = ".".join(p[:2] for p in str(r["limine_version"]).split("."))  # M06 JSON echo truncated to 2 chars/component
+     print(json.dumps(r, sort_keys=True))
+--- tools/check-limine-pins.py
++++ M07-major-1000-era-a.py
+@@ -192,3 +192,3 @@
+         raise ValueError("bad limine version: %r" % (limine_version,))
+-    era_b = version >= VISIBILITY_ERA_SPLIT
++    era_b = version >= VISIBILITY_ERA_SPLIT and version[0] <= 1000  # M07 major > 1000 reads era A
+     try:
+--- tools/check-limine-pins.py
++++ M08-refusal-stdout.py
+@@ -520,3 +520,3 @@
+         ap.print_usage(sys.stderr)
+-        print("check-limine-pins: --limine-version must be X.Y.Z or auto", file=sys.stderr)
++        print("check-limine-pins: --limine-version must be X.Y.Z or auto")  # M08 refusal message to stdout
+         return 64
+----
+M01-bound-8 dac9392653c4d88f1e591ed9206dd153035ed6b0c6daf218e8da679b101dc98b changed_lines=1 delta_lines=0
+M02-bound-10 5115e95002d5ab866ee794b54876ef9d8aeb38564a16f78cd211ba556e310303 changed_lines=1 delta_lines=0
+M03-reject-9digit-literal b0d55163a522d8d3fae74b803fff55283f20e1cb4828b31c495223713fc62cc8 changed_lines=1 delta_lines=0
+M04-era-strict 440783fc0564b03d7db4cb7fb12fd51c5cd6c7c6d0208de466a12942dfd0ee15 changed_lines=1 delta_lines=0
+M05-no-bound bd4e3e76e7f9c72b2679f3cc7c486f6dea41a8061ae640ddb4193cf866f2af59 changed_lines=1 delta_lines=0
+M06-echo-truncated 5ed1cb72e60233f64d3b035c08824532aaf4e6b509552d2aca4e21acaa0a7f3d changed_lines=5 delta_lines=1
+M07-major-1000-era-a 01e56bca128f6c008e17544e2f1dcec95fdf30ef1fb34a1442e560c95f3912d1 changed_lines=1 delta_lines=0
+M08-refusal-stdout fa71b3075dfbd373ba5ca3a103f611e6192fd44edf8c9cb9d89feeaa0662855c changed_lines=1 delta_lines=0

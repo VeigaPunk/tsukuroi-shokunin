@@ -1,0 +1,12 @@
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ variant-f.py	2026-11-08 07:01:46.650259457 -0300
+@@ -96,7 +96,8 @@
+     if not isinstance(text, str):
+         return None
+     parts = text.split(".")
+-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
++    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= (8 if i == 1 else 9)
++                                  for i, p in enumerate(parts)):
+         return None
+     return tuple(int(p) for p in parts)
+ 

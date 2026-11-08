@@ -7854,3 +7854,50 @@ is a privilege marker, not a receipt defect). Axes now: depth 8, coverage 9, ope
 freshness 9, calibration 9, adjacency 8 (unchanged). No retirement. No axis harmed: the 96 r93
 families still pass (they are inside the 98), and MutProbe's surviving M02/M04/M07 and MutDigit10's
 M07/M09 are recorded as coverage findings, not as harm.
+
+## Round 95 — declaration (frozen before the candidate is scored; controls committed with it)
+
+Inputs read first: the round-94 closure (MANIFEST `rounds[]`, r94, `rejected-honest-stop`) and its
+non-author spot-check `corpus/lessons/round-94-verifier-spotcheck.md` §6 routed 1-10; the r94 lesson
+M1-M4; QUALITY 124-139 (139 is the rule this round executes); README round-94 Frontier. Full
+declaration, limits and amendments: `.ufo/plans/round-95.md` (A1-A4). Instruments:
+`tools/limine-pin-battery-r95.py` (99 families; the r94 roster plus `REFUSAL-VERSIONS-9DIGIT`),
+`tools/make-r95-bends.py` (one one-clause bend `N05-strict-8`), do-nothing controls
+`before/controls/do-nothing-battery-r94.py` and `do-nothing-gate-r94.py`, all pinned in
+`.ufo/waves/round-95/before/instruments.sha256`. The gate `tools/check-limine-pins.py` is unchanged
+(`7d79ac29…`, the same bytes as the r94 control copy).
+
+| Claim | Axis | Predicate (the live sentence, after A1/A3/A4) | Target | Kill rule | Counting command |
+|---|---|---|---|---|---|
+| C1 (measured) | depth 8 (tied lowest) | the battery carries `REFUSAL-VERSIONS-9DIGIT`: `999999999.9.9` — a boundary member of the gate's published 1-9-digit component cap, first component at the cap — sent as the `--limine-version` of an era-sensitive fixture; the landed gate answers rc 1, `DEGRADED`, the LP-MISMATCH pin with consequence `panic`; the bend `N05-strict-8` fails the family in every run | landed gate 99/99 met ×3 canonical + ×3 clone, 0 error rows; N05 98/99 unmet ×3 both layouts with `failed_families` exactly `["REFUSAL-VERSIONS-9DIGIT"]`; the r94 do-nothing family roster 98/98 met on N05 (blind) and on the gate, 0 nine-digit rows | any landed-gate r95 run <99/99 or with an error row; any N05 r95 run not unmet or with another failed family; any N05 r94 run not met 98/98; any nine-digit row in the r94 roster's `case_log`; instrument drift from the freeze manifest | `limine-pin-battery-r95.py --gate G --runs 3 --json OUT` + `before/controls/count-runs.py OUT --family REFUSAL-VERSIONS-9DIGIT` |
+| C2 (measured) | operability 9 (assurance arm) | `check-registry-coverage.py --revision R` at the landed revision reports `status PASS` with `findings 0`, `missing 0`, `tools_total 151`, `registered 151`; the `limine-pins` cells read `default auto` and 39 fixtures (certified by a direct `git show` grep and the gate's own `--selftest`, not by the registry gate — A4) | PASS/0/0/151/151 at the landed revision; `limine-pins` auto/39; registry selftest 23/23; limine-pins selftest 39/39 | any count differs or status is not PASS; the limine-pins cell still names `default 12.9.4` or 37 fixtures; either selftest fails; void if `check-registry-coverage.py` differs from the hash in the C2 receipt | `python3 tools/check-registry-coverage.py --revision <R>` |
+
+## Round 95 — measured outcome (freeze `2abddda5`, A1 `a2ed6eee`, dispatch `884ed06b`; receipts in `.ufo/waves/round-95/after/` and `w1/`)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: the accepted leg of the published component bound) | depth 8 → 8 (tied lowest; a sharper arm, no ordinal uplift) | roster 98 → 99 families; `--gate tools/check-limine-pins.py --runs 3` → `99/99 met` ×3 canonical and ×3 clone, `failed_families []`, 0 error rows; `--gate before/controls/bends/N05-strict-8.py` → `98/99 unmet` ×3 both layouts, `failed_families` exactly `["REFUSAL-VERSIONS-9DIGIT"]`, four rc-64 error rows (the bend's refusal); `do-nothing-battery-r94.py --gate N05-strict-8` → `met 98/98` ×3, 0 error rows, 0 nine-digit rows (blind), and the same battery on the landed gate `met 98/98` ×3 | met | **met** (author-side; closure to re-derive) |
+| C2 (measured; the lane's own registry gate is red at the tip) | operability 9 → 9 (assurance repair, no ordinal uplift) | `check-registry-coverage.py --revision c0a20cef…` → `status FAIL`, findings 2, missing 2, `tools_total 149`, `registered 147`; at `b66e6be5…`, `884ed06b…`, `a302e688…` → `PASS`, findings 0, missing 0, `tools_total 151`, `registered 151`, rc 0; `--selftest` `PASS (23 cases, 23 passed, 0 failed)`; `limine-pins` cells `default auto`, `(39 fixtures` with the gate's own `selftest PASS 39/39` | met | **met** (author-side; closure to re-derive) |
+
+Wave w1: 13 seats (`ExecBattery`, `ExecBend`, `ExecDoNothing`, `ExecRegistry`, `ScoutSources`,
+`ScoutDrift`, `ScribeKnowledge`, `ScribeLesson`, `ReviewBattery`, `ReviewRegistry`, `CriticClaims`,
+`MutBound`, `ConnectorOverlap`), 4 attack roles (2 reviewer + 1 critic + 1 mutation-tester = 31 %,
+≥25 %), 1 connector; 0 dead seats (ScoutDrift and CriticClaims landed their reports late; both are
+integrated). Mutation evidence: 7 of 8 one-clause gate mutants killed (M01/M03/M07 on
+`REFUSAL-VERSIONS-9DIGIT` alone, M02/M05 on the refused leg, M04 on `ERA-EXACT-125`, M08 on the
+refusal families); M06 (echo a wrong `limine_version` for an explicit `--limine-version`) survives —
+recorded as a Frontier gap, not claimed.
+
+Falsified-or-narrowed this round (all recorded in `.ufo/plans/round-95.md`): A1 (a frozen target
+sentence asserted an error-row count and a do-nothing reading the instruments cannot produce — the
+N05 leg carries four `error` rows because the bend refuses, and the r94 roster reads `met` 98/98,
+not `unmet` 98/99; caught by a development run before dispatch); A2 (`status clean` → the gate's
+actual token `PASS`); A3 (the superlative "largest in-bound member" is false — the cap is per
+component, so `999999999.999999999.999999999` is in-bound; `ReviewBattery` F1 measured a 9-digit-Y
+bend reading `met` 99/99; the claim is narrowed to "a boundary member, first component at the cap");
+A4 (the do-nothing blindness is the family roster's, not the whole instrument's — `--usage-check`
+does see the cap; and the registry gate's `PASS` certifies row presence, not the content cells, whose
+`limine-pins` reading is carried by a direct grep plus the gate's 39/39 selftest). Axes now: depth 8,
+coverage 9, operability 9, freshness 9, calibration 9, adjacency 8 (unchanged). No retirement. No
+axis harmed: the landed gate bytes are unchanged (`7d79ac29…`), the r94 roster still reads
+`98/98 met` on the landed gate, and the corpus gains one entry plus one SOURCES row with no removal.
