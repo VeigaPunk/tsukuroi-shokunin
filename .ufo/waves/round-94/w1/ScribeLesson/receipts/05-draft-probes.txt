@@ -1,0 +1,67 @@
+# 05 draft probes (ScribeLesson, round-94 w1)
+date: 2026-11-08   scratch: /fast/scratch/hyaku/tsukuroi-r94/ScribeLesson (deleted on exit)
+
+## A. N04 independently re-run by this seat (canonical lane, --runs 1, own --work dir)
+$ python3 tools/limine-pin-battery-r94.py --gate .ufo/waves/round-94/before/controls/bends/N04-stale-tree.py --runs 1 --work $S/w-n04 --json $S/n04.json
+  verdict met families 98/98 failed [] cases 392
+  -> met 98/98, failed_families [], 0 error rows: N04 is a measured NON-kill.
+
+## B. make-r94-bends.py: a WRONG-CLAUSE substitution that matches exactly once is EMITTED
+   (a private copy of the maker + gate under scratch, the N01 substitution's target changed
+    from the digit-count clause to the neighbouring isascii() clause; match count still 1)
+$ python3 tools/make-r94-bends.py
+  wrote /fast/scratch/hyaku/tsukuroi-r94/ScribeLesson/mk-wrong/.ufo/waves/round-94/before/controls/bends/N01-digit10.py (30304 bytes, one clause bent)
+  wrote /fast/scratch/hyaku/tsukuroi-r94/ScribeLesson/mk-wrong/.ufo/waves/round-94/before/controls/bends/N02-unanchored.py (30306 bytes, one clause bent)
+  wrote /fast/scratch/hyaku/tsukuroi-r94/ScribeLesson/mk-wrong/.ufo/waves/round-94/before/controls/bends/N03-bound-11.py (30315 bytes, one clause bent)
+  wrote /fast/scratch/hyaku/tsukuroi-r94/ScribeLesson/mk-wrong/.ufo/waves/round-94/before/controls/bends/N04-stale-tree.py (30381 bytes, one clause bent)
+  rc=0
+  the emitted N01 line 99 vs the landed gate line 99:
+    1c1
+    <     if len(parts) != 3 or not all(p.isdigit() and len(p) <= 9 for p in parts):  # WRONG CLAUSE (isascii dropped)
+    ---
+    >     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+  => the guard counts MATCHES, not CLAUSES: a wrong-clause bend passes it and is written out.
+     this battery then reads it 'met' 98/98 (02-boundary-measurements.txt, entry 'wrongclause').
+
+## C. make-r94-bends.py: a ZERO-MATCH substitution RAISES (no file written)
+$ python3 tools/make-r94-bends.py
+  N01-digit10: pattern '    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 7 for p in parts):' matched 0 times, expected 1
+  rc=1
+  files written into the bend dir: 0 (0 = the guard aborted before writing)
+  => a zero-match substitution is a MAKER error (stderr, rc 1), never a battery verdict.
+
+## D. the r93 battery never sent a nine-digit component (the red leg of QUALITY 139)
+$ grep -c '999999999' .ufo/waves/round-94/before/controls/do-nothing-battery-r93.py
+0
+$ grep -c '999999999' tools/limine-pin-battery-r94.py
+1
+  the single hit is the USAGE roster (line 2278), not the scored family roster:
+2278:                 ("1234567890.0.0", 64), ("0.1234567890.0", 64), ("999999999.0.0", 0),
+
+## E. the plan's four named ten-digit values vs the battery's actual four members
+  grep -cF -- '12.9.-1' tools/limine-pin-battery-r94.py -> 0
+  grep -cF -- '12.9.+1' tools/limine-pin-battery-r94.py -> 0
+  grep -cF -- '+12.9.1' tools/limine-pin-battery-r94.py -> 0
+  grep -cF -- '12.9.1#' tools/limine-pin-battery-r94.py -> 0
+  the battery's actual family members (tools/limine-pin-battery-r94.py:1638):
+REFUSAL_DIGIT10 = ("1234567890.0.0", "0.1234567890.0", "0.0.1234567890", "1234567890.1234567890.1234567890")
+
+## F. the plan's grep pair for the M3 repair (both must read 1)
+  grep -c 'pacman -Si limine' .ufo/plans/round-94.md  -> 1
+  grep -c 'default="12.9.4"' .ufo/plans/round-94.md -> 1
+
+## G. the stale r93 knowledge sentence (retraction owed)
+corpus/knowledge/limine-version-probe-r93.md:53:timeout by design. The probe remains opt-in: `--limine-version` still defaults to `12.9.4`, so a host
+corpus/README.md:1092:- `--limine-version` still defaults to `12.9.4` (the host package): the probe is opt-in, so a host
+  the landed gate's default (tools/check-limine-pins.py:503):
+503:    ap.add_argument("--limine-version", default="auto",
+
+## H. citations that do not resolve
+  .ufo/waves/round-94/after/ :
+    ls: cannot access '.ufo/waves/round-94/after': No such file or directory
+  'shokunin/conf' in the plan at eb3b3e51:
+0
+  'shokunin/conf' anywhere in the lane at eb3b3e51 (only the lesson row itself):
+    eb3b3e51:corpus/lessons/round-94.md:1
+  the 'N.=M:' edit contract inside the tsukuroi lane at eb3b3e51 (only the lesson row itself):
+    eb3b3e51:corpus/lessons/round-94.md

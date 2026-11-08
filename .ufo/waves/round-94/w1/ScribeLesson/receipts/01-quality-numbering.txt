@@ -1,0 +1,33 @@
+# 01 QUALITY numbering check (lane corpus/QUALITY.md)
+date: 2026-11-08
+
+$ grep -oE '^[0-9]+\.' corpus/QUALITY.md | tr -d '.' | sort -n | uniq | awk 'NR!=$1{print "GAP";g=1} END{if(!g) print "contiguous 1.."NR}'
+contiguous 1..139
+
+$ grep -oE '^[0-9]+\.' corpus/QUALITY.md | tr -d '.' | sort -n | uniq -d   # duplicate numbers
+(no output above = no duplicates)
+
+$ grep -c '^140\. ' corpus/QUALITY.md   # next free number
+0
+
+# house shape of rows 120-139 (marker presence, first line of each row)
+120 line=236 markers: Shown able to fail 
+121 line=238 markers: 
+122 line=240 markers: Shown able to fail 
+123 line=242 markers: Shown able to fail 
+124 line=285 markers: 
+125 line=303 markers: Shown able to fail 
+126 line=306 markers: Shown able to fail 
+127 line=309 markers: Shown able to fail 
+128 line=312 markers: Shown able to fail 
+129 line=315 markers: Shown able to fail 
+130 line=318 markers: Red: Shown able to fail 
+131 line=321 markers: Red: Shown able to fail 
+132 line=324 markers: Red: Shown able to fail 
+133 line=327 markers: Red: Green: Shown able to fail 
+134 line=330 markers: Red: Green: Shown able to fail 
+135 line=333 markers: Red: Green: Shown able to fail 
+136 line=336 markers: Red: 
+137 line=339 markers: Red: Green: 
+138 line=342 markers: Red: Shown able to fail 
+139 line=345 markers: Red: Fix: 

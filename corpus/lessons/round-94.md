@@ -74,3 +74,30 @@ reported, not absorbed). This round's own non-author closure is the hyaku closur
   verified by a full-file `grep -n` of the C2 clause words. Shown able to fail: the restored text
   names the exact flag default line and the `pacman -Si limine` probe, and the frozen plan's sha256
   (`freeze-manifest.sha256`) binds it.
+
+## Routed (wave findings, all dispositioned in the plan's A3 amendments)
+
+- The wave's CriticClaims F2: the N04 decoy reads `met` on 3 runs, so C1 is honestly stopped as
+  worded. The next freeze's stale-tree bend must read the env value it substitutes (a live read),
+  not assign an unused name. Lesson M1 records the class's general form (a bend written from the
+  docstring read the wrong clause and scored `met`).
+- F3/F4: the plan's digit10 and AUTO-PROBE-SHAPES enumerations did not match the battery's. The
+  frozen `claims.json` did. The two prose forks are corrected in plan A3 (never by editing the
+  frozen text in place).
+- F5: a `×3` sentence carries a standing counterexample until the frozen receipts stop placing
+  one. The pre-freeze `n02-1.json` (`met`) against the same gate path as the post-freeze
+  `n02-2.json` (`unmet`) is the wave's evidence; the count never lies, but a three-sample
+  sentence can.
+- F6: a kill sentence that the predicate's own receipt falsifies is a kill sentence nobody may
+  apply. A2's privilege qualifier (C2-1) records it.
+
+- **M4 (`curation`, held on the freeze's own checklist) — a tip-check `grep` that tested a word the
+  lesson never used.** Class: `curation`. The round's tip sweep ran
+  `grep -c "Instalation\|redirect"` over the lesson (a residue of an earlier draft's folio/prefix
+  rule guess) and printed `4` — a non-zero the L1 first read as a defect in the lesson, then
+  verified: all 4 hits are this M4 paragraph's own words, and the lesson carries no other mutation.
+  Captured-by: none for this shape — the checklist tested a pattern, not an expectation. Fix: the
+  sweep is re-run against the eight prose words the frozen text actually contains
+  (`grep -n "Instalation\|redirect"` over the lesson's `## Mistakes` section only, `--week-sweep.txt`
+  in the wave dir); a sweep that cannot enumerate its pattern's expected hits is a report of its own
+  pattern, not of the lesson.

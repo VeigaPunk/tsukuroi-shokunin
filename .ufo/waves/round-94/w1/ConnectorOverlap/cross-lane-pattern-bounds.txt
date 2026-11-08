@@ -1,0 +1,18 @@
+# Cross-Lane Pattern Comparison: Input Boundary & Length Cap Refusal
+
+1. tsukuroi-shokunin:
+   - File: tools/check-limine-pins.py:91-101
+   - Family: REFUSAL-VERSIONS-10DIGIT (tools/limine-pin-battery-r94.py:1638-1692)
+   - Rule: Component length capped at 1-9 ASCII digits; component of 10 digits exits 64 with empty stdout.
+   - Failure mode in r93: Mutant M13 (len(p) <= 10) survived because r93 REFUSAL-VERSIONS only tested out-of-range spellings without 10-digit boundary tests.
+
+2. tameshi-shokunin:
+   - File: tools/registry-check.py:104-107, 1521-1531
+   - Family: timeout-too-large, timeout-overflow, timeout-float-huge, short-source-revision
+   - Rule: MAX_TIMEOUT_S = 86400; timeouts >= 2147484 s overflow C timeout in Popen.communicate(); rev hex length bounded to 7-40 digits.
+   - Failure mode: Unbounded numeric conversion crashes runner or allows out-of-bounds inputs to pass.
+
+3. chousa-shokunin:
+   - File: tools/build-spans.py:28, 172 and tools/capture-text.py:38, 111, 396
+   - Family: MAX_CAPTURE and MAX_PART refusal checks; ID format S + 3 digits
+   - Rule: Any oversized payload or malformed numeric ID exits 1 with empty stdout and error on stderr.

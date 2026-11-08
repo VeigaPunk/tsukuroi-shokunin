@@ -1,0 +1,110 @@
+=== M01 (2 changed lines): default is `12.9.6` instead of `auto` (hand-typed newer default)
+--- gate-pristine.py
++++ M01-gate.py
+@@ -500,7 +500,7 @@
+     ap.add_argument("--esp")
+     ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)
+     ap.add_argument("--tpm-present", choices=("0", "1"), default=None)
+-    ap.add_argument("--limine-version", default="auto",
++    ap.add_argument("--limine-version", default="12.9.6",
+                     help="X.Y.Z, or `auto` to probe `limine --version` (round 93 V3; the round-94 default)")
+     ap.add_argument("--live", action="store_true")
+     ap.add_argument("--selftest", action="store_true")
+=== M02 (2 changed lines): `--live` always probes, even with an explicit X.Y.Z (flag ignored)
+--- gate-pristine.py
++++ M02-gate.py
+@@ -508,7 +508,7 @@
+     if a.selftest:
+         return selftest()
+     version, version_source = a.limine_version, "flag"
+-    if version == "auto":
++    if a.live or version == "auto":
+         probed = probe_limine_version()
+         if probed is None:
+             ap.print_usage(sys.stderr)
+=== M03 (7 changed lines): probe failure falls back to 12.9.4 (`probed or "12.9.4"`, guard removed)
+--- gate-pristine.py
++++ M03-gate.py
+@@ -509,12 +509,7 @@
+         return selftest()
+     version, version_source = a.limine_version, "flag"
+     if version == "auto":
+-        probed = probe_limine_version()
+-        if probed is None:
+-            ap.print_usage(sys.stderr)
+-            print("check-limine-pins: --limine-version auto: `limine --version` probe failed",
+-                  file=sys.stderr)
+-            return 64
++        probed = probe_limine_version() or "12.9.4"
+         version, version_source = probed, "probe"
+     if parse_limine_version(version) is None:
+         ap.print_usage(sys.stderr)
+=== M04 (2 changed lines): probe timeout is 60 s (battery TIMEOUT is 20 s)
+--- gate-pristine.py
++++ M04-gate.py
+@@ -113,7 +113,7 @@
+     or None when the binary is absent, exits nonzero, times out or prints no parsable version. Nothing
+     is written; the probe reads stdout only. `limine --version` on this host prints `Limine 12.9.4`."""
+     try:
+-        p = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=5)
++        p = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=60)
+     except (OSError, subprocess.SubprocessError):
+         return None
+     if p.returncode != 0:
+=== M05 (11 changed lines): probe reads the executable's source text on PATH instead of running it (f6 forger)
+--- gate-pristine.py
++++ M05-gate.py
+@@ -113,12 +113,11 @@
+     or None when the binary is absent, exits nonzero, times out or prints no parsable version. Nothing
+     is written; the probe reads stdout only. `limine --version` on this host prints `Limine 12.9.4`."""
+     try:
+-        p = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=5)
+-    except (OSError, subprocess.SubprocessError):
+-        return None
+-    if p.returncode != 0:
+-        return None
+-    m = re.search(r"(?i)\blimine\s+v?(\d+\.\d+\.\d+)(?![\w.-])", p.stdout)
++        with open(shutil.which(executable) or executable, "r", errors="replace") as f:
++            text = f.read()
++    except OSError:
++        return None
++    m = re.search(r"(?i)\blimine\s+v?(\d+\.\d+\.\d+)(?![\w.-])", text)
+     return m.group(1) if m else None
+ 
+ 
+=== M06 (2 changed lines): visible `limine_version_source` is always "flag", even when probed
+--- gate-pristine.py
++++ M06-gate.py
+@@ -515,7 +515,7 @@
+             print("check-limine-pins: --limine-version auto: `limine --version` probe failed",
+                   file=sys.stderr)
+             return 64
+-        version, version_source = probed, "probe"
++        version, version_source = probed, "flag"
+     if parse_limine_version(version) is None:
+         ap.print_usage(sys.stderr)
+         print("check-limine-pins: --limine-version must be X.Y.Z or auto", file=sys.stderr)
+=== M07 (2 changed lines): era selected from the raw (un-normalised) version string, not the parsed tuple
+--- gate-pristine.py
++++ M07-gate.py
+@@ -190,7 +190,7 @@
+     version = parse_limine_version(limine_version)
+     if version is None:
+         raise ValueError("bad limine version: %r" % (limine_version,))
+-    era_b = version >= VISIBILITY_ERA_SPLIT
++    era_b = limine_version >= "12.9.5"
+     try:
+         with open(conf, "rb") as f:
+             text = f.read().decode("utf-8", "surrogateescape")
+=== M08 (2 changed lines): probe runs `limine --version-only` (no `Limine ` prefix) instead of `--version`
+--- gate-pristine.py
++++ M08-gate.py
+@@ -113,7 +113,7 @@
+     or None when the binary is absent, exits nonzero, times out or prints no parsable version. Nothing
+     is written; the probe reads stdout only. `limine --version` on this host prints `Limine 12.9.4`."""
+     try:
+-        p = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=5)
++        p = subprocess.run([executable, "--version-only"], capture_output=True, text=True, timeout=5)
+     except (OSError, subprocess.SubprocessError):
+         return None
+     if p.returncode != 0:

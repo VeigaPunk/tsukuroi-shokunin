@@ -1,0 +1,60 @@
+# 04 freeze manifest and the void detector (ScribeLesson, round-94 w1)
+date: 2026-11-08
+
+## A. the manifest as it stands at HEAD (12 lines)
+$ sha256sum -c .ufo/waves/round-94/before/freeze-manifest.sha256
+tools/check-limine-pins.py: OK
+tools/limine-pin-battery-r94.py: OK
+tools/make-r94-bends.py: OK
+.ufo/plans/round-94.md: OK
+.ufo/waves/round-94/before/controls/bends/N01-digit10.py: OK
+.ufo/waves/round-94/before/controls/bends/N02-unanchored.py: OK
+.ufo/waves/round-94/before/controls/bends/N03-bound-11.py: OK
+.ufo/waves/round-94/before/controls/bends/N04-stale-tree.py: OK
+.ufo/waves/round-94/before/controls/count-runs.py: OK
+.ufo/waves/round-94/before/controls/do-nothing-battery-r93.py: OK
+.ufo/waves/round-94/before/controls/do-nothing-gate-r93.py: OK
+.ufo/waves/round-94/claims.json: OK
+rc=0  (0 = every line verifies)
+
+## B. the manifest AS IT WAS AT THE FREEZE COMMIT eb3b3e51, checked against the current tree
+$ git show eb3b3e51:.ufo/waves/round-94/before/freeze-manifest.sha256 | sha256sum -c
+tools/check-limine-pins.py: OK
+tools/limine-pin-battery-r94.py: OK
+tools/make-r94-bends.py: OK
+.ufo/plans/round-94.md: FAILED
+.ufo/waves/round-94/before/controls/bends/N01-digit10.py: OK
+.ufo/waves/round-94/before/controls/bends/N02-unanchored.py: OK
+.ufo/waves/round-94/before/controls/bends/N03-bound-11.py: OK
+.ufo/waves/round-94/before/controls/bends/N04-stale-tree.py: OK
+.ufo/waves/round-94/before/controls/count-runs.py: OK
+.ufo/waves/round-94/before/controls/do-nothing-battery-r93.py: OK
+.ufo/waves/round-94/before/controls/do-nothing-gate-r93.py: OK
+.ufo/waves/round-94/claims.json: FAILED
+sha256sum: WARNING: 2 computed checksum(s) did NOT match
+rc=1  (1 = the freeze-time manifest does NOT verify against the current tree)
+
+## C. which commit moved the manifest, and what it changed
+a85796ac round-94: wording amendment A2 — roster total 98, not 102
+
+-  .ufo/plans/round-94.md
++  .ufo/plans/round-94.md
+-  .ufo/waves/round-94/claims.json
++  .ufo/waves/round-94/claims.json
+-  tools/limine-pin-battery-r94.py
++  tools/limine-pin-battery-r94.py
+-  .ufo/waves/round-94/claims.json
++  .ufo/waves/round-94/claims.json
+
+## D. the same for claims.json (the file the void rule watches)
+freeze-time instruments.sha256 claims.json line:
+ae50b0b22300cad176a2d81776acb8676569bdbaf8f8742c8213c059c72d5542  .ufo/waves/round-94/claims.json
+HEAD instruments.sha256 claims.json line:
+8615e03eaa89b1cf0f656e605ca24ae804a2a1888315133f1d90a1a0c2e8015d  .ufo/waves/round-94/claims.json
+
+the claims.json C1 target at HEAD (the amended text):
+  landed gate 98/98 met x3 canonical and clone; N01 failed_families contains REFUSAL-VERSIONS-10DIGIT; N02 contains AUTO-P
+
+=> the freeze-time digests for the plan and for claims.json were REWRITTEN after the freeze,
+   in the same commit that amended both files, so the void detector cannot fire on either.
+   (the r92 A8 form excluded declarations from the manifest for exactly this reason)

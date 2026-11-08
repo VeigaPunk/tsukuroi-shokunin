@@ -1,0 +1,74 @@
+# 07 probe artefact digests (ScribeLesson, round-94 w1)
+date: 2026-11-08
+
+Each mutant gate copy differs from the landed gate in exactly ONE clause (shown below).
+Their sha256, so a reader can prove which bytes were scored:
+
+  landed gate                         7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32
+  m13.py                             bc037b8105e2b61a65fd354971d68c5073ef2e6c082ebc17da35d2d372f4625c
+  inside8.py                         38771efca3487ad7d882127be8bb555f03e46ad38f7312be6702442b4b3031b9
+  capvalue.py                        ca92d4136c2cac7b78de712c49b3af3c88912babaf16a0c8857592570c7b4a37
+  cap1e9.py                          a094be546be68c082550bc5315069cbb513f93c4e69d5c1e2c218e5624864f66
+  wrongclause.py                     1443973058692975071598901591fd3c85ded75018d45f54368b630208c82286
+  shapebend.py                       675b4a581ac203289e98f337b53984c8bad85953dc93818e632021230a08a68c
+  isdig.py                           01526ece6c8f6157a0101c75841600e377c049ef2fba9bf8e03d2a79f92967af
+
+The single changed line (99) in each copy:
+  m13.py:
+    1c1
+    <     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 10 for p in parts):  # M13 copy: bound <= 10
+    ---
+    >     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+  inside8.py:
+    1c1
+    <     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 8 for p in parts):  # inside-bound mutant copy
+    ---
+    >     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+  capvalue.py:
+    1c1
+    <     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and (len(p) <= 9 or (len(p) <= 10 and int(p) <= 10**9)) for p in parts):  # VALUE-CAP copy
+    ---
+    >     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+  cap1e9.py:
+    1c1
+    <     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and (len(p) <= 9 or int(p) <= 10**9) for p in parts):  # VALUE-CAP copy (unguarded)
+    ---
+    >     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+  wrongclause.py:
+    1c1
+    <     if len(parts) != 3 or not all(p.isdigit() and len(p) <= 9 for p in parts) :  # WRONG-CLAUSE probe: isascii() dropped
+    ---
+    >     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+  shapebend.py:
+    1c1
+    <     if len(parts) > 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):  # SHAPE-CLAUSE bend probe
+    ---
+    >     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+  isdig.py:
+    1c1
+    <     if len(parts) != 3 or not all(p.isascii() and len(p) <= 9 for p in parts):  # ISDIGIT-CLAUSE bend probe
+    ---
+    >     if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+
+Battery JSON receipts copied beside this file (probe-json/):
+  cap1e9.json
+  capvalue.json
+  f6ctl.json
+  f6r94.json
+  f6real.json
+  f6real2.json
+  inside8.json
+  isdig.json
+  m13.json
+  n04.json
+  shapebend.json
+  wrongclause.json
+
+the scratch conf/esp used for the direct gate probes:
+  limine.conf  39f025193582ae2c93b10f3becc565433ec5859b2ea4d9fedf6b2a1c38d06785
+  esp/EFI/Linux/a.efi  content 'kernel-a'
+
+NOTE on the f6r94 copy: its probe body is the r93 f6 probe transplanted into the r94 gate,
+so it also carries the r94 default (auto) — its ERA-DEFAULT error rows are the price of the
+auto default under a source-reading probe. The CONTROL that settles the leakage question is
+the UNMODIFIED r93 forger file, in receipt 06-f6-leakage-closed.txt.

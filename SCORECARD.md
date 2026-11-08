@@ -7837,3 +7837,20 @@ Operability stays 9 (a sharper, default-on arm; no ordinal claim). Depth stays 8
 endorses a move. C1 and C2 are causally separable: C1 reads the two new families, the four bends and
 the freeze-manifest void rule; C2 reads the default's change, the flag-free live receipt, the selftest
 and the usage roster's `999999999.0.0` accepted-boundary row.
+
+## Round 94 — measured outcome (instruments `7d79ac29…`/`d66b4a59…`/`3855743b…` at the freeze `eb3b3e51`; receipts at the landing commit)
+
+| Claim | Axis | Before → after (counting command) | Target | Verdict |
+|---|---|---|---|---|
+| C1 (measured; surface: the battery's refusal/probe-shape sampling) | depth 8 → 8 (tied lowest; a sharper sourced arm) | `python3 tools/limine-pin-battery-r94.py --gate tools/check-limine-pins.py --runs 3 --json OUT` → `98/98 met` ×3, 0 error rows (`.ufo/waves/round-94/after/c1-canonical.json`; clone `w1/ExecReplicate/c1-gate.json` ×3); the r93 battery has none of the two families; bends `--runs 3` each: N01 `97/98 unmet` failed `REFUSAL-VERSIONS-10DIGIT`, N02 `97/98 unmet` failed `AUTO-PROBE-SHAPES`, N03 `97/98 unmet` failed `REFUSAL-VERSIONS-10DIGIT`, 0 error rows (`after/bend-N0{1,2,3}.json`); **N04 reads `met` 98/98 ×3 with `failed_families []`** — the decoy that never bites (`after/bend-N04.json`, `w1/ExecReplicate/N04-x3.json`, `w1/ExecBends/N04.json`) | 98/98 ×3 both; N01/N02/N03 unmet ×3 with the named family; N04 `failed_families` non-empty | **NOT MET as worded — honest stop.** The miss is the N04 leg (C1-1) and the plan-wording forks F3/F4 (the plan's enumerations did not match the battery's) plus the `×3` stability sentence (C1-4: one pre-freeze N02 `met` receipt). The families themselves bite exactly as designed (N01/N02/N03, MutDigit10's 12-mutant battery) |
+| C2 (measured; surface: the gate's era-selection default) | operability 9 → 9 (assurance arm; capability `installed-version-probe` becomes the default) | `python3 tools/check-limine-pins.py --live` (no flag) → `limine_version 12.9.4`, `limine_version_source probe`, era `pre-12.9.5` (rc 2 unprivileged with `error: conf unreadable…`; rc 1 root with `error: null` and findings `LP-MISMATCH line 30/38`); `python3 tools/check-limine-pins.py --selftest` → `PASS 39/39`; `python3 tools/limine-pin-battery-r94.py --selftest --reference tools/check-limine-pins.py` → `PASS 18/18` (`after/battery-reference.txt`); `python3 tools/limine-pin-battery-r94.py --usage-check` → `met` 15/15 with the `999999999.0.0` accepted-boundary row | freestyle live JSON reads `12.9.4`/`probe` (both shapes after C2-1); selftest `PASS 39/39`; usage `met`; reference leg `met` | **met** on the privilege-qualified reading (C2-1). Mechanism evidence (read-only probe) in `w1/ExecLive/leg3-strace.log`; the do-nothing gate discriminates on the source field (`flag` vs `probe`) |
+
+Falsified-or-narrowed this round (all recorded in `.ufo/plans/round-94.md` A1-A3): A1 narrows the
+N04 sentence's witness; A2 fixes the roster total `102/102` → `98/98`; A3 narrows C1-1 (N04 reads
+`met` everywhere — the C1 verdict is honestly stopped there, not narrowed around), C1-2/C1-3 (the
+plan's digit10 and AUTO-PROBE-SHAPES enumerations did not match the battery's), C1-4 (the `×3`
+sentence has a standing pre-freeze `met` counterexample) and C2-1 (the live receipt's `error` field
+is a privilege marker, not a receipt defect). Axes now: depth 8, coverage 9, operability 9,
+freshness 9, calibration 9, adjacency 8 (unchanged). No retirement. No axis harmed: the 96 r93
+families still pass (they are inside the 98), and MutProbe's surviving M02/M04/M07 and MutDigit10's
+M07/M09 are recorded as coverage findings, not as harm.

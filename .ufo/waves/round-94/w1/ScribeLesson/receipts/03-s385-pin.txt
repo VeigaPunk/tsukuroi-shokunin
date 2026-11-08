@@ -1,0 +1,41 @@
+# 03 S385 rule-1 row: pinned snapshot verification (ScribeLesson, round-94 w1)
+date: 2026-11-08
+
+The pinned copy this seat read (ScoutSource's):
+  .ufo/waves/round-94/w1/ScoutSource/pins/python-3.15-cmdline.html
+  sha256 d3c503060ebf18e5a807ba35d8527cfde49f8322373b9111e5c26d657b658cf6  (== S385's anchor cell in corpus/SOURCES.md:396)
+
+$ python3 -c 'sha256 ...'   # the pin
+d3c503060ebf18e5a807ba35d8527cfde49f8322373b9111e5c26d657b658cf6
+
+raw line 20 (the <title>):
+  1. Command line and environment — Python 3.15.2 documentation
+  (the file stores the em dash as the entity &#8212;)
+
+$ grep -c 'Python 3.15.2' <pin>   # the version string the row anchors
+2
+$ grep -c 'Python 3.14' <pin>     # the superseded version string: absent
+0
+
+raw line 569 (the -P entry, quoted in the r92 S377 row):
+  python script.py command line: Don’t prepend the script’s directory.
+  NOTE the apostrophes are U+2019 (typographic), not ASCII.
+  segment: ''
+  U+2019 count: 0  ASCII apostrophe count: 0
+
+the same -P sentence in the r92 pin (.ufo/waves/round-92/before/src/python-3-cmdline.txt line 241):
+python script.py command line: Don’t prepend the script’s directory.
+
+live page re-read 2026-11-08 (read of the URL as the S385 row opens it):
+  title: 1. Command line and environment — Python 3.15.2 documentation
+  (the reader fetched the same title the pin carries)
+
+rule-1 quote word count for the title (must be <= 25):
+  9 words
+
+the S385 registry row (corpus/SOURCES.md:396) anchor cell names: 'tag `3.15` docs, title `1. Command line and environment — Python 3.15.2 documentation`, `-P`/`-I` entries; fetched 2026-11-08, sha256 d3c503060e…'
+-> the title IS the anchor the registry row names, and the pin carries it byte-for-byte.
+
+QUALITY-127 sweep at HEAD for the superseded phrase:
+$ git grep -n -F 'Python 3.14 docs' HEAD -- corpus SCORECARD.md LOG.md ':!corpus/lessons/*-verifier-spotcheck.md'
+grep rc=1  (1 = nothing printed = the landing leg is clean)

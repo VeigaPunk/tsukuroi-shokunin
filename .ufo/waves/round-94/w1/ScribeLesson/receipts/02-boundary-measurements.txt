@@ -1,0 +1,76 @@
+# 02 boundary-member measurement (ScribeLesson, round-94 w1)
+date: 2026-11-08   scratch: /fast/scratch/hyaku/tsukuroi-r94/ScribeLesson (deleted on exit)
+command form: python3 tools/limine-pin-battery-r94.py --gate <copy> --runs 1 --work <own dir> --json <out>
+
+## A. which roster member discriminates which mutant
+
+The r94 battery's USAGE roster (tools/limine-pin-battery-r94.py:2277-2280) holds
+  ("1234567890.0.0", 64), ("0.1234567890.0", 64), ("999999999.0.0", 0),
+The scored FAMILY roster (line 1638, REFUSAL_DIGIT10) holds
+  ("1234567890.0.0", "0.1234567890.0", "0.0.1234567890", "1234567890.1234567890.1234567890")
+  -> 999999999.0.0 is in the USAGE roster only, NOT in the scored family roster.
+
+$ grep -c '999999999' tools/limine-pin-battery-r94.py   # 1 (usage roster line 2278)
+1
+$ grep -c '999999999' .ufo/waves/round-94/before/controls/do-nothing-battery-r93.py
+0
+$ grep -c '1000000000' tools/limine-pin-battery-r94.py   # the plan's named 1e9 adversary
+0
+
+## B. battery runs, one mutant copy each (--runs 1, own --work dir)
+   each copy differs from the landed gate in ONE clause; digests in 07-probe-digests.txt
+
+m13            M13 copy: len(p)<=10                                  97/98  failed=['REFUSAL-VERSIONS-10DIGIT'] error_rows=0
+wrongclause    wrong-clause copy: isascii() dropped                  98/98  failed=[] error_rows=0
+inside8        inside-bound copy: len(p)<=8                          98/98  failed=[] error_rows=0
+capvalue       value-cap copy: len<=9 or (len<=10 and int<=1e9)      98/98  failed=[] error_rows=0
+cap1e9         value-cap copy (unguarded): len<=9 or int<=1e9        97/98  failed=['REFUSAL-VERSIONS'] error_rows=0
+shapebend      shape-clause copy: len(parts)>3                       97/98  failed=['REFUSAL-VERSIONS'] error_rows=0
+isdig          isdigit-clause copy: isdigit() dropped                97/98  failed=['REFUSAL-VERSIONS'] error_rows=0
+f6r94          r93 f6 leakage class: reads <cwd>/bin/limine source   96/98  failed=['AUTO-PROBE-SHAPES', 'ERA-DEFAULT'] error_rows=4
+n04            N04-stale-tree (the frozen bend, re-run by this seat)  98/98  failed=[] error_rows=0
+
+  READING:
+   - the M13 mutant (bound <= 10) is KILLED by REFUSAL-VERSIONS-10DIGIT (unmet 97/98);
+   - the isascii() drop and the len<=8 tightening both PASS the scored family roster (met 98/98);
+   - the capvalue mutant passes the family roster AND --usage-check (met / met).
+
+## C. usage-check runs (a SEPARATE CLI mode, --usage-check; NOT in C1's counting command)
+  inside8    verdict unmet failing_rows [('999999999.0.0', 0, 64)]
+  capvalue   verdict met failing_rows []
+  m13        verdict unmet failing_rows [('1234567890.0.0', 64, 0), ('0.1234567890.0', 64, 0)]
+
+## D. direct gate-level probe (same conf, sha256 39f025193582ae2c93b10f3becc565433ec5859b2ea4d9fedf6b2a1c38d06785)
+# direct gate-level probe: which boundary member discriminates which mutant
+# conf sha256: 39f025193582ae2c93b10f3becc565433ec5859b2ea4d9fedf6b2a1c38d06785
+
+== check-limine-pins.py  sha256=7d79ac296daacc46
+   --limine-version 999999999.0.0    rc=0   stdout_bytes=763
+   --limine-version 1000000000.0.0   rc=64  stdout_bytes=0
+   --limine-version 1234567890.0.0   rc=64  stdout_bytes=0
+   --limine-version 12.9.4           rc=0   stdout_bytes=759
+
+== m13.py  sha256=bc037b8105e2b61a
+   --limine-version 999999999.0.0    rc=0   stdout_bytes=763
+   --limine-version 1000000000.0.0   rc=0   stdout_bytes=764
+   --limine-version 1234567890.0.0   rc=0   stdout_bytes=764
+   --limine-version 12.9.4           rc=0   stdout_bytes=759
+
+== inside8.py  sha256=38771efca3487ad7
+   --limine-version 999999999.0.0    rc=64  stdout_bytes=0
+   --limine-version 1000000000.0.0   rc=64  stdout_bytes=0
+   --limine-version 1234567890.0.0   rc=64  stdout_bytes=0
+   --limine-version 12.9.4           rc=0   stdout_bytes=759
+
+== capvalue.py  sha256=ca92d4136c2cac7b
+   --limine-version 999999999.0.0    rc=0   stdout_bytes=763
+   --limine-version 1000000000.0.0   rc=0   stdout_bytes=764
+   --limine-version 1234567890.0.0   rc=64  stdout_bytes=0
+   --limine-version 12.9.4           rc=0   stdout_bytes=759
+
+== wrongclause.py  sha256=1443973058692975
+   --limine-version 999999999.0.0    rc=0   stdout_bytes=763
+   --limine-version 1000000000.0.0   rc=64  stdout_bytes=0
+   --limine-version 1234567890.0.0   rc=64  stdout_bytes=0
+   --limine-version 12.9.4           rc=0   stdout_bytes=759
+

@@ -1,0 +1,37 @@
+# 06 the r93 f6 leakage class does NOT survive r94 (ScribeLesson, round-94 w1)
+date: 2026-11-08   scratch: /fast/scratch/hyaku/tsukuroi-r94/ScribeLesson (deleted on exit)
+
+The r93 wave recorded f6 as a SURVIVOR: .ufo/waves/round-93/w1/CriticForgers.md:80
+  | f6 | V3 probe mechanism -> read <cwd>/bin/limine source, never execute limine --version | met | 96/96 | - (survivor) |
+and .ufo/waves/round-93/w1/CriticForgers.md:164 'f6 reads the fake's source and reads 96/96.'
+
+The round-94 README Frontier bullet 2 (corpus/README.md:1114-1115) says the leakage
+'is disclosed in the battery docstring (CriticForgers f6), not closed.'
+MEASURED, that is now stale: the same forger file is KILLED by the r94 battery.
+
+## A. CONTROL — the r93 forger file on the r93 battery (must reproduce the recorded survivor)
+$ python3 .ufo/waves/round-94/before/controls/do-nothing-battery-r93.py --gate .ufo/waves/round-93/w1/CriticForgers/f6-gate.py --runs 1 --work $S/w-f6ctl --json $S/f6ctl.json
+  verdict met families 96/96 failed []
+  -> reproduces the recorded 96/96 met survivor: the forger file and the r93 battery are unchanged.
+
+## B. the SAME forger file on the r94 battery
+$ python3 tools/limine-pin-battery-r94.py --gate .ufo/waves/round-93/w1/CriticForgers/f6-gate.py --runs 1 --work $S/w-f6real --json $S/f6real.json
+  verdict unmet families 97/98 failed ['AUTO-PROBE-SHAPES']
+  error rows: 0
+  AUTO-PROBE-SHAPES row: passed= False error= None got 'auto' rc=0 stdout=892
+  (a second independent run: unmet 97/98 ['AUTO-PROBE-SHAPES'])
+
+## C. WHY the r94 family kills it (the mechanism, computed)
+  the r94 shapes fake's SOURCE (tools/limine-pin-battery-r94.py:1916):
+    '#!/bin/sh\necho "no version here"\necho "Limine 12.9.6-rc1"\necho "Limine 12.9.6" >&2\n'
+  the r93 f6 probe regex run on that source harvests: 12.9.6
+  -> the forger answers a verdict (12.9.6) where AUTO-PROBE-SHAPES expects rc 64 (refusal),
+     so the family FAILS the forger. The r93 battery had no such family, hence the survivor.
+
+## D. what the r94 battery docstring says about the leak (tools/limine-pin-battery-r94.py:177-179)
+  Fixtures carry no answer — with one named exception: the AUTO families' fake `limine` scripts carry
+  the expected version as a literal (CriticForgers f6 in round 93 read them and scored 96/96 without
+  executing the probe). Everything else carries no answer: random file and directory names (history
+
+=> the leakage is DISCLOSED in the docstring, and the r94 AUTO-PROBE-SHAPES family CLOSES it.
+   The Frontier bullet's 'not closed' is now false on the evidence and should be corrected.

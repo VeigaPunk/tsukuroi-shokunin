@@ -1,0 +1,62 @@
+# receipt 03 — rejected leads: man.archlinux.org and the GitHub release API
+
+## lead A: https://man.archlinux.org/man/limine.8
+http_status=404 bytes=2706 effective=https://man.archlinux.org/man/limine.8
+sha256: e0ad4429a65972993ca9b07c6a5819a6486cc3e90eb61177a574c18a9d046deb
+first 200 bytes (verbatim):
+b'\n\n<!DOCTYPE html>\n<html lang="en">\n    <head>\n        <meta charset="UTF-8">\n        <meta name="viewport" content="width=device-width, initial-scale=1.0">\n        <title>Page not found \xe2\x80\x94 Arch manua'
+body head (text):
+Page not found — Arch manual pages Arch Linux Home Packages Forums Wiki GitLab Security AUR Download 404 — Page not found The manual page limine.8 was not found in any package. You can search for similar manual pages . Powered by archmanweb , using mandoc for the conversion of manual pages. The website is available under the terms of the GPL-3.0 license, except for the contents of the manual pages
+
+## adjacent probes on the same host of leads
+404 2706 https://man.archlinux.org/man/limine.8  <- https://man.archlinux.org/man/limine.8
+404 2721 https://man.archlinux.org/man/limine.8.en  <- https://man.archlinux.org/man/limine.8.en
+404 2721 https://man.archlinux.org/man/limine.8.gz  <- https://man.archlinux.org/man/limine.8.gz
+200 5601 https://man.archlinux.org/man/limine.1  <- https://man.archlinux.org/man/limine
+200 5607 https://man.archlinux.org/man/extra/limine/limine.1.en  <- https://man.archlinux.org/man/extra/limine/limine.1.en
+
+## lead B: GitHub release API for v12.9.6
+http_status=200 bytes=26652
+sha256: 51ab5294f118dcd1e46a31001eb80eca2fc1b5243198c5eb5a91d9e29e59b995
+tag_name: v12.9.6 | name: v12.9.6 | published_at: 2026-10-27T23:16:30Z | prerelease: False | draft: False
+body (verbatim, 512 chars):
+Changelog can be found [here](https://github.com/Limine-Bootloader/Limine/blob/v12.9.6/ChangeLog).
+
+Tarballs are signed using key ID `05D29860D0A0668AAEFB9D691F3C021BECA23821` which can be obtained from a keyserver such as `keyserver.ubuntu.com`.
+
+Import the public key with:
+```bash
+gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 05D29860D0A0668AAEFB9D691F3C021BECA23821
+```
+
+In order to verify the tarball with the given signature, do:
+```bash
+gpg --verify <tarball sig file> <associated tarball>
+```
+
+assets: ['limine-12.9.6.tar.bz2', 'limine-12.9.6.tar.bz2.sig', 'limine-12.9.6.tar.gz', 'limine-12.9.6.tar.gz.sig', 'limine-12.9.6.tar.xz', 'limine-12.9.6.tar.xz.sig', 'limine-binary.tar.gz', 'limine-binary.tar.gz.sig', 'limine-binary.tar.xz', 'limine-binary.tar.xz.sig', 'limine-binary.zip', 'limine-binary.zip.sig']
+
+## context: is v12.9.6 the latest release?
+latest: v12.9.6 2026-10-27T23:16:30Z prerelease= False
+  v12.9.6 2026-10-27T23:16:30Z prerelease= False
+  v12.9.5 2026-10-27T16:36:16Z prerelease= False
+  v12.9.4 2026-10-19T16:10:50Z prerelease= False
+  v12.9.3 2026-10-06T17:48:21Z prerelease= False
+  v12.9.2 2026-10-04T15:32:57Z prerelease= False
+
+## upstream tags (git ls-remote)
+1e512b2b71845073f2d0c923157baf29368175aa	refs/tags/v12.9.4
+8ad14430bc9f2c24679cda558981ef53e6e3b18c	refs/tags/v12.9.4^{}
+c427781c6624b24eb6d6d6258fc19f1c5e24eabb	refs/tags/v12.9.5
+55a93085435aa1b8f91054df3794b2a43fb7984a	refs/tags/v12.9.5^{}
+54727fd1c0d58f54e615fc6e1e72e38f4b635455	refs/tags/v12.9.6
+89a9512c623a4779cc73e3869383876d54264b28	refs/tags/v12.9.6^{}
+
+## host state (read-only)
+installed:   Version         : 12.9.4-1
+live probe:  Limine 12.9.4
+arch repo:   12.9.6-1 build_date 2026-10-28T07:52:55Z
+local sync db (extra.db) limine entries:
+limine-12.9.4-1/
+limine-12.9.4-1/desc
+sync db mtime: 2026-10-22 01:40:04.000000000 -0300

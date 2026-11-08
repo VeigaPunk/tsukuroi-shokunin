@@ -4111,3 +4111,28 @@ fixtures under `.ufo/waves/round-94/before/fake-limine/`, the two do-nothing con
 (`## Gate` plus M1-M3), QUALITY 139, README round-94 Frontier, SOURCES S386-S388
 (385 → 388, census exit 0), S385's `used-by` gains this round's entry and lesson (old → new in the
 lesson). Live probe: `limine --version` reads `Limine 12.9.4` this session.
+
+## Round 94 — settle (after the 14-seat wave)
+
+14 seats, 4 attack (ReviewGate, ReviewBattery, CriticClaims, CriticForgers) + MutDigit10/MutProbe
+= 43% attack, 1 connector. Dead seats 0 (ScribeLesson landed late; no loss recorded). The frozen
+battery's canonical L1 runs: landed gate `98/98 met` ×3, 0 error rows, both layouts; N01/N02/N03
+`unmet` ×3 with the named family; N04 `met` ×3 with `failed_families []`. ExecReplicate's clean-room
+clone, ExecBends' canonical runs and MutDigit10's 12-mutant battery all agree field-for-field.
+ExecLints: gate selftest `PASS 39/39`, battery selftest `PASS 5/5`, reference leg `PASS 18/18`.
+MutProbe: 5/8 one-clause mutants killed (M01/M03/M05/M06/M08), M02/M04/M07 survive as ad-hoc-probe
+coverage. MutDigit10: M01/M03/M05/M06/M10/M11 and M06 killed by the two new families; M07/M09 survive
+as coverage findings. CriticClaims F1-F6: F1 (SCORECARD still freezes 102 — amended here, not
+rewritten), F2/F3/F4/F5 (the N04 sentence unsatisfiable; the plan's digit10 and AUTO-PROBE-SHAPES
+enumerations did not match the battery; one N02 `met` counterexample receipt against the `×3`
+sentence), F6 (the C2 kill sentence false of the unprivileged receipt it blesses). CriticForgers:
+the docstring-only gate reads 98/98 (the docstring is sufficient) and the source-reading forger
+reads 98/98 (the battery certifies the observable result, not the probe mechanism — the forged
+sentence recorded in `w1/CriticForgers.md`). ScoutSource: the v12.9.6 `config.c` and `host/limine.c`
+pins byte-identical to r93's v12.9.5 pins; the v12.9.6 ChangeLog carries the #700 documentation
+note; S385's sha still reproduces. ConnectorOverlap: no contradiction with a sibling province.
+ScribeLesson: the QUALITY-139 draft, the S385 rule-1 row and the M1/M3 mistake drafts.
+Outcome: C1 honestly stopped (N04), C2 `met` on both live shapes after the privilege qualifier
+(C2-1). C1's deliverable is the finding in `w1/CriticClaims.md` F2 and plan A3: a decoy bend that
+does not bite cannot be certified, and the "×3" sentence must stop promising stability the battery
+never measured.

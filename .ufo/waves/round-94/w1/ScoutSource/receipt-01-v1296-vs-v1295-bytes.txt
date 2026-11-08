@@ -1,0 +1,60 @@
+# receipt 01 — v12.9.6 vs v12.9.5 byte comparison (fetched 2026-11-08)
+
+$ sha256sum (fresh fetch, this seat)
+a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60  v12.9.6-common_lib_config.c
+4da21c7cceae238075612643b845cb63e06cc184977e950d5e6374329bc31ec0  v12.9.6-host_limine.c
+ab280b451ee6f56bad5684d44eda5c94bf43d2c17e9e651b8e84b433584d03ba  v12.9.6-ChangeLog
+
+$ sha256sum (r93 pins in .ufo/waves/round-93/before/src)
+a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-93/before/src/limine-v12.9.5-common_lib_config.c
+4da21c7cceae238075612643b845cb63e06cc184977e950d5e6374329bc31ec0  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-93/before/src/limine-v12.9.5-host_limine.c
+d2e08cc4a4bffc4b598b9baf43435cbf05f2c76edcaf89f9ba18f35c42b51779  /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-93/before/src/limine-v12.9.5-ChangeLog
+
+$ diff v12.9.6-common_lib_config.c  r93/limine-v12.9.5-common_lib_config.c
+diff exit=0 (0 = identical)
+
+$ diff v12.9.6-host_limine.c  r93/limine-v12.9.5-host_limine.c
+diff exit=0 (0 = identical)
+
+$ diff v12.9.6-ChangeLog  r93/limine-v12.9.5-ChangeLog  (context 3)
+--- /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-93/before/src/limine-v12.9.5-ChangeLog	2026-11-08 03:08:31.967689339 -0300
++++ v12.9.6-ChangeLog	2026-11-08 04:13:26.292664506 -0300
+@@ -1,3 +1,22 @@
++2026-10-28  Mintsuki  <mintsuki@protonmail.com>
++
++    *** Release 12.9.6 ***
++
++    Noteworthy changes compared to the previous release, 12.9.5:
++
++    Bug fixes:
++        - UEFI: Leave GPUs with no display attached alone. Since 12.9.4,
++          Limine tried to set another graphics mode on them, which could hang
++          the boot. Fixes #701.
++
++    Miscellaneous:
++        - Document that global options must come before the first entry, as
++          has been the case since 4.0. A config whose first line is an entry
++          has had no global options since 12.9.5, whereas every option in it
++          used to count as global. Fixes #700.
++        - Stop the checks of the menu countdown failing spuriously on slow
++          machines, where the countdown could tick before they read it.
++
+ 2026-10-27  Mintsuki  <mintsuki@protonmail.com>
+ 
+     *** Release 12.9.5 ***
+changed-line counts: added=19 deleted=0
+
+# cross-check: r93 pins themselves re-fetch from upstream v12.9.5 tag -> identical
+v12.9.5 config.c == r93 pin
+v12.9.5 host/limine.c == r93 pin
+v12.9.5 ChangeLog == r93 pin
+
+# upstream master vs v12.9.6 (drift check)
+a940acae3a0a9c4d1c716f8132f688c4bcdced2b092769bc1becad466e944e60  master-common_lib_config.c
+4da21c7cceae238075612643b845cb63e06cc184977e950d5e6374329bc31ec0  master-host_limine.c
+master common/lib/config.c == v12.9.6
+master host/limine.c == v12.9.6
+
+# upstream v12.9.4 config.c differs (the cut was added in 12.9.5)
+aafc9c410a250efc9674e3c93e839d32ae2731ba2ca60bb7f5edd7ad5828fba8  v12.9.4-config.c
+v12.9.4 config.c != v12.9.6 config.c (expected)

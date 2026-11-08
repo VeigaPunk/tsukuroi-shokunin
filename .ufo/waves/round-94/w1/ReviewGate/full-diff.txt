@@ -1,0 +1,76 @@
+diff --git a/tools/check-limine-pins.py b/tools/check-limine-pins.py
+index 34dbb056..f6db956c 100755
+--- a/tools/check-limine-pins.py
++++ b/tools/check-limine-pins.py
+@@ -39,12 +39,15 @@ S374-S376). Summary:
+     GONE: when line 1 is an entry line the global section is empty and both keys are invisible. The reads
+     run after the tree build (v12.9.4 raw 638-650; v12.9.6 raw 666-668 `config_ready`/`create_menu_tree`,
+     reads at raw 733+). An unknown or malformed version is a usage error (rc 64), never a silent default.
+-  - `--limine-version auto` (round 93 V3) resolves the version from the installed bootloader instead of a
+-    hand-typed flag: it runs `limine --version` read-only (PATH lookup, 5 s timeout), accepts the first
+-    `X.Y.Z` in its output, and selects the era from that value; the JSON records the resolved
+-    `limine_version` and `limine_version_source: "probe"`. A failed probe (binary absent, nonzero exit,
+-    no parsable version, timeout) is a usage error (rc 64, no verdict), never a silent default: a host
+-    whose bootloader cannot be identified must not be answered with another release's rule.
++  - `auto` is the DEFAULT (round 94 V4; r93 V3 made it opt-in): `--limine-version` defaults to `auto`
++    and `--live` probes the installed `limine --version` unless an explicit `X.Y.Z` is given: it runs
++    `limine --version` read-only (PATH lookup, 5 s timeout), accepts the first `X.Y.Z` immediately
++    following `limine` (case-insensitive, optional `v`, with a not-word-char suffix guard so `12.9.6-rc1`
++    and `12.9.6.1` are probe failures), and selects the era from that value; the JSON records the
++    resolved `limine_version` and `limine_version_source: "probe"`. A failed probe (binary absent,
++    nonzero exit, no parsable version, timeout, suffixed or extra-component answer) is a usage error
++    (rc 64, no verdict), never a silent default: a host whose bootloader cannot be identified must not
++    be answered with another release's rule.
+   - unverified_image_lines (round 91 U1): the image line of an efi chainload entry whose value is not a
+     pin URI (`boot():/path#hash` shape) is reported as a line-number list. uri_resolve returns false with no
+     message for a value with no `(`, no `):/`, or no `#` after `):/`, and uri_open returns NULL; chainload
+@@ -102,19 +105,20 @@ VISIBILITY_ERA_SPLIT = (12, 9, 5)   # first upstream release with the create_men
+ 
+ 
+ def probe_limine_version(executable="limine"):
+-    """V3 (round 93): the installed bootloader's version, read-only.
++    """V3 (round 93), hardened V4 (round 94): the installed bootloader's version, read-only.
+ 
+     Runs `<executable> --version` (PATH lookup by default; the caller may name a path) with a 5 s
+-    timeout and returns the first `X.Y.Z` in its output, or None when the binary is absent, exits
+-    nonzero, times out or prints no parsable version. Nothing is written; the probe reads stdout
+-    only. `limine --version` on this host prints `Limine 12.9.4`."""
++    timeout and returns the first `X.Y.Z` immediately following `limine` (case-insensitive, optional
++    `v`, and a not-word-char suffix guard so `12.9.6-rc1` or `12.9.6.1` are probe failures, not 12.9.6),
++    or None when the binary is absent, exits nonzero, times out or prints no parsable version. Nothing
++    is written; the probe reads stdout only. `limine --version` on this host prints `Limine 12.9.4`."""
+     try:
+         p = subprocess.run([executable, "--version"], capture_output=True, text=True, timeout=5)
+     except (OSError, subprocess.SubprocessError):
+         return None
+     if p.returncode != 0:
+         return None
+-    m = re.search(r"(?i)\blimine\s+v?(\d+\.\d+\.\d+)\b", p.stdout)
++    m = re.search(r"(?i)\blimine\s+v?(\d+\.\d+\.\d+)(?![\w.-])", p.stdout)
+     return m.group(1) if m else None
+ 
+ 
+@@ -465,7 +469,11 @@ def selftest():
+                         and fake_probe('echo "Limine 12.9.4"; echo "BSD-2-Clause"') == "12.9.4"
+                         and fake_probe("exit 1") is None
+                         and fake_probe('echo "no version here"') is None
+-                        and probe_limine_version(os.path.join(probe_dir, "absent")) is None,
++                        and probe_limine_version(os.path.join(probe_dir, "absent")) is None
++                        and fake_probe('echo "Limine 12.9.6-rc1"') is None
++                        and fake_probe('echo "Limine 12.9.6.1"') is None
++                        and fake_probe('echo "Limine 12.9.6" >&2') is None
++                        and fake_probe('echo "12.9.6"') is None,
+                         "-", []))
+         r = check(os.path.join(work, "absent.conf"), esp, False)
+         results.append(("conf-absent", r["rc"] == 2 and r["pins"] == [], r["rc"], r["pins"]))
+@@ -492,8 +500,8 @@ def main():
+     ap.add_argument("--esp")
+     ap.add_argument("--secure-boot-enforced", choices=("0", "1"), default=None)
+     ap.add_argument("--tpm-present", choices=("0", "1"), default=None)
+-    ap.add_argument("--limine-version", default="12.9.4",
+-                    help="X.Y.Z, or `auto` to probe `limine --version` (round 93 V3)")
++    ap.add_argument("--limine-version", default="auto",
++                    help="X.Y.Z, or `auto` to probe `limine --version` (round 93 V3; the round-94 default)")
+     ap.add_argument("--live", action="store_true")
+     ap.add_argument("--selftest", action="store_true")
+     a = ap.parse_args()

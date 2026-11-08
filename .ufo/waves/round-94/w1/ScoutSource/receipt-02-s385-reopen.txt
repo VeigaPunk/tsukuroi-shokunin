@@ -1,0 +1,43 @@
+# receipt 02 — S385 re-open (Python 3 docs, version-pinned URL)
+
+URL: https://docs.python.org/3.15/using/cmdline.html#cmdoption-P
+http_status=200 bytes=171073 effective=https://docs.python.org/3.15/using/cmdline.html#cmdoption-P
+
+$ sha256sum (this fetch)
+d3c503060ebf18e5a807ba35d8527cfde49f8322373b9111e5c26d657b658cf6  python-3.15-cmdline.html
+committed S385 sha (corpus/SOURCES.md line 396):
+  d3c503060ebf18e5a807ba35d8527cfde49f8322373b9111e5c26d657b658cf6
+MATCH: yes (byte-identical to the committed S385 sha256)
+
+$ grep '<title>' (must contain the string 'Python 3.15.2')
+<title>1. Command line and environment &#8212; Python 3.15.2 documentation</title>
+occurrences of the literal 'Python 3.15.2' in the page: 2
+
+# the rolling /3/ alias, fetched now
+http_status=200 bytes=171073
+d3c503060ebf18e5a807ba35d8527cfde49f8322373b9111e5c26d657b658cf6  python3-alias.html
+-> the /3/ alias is NOW byte-identical to the /3.15/ pin (both d3c50306...), because
+   upstream rebuilt the 3.15 alias at 06:12 UTC. It did NOT at r93 time:
+
+$ diff r93's stored alias copy  vs  today's alias copy
+1911c1911
+<       Last updated on Nov 08, 2026 (00:12 UTC).
+---
+>       Last updated on Nov 08, 2026 (06:12 UTC).
+diff exit=1  (the only difference is the Sphinx build stamp -> the digest is NOT stable)
+
+r93 stored alias sha: 2371db30c8f4dfbb8118f990ebd6aed2203c719ed0194d2c46e3325098477aba
+today alias sha:      d3c503060ebf18e5a807ba35d8527cfde49f8322373b9111e5c26d657b658cf6
+
+# stability of the pinned /3.15/ URL across three consecutive fetches
+d3c503060ebf18e5a807ba35d8527cfde49f8322373b9111e5c26d657b658cf6  s1.html
+d3c503060ebf18e5a807ba35d8527cfde49f8322373b9111e5c26d657b658cf6  s2.html
+d3c503060ebf18e5a807ba35d8527cfde49f8322373b9111e5c26d657b658cf6  s3.html
+
+# sibling version lines (to show the pin really is version-specific)
+3.3.14 -> http 200 bytes 160951 e27485466767d180
+<title>1. Command line and environment &#8212; Python 3.14.10 documentation</title>
+3.3.15 -> http 200 bytes 171073 d3c503060ebf18e5
+<title>1. Command line and environment &#8212; Python 3.15.2 documentation</title>
+3.3.16 -> http 200 bytes 170765 ba8cbd2b16a6f4f7
+<title>1. Command line and environment &#8212; Python 3.16.0a1 documentation</title>

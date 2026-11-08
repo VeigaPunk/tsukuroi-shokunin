@@ -174,3 +174,84 @@ command now read `98/98`; no arithmetic changes. The instrument bytes are unchan
 amendment, so `before/instruments.sha256` still verifies; the plan's own sha256 line in
 `freeze-manifest.sha256` is the only file whose line changes, and only by this amendment (the same
 split the r93 plan recorded).
+
+## Amendment A3 (2026-11-08, after the wave's attack receipts; claim-wording narrowings only) — what
+## the wave falsified, and what the claims now say
+
+No predicate arithmetic, target, kill rule or counting command changes; the frozen instruments and
+controls are untouched (a byte edit after the freeze would void every receipt, and
+`before/freeze-manifest.sha256` still verifies 12/12 against the frozen plan line). Each narrowing
+names the wave artifact that forced it. On the facts below C1 is NOT `met` — the honest outcome is
+an honest stop.
+
+**C1-1 — N04's sentence is unsatisfiable by its own decoy, and N04 measures `met` everywhere.**
+The frozen target ("N04 `failed_families` is non-empty") and the kill rule ("`unmet` if any named
+bend does not read `unmet`") require a decoy that does not bite. N04 (`_stale_default` assigned,
+never read) reads `met 98/98` in the L1's canonical ×3 runs, ExecReplicate's clone ×3 runs and
+ExecBends' run — the same seats that read N01/N02/N03 `unmet` on the same bytes. A1's env-channel
+witness narrows what the reads must show, not what the sentence says, and the sentence still says
+`unmet`. The claim is therefore not `met`. An honest stop does not close a decoy the round
+promised to beat: the bend needs a live env read (a gate that substitutes `LIM_STD_VERSION` for the
+probe's answer on a battery fixture), not an unused assignment.
+Artifacts: `.ufo/waves/round-94/after/bend-N04.json` (L1 canonical, 3 runs `met`), `w1/ExecReplicate/N04-x3.json`,
+`w1/ExecBends/N04.json`, `w1/CriticClaims.md` F2.
+
+**C1-2 — the digit10 enumeration in the plan did not match the battery's.** The plan's four values
+(`12.9.-1`, `12.9.+1`, `+12.9.1`, `12.9.1#`) are sign/`#` refusals, not ten-digit components; the
+battery's four values are X.Y.Z-shaped with one ten-digit component, as `claims.json` says. The
+battery's enumeration is the measured one (four ten-digit values read through the flag API, the
+healthy `12.9.4` row reads a verdict); the plan's enumeration is withdrawn.
+Artifacts: `w1/CriticClaims.md` F3; `tools/limine-pin-battery-r94.py` (`REFUSAL_DIGIT10`, line 1638).
+
+**C1-3 — the AUTO-PROBE-SHAPES enumeration in the plan described two fakes; the battery measures one
+three-line fake.** The plan's sentence ("a fake printing `no version here` … and a fake printing
+`Limine 12.9.6` to stderr") omits the suffixed `Limine 12.9.6-rc1` line — the only stdout line the
+unanchored bend can bite on. `claims.json` describes the one fake; the plan's sentence is corrected
+to match it.
+Artifacts: `w1/CriticClaims.md` F4; `tools/limine-pin-battery-r94.py` (`fam_auto_probe_shapes`, line 1916).
+
+**C1-4 — the "×3" sentence is a three-sample sentence with a standing `met` counterexample.** The L1's
+own pre-freeze `n02-1.json` reads `AUTO-PROBE-SHAPES passed: true` (the unanchored regex did not
+match the suffixed fake in that run); the post-freeze canonical ×3 (`after/bend-N02.json`, and
+ExecReplicate's and ExecBends' runs) all read `unmet`. The contradiction is 1 in 6 (3 pre-freeze
+development runs counted as neither; the counterexample predates the freeze and no frozen receipt
+reproduces it). The claim's three undisclosed runs are not evidence of a stable `×3` either side:
+the N02 kill is real on frozen bytes but the "×3" wording overstates its stability. No receipt is
+changed by this narrowing.
+Artifacts: `/fast/scratch/hyaku/tsukuroi-r94/l1/n02-1.json`, `n02-2.json` (the `met`/`unmet` pair on
+the same gate path), `after/bend-N02.json`, `w1/CriticClaims.md` F5.
+
+**C2-1 — the live receipt's `error` field is not a receipt defect.** The predicate blesses both the
+root receipt (rc 1, the two pin mismatches at `/boot/limine.conf` lines 30 and 38) and the
+unprivileged receipt (rc 2 `CANNOT-EVALUATE`, `error: "conf unreadable: [Errno 13] …"`, the same
+`limine_version`/`source`/`era`). The kill rule's "`unmet` if the live receipt carries a non-null
+`error`" is therefore false of the unprivileged receipt the predicate itself names. C2 now reads:
+the live JSON's `error` is `null` on a readable-conf receipt and the conf-unreadable string on an
+unreadable-conf one — the field, not its nullness, is the receipt. The root receipt
+(`after/live-c2-root.json`) carries `error: null` and the two findings as predicates; the
+flag-free receipt (`after/live-c2-flagfree.json`) carries the unreadable string with the same
+version/source/era.
+Artifacts: `w1/CriticClaims.md` F6, `after/live-c2-root.json`, `after/live-c2-flagfree.json` (and the
+r93 A2 C2-3 precedent for the two shapes).
+
+**SCORECARD status (F1).** The SCORECARD "Round 94 — declaration" table still reads `102/102`
+(4×) and `100/102`; the A2 correction reached the plan and `claims.json` but not that table. This
+plan amendment is the erratum: the SCORECARD cells are superseded by the A2 reading (`98/98`, and
+`96/98` for the do-nothing gate leg, as measured in `w1/ExecBends/dn94.json` — the r93 gate reads
+`97/98 unmet` on `AUTO-PROBE-SHAPES` only, and the r94 roster's missing families are never named in
+`failed_families` until the battery runs the r94 gate). No SCORECARD rewrite follows; the erratum
+recorded here binds the counts.
+
+## Measured outcome (frozen instruments, canonical L1 runs and EXEC seats agree)
+
+- Landed gate: `98/98 met` ×3, 0 error rows, both layouts (`after/c1-canonical.json`; ExecReplicate's
+  clone `c1-gate.json` ×3). N01/N02/N03 read `unmet` ×3 with the named family, 0 error rows.
+- **C1 is not `met`**: N04 reads `met` 98/98 on 3 runs with `failed_families []` (C1-1). Verdict:
+  **unmet as worded**, honestly stopped.
+- **C2 is `met`** on both live shapes, after C2-1: flag-free `12.9.4`/`probe`/`pre-12.9.5`
+  (`after/live-c2-flagfree.json`, rc 2; root `after/live-c2-root.json` rc 1, findings lines 30/38,
+  `error: null`), selftest `PASS 39/39`, usage roster `met` (15/15, `after/usage-check.txt`),
+  battery selftest `PASS 5/5` and reference-leg `PASS 18/18` (`after/battery-reference.txt`).
+  The mechanism (the probe runs `limine --version` read-only) is certified by ExecLive's syscall
+  trace receipts (`w1/ExecLive/leg3-strace.log`), not by the battery; the battery certifies the
+  observable result. The do-nothing gate discriminates on `source: flag` vs `source: probe`.
