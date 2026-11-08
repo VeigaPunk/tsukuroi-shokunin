@@ -4015,16 +4015,36 @@ scoping, U1 `unverified_image_lines`, S1 sanitize, dead-block removal.
 
 **C1 measured** 82/82 x3 canonical and clone at the landed tip
 (`.ufo/waves/round-91/after/measured/`); narrowed in
-`.ufo/plans/round-91.md` (F2 oracle-import 80/82, F3 missing-sort 82/82,
-freeze-manifest battery binding NOT established; K2 broken duplicate
-`--tpm-present`, N10 duplicates N01). **C2 exploratory** (depth 8):
+`.ufo/plans/round-91.md` (F2 oracle-import 80/82, freeze-manifest
+battery binding NOT established; F3 missing-sort is an equivalent
+mutant). K2 and N10 control defects repaired post-wave (`6d12e07f`):
+K2 duplicate `--tpm-present` removed (2/82 unmet x3 both layouts), N10
+rewritten as a distinct whole-file LAST-wins bend (78/82 unmet x3
+canonical). **C2 exploratory** (depth 8):
 `limine-unverified-image-r91` (S374-S376, uri.c/chainload.c/config.c
 tag `8ad14430…`); upstream v12.9.5/12.9.6 invert V1 first-line
 exception; pending `unprovable-but-better` from the closure.
 
-**Wave w1** (13 seats; attack 4/13 = 31%; connector 1). ReviewSource
-CONFIRMED all V1/U1/R6/R9/R10 clauses; ReviewGate S1 FIXED (`45ae6518`),
-S2 selftest-V1/U1 gap routed. SOURCES 373 → 376 rows (S374-S376).
-Axes: depth8, coverage9, operability9, freshness9, calibration9,
-adjacency8 (unchanged). No capability row enters. No retirement. No
-axis harmed.
+**Wave w1** (13 seats; attack 4/13 = 31%; connector 1; 0 dead). ReviewSource
+CONFIRMED all V1/U1/R6/R9/R10 clauses vs pinned v12.9.4; ReviewGate S1
+sanitize FIXED (`45ae6518`), S2 selftest-V1/U1 gap routed. ExecReplicate
+82/82 x3 clone+canonical+tip. ExecLints registry 144/144 at tip. MutGate
+30/38 killed (4 equivalent + 4 undetected bends routed); MutBattery 4
+detected escapes of 312; CriticForgers 23/27 killed (4 roster gaps);
+CriticClaims falsified declaration literals + K2 + N10/N01 identity;
+ScoutDrift found V1 inverted upstream >=12.9.5 (host stays 12.9.4-1);
+ScoutURI/ScoutChainload confirmed uri/chainload semantics + receipt
+truncation caveat; ConnectorOverlap repaired C2 header + falsified
+`uri_resolve` sentence (`6d181609`), 20-lane sweep 0 conflicts;
+ScribeLesson mined `R91-JUDGE-ORACLE-IMPORTABLE` (QUALITY 132 drafted,
+battery-isolation patch proposed not landed). SOURCES 373 → 376 rows
+(S374-S376). Axes: depth8, coverage9, operability9, freshness9,
+calibration9, adjacency8 (unchanged). No capability row enters. No
+retirement. No axis harmed.
+
+**Landing.** C2 entry `limine-unverified-image-r91` + `.json` repaired
+(QUALITY-8 header, `uri_resolve` silent-fail sentence corrected);
+`plans/round-91.md` narrowing amendment; `claim-falsification.tsv`
+ledger (14 rows, 2 falsifies-wording); lesson updated with M1 +
+instrument defects; SCORECARD/README/LOG final outcomes; controls
+K2/N10 repaired and re-measured (`6d12e07f`, `20f65353`).

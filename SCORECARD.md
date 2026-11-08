@@ -7673,12 +7673,17 @@ and reports U1 `unverified_image_lines`; the frozen battery
 `tools/limine-pin-battery-r91.py` (sha256 `655ee8f3d0942e958cc853deb2d16abcd2d16ae2823ca6548f2a53991b4901b9`,
 82 families) reads 82/82 met x3 canonical and in a `git clone --shared`
 at the landed tip (`.ufo/waves/round-91/after/measured/c1-receipt-{canonical,clone}.txt`).
-Controls: K1 valid (2/82 x3, 0 error cases); K2 broken (duplicate
-`--tpm-present`, 984/984 `error:` both layouts — proves nothing);
-N01-N10 kill their families x3 both layouts, except N10 duplicates N01
-(byte-identical `7e158cd2…`). Not established: discrimination against
-oracle-import (F2 80/82), missing-sort blindness (F3 82/82), freeze
-manifest binding (battery omitted). These are recorded, not claimed.
+Controls: K1 valid (2/82 x3, 0 error cases). Post-wave repairs
+(`6d12e07f`): K2's duplicate `--tpm-present` removed and re-measured
+2/82 unmet ×3 canonical + clone (was 984/984 `error:` — proved nothing);
+N10 rewritten as a distinct whole-file LAST-wins bend (was byte-identical
+to N01 `7e158cd2…`), measured 78/82 unmet ×3 canonical, clone receipt in
+`runs-clone/N10-*-fixed.*`. N01-N10 kill their named families ×3 in both
+layouts. Not established: discrimination against oracle-import (F2
+80/82; sibling-oracle-forgery reads 82/82 met — channel open, ScribeLesson
+M1), freeze-manifest battery binding (battery omitted from the 13-line
+manifest). F3 missing-sort is an equivalent mutant (append order already
+sorted), not a battery blindness. These are recorded, not claimed.
 
 **C2 (exploratory, depth 8, narrowed):** entry
 `corpus/knowledge/limine-unverified-image-r91.md` + `.json` (S374-S376,

@@ -1047,6 +1047,10 @@ r89 frontier bullets "Held-out clauses" (except containment and the empty label)
   (SB bypass, chainload.c 423-427); entry
   `knowledge/limine-unverified-image-r91.md` (S374-S376); upstream
   v12.9.5/12.9.6 invert the V1 first-line exception (`w1/ScoutDrift.md`).
-- Open: K2 broken (`--tpm-present` duplicate), N10 duplicates N01,
-  selftest lacks V1/U1 coverage, r89 frontier (blanks before CR-LF,
-  ESP containment, empty labels) still open.
+- Repaired post-wave (`6d12e07f`): K2 duplicate `--tpm-present` removed
+  (re-measured 2/82 unmet ×3 both layouts); N10 rewritten as distinct
+  whole-file LAST-wins bend (78/82 unmet ×3 canonical).
+- Open: selftest lacks V1/U1 coverage, battery oracle-import channel
+  (ScribeLesson M1 / QUALITY 132 draft), freeze manifest does not pin the
+  battery, r89 frontier (blanks before CR-LF, ESP containment, empty
+  labels) still open.
