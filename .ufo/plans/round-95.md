@@ -148,6 +148,12 @@ Free-text slot. After the freeze, an amendment may NARROW a claim to what the in
 recorded here with the artifact that falsified the wider sentence. No amendment may widen a target or
 re-define a predicate after a seat has scored it (fleet lesson, kumitate r42).
 
+- **A2 (pre-scoring wording fix, 2026-11-08T07:0x-03:00, before the wave was dispatched).** C2's
+  predicate said the registry gate "reports `status` `clean`"; the gate's actual clean token is
+  `PASS` (`status FAIL` at the pre-round tip, `status PASS` at `b66e6be5`). The predicate, target and
+  kill rule now say `PASS`. Evidence: `.ufo/waves/round-95/after/c2-before-c0a20cef.json` and
+  `c2-after-b66e6be5.json` (the L1's own runs, committed as receipts). No target was widened.
+
 - **A1 (pre-scoring narrowing, 2026-11-08T06:5x-03:00, before any seat was dispatched and before any
   receipt existed).** C1's first frozen target said the N05 leg reads "0 error rows" and that the r94
   do-nothing battery on the landed gate reads "unmet 98/99". Both sentences are wrong about the
