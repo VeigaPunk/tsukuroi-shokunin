@@ -113,3 +113,15 @@ the same commit; no predicate, target, kill rule or counting command changes. Th
 byte-for-byte at `.ufo/waves/round-92/after/c1-controls/before-clone-dead-controls/` and is the
 evidence for lesson M3. Every receipt scored after this amendment uses the repaired bytes; a wave seat
 that measured the broken form reports it, and that report is evidence, not a defect of the claim.
+
+## Amendment A2 (2026-11-08, before the candidate gate's claim receipts; controls only) — K4's channel
+## resolution preferred whatever name matched first
+
+The A1 before leg exposed a second control defect: `K4-syspath` walked `sys.path` in `os.listdir` order
+and took the first file named `limine-pin-battery-r*.py`, which in the clone is `limine-pin-battery-r87.py`
+— a module with no `r1_key`, so the control crashed on every case (`984` error rows) instead of reading
+the target. Repair: the channel now looks for the two frozen names explicitly (`…-r92.py`, then
+`…-r91.py`) on each `sys.path` entry; controls regenerated, manifest regenerated in the same commit. No
+predicate, target, kill rule or counting command changes. K4's three legs are re-measured; the other four
+controls' A1 receipts stand (their bytes are unchanged by A2 and their sha256 are unchanged in the
+manifest). Lesson M4 records the class.

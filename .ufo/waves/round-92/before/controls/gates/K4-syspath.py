@@ -23,13 +23,10 @@ def find_oracle():
 
     for d in sys.path:
         d = d or "."
-        try:
-            names = os.listdir(d)
-        except OSError:
-            continue
-        for name in names:
-            if name.startswith("limine-pin-battery-r") and name.endswith(".py"):
-                return os.path.join(d, name)
+        for name in ("limine-pin-battery-r92.py", "limine-pin-battery-r91.py"):
+            p = os.path.join(d, name)
+            if os.path.isfile(p):
+                return p
     return None
 
 

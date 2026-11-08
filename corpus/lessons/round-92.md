@@ -67,6 +67,15 @@ written by the closure, not by this lane).
   adds QUALITY 133. Fix: `BATT = find_oracle()`, controls regenerated, freeze manifest regenerated; shown
   able to fail: the same controls now read `82/82 met` on the channel-open leg and `0/89` (0 error rows)
   under the launcher (`.ufo/waves/round-92/after/c1-controls/`).
+- **M4 (`vacuous`, self-found by the before leg) — a wildcard picked a near-name module.** Class:
+  `vacuous`/`attribution`. `K4-syspath` matched the first `limine-pin-battery-r*.py` on `sys.path`; in the
+  clone that was the r87 battery, which has no `r1_key`, so the control crashed on all 984 rows
+  (`bad-output`) and the before leg read `0/82` with 984 errors. Evidence:
+  `.ufo/waves/round-92/after/c1-controls/before-clone/K4-syspath.json` (the crash rows) and
+  `.ufo/waves/round-92/after/c1-controls/before-clone-fixed/K4-syspath.json` (the repair). Captured-by:
+  none for the wildcard resolution — QUALITY 126 covers crashed rows, not why a control crashes; this
+  round adds QUALITY 134. Fix: resolve the two frozen names explicitly; shown able to fail: the same
+  control reads `82/82 met` on the channel-open leg and `0/89` (0 error rows) under the launcher.
 ## Wave summary
 
 (pending WAVE-DONE)
