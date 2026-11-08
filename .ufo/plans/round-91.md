@@ -17,19 +17,30 @@ in a `git clone --shared`, at the landed tip
 What the instrument does NOT establish (and the frozen wording did
 imply): it does not discriminate an implementation that imports the
 battery oracle (F2-oracle-replay reads 80/82; F2-oracle-import reads
-80+/82), does not see a missing `unverified.sort()` in every family
-(F3 reads 82/82 — `u1_ok` sorts the gate's answer before comparing),
-and does not bind the freeze manifest to the battery (the 13-line
-`freeze-manifest.sha256` omits the battery; it was not regenerated
-after `203b3872`/`1652b086`). K2 is a broken control (duplicate
-`--tpm-present`, 984/984 `error:` cases both layouts) and proves
-nothing; K1 is valid (0 error cases, 2/82 ×3). N01 and N10 are
-byte-identical (`7e158cd2…`); N10's "FIRST visible" bend is
-unimplemented. CriticClaims items 1-3 (declaration sha/counts) are
-recorded verbatim in `w1/CriticClaims.md` above; the declaration's
-`8f0daee8…`/`78` literals are disclosed here but not rewritten (the
-frozen declaration is history; this amendment is the claim the closure
-judges).
+80+/82), and does not bind the freeze manifest to the battery (the
+13-line `freeze-manifest.sha256` omits the battery; it was not
+regenerated after `203b3872`/`1652b086`). F3-unsorted (CriticClaims
+item 3) reads 82/82 but is an EQUIVALENT mutant, not battery
+blindness: the gate appends to `unverified` while iterating
+`sorted(image_lines)` (check-limine-pins.py:187), so removing the
+redundant `unverified.sort()` (:193) cannot emit unsorted output, and
+`u1_ok` (battery:1683) requires `got_sorted == sorted(got_sorted)` —
+the battery DOES see unsorted answers. K2 was a broken control at
+freeze time (duplicate `--tpm-present`, 984/984 `error:` cases both
+layouts); repaired post-wave in `6d12e07f` and re-measured 2/82 unmet
+×3 canonical + clone (`runs-{canonical,clone}/K2-landed-adapter-fixed.*`).
+N01 and N10 were byte-identical (`7e158cd2…`) at freeze time; N10 was
+rewritten as a distinct whole-file LAST-wins bend in `6d12e07f` and
+re-measured 78/82 unmet ×3 both layouts
+(`runs-{canonical,clone}/N10-panic-first-anywhere-fixed.*`). K1 is
+valid throughout (0 error cases, 2/82 ×3). CriticClaims item 1
+(declaration sha/counts) is recorded verbatim in `w1/CriticClaims.md`
+above; the declaration's `8f0daee8…`/`78` literals
+are disclosed here but not rewritten (the frozen declaration is
+history; this amendment is the claim the closure judges). Items 2, 3,
+6 are addressed inline above (K2/N10 repaired `6d12e07f`; F3 shown
+equivalent); items 4-5, 7-12 are battery-discrimination notes or
+working-tree observations recorded in the seat report.
 
 ## C2 — narrowed predicate
 
