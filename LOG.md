@@ -4190,3 +4190,29 @@ gate's 39/39 selftest, and C2's void rule binds the registry gate's recorded sha
 freeze manifest). Corpus: `knowledge/limine-bound-9digit-r95.md` (S389), `lessons/round-95.md`,
 `SOURCES.md` 388 → 389, README round-95 section + Frontier, SCORECARD round-95 rows. Census
 `sources-census.sh validate --root … tsukuroi` exit 0 (389 rows, 0 E-findings).
+
+## Round 96 — freeze (`38adc4ed`)
+
+Two claims frozen at `38adc4ed` against pre-round tip `73c47107`; instruments pinned in
+`.ufo/waves/round-96/before/instruments.sha256`; do-nothing copies
+(`do-nothing-battery-r95.py` `a51dca18…`, `do-nothing-gate-r95.py` `7d79ac29…`), four one-clause
+bends (`N01-echo-wrong`, `N02-y-cap-8`, `N03-era-label-flip`, `N04-extra-components`) and the
+pre-round calibration receipt (`before/c2-before-73c47107.json`) committed with it. C1 (depth 8):
+the battery roster 99 → 103 with `EXPLICIT-VERSION-ECHO`, `EXPLICIT-VERSION-ERA`,
+`REFUSAL-VERSIONS-9DIGIT-Y`, `EXTRA-COMPONENT`. C2 (calibration 9): `tools/check-r96-calibration.py`
+counts six routed r95 mismatch classes (F1-F6) against the lane's bytes. Development runs are kept
+under `before/dev/` (never receipts).
+
+## Round 96 — wave (`b0bf1be9`)
+
+One v1 wave, 14 seats (5 executors, 2 scouts, 2 scribes, 2 reviewers, 1 critic, 1 mutation-tester,
+1 connector; attack seats by the prefile gate's role set: 2 reviewers + critic + mutation-tester +
+connector = 5/14 = 36 %). Validator dispatch `counts` 14 spawn / 0 resume / 14 total; `w1-validate.err`
+0 bytes; `w1.ready` + `w1.ready.dispatched` committed.
+
+## Round 96 — C2 repairs
+
+Six routed r95 defects closed in-lane: QUALITY 140 (F1), the registry-gate receipt plus SCORECARD
+binding (F2), both r95 tool docstrings (F3), the README sentence scoped to the r94 family roster
+(F4), a `b8f878c8` registry PASS receipt (F5), and a report count the checker can bind (F6). The
+r95 historic freeze manifest is left as filed; its pinned bytes are re-derivable at `b8f878c8`.

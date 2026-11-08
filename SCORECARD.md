@@ -7901,3 +7901,32 @@ does see the cap; and the registry gate's `PASS` certifies row presence, not the
 coverage 9, operability 9, freshness 9, calibration 9, adjacency 8 (unchanged). No retirement. No
 axis harmed: the landed gate bytes are unchanged (`7d79ac29…`), the r94 roster still reads
 `98/98 met` on the landed gate, and the corpus gains one entry plus one SOURCES row with no removal.
+
+## Round 96 — declaration and C2 void binding
+
+Frozen declaration: `.ufo/plans/round-96.md` (pre-round tip `73c47107e8bda79375517ee24ec3c13688586305`);
+frozen claims `.ufo/waves/round-96/claims.json`; instruments pinned in
+`.ufo/waves/round-96/before/instruments.sha256`. Lowest non-retired axes: depth 8 and adjacency 8
+(tied). C1 works depth; C2 works calibration; no adjacency move is declarable (the kaidoku/revenger
+reverse-engineering ownership is operator-owned and unruled — reported, not absorbed).
+
+C1 (depth 8): `tools/limine-pin-battery-r96.py` roster 99 → 103 — `EXPLICIT-VERSION-ECHO`,
+`EXPLICIT-VERSION-ERA`, `REFUSAL-VERSIONS-9DIGIT-Y`, `EXTRA-COMPONENT`; four one-clause bends
+(`N01-echo-wrong`, `N02-y-cap-8`, `N03-era-label-flip`, `N04-extra-components`) each fail their
+named families; the r95 do-nothing battery is blind to the three new families and fails N04 only
+through its pre-existing `12.9.5.1` row — the r95 Frontier's "not sent at battery level" is
+corrected by measurement.
+
+C2 (calibration 9): `tools/check-r96-calibration.py` counts the six routed r95 mismatch classes
+(F1 quality-m1-criterion, F2 void-receipt, F3 docstring-superseded, F4 readme-scope, F5 tip-receipt,
+F6 report-count) → 0 at the landed tree; the pre-round tree reads all six; `--selftest` 7/7.
+
+Void binding (r95 routed 3): the r95 C2 void clause is bound to
+`.ufo/waves/round-96/before/r95-registry-gate.sha256` — sha256 `6fcb2d0a5f1b2493aa505e179aa013b479e2a06894152d3b206e017720a24812`
+for `tools/check-registry-coverage.py`, the bytes at `b8f878c8` — and to this section. The guard is
+an empty `git diff 73c47107..<landed> -- tools/check-registry-coverage.py`; no round-95 receipt
+recorded the hash, so the binding is created here and the r95 predicate is not rewritten.
+
+Tip receipt (r95 routed 6): `.ufo/waves/round-96/before/c2-tip-b8f878c8.json` records
+`check-registry-coverage.py --revision b8f878c8…` = `PASS`, findings 0, 151/151 registered — the r95
+tip value is measured, not derived.

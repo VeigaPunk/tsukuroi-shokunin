@@ -26,7 +26,7 @@ observable result.
 
 Round-95 claim (C1, SCORECARD.md "Round 95 — declaration"). The r94 roster certifies only the REFUSED
 side of the gate's published 1-9-digit component bound: `REFUSAL-VERSIONS-10DIGIT` sends ten-digit
-values and never the largest in-bound member, and the declared `REFUSAL_DIGIT9` constant is
+values and never a boundary member, and the declared `REFUSAL_DIGIT9` constant is
 referenced nowhere. A gate whose bound is bent to `<= 8` (over-strict: it refuses the in-bound
 9-digit member `999999999.9.9`) therefore reads `met` 98/98. r95 adds `REFUSAL-VERSIONS-9DIGIT`:
 the accepted boundary member itself, sent as the version of an era-sensitive fixture (the file's
@@ -1705,8 +1705,9 @@ def fam_refusal_versions_digit10(c):
 
 
 def fam_refusal_versions_9digit(c):
-    """r95 C1 (QUALITY 139, the ACCEPTED leg): the largest in-bound member of the gate's published
-    1-9-digit component cap — `999999999.9.9`, first component 999,999,999 — is a real version: the
+    """r95 C1 (QUALITY 139, the ACCEPTED leg; wording corrected in r96, routed-4): a boundary member
+    of the gate's published 1-9-digit component cap — `999999999.9.9`, first component 999,999,999,
+    the cap's value with the other components small — is a real version: the
     gate must accept it (rc 1 for this fixture's mismatch pin, never rc 64) and select the era from
     it (999999999 >= 12.9.5 -> era B, so the first-line-entry key is invisible -> `panic`). An
     over-strict refusal bound (`<= 8`) refuses the value and fails; a gate that accepts it but reads

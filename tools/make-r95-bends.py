@@ -3,8 +3,9 @@
 ONE clause bent. Each substitution must match exactly once (a variant that silently changed nothing
 would prove nothing), and the emitted file is what the freeze manifest pins.
 
-N05 strict-8     : the component bound is `<= 8` (was `<= 9`) -> the gate refuses the largest
-                   in-bound member of its own published 1-9-digit cap (`999999999.9.9`). The r94
+N05 strict-8     : the component bound is `<= 8` (was `<= 9`) -> the gate refuses a boundary member
+                   (first component at the cap) of its own published 1-9-digit cap
+                   (`999999999.9.9`). The r94
                    roster has no case whose version is an in-bound 9-digit value, so this bend read
                    `met` 98/98 there; the r95 family `REFUSAL-VERSIONS-9DIGIT` must fail on it.
 """

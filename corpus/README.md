@@ -1124,8 +1124,9 @@ contract, and the lane held only the refused leg. `tools/limine-pin-battery-r95.
 sent as the `--limine-version` of an era-sensitive fixture, where the accepted answer is rc 1 /
 `DEGRADED` / the LP-MISMATCH pin with consequence `panic`. The one-clause bend `N05-strict-8`
 (`<= 9` → `<= 8`) reads `98/99 unmet` with the family named in every run and layout, while the r94
-roster is blind to the same bend (`98/98 met`, 0 nine-digit rows) — the before instrument has no
-in-bound 9-digit case. Seven of eight one-clause gate mutants die (M01/M03/M07 on the new family
+roster is blind to the same bend (`98/98 met`, 0 nine-digit rows) — the r94 family roster has no
+in-bound 9-digit case (its `--usage-check` does send `999999999.0.0`, so the sentence is scoped to
+the roster, not the instrument; r96 routed-5). Seven of eight one-clause gate mutants die (M01/M03/M07 on the new family
 alone); M06 survives. QUALITY 139's accepted leg is now executed by a family, not only by a usage
 roster row.
 
@@ -1146,3 +1147,28 @@ roster row.
   its path (`w1/ExecRegistry.md` §6, `w1/ReviewRegistry.md`). A content-binding check is next.
 - Still open from r94: the `12.9.6.1` extra-component shape (not sent at battery level); the r92
   launcher residuals; r89's blanks-before-CRLF, ESP containment and empty labels.
+
+## Round 96 — what a version-judging gate must report, and the per-component accepted leg
+
+New ground: `knowledge/limine-bound-per-component-r96.md` (S389 re-opened, S390) — the published
+1-9-digit cap is per component, and a gate that judges a version must report the version, its source
+and the era it selected. `tools/limine-pin-battery-r96.py` (roster 99 → 103;
+`python3 tools/limine-pin-battery-r96.py --gate tools/check-limine-pins.py --runs 1 --json OUT` prints
+`families_total 103`) adds `EXPLICIT-VERSION-ECHO` (an explicit flag is echoed with source `flag`),
+`EXPLICIT-VERSION-ERA` (`visibility_era` follows the whole tuple), `REFUSAL-VERSIONS-9DIGIT-Y` (the
+Y-component cap accepted in both eras) and `EXTRA-COMPONENT` (four four-component shapes refused
+rc 64, with `12.9.6` as the same-list positive control). Four one-clause bends each fail their named
+families (`N01` echo, `N02` Y-cap, `N03` era label, `N04` extra components), and the r95 battery is
+blind to the three new families; on N04 it fails only through its pre-existing `12.9.5.1` row — the
+r95 Frontier sentence that said the four-component shape was not sent at battery level is corrected:
+the class was sampled once, and r96 broadens it.
+
+### Frontier (round-96 addition)
+
+- The metadata families read `limine_version`/`visibility_era` only for explicit flags; the AUTO
+  cases still compare the echo through `auto_ok`, and a probe-failure row emits no JSON to read.
+- `EXTRA-COMPONENT` enumerates four four-component spellings; an empty component, five components
+  and non-ASCII digits stay unsampled at family level (the gate's selftest covers `12.9` and `12.9.x`).
+- Still open from r95: the registry gate's content binding (row presence, not cell content);
+  the r92 launcher residuals; the r93 probe pre-release caveat; r89's blanks-before-CRLF, ESP
+  containment and empty labels.
