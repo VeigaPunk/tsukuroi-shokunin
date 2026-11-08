@@ -35,11 +35,13 @@ import random
 import sys
 
 CHANNEL = %(channel_r)s
-BATT = None
 
 
 def find_oracle():
 %(find)s
+
+
+BATT = find_oracle()
 
 
 def load_oracle(path):

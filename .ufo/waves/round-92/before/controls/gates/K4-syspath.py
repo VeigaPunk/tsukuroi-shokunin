@@ -17,7 +17,6 @@ import random
 import sys
 
 CHANNEL = 'an importable-looking `limine-pin-battery-r*.py` on `sys.path`'
-BATT = None
 
 
 def find_oracle():
@@ -32,6 +31,9 @@ def find_oracle():
             if name.startswith("limine-pin-battery-r") and name.endswith(".py"):
                 return os.path.join(d, name)
     return None
+
+
+BATT = find_oracle()
 
 
 def load_oracle(path):

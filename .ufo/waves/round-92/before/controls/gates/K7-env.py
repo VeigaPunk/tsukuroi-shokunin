@@ -17,7 +17,6 @@ import random
 import sys
 
 CHANNEL = "the caller's environment (PYTHONPATH, TSUKUROI_TOOLS, LANE_ROOT, TSUKUROI_ROOT, HOME, PWD)"
-BATT = None
 
 
 def find_oracle():
@@ -37,6 +36,9 @@ def find_oracle():
         if os.path.isfile(p):
             return p
     return None
+
+
+BATT = find_oracle()
 
 
 def load_oracle(path):

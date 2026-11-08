@@ -56,6 +56,17 @@ written by the closure, not by this lane).
   POSITIVE reference leg, the embedded form yields verdict rows and reads `met`
   (`.ufo/waves/round-92/after/m2-lie-wrapper-check.txt`).
 
+- **M3 (`vacuous`, self-found by the before leg, before any candidate score) — the five channel
+  controls were dead in both legs.** Class: `vacuous`. `make-controls.py` emitted `BATT = None` and a
+  `find_oracle()` that was never called, so every control answered its constant fallback whether or not
+  the launcher was in place: the channel-open leg read `0/82 unmet`, exactly the state a rejection
+  looks like. Evidence pointer:
+  `.ufo/waves/round-92/after/c1-controls/before-clone-dead-controls/summary.tsv` (the run) and
+  `.ufo/plans/round-92.md` amendment A1 (the repair). Captured-by: none for this reading — QUALITY 126
+  covers a control that crashes instead of judging, not one that never reaches its channel; this round
+  adds QUALITY 133. Fix: `BATT = find_oracle()`, controls regenerated, freeze manifest regenerated; shown
+  able to fail: the same controls now read `82/82 met` on the channel-open leg and `0/89` (0 error rows)
+  under the launcher (`.ufo/waves/round-92/after/c1-controls/`).
 ## Wave summary
 
 (pending WAVE-DONE)

@@ -17,7 +17,6 @@ import random
 import sys
 
 CHANNEL = 'the parent process: `/proc/*/cmdline` and `/proc/*/cwd` naming the battery'
-BATT = None
 
 
 def find_oracle():
@@ -50,6 +49,9 @@ def find_oracle():
         if os.path.isfile(p):
             return p
     return None
+
+
+BATT = find_oracle()
 
 
 def load_oracle(path):

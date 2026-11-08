@@ -17,7 +17,6 @@ import random
 import sys
 
 CHANNEL = "the lane's known absolute path (`<lane>/tools/limine-pin-battery-r*.py`, HOME-derived)"
-BATT = None
 
 
 def find_oracle():
@@ -30,6 +29,9 @@ def find_oracle():
             if os.path.isfile(p):
                 return p
     return None
+
+
+BATT = find_oracle()
 
 
 def load_oracle(path):

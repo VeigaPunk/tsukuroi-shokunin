@@ -1054,3 +1054,20 @@ r89 frontier bullets "Held-out clauses" (except containment and the empty label)
   (ScribeLesson M1 / QUALITY 132 draft), freeze manifest does not pin the
   battery, r89 frontier (blanks before CR-LF, ESP containment, empty
   labels) still open.
+
+### Frontier (round-92 addition)
+
+- Oracle isolation (C1): the battery now copies every gate into a private directory and runs it under
+  `bwrap --unshare-all --clearenv` + `python3 -I`; the five channel controls (sibling, `sys.path`,
+  absolute lane path, parent `/proc`, caller environment) read `0/89 unmet` with 0 error rows while the
+  landed gate reads `89/89 met`, and the same controls read `82/82 met` against the unchanged r91
+  battery (`.ufo/waves/round-92/after/c1-controls/`). QUALITY 132.
+- Visibility era (C2): `--limine-version X.Y.Z` selects the rule; the era families
+  (`ERA-FLE-PANIC-A/B`, `ERA-FLE-MEASURED-A/B`, `ERA-GLOBAL-KEY-A/B`, `ERA-DEFAULT`) certify the
+  v12.9.5 boundary, and `--usage-check` certifies the rc-64 refusal. Entry
+  `knowledge/limine-r92-oracle-isolation.md` (S377-S381).
+- Limits named, not claimed: behaviour/timing channels, `N04-accept-any`'s survival (the families
+  never send an out-of-range version), and releases after v12.9.6 (V2 maps every `>= 12.9.5` to the
+  rule the two pinned releases share).
+- Still open from r91: r89 frontier (blanks before CR-LF, ESP containment, empty labels); the r91
+  battery's `--selftest` lies now cover V1/U1 and the era rows.

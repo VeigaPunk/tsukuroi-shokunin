@@ -4048,3 +4048,19 @@ retirement. No axis harmed.
 ledger (14 rows, 2 falsifies-wording); lesson updated with M1 +
 instrument defects; SCORECARD/README/LOG final outcomes; controls
 K2/N10 repaired and re-measured (`6d12e07f`, `20f65353`).
+
+## Round 92 — battery oracle-isolation (C1, operability) and version-selected visibility (C2, depth)
+
+- Freeze `da99b2f4`: declaration `.ufo/plans/round-92.md`, instruments `tools/check-limine-pins.py`
+  (`af90ae63…`, V2 `--limine-version` + `visibility_era`/`limine_version`) and
+  `tools/limine-pin-battery-r92.py` (`fde864ea…`, 89 families, ISOLATION launcher, `--isolation-check`,
+  `--usage-check`), five channel controls + four one-clause C2 bends, pinned v12.9.4/v12.9.5/v12.9.6
+  sources, freeze manifest (30 lines).
+- C1: the r91 battery certified a gate that imported its own oracle (`82/82 met`, ScribeLesson M1);
+  the r92 launcher (private copy + `bwrap --unshare-all --clearenv` + `python3 -I`) closes the five
+  read channels — controls `0/89 unmet` ×3 with 0 error rows, landed gate `89/89 met` ×3, before leg
+  `82/82 met` ×3 in the same clone.
+- C2: the gate models the v12.9.5 `create_menu_tree` inversion (S379/S380, ScoutDrift §1) and refuses
+  an out-of-range version with rc 64; era families + `--usage-check` + near-misses N01-N03.
+- Corpus: `corpus/SOURCES.md` 376 → 381 rows (S377-S381); `corpus/knowledge/limine-r92-oracle-isolation.md`
+  (OI1-OI4, EV1-EV5); QUALITY 132; lesson `corpus/lessons/round-92.md` (M1 landing, M2 lie-wrapper path).

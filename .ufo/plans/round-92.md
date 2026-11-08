@@ -99,3 +99,17 @@ own claim.
 ## Amendments (appended after data; never an in-place rewrite)
 
 (none yet)
+
+## Amendment A1 (2026-11-08, before any gate or control score) — the controls did not call their channel
+
+The first before leg (`run-controls.py --battery <clone>/tools/limine-pin-battery-r91.py --runs 3`, five
+controls, same clone and `PYTHONPATH`) read `0/82 unmet` for all five controls instead of the target's
+`82/82 met`. Cause: `make-controls.py` emitted `BATT = None` and defined `find_oracle()` without ever
+calling it, so `load_oracle(None)` returned None in every state and every control answered its
+fallback — a control dead in BOTH legs, which proves nothing (QUALITY 126's reading, extended: a
+control needs a channel-open leg that scores the target). Repair: the generator now emits
+`BATT = find_oracle()`, the five controls are regenerated, and the freeze manifest is regenerated in
+the same commit; no predicate, target, kill rule or counting command changes. The broken run is kept
+byte-for-byte at `.ufo/waves/round-92/after/c1-controls/before-clone-dead-controls/` and is the
+evidence for lesson M3. Every receipt scored after this amendment uses the repaired bytes; a wave seat
+that measured the broken form reports it, and that report is evidence, not a defect of the claim.
