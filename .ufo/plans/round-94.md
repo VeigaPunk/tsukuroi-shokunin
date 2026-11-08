@@ -45,7 +45,7 @@ verdict, and the nine r93 out-of-range members are still refused by the same run
 exercises the flag API only) and `AUTO-PROBE-SHAPES` (a fake `limine` printing `no version here` with
 exit 0, and a fake printing `Limine 12.9.6` to stderr with exit 0, both are refused rc 64 with empty
 stdout, and `AUTO-ERA-B` still reads `met` with `12.9.6` on the same gate) — and against the landed
-gate the whole roster reads `102/102 met` in each of three runs in the canonical lane and in a
+gate the whole roster reads `98/98 met` (96 r93 families plus the two new ones) in each of three runs in the canonical lane and in a
 `git clone --shared`, while each of the four one-clause gates N01 (refusal bound `<= 10`, i.e. a
 ten-digit component is accepted), N02 (probe regex anchored nowhere after `limine`, i.e. a suffixed
 `12.9.6-rc1` and the stderr `Limine 12.9.6` are accepted as `12.9.6`), N03 (refusal bound `<= 11`,
@@ -53,11 +53,11 @@ i.e. the live `usage_check`'s ten-digit half becomes unreachable), and N04 (stal
 `unmet` in each of three runs in both layouts with its named family in `failed_families` and zero
 `error` rows.
 
-Target: landed gate `102/102 met` ×3 both layouts; N01 `failed_families` contains
+Target: landed gate `98/98 met` ×3 both layouts; N01 `failed_families` contains
 `REFUSAL-VERSIONS-10DIGIT`; N02 contains `AUTO-PROBE-SHAPES`; N03 contains `REFUSAL-VERSIONS-10DIGIT`;
 N04 `failed_families` is non-empty; each ×3 both layouts; every case row has `error: null`.
 
-Kill rule: `unmet` if any landed-gate run reads below 102/102; `unmet` if any named bend does not
+Kill rule: `unmet` if any landed-gate run reads below 98/98; `unmet` if any named bend does not
 read `unmet` in all three runs in both layouts; `unmet` if the named family is absent from that
 bend's `failed_families` in any run (N04: if it is empty in any run); `unmet` if any case row carries
 a non-null `error`; void if any instrument byte differs from
@@ -72,7 +72,7 @@ in every run).
 Do-nothing controls (committed with the freeze): (a) the r93 battery `ddd7e955…`
 (`before/controls/do-nothing-battery-r93.py`) has none of the two families — `grep -c` over its
 roster is 0, so the pre-change instrument cannot reach the target; (b) the r93 gate `6b4c53d1…`
-(`before/controls/do-nothing-gate-r93.py`) reads `96/96 met` on the r93 battery and `100/102 unmet`
+(`before/controls/do-nothing-gate-r93.py`) reads `96/96 met` on the r93 battery and `96/98 unmet`
 on the r94 roster (it answers a verdict for `12.9.6-rc1` and for the stderr fake) but still refuses
 a 10-digit component, so the r93 gate cannot reach the target either — measured, not asserted.
 
@@ -164,3 +164,13 @@ proves the env channel is live is `LIM_STD_VERSION=12.9.6` + `12.9.6-rc1` on `AU
 predicate arithmetic, target, kill rule or counting command changes; the claim sentence remains
 "`failed_families` non-empty" as written in `claims.json`, and this amendment records what the
 receipts must additionally show.
+
+## Amendment A2 (2026-11-08, before scoring; the roster-total wording) — 98, not 102
+
+The frozen predicate first read `102/102 met`, counting the two new families as 102 in total. The
+battery's literal roster is 98 (`FAMILY_ROSTER` is 98 entries: the 96 r93 families plus
+`REFUSAL-VERSIONS-10DIGIT` and `AUTO-PROBE-SHAPES`). The predicate, target, kill rule and counting
+command now read `98/98`; no arithmetic changes. The instrument bytes are unchanged by this
+amendment, so `before/instruments.sha256` still verifies; the plan's own sha256 line in
+`freeze-manifest.sha256` is the only file whose line changes, and only by this amendment (the same
+split the r93 plan recorded).
