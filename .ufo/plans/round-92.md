@@ -247,7 +247,7 @@ Narrowings, each citing its artifact:
 
 The freeze manifest is back to a single purpose: it lists **instruments** (the gate, both batteries, the five
 channel controls, the four C2 bends, the three generators, the two runner scripts and the 13 pinned source
-files) — 28 lines, sha256 `2996f88656ddc1a126a549357bfcf1f074aef6d1e651948cfabd1503c925252c`. `sha256sum -c .ufo/waves/round-92/before/freeze-manifest.sha256` exits 0 at
+files) — 28 lines, sha256 `8f48d358ec065396727dcc967dc8c6b73187e4082b96b0c27ae56543a69e0350`. `sha256sum -c .ufo/waves/round-92/before/freeze-manifest.sha256` exits 0 at
 this commit. Declaration files (`.ufo/plans/round-92.md`, `SCORECARD.md`, `corpus/...`, `SKILL.md`,
 `claims.json`) are deliberately NOT in it: they were amended after the freeze (A1-A8) and are bound by commit
 and by the instrument ledger above (A7), which is exactly the narrowing A7 §2 filed. A receipt whose
