@@ -51,8 +51,8 @@ NEAR = {
         ('    image_lines = {b.get("path", b.get("image_path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}\n',
          '    image_lines = {b.get("path", b.get("image_path")) for b in bodies}\n')]),
     # U1: unverified list unsorted
-    "N08-unverified-unsorted": ("U1 sorted ascending", "UNVERIFIED-SORTED", [
-        ('    unverified.sort()\n', '')]),
+    "N08-unverified-unsorted": ("U1 sorted ascending", "UNVERIFIED-SORTED UNVERIFIED-IMAGE UNVERIFIED-MIXED UNVERIFIED-IMAGE-PATH", [
+        ('    unverified.sort()\n', '    unverified.reverse()\n')]),
     # U1: unverified uses last-wins path instead of first
     "N09-unverified-last-path": ("U1 first path else first image_path", "UNVERIFIED-IMAGE-PATH", [
         ('    image_lines = {b.get("path", b.get("image_path")) for b in bodies if b.get("protocol") in EFI_PROTOCOLS}\n',

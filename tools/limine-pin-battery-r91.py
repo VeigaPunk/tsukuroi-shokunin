@@ -1482,16 +1482,17 @@ def fam_unverified_image_path(c):
 
 def fam_unverified_sorted(c):
     """U1: unverified_image_lines is sorted ascending by physical line number regardless of the
-    order the entries appear. Three unverified image lines written out of order still sort."""
+    order the entries appear. Six unverified image lines interleaved with OK pins and non-efi
+    entries still sort; a gate that returns set-iteration order fails."""
     c.header()
-    efi_entry(c)
-    c.add("  path: boot():/%s" % rname(c.rng, ".efi"))   # line A (unverified)
-    efi_entry(c)
-    c.pin("OK")                                          # pin, not unverified
-    efi_entry(c)
-    c.add("  path: %s" % rname(c.rng, ".efi"))           # line B (unverified, later)
-    efi_entry(c)
-    c.add("  path: boot():/%s" % rname(c.rng, ".efi"))   # line C (unverified, latest)
+    for i in range(6):
+        efi_entry(c)
+        if i % 2 == 0:
+            c.add("  path: boot():/%s" % rname(c.rng, ".efi"))   # unverified (no '#')
+        else:
+            c.pin("OK")                                          # pin, not unverified
+    efi_entry(c, "linux")
+    c.add("  path: %s" % rname(c.rng, ".efi"))                    # non-efi, not listed
     efi_entry(c)
     c.pin("OK")
 
@@ -1678,7 +1679,8 @@ def u1_ok(c, got):
     if got_list is None:
         return False
     try:
-        return sorted(int(x) for x in got_list) == want
+        got_sorted = [int(x) for x in got_list]
+        return got_sorted == want and got_sorted == sorted(got_sorted)
     except Exception:
         return False
 
