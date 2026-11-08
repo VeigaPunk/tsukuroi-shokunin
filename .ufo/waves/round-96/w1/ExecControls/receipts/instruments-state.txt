@@ -1,0 +1,55 @@
+# ExecControls final tree state (second measurement pass, 2026-11-08 ~07:56 -0300)
+python: Python 3.14.8
+
+## checker bytes vs freeze manifest
+7ff63524fa971b50a4af108e66458918a88e2fedc7140d57c1ddbe428c81dbc4  tools/check-r96-calibration.py
+295464e92af68406b14de395df03473a884c3e73ac3ee20a6fd1322ec0dfab82  .ufo/waves/round-96/before/instruments.sha256
+7ff63524fa971b50a4af108e66458918a88e2fedc7140d57c1ddbe428c81dbc4  tools/check-r96-calibration.py
+manifest_pin_matches_worktree_checker: True
+
+## all r96 instruments named in the manifest, re-measured
+OK   tools/check-limine-pins.py
+OK   tools/limine-pin-battery-r96.py
+OK   tools/make-r96-bends.py
+OK   tools/check-r96-calibration.py
+OK   tools/check-registry-coverage.py
+OK   .ufo/plans/round-96.md
+OK   .ufo/waves/round-96/before/plan-frozen.md
+OK   .ufo/waves/round-96/claims.json
+OK   .ufo/waves/round-96/before/controls/do-nothing-battery-r95.py
+OK   .ufo/waves/round-96/before/controls/do-nothing-gate-r95.py
+OK   .ufo/waves/round-96/before/r95-registry-gate.sha256
+OK   .ufo/waves/round-96/before/c2-tip-b8f878c8.json
+OK   .ufo/waves/round-96/before/c2-before-73c47107.json
+OK   .ufo/waves/round-96/before/controls/bends/N01-echo-wrong.py
+OK   .ufo/waves/round-96/before/controls/bends/N02-y-cap-8.py
+OK   .ufo/waves/round-96/before/controls/bends/N03-era-label-flip.py
+OK   .ufo/waves/round-96/before/controls/bends/N04-extra-components.py
+
+## r95 tools edited this round (declared; not pinned by the r96 manifest)
+bbcb18f3c2b1c80e6ed375249bffb53fcc1def7d1043bb2e75e1452ba1003da7  tools/make-r95-bends.py
+e19d3c0b50aa07dba3ab8b5646314d39ab9bb721e754eaa8bd4c3fb96de9dcf5  tools/limine-pin-battery-r95.py
+0
+
+## r96 ledger presence
+ls: cannot access '.ufo/waves/round-96/claim-falsification.tsv': No such file or directory
+
+## git worktree status (read-only)
+?? .ufo/waves/round-96/after/
+?? .ufo/waves/round-96/w1.ready.dispatched
+?? .ufo/waves/round-96/w1/ExecBattery/
+?? .ufo/waves/round-96/w1/ExecBend/
+?? .ufo/waves/round-96/w1/ExecCalibration/
+?? .ufo/waves/round-96/w1/ExecControls/
+?? .ufo/waves/round-96/w1/ExecDoNothing.md
+?? .ufo/waves/round-96/w1/ExecDoNothing/
+?? .ufo/waves/round-96/w1/MutBound/
+?? .ufo/waves/round-96/w1/ReviewBattery/
+?? .ufo/waves/round-96/w1/ReviewCalibration/
+?? .ufo/waves/round-96/w1/ScoutSources/
+
+## history: the pass-1 divergence (was live at 07:52, repaired 07:54:00)
+pass-1 checker sha256: ad894667f951d2cc900ca240509c56207f7dee486448ac8782a2808fc13aa1d9 (size 13579, mtime 07:47:39)
+pass-1 manifest pin : 7ff63524fa971b50a4af108e66458918a88e2fedc7140d57c1ddbe428c81dbc4 (= git show HEAD bytes)
+pass-1 frozen-binary reading on the then-tree: F3 tools/make-r95-bends.py does not say boundary member
+repair observed 07:54:00: checker restored to 7ff63524 (git status clean vs HEAD b0bf1be9); make-r95-bends.py rewrapped to sha256 bbcb18f3c2b1c80e6ed375249bffb53fcc1def7d1043bb2e75e1452ba1003da7

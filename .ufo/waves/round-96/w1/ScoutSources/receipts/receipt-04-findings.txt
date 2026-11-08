@@ -1,0 +1,78 @@
+receipt 04 — findings against the row the L1 already landed (S390, commit 59cbfe2f)
+seat: ScoutSources (round 96, w1). measured 2026-11-08 on the pin this seat fetched.
+
+THE LANDED ROW (corpus/SOURCES.md line 401, at HEAD a814f24d):
+  anchor cell:  `sys.int_info.default_max_str_digits` attribute, byte 157653 of the
+                2026-11-08 pin (sha256 a7e00587…)
+  teaches cell: The default value for sys.get_int_max_str_digits() when it is not
+                otherwise explicitly configured.
+  source cell:  sys.int_info — CPython `sys` module, `default_max_str_digits`
+                (https://docs.python.org/3/library/sys.html#sys.int_info.default_max_str_digits)
+
+F1 — THE ANCHOR BYTE DOES NOT RESOLVE TO THE QUOTED SENTENCE.
+  On the pin the row names (sha256 a7e005875e4152bcccaf44b9a834c123cc69bf7b66b3b8398aef91cffe77dd0e,
+  280632 bytes), byte 157653 is a single SPACE inside the tag
+  `<span class="sig-name descname">` (that tag starts at byte 157648; the bytes are
+  b'an><span class=' at 157645..157660 and b[157653:157654] == b' ').
+  It is not the attribute id (that string starts at byte 157529), not the visible
+  attribute-name text (byte 157698) and not any part of the quoted sentence.
+  The sentence's own bytes are split by the reference link and a newline:
+    first text run  "The default value for "                              byte 157851
+    code span      <span class="pre">sys.get_int_max_str_digits()</span>  byte 158032
+    newline                                                             byte 158096
+    second text run "when it is not otherwise explicitly configured."    byte 158097
+  so no single raw byte can resolve it; it is contiguous only in the rendered text
+  (offset 42794 via html.parser, 40511 whitespace-normalised).
+  Consequence: a reader who takes the anchor's byte and reads the page at that offset
+  finds a space, and cannot reproduce the quoted sentence from the row's own locator.
+  The same wrong byte is repeated in corpus/lessons/round-96.md's Gate table
+  ("(byte 157653)") — the lesson's Gate record for S390 carries the same offset.
+
+F2 — THE ROW'S SOURCE URL IS THE ROLLING "/3/" ALIAS, NOT VERSION-PINNED.
+  corpus/SOURCES.md S385 is the lane's own precedent: it supersedes S377 precisely
+  because "a version-pinned URL keeps the locator from drifting with the next Python
+  release".  The r93 ScoutSource note states the same rule.  S390 uses the rolling
+  https://docs.python.org/3/library/sys.html#...  S389 (the sibling Python row added in
+  r95) uses the version-pinned https://docs.python.org/3.15/library/stdtypes.html#...
+  Measured today: both URL forms return HTTP 200 and are byte-identical
+  (/3/ and /3.15/ copies of sys.html: both 280632 bytes, sha256 a7e00587…, cmp IDENTICAL),
+  so this is a drift exposure, not a current factual error: the next Python release
+  moves /3/ and the row's locator and its "Python 3.15.2 documentation" title in the
+  anchor cell stop agreeing.
+
+F3 — THE SCOPE CELL STATES A DESIGN CONSEQUENCE THE SOURCE DOES NOT STATE.
+  The landed scope cell reads "...the cap a parser that hands a component to int() must
+  bound itself".  The page states only what the default value of
+  sys.get_int_max_str_digits() is; it says nothing about parsers, components or caps.
+  This is the QUALITY.md 66 shape ("a teaches cell or entry statement keeps every
+  branch its quoted source states" — and by the same reading does not add branches the
+  source does not state).  The drafted scope in receipt-03 keeps the claim inside what
+  the page says.  Note: the same inference appears in the lesson's Gate prose
+  ("it names the value a parser that hands a component to int() must bound itself
+  against") — that sentence is about the row's usefulness, which is fine; the scope CELL
+  is the claim the row stands for, which is the wrong place for it.
+
+F4 — WHAT THE PAGE DOES NOT STATE (checked by byte search on the 280632-byte pin):
+  b"4300" 0 occurrences ; b"640" 0 occurrences ; b"Limine" 0 ; b"limine" 0 ;
+  no "as provided by" phrasing anywhere.
+  So this page grounds the DEFAULT VALUE OF THE LIMIT and the fact that a default
+  exists; it does NOT state the number 4300 (that is S389's stdtypes page, whose
+  "The default limit is 4300 digits as provided in sys.int_info.default_max_str_digits."
+  sits at byte 785297 of its own 815447-byte pin and reproduces today byte-for-byte).
+  It states NO Limine behaviour at all.  The row's teaches cell correctly stops at the
+  quoted sentence and does not import Limine behaviour, so F4 is a scope-limit note for
+  the L1, not a defect in the landed teaches cell.
+
+WHAT IS CORRECT IN THE LANDED ROW (verified, not assumed):
+  - the quote is verbatim on the page (rendered text): "The default value for
+    sys.get_int_max_str_digits() when it is not otherwise explicitly configured."
+    — 12 words, <=25.
+  - the sha256 prefix a7e00587… in the anchor cell reproduces this seat's independent
+    fetch of the same URL exactly (full digest
+    a7e005875e4152bcccaf44b9a834c123cc69bf7b66b3b8398aef91cffe77dd0e).
+  - the used-by path corpus/knowledge/limine-bound-per-component-r96.md exists at HEAD
+    a814f24d (git ls-tree: blob 061ddb94…), so the `mined` status is not dangling.
+  - the row's shape is census-clean: GATE 0 (HEAD extract, row untouched) exits 0 with
+    0 E findings and the lane's 57 W04 + 1 W01 warning set unchanged.
+  So the landed row is a VALID row that is slightly mis-anchored; the fix is a
+  superseding row (CORPUS.md rule 2), which GATE 1 proves validates at exit 0.

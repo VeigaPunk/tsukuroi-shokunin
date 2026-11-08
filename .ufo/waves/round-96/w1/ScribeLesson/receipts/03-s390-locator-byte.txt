@@ -1,0 +1,30 @@
+# Receipt 03 — the S390 locator byte, measured on the pin the row names
+# Command: python3 (bytes of the 2026-11-08 fetch of https://docs.python.org/3/library/sys.html)
+sha256   : a7e005875e4152bcccaf44b9a834c123cc69bf7b66b3b8398aef91cffe77dd0e
+bytes    : 280632   (the S390 row names 'sha256 a7e00587…', '2026-11-08 pin')
+
+The S390 row's located-at cell reads: `sys.int_info.default_max_str_digits` attribute, byte 157653.
+corpus/knowledge/limine-bound-per-component-r96.md:19 and the integrated corpus/lessons/round-96.md
+bind the SAME byte 157653 to the quoted sentence.
+
+Measured byte map of that pin:
+  <dt> opening tag of the attribute              byte 157495  -> b'<dt class="sig sig-object py" id="sys.int_info.defau'
+  id="sys.int_info.default_max_str_digits"       byte 157525  -> b'id="sys.int_info.default_max_str_digits">\n<span clas'
+  visible name `default_max_str_digits` (span.pre) byte 157686  -> b'class="pre">default_max_str_digits</span></span><a c'
+  start of the quoted sentence                   byte 157851  -> b'The default value for <a class="reference internal" '
+  byte 157653 as cited                           byte 157653  -> b' class="sig-name descname"><span class="pre">default'
+
+Conclusion (raw): byte 157653 is inside the opening tag `<span class="sig-name descname">`
+(that tag opens at byte 157648). It is neither the id= attribute (157525) nor the visible
+name (157698) nor the quoted sentence (157851).
+
+Convention check against the sibling row S389 (same registry):
+  S389 cites 780197 -> measured 780197  MATCH  b'<section id="integer-string-conversion-length-'
+  S389 cites 780256 -> measured 780256  MATCH  b'<span id="int-max-str-digits"></span><h2>Integ'
+  S389 cites 785297 -> measured 785297  MATCH  b'The default limit is 4300 digits as provided i'
+  S389 cites 782228 -> measured 782228  MATCH  b'When an operation would exceed the limit, a <a'
+
+So S389's four bytes are the exact start of the located element/sentence; S390's cited byte
+is the start of no located thing named in its row, and it sits 198 bytes before the sentence
+it is said to locate. The S390 row is the only registry row whose located-at byte does not
+point at the thing it names.

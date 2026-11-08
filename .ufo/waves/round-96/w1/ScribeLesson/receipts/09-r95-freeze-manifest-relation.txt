@@ -1,0 +1,57 @@
+# Receipt 09 — the r95 freeze manifest vs the round-96 docstring edits (seat ScribeLesson)
+
+## The r95 manifest no longer verifies in the working tree
+$ sha256sum -c .ufo/waves/round-95/before/instruments.sha256
+tools/check-limine-pins.py: OK
+tools/limine-pin-battery-r95.py: FAILED
+tools/make-r95-bends.py: FAILED
+.ufo/waves/round-95/before/controls/bends/N05-strict-8.py: OK
+.ufo/waves/round-95/before/controls/count-runs.py: OK
+.ufo/waves/round-95/before/controls/do-nothing-battery-r94.py: OK
+.ufo/waves/round-95/before/controls/do-nothing-gate-r94.py: OK
+.ufo/waves/round-95/claims.json: OK
+.ufo/waves/round-95/before/plan-frozen.md: OK
+sha256sum: WARNING: 2 computed checksum(s) did NOT match
+exit=1 (2 FAILED: the two r95 tools the round-96 wording correction touched)
+
+## The pinned bytes are re-derivable at b8f878c8 — the r95 landed commit
+$ git show b8f878c8:<path> | sha256sum
+  a51dca18d3c7641664a2f64476a7abc2bb14ff1133772f109ac73490828b9ebb  tools/limine-pin-battery-r95.py
+  57669e190e3e695956c0c4bca4302050daef62dd1b3ce8f9d7f98b869ba97554  tools/make-r95-bends.py
+  7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32  tools/check-limine-pins.py
+  (compare with the manifest lines: a51dca18d3c7641664a2f64476a7abc2bb14ff1133772f109ac73490828b9ebb tools/limine-pin-battery-r95.py
+                        57669e190e3e695956c0c4bca4302050daef62dd1b3ce8f9d7f98b869ba97554 tools/make-r95-bends.py
+                        7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32 tools/check-limine-pins.py)
+
+## The current worktree bytes (the r96 wording correction)
+e19d3c0b50aa07dba3ab8b5646314d39ab9bb721e754eaa8bd4c3fb96de9dcf5  tools/limine-pin-battery-r95.py
+bbcb18f3c2b1c80e6ed375249bffb53fcc1def7d1043bb2e75e1452ba1003da7  tools/make-r95-bends.py
+7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32  tools/check-limine-pins.py
+
+## The edits are DOCSTRING-ONLY: the ASTs are equal once docstrings are stripped
+$ python3 (ast.parse both versions, drop leading docstring Expr nodes, ast.dump)
+tools/limine-pin-battery-r95.py ast_equal_modulo_docstrings: True
+tools/make-r95-bends.py ast_equal_modulo_docstrings: True
+
+## The exact wording diff
+-values and never the largest in-bound member, and the declared `REFUSAL_DIGIT9` constant is
++values and never a boundary member, and the declared `REFUSAL_DIGIT9` constant is
+-    """r95 C1 (QUALITY 139, the ACCEPTED leg): the largest in-bound member of the gate's published
+-    1-9-digit component cap — `999999999.9.9`, first component 999,999,999 — is a real version: the
++    """r95 C1 (QUALITY 139, the ACCEPTED leg; wording corrected in r96, routed-4): a boundary member
++    of the gate's published 1-9-digit component cap — `999999999.9.9`, first component 999,999,999,
++    the cap's value with the other components small — is a real version: the
+-N05 strict-8     : the component bound is `<= 8` (was `<= 9`) -> the gate refuses the largest
+-                   in-bound member of its own published 1-9-digit cap (`999999999.9.9`). The r94
++N05 strict-8     : the component bound is `<= 8` (was `<= 9`) -> the gate refuses a boundary member
++                   (first component at the cap) of its own published 1-9-digit cap
++                   (`999999999.9.9`). The r94
+
+## The round-96 manifest DOES verify (17 entries)
+$ sha256sum -c .ufo/waves/round-96/before/instruments.sha256
+17
+17 lines OK, 0 FAILED, exit=0
+
+## The wording the correction installed (measured, not asserted)
+  tools/limine-pin-battery-r95.py: largest-in-bound=0 boundary-member=4
+  tools/make-r95-bends.py: largest-in-bound=0 boundary-member=1

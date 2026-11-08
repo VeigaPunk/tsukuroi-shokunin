@@ -1,0 +1,31 @@
+# Receipt 13 — the S390 locator check, in both readings (seat ScribeLesson)
+# The check reads the 2026-11-08 pins under ScribeLesson/pins/ and asks whether the byte a
+# registry row cites is the exact start of the thing the row names.
+
+## the pre-correction locator (the byte the S390 row cited before 8fdb05e1)
+$ python3 .ufo/waves/round-96/w1/ScribeLesson/receipts/check-s390-locator.py --pins .ufo/waves/round-96/w1/ScribeLesson/pins --row old
+S389 byte 780197 -> measured 780197  PASS  <section id="integer-string-conversion-length-limitation">
+S389 byte 780256 -> measured 780256  PASS  <span id="int-max-str-digits">
+S389 byte 785297 -> measured 785297  PASS  the `4300` sentence
+S389 byte 782228 -> measured 782228  PASS  the ValueError sentence
+S390 byte 157653 -> measured 157525  FAIL  the `sys.int_info.default_max_str_digits` attribute
+     bytes at the cited offset: b' class="sig-name descname"><span class="pre">def'
+locators 5, failing 1
+exit=1
+
+## the corrected locator (the byte the S390 row cites after 8fdb05e1)
+$ python3 .ufo/waves/round-96/w1/ScribeLesson/receipts/check-s390-locator.py --pins .ufo/waves/round-96/w1/ScribeLesson/pins --row new
+S389 byte 780197 -> measured 780197  PASS  <section id="integer-string-conversion-length-limitation">
+S389 byte 780256 -> measured 780256  PASS  <span id="int-max-str-digits">
+S389 byte 785297 -> measured 785297  PASS  the `4300` sentence
+S389 byte 782228 -> measured 782228  PASS  the ValueError sentence
+S390 byte 157525 -> measured 157525  PASS  the `sys.int_info.default_max_str_digits` attribute
+locators 5, failing 0
+exit=0
+
+## the corrected S390 row, as landed
+  anchor cell: `sys.int_info.default_max_str_digits` attribute (id at byte 157525; quoted sentence at byte 157851) of the 2026-11-08 pin (sha256 a7e00587…)
+  quote cell : The default value for sys.get_int_max_str_digits() when it is not otherwise explicitly configured.
+
+## the corrected README sentence, as landed
+1164:the class reached the r95 instrument twice (the roster's `12.9.5.1` row and the `--usage-check` value

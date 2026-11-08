@@ -1,0 +1,31 @@
+# Non-Obvious Move Receipt: Mutant M06-z-cap-8 Survival & Z-Component Boundary Blindness
+
+## 1. Mutant Definition (M06-z-cap-8, bending 3rd component cap to <=8 digits)
+```diff
+-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
++    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and (len(p) <= 9 and (i != 2 or len(p) <= 8)) for i, p in enumerate(parts)):  # M06 (Z cap bent)
+```
+
+## 2. Battery Run: limine-pin-battery-r96.py on M06-z-cap-8
+$ python3 tools/limine-pin-battery-r96.py --gate <M06-z-cap-8> --runs 1
+exit=0
+stdout: families_passed 103/103 verdict met failed -
+stderr: 
+Finding: Battery r96 reports 103/103 met! Blind to Z-component cap reduction from 9 to 8 digits.
+
+## 3. Direct Probes: Landed Gate vs Mutant M06 on 9-Digit Z Boundary Values
+### Landed Gate (tools/check-limine-pins.py):
+$ check-limine-pins.py --limine-version 12.9.999999999 -> rc=0
+  {"findings": [], "hash_mismatch_panic": null, "limine_version": "12.9.999999999", "limine_version_source": "flag", "measured_boot": null, "on_panic": "menu", "pins": [], "rc": 0, "schema": "tsukuroi-limine-pins-v3", "secure_boot_enforced": false, "tpm_present": null, "unverified_image_lines": [], "verdict": "HEALTHY", "visibility_era": "12.9.5+"}
+$ check-limine-pins.py --limine-version 0.0.999999999 -> rc=0
+  {"findings": [], "hash_mismatch_panic": null, "limine_version": "0.0.999999999", "limine_version_source": "flag", "measured_boot": null, "on_panic": "menu", "pins": [], "rc": 0, "schema": "tsukuroi-limine-pins-v3", "secure_boot_enforced": false, "tpm_present": null, "unverified_image_lines": [], "verdict": "HEALTHY", "visibility_era": "pre-12.9.5"}
+
+### Mutant M06 (Z-cap bent to <=8):
+$ M06-z-cap-8.py --limine-version 12.9.999999999 -> rc=64 (refusal rc 64)
+$ M06-z-cap-8.py --limine-version 0.0.999999999 -> rc=64 (refusal rc 64)
+
+## 4. Synthesis Conclusion
+The landed gate correctly accepts 9-digit Z components (12.9.999999999 and 0.0.999999999),
+but because limine-pin-battery-r96.py only exercises X (REFUSAL-VERSIONS-9DIGIT) and Y
+(REFUSAL-VERSIONS-9DIGIT-Y), the third component remains uncertified at boundary (QUALITY 139).
+Adding REFUSAL-VERSIONS-9DIGIT-Z kills M06-z-cap-8 and completes the per-component boundary proof.

@@ -1,0 +1,25 @@
+# why the r95 battery is blind to the echo: its echo assertion applies only to AUTO cases
+2010:def auto_ok(c, got):
+2011-    """V3: an auto case must report the probed version and its source. A non-auto case is not
+2012-    checked here (its JSON may carry the flag's value)."""
+2013-    if c.auto is None or c.auto in ("fail", "shapes"):
+2014-        return True
+2015-    return got[8] == c.auto and got[9] == "probe"
+2016-
+2017-
+2018-def run_usage(gate, conf, esp, c, cwd):
+2019-    """V2/V3 refusal family: every value in c.usage must exit 64 with EMPTY stdout and no verdict
+2020-    line; a fake `limine` that exits 1 under `auto` must do the same. Returns (ok, rows, error)."""
+2021-    # r94: the usage-family runner. `usage()` drives the flag API only (each enumerated value is
+2022-    # passed as --limine-version); the probe-shape family (AUTO-PROBE-SHAPES) is driven by c.auto
+2023-    # and carries the fake's body, not a version. A `usage` list whose last entry is "12.9.4" reads
+2024-    # the healthy verdict as the positive control (the r94 C1 pair: the same gate must answer a
+2025-    # verdict for 12.9.4, so the refusals are not a blanket refusal).
+2026-    values = list(c.usage) if c.usage is not None else ["auto"]
+2027-    path = case_path(cwd, c)
+2028-    rows, bad = [], []
+2029-    for v in values:
+2030-        inner = [sys.executable, "-I", gate, "--conf", conf, "--esp", esp, "--limine-version", v]
+
+# N04: the pre-existing four-component row (REFUSAL-VERSIONS family) — where 12.9.5.1 is sent
+1643:REFUSAL_VERSIONS = ("12.9", "12.9.5.1", "abc", "", " 12.9.5", "12.9.5 ", "+12.9.5", "12..5",

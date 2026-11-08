@@ -1,0 +1,47 @@
+receipt 02 — S389 re-open: CPython stdtypes "integer string conversion length limitation"
+seat: ScoutSources (round 96, w1). access date: 2026-11-08.
+
+$ curl -sS -L -o stdtypes.html -w "HTTP:%{http_code} SIZE:%{size_download} URL:%{url_effective}\n" \
+    'https://docs.python.org/3/library/stdtypes.html#integer-string-conversion-length-limitation'
+HTTP:200 SIZE:815447 URL:https://docs.python.org/3/builtins/stdtypes.html
+(1 redirect: /3/library/stdtypes.html -> /3/builtins/stdtypes.html)
+
+$ curl -sS -L -o stdtypes-3.15.html ... 'https://docs.python.org/3.15/library/stdtypes.html#...'
+HTTP:200 SIZE:815447 URL:https://docs.python.org/3.15/builtins/stdtypes.html
+$ cmp stdtypes.html stdtypes-3.15.html  -> IDENTICAL
+
+$ sha256sum stdtypes.html
+6bf2ce2ba49d30974485266d70aecd4c4eb89334eb73367f3f99bfa036c7e9a8
+$ wc -c stdtypes.html
+815447
+
+$ cmp stdtypes.html /home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-95/w1/ScoutSources/pins/python-3-stdtypes.html
+-> BYTE-IDENTICAL to the r95 pin (same sha256, same 815447 bytes)
+
+page identity: <title>Built-in Types — Python 3.15.2 documentation</title>
+Sphinx build stamp: "Last updated on Nov 08, 2026 (07:53 UTC)." (byte 815163)
+
+ANCHORS / SENTENCE OFFSETS (measured on this 815447-byte pin):
+  <section id="integer-string-conversion-length-limitation">   byte 780197
+  <span id="int-max-str-digits">                              byte 780256  (id attr at 780262)
+  "The default limit is 4300 digits as provided in"            byte 785297  <- the 4300-digit sentence
+  "When an operation would exceed the limit, a ValueError is raised:"  byte 782228
+  "The lowest limit that can be configured is 640 digits..."   byte 785568
+  All four offsets are EXACTLY the offsets the landed S389 row records (780197 / 780256 /
+  785297 / 782228), so the r95 row's anchor still resolves on today's bytes.
+
+THE 4300-DIGIT SENTENCE (verbatim, 10 words):
+  "The default limit is 4300 digits as provided in sys.int_info.default_max_str_digits."
+  In the raw HTML the sentence is again split by a <a>/<code> element after "provided in";
+  the leading text run starts at byte 785297, which is the offset the row cites.
+
+THE SPHINX "LAST UPDATED" CAVEAT (from the r95 Gate; corpus/lessons/round-95.md,
+  "Two notes the L1 must carry with the row", note 2, and
+  corpus/lessons/round-95-verifier-spotcheck.md §3):
+  The pin's sha256 is Sphinx-stamp dependent — "Last updated on Nov 08, 2026 (07:53 UTC)"
+  is a moving line baked into the page — so the digest of a live Sphinx page is NOT a
+  stable identity.  Re-verify the row by the page title/version string and by the two
+  sentence offsets (785297 and 782228), never by the digest alone; the same caveat S385
+  already records.  Today's fetch happens to reproduce the r95 digest exactly (the docs
+  build has not been re-stamped since the r95 pin was taken at 07:53 UTC), but that
+  equality is a property of this build, not a guarantee for the next one.

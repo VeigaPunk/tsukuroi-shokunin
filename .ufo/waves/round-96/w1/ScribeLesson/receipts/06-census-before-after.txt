@@ -1,0 +1,50 @@
+# Receipt 06 — the census before/after this round (seat ScribeLesson, 2026-11-08)
+
+The frozen command (CORPUS.md contract; the lane's own registry):
+  bash /home/vgpnk/Projects/shokunin/scripts/sources-census.sh census|validate --root /home/vgpnk/Projects/shokunin tsukuroi
+
+## BEFORE — the pre-round tree (git archive of 73c47107, the r95 spot-check commit)
+$ git -C <lane> archive 73c47107 | tar -x -C <scratch>/pre73c
+$ bash scripts/sources-census.sh census --file <scratch>/pre73c/corpus/SOURCES.md
+file	rows	389
+file	tier.A	371
+file	tier.B	6
+file	tier.C	12
+file	status.mined	351
+file	status.queued	5
+file	status.rejected	33
+exit=0
+
+$ bash scripts/sources-census.sh validate --file <scratch>/pre73c/corpus/SOURCES.md   (full output: census-validate-pre.txt)
+exit=0
+E-findings: 0  W-findings: 58  lines: 59
+
+## AFTER — the landed tree (HEAD 59cbfe2f)
+$ git -C <lane> rev-parse HEAD
+a814f24dc31270bca4e8999ac3cd907ecd72f100
+$ bash scripts/sources-census.sh census --root /home/vgpnk/Projects/shokunin tsukuroi
+tsukuroi	rows	390
+tsukuroi	tier.A	372
+tsukuroi	tier.B	6
+tsukuroi	tier.C	12
+tsukuroi	status.mined	352
+tsukuroi	status.queued	5
+tsukuroi	status.rejected	33
+exit=0
+
+$ bash scripts/sources-census.sh validate --root /home/vgpnk/Projects/shokunin tsukuroi   (full output: census-validate-after.txt)
+exit=0
+E-findings: 0  W-findings: 58  lines: 59
+
+## The row count itself, straight from the committed blobs
+  git show 73c47107:corpus/SOURCES.md | grep -cE "^\|[[:space:]]*S[0-9]{3,}"  -> 389
+  git show 38adc4ed:corpus/SOURCES.md | grep -cE "^\|[[:space:]]*S[0-9]{3,}"  -> 389
+  git show 59cbfe2f:corpus/SOURCES.md | grep -cE "^\|[[:space:]]*S[0-9]{3,}"  -> 390
+
+## The one row added this round
++| S390 | sys.int_info — CPython `sys` module, `default_max_str_digits` (https://docs.python.org/3/library/sys.html#sys.int_info.default_max_str_digits) | doc
+
+## The difference between the two validate outputs (only the row-id prefix changes)
+     59 < file
+     59 > tsukuroi
+(lane prefix 'file' -> 'tsukuroi'; every code and id is unchanged)

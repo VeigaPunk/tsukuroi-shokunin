@@ -1,0 +1,71 @@
+{
+ "source": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/tools/check-limine-pins.py",
+ "source_sha256": "7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32",
+ "expected_source_sha256": "7d79ac296daacc462e7688f24801568ce10a0289d9fe4e3bafc3b293d6090d32",
+ "mutants": [
+  {
+   "name": "M01-source-flag-always",
+   "sha256": "cad2f916eb5f63366c93ca139565dd4c1d2c854adb98e13a3171d140e0e3dbb7",
+   "bytes": 30299,
+   "scratch_path": "/fast/scratch/hyaku/tsukuroi-r96/MutBound/mutants/M01-source-flag-always.py",
+   "seat_path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-96/w1/MutBound/mutants/M01-source-flag-always.py",
+   "diff": "-            \"limine_version_source\": limine_version_source,\n+            \"limine_version_source\": \"flag\",  # M01 (source always flag)"
+  },
+  {
+   "name": "M02-source-probe-always",
+   "sha256": "287766dd93e66b8887256a3665aa6b5bea62186a4c779d0029b97eb250123e2d",
+   "bytes": 30301,
+   "scratch_path": "/fast/scratch/hyaku/tsukuroi-r96/MutBound/mutants/M02-source-probe-always.py",
+   "seat_path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-96/w1/MutBound/mutants/M02-source-probe-always.py",
+   "diff": "-            \"limine_version_source\": limine_version_source,\n+            \"limine_version_source\": \"probe\",  # M02 (source always probe)"
+  },
+  {
+   "name": "M03-era-from-x-only",
+   "sha256": "62cbc213da7ed824ee35580dda8d5d981cb6624f21e4a196688b3b7f9701a9ed",
+   "bytes": 30317,
+   "scratch_path": "/fast/scratch/hyaku/tsukuroi-r96/MutBound/mutants/M03-era-from-x-only.py",
+   "seat_path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-96/w1/MutBound/mutants/M03-era-from-x-only.py",
+   "diff": "-    era_b = version >= VISIBILITY_ERA_SPLIT\n+    era_b = version[0] >= VISIBILITY_ERA_SPLIT[0]  # M03 (era from X only)"
+  },
+  {
+   "name": "M04-era-split-12-10-0",
+   "sha256": "3f2c1b376ad7e12285a08cae07a0de6b304fa0fbce5455fcdf7416199d4fc54b",
+   "bytes": 30249,
+   "scratch_path": "/fast/scratch/hyaku/tsukuroi-r96/MutBound/mutants/M04-era-split-12-10-0.py",
+   "seat_path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-96/w1/MutBound/mutants/M04-era-split-12-10-0.py",
+   "diff": "-VISIBILITY_ERA_SPLIT = (12, 9, 5)   # first upstream release with the create_menu_tree() cut\n+VISIBILITY_ERA_SPLIT = (12, 10, 0)   # M04 (split bent)"
+  },
+  {
+   "name": "M05-y-cap-8",
+   "sha256": "410d005e724247c54d7a5bc1fa12a0f4c1db37f8069459d10ad85d4176085cab",
+   "bytes": 30350,
+   "scratch_path": "/fast/scratch/hyaku/tsukuroi-r96/MutBound/mutants/M05-y-cap-8.py",
+   "seat_path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-96/w1/MutBound/mutants/M05-y-cap-8.py",
+   "diff": "-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):\n+    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and (len(p) <= 9 and (i != 1 or len(p) <= 8)) for i, p in enumerate(parts)):  # M05 (Y cap bent)"
+  },
+  {
+   "name": "M06-z-cap-8",
+   "sha256": "d433f0de4e08eb9b6fa7772e77a4a3faab56534e803aac1603804e137f0e03f3",
+   "bytes": 30350,
+   "scratch_path": "/fast/scratch/hyaku/tsukuroi-r96/MutBound/mutants/M06-z-cap-8.py",
+   "seat_path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-96/w1/MutBound/mutants/M06-z-cap-8.py",
+   "diff": "-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):\n+    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and (len(p) <= 9 and (i != 2 or len(p) <= 8)) for i, p in enumerate(parts)):  # M06 (Z cap bent)"
+  },
+  {
+   "name": "M07-echo-lower",
+   "sha256": "ccc03aba3fdcd46c2e860dfe2502b6bf09637105e28df6700dc1e66d79d9a600",
+   "bytes": 30316,
+   "scratch_path": "/fast/scratch/hyaku/tsukuroi-r96/MutBound/mutants/M07-echo-lower.py",
+   "seat_path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-96/w1/MutBound/mutants/M07-echo-lower.py",
+   "diff": "-            \"limine_version\": limine_version,\n+            \"limine_version\": limine_version.lower(),  # M07 (echo lowered)"
+  },
+  {
+   "name": "M08-refusal-9digit-below-1e8",
+   "sha256": "7f51f6d6652a0548effae81b560896fff6890996486511abbff80b806060c7b9",
+   "bytes": 30369,
+   "scratch_path": "/fast/scratch/hyaku/tsukuroi-r96/MutBound/mutants/M08-refusal-9digit-below-1e8.py",
+   "seat_path": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin/.ufo/waves/round-96/w1/MutBound/mutants/M08-refusal-9digit-below-1e8.py",
+   "diff": "-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):\n+    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 and (len(p) != 9 or int(p) >= 100000000) for p in parts):  # M08 (9-digit values below 1e8 refused)"
+  }
+ ]
+}

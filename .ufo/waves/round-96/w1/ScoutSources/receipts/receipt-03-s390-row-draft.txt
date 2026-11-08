@@ -1,0 +1,75 @@
+receipt 03 — the drafted SOURCES row (S390 per the brief; S391 superseding per CORPUS.md rule 2)
+seat: ScoutSources (round 96, w1). drafted 2026-11-08.
+
+--- THE ROW AS DRAFTED (11 columns, no "|" inside any cell) ---
+
+DRAFT A — id S390, the id the brief names, on a registry that does NOT yet carry S390.
+(This is the shape the brief asks for; it is what the seat would have filed had the
+registry not already carried an S390 row.  GATE G below proves it validates.)
+
+| S390 | Python 3 documentation — `sys.int_info.default_max_str_digits`, version-pinned — https://docs.python.org/3.15/library/sys.html#sys.int_info.default_max_str_digits | docs | A | CPython's decimal-conversion limit default — the value `sys.get_int_max_str_digits()` returns when the limit is not otherwise configured | `sys.int_info.default_max_str_digits` (`<dt class="sig sig-object py" id="sys.int_info.default_max_str_digits">` at byte 157495 of the pinned copy; the `id` attribute at byte 157525); the quoted sentence's first raw text run at byte 157851 and its second at byte 158097 — the sentence is split by a link element and a newline, so no single raw byte resolves it (contiguous in the rendered text at offset 42794); page title "sys — System-specific parameters and functions — Python 3.15.2 documentation"; fetched 2026-11-08, 280632 bytes, sha256 `a7e005875e4152bcccaf44b9a834c123cc69bf7b66b3b8398aef91cffe77dd0e` | "The default value for sys.get_int_max_str_digits() when it is not otherwise explicitly configured." — the default int-string digit limit, unset by default | queued | 2026-11-08 | 180d | corpus/knowledge/limine-bound-per-component-r96.md |
+
+DRAFT B — id S391, the shape the contract requires against the landed tree.
+CORPUS.md §SOURCES.md rule 2: "Append-only. Only status, recheck and used-by change in
+place ... A correction is a new row whose teaches opens `supersedes S0NN —`."
+The registry at HEAD a814f24d ALREADY carries an S390 row (landed by the L1 in commit
+59cbfe2f), so DRAFT A cannot be appended under the id S390 (E03 duplicate id, see GATE F).
+DRAFT B is DRAFT A re-id'ed S391 with the teaches cell opened "supersedes S390 —", the
+scope unchanged, status mined (the used-by path exists at HEAD), and the version-pinned
+URL (S385/S389 precedent for Python-docs rows).
+
+| S391 | Python 3 documentation — `sys.int_info.default_max_str_digits`, version-pinned — https://docs.python.org/3.15/library/sys.html#sys.int_info.default_max_str_digits | docs | A | CPython's decimal-conversion limit default — the value `sys.get_int_max_str_digits()` returns when the limit is not otherwise configured | `sys.int_info.default_max_str_digits` (`<dt class="sig sig-object py" id="sys.int_info.default_max_str_digits">` at byte 157495 of the pinned copy; the `id` attribute at byte 157525); the quoted sentence's first raw text run at byte 157851 and its second at byte 158097 — the sentence is split by a link element and a newline, so no single raw byte resolves it (contiguous in the rendered text at offset 42794); page title "sys — System-specific parameters and functions — Python 3.15.2 documentation"; fetched 2026-11-08, 280632 bytes, sha256 `a7e005875e4152bcccaf44b9a834c123cc69bf7b66b3b8398aef91cffe77dd0e` | supersedes S390 — its anchor byte 157653 lands on markup whitespace, not on the quoted sentence; "The default value for sys.get_int_max_str_digits() when it is not otherwise explicitly configured." — the default int-string digit limit, unset by default; the page states no 4300 and no Limine behaviour | mined | 2026-11-08 | 180d | corpus/knowledge/limine-bound-per-component-r96.md |
+
+teaches quote length: 12 words (<=25).  All 11 cells contain no "|" (asserted in the
+generator before writing).  Row NF = 13 (11 columns).
+
+--- CENSUS GATES (scripts/sources-census.sh validate --file <mirror>/corpus/SOURCES.md) ---
+Every mirror below is a git-archive extract of the lane (read-only) or a copy of the lane's
+corpus/ in scratch; nothing in the lane was written.
+
+GATE 0 — baseline, HEAD a814f24d extract, row untouched
+  exit 0 ; no E findings ; final line "file ok .../final/corpus/SOURCES.md"
+
+GATE 1 — HEAD a814f24d extract + DRAFT B appended (S391, supersedes S390)
+  exit 0 ; no E findings ; no S390/S391 findings ; 58 W findings (57 W04 + 1 W01, the
+  pre-existing baseline set) ; final line "file ok .../final_mine/corpus/SOURCES.md"
+
+GATE G — HEAD extract with the landed S390 row REMOVED + DRAFT A appended (id S390, queued)
+  exit 0 ; no E findings ; no S39x findings
+  (proves DRAFT A itself is a clean row; the only reason to file it as S391 instead is
+   that the id S390 is already taken.)
+
+GATE D — HEAD extract + a S391 that keeps S390's URL and S390's scope, teaches opened
+          "supersedes S390"
+  exit 0 ; no E findings ; no S390/S391 findings
+  (the census E04 duplicate-url-within-scope check is waived for a row whose teaches
+   carries the "supersedes S0NN" clause; without it, see GATE NEG2.)
+
+GATE INPLACE — HEAD extract with S390's anchor cell edited in place (id kept, no new row)
+  exit 0 ; no E findings ; no S390 findings
+  (technically clean in the census, but it breaks CORPUS.md rule 2 append-only: the
+   anchor cell is not one of the three cells (status/recheck/used-by) that may change
+   in place, so this shape is NOT recommended.)
+
+NEGATIVE CONTROL GATE NEG — HEAD extract + a S391 with S390's URL and S390's scope, teaches
+  WITHOUT a supersedes clause
+  exit 1 ; E04 "S391 duplicate url docs.python.org/3/library/sys.html within scope the
+  configured default of CPython's int-to-str decimal-conversion digit limit, the cap a
+  parser that hands a component to int() must bound itself"
+  This is the census refusing an uncorrected duplicate of the same URL at the same scope.
+
+NEGATIVE CONTROL GATE NEG2 — HEAD extract + a S391 with S390's URL but a DIFFERENT scope,
+  teaches WITHOUT a supersedes clause
+  exit 0 ; W04 "S391 duplicate url docs.python.org/3/library/sys.html across scopes"
+  i.e. a same-URL row at a DIFFERENT scope is only a warning, and the E04 error fires only
+  when the scope matches too.  (This is why Draft B keeps S390's scope out of the picture
+  and carries a supersedes clause, and why the same-URL+same-scope variant (GATE D) is
+  accepted only because the census waives E04 for a row whose teaches opens
+  "supersedes S0NN".)
+
+NEGATIVE CONTROL GATE F — HEAD extract + DRAFT A appended under the id S390 while the
+  landed S390 is still present
+  exit 1 ; E03 S390 duplicate id
+  This is why the drafted row cannot carry the id S390 at the landed tree.
+
+RAW OUTPUT FILES (this seat's scratch, copied into receipts/): see receipts/gate-*.out

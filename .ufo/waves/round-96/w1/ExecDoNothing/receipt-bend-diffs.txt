@@ -1,0 +1,56 @@
+=== diff -u tools/check-limine-pins.py .ufo/waves/round-96/before/controls/bends/N01-echo-wrong.py
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-96/before/controls/bends/N01-echo-wrong.py	2026-11-08 07:42:43.149433458 -0300
+@@ -313,7 +313,7 @@
+     else:
+         verdict, rc = "HEALTHY", 0
+     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+-            "limine_version": limine_version,
++            "limine_version": "99.9.9" if limine_version_source == "flag" else limine_version,  # N01 (echo bent)
+             "limine_version_source": limine_version_source,
+             "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
+             "hash_mismatch_panic": None if panic_setting is None else
+changed_hunks: 1
+
+=== diff -u tools/check-limine-pins.py .ufo/waves/round-96/before/controls/bends/N02-y-cap-8.py
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-96/before/controls/bends/N02-y-cap-8.py	2026-11-08 07:42:43.149667068 -0300
+@@ -96,7 +96,7 @@
+     if not isinstance(text, str):
+         return None
+     parts = text.split(".")
+-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
++    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and (len(p) <= 9 and (len(p) <= 8 or p is not parts[1])) for p in parts):  # N02 (Y bound bent to <=8)
+         return None
+     return tuple(int(p) for p in parts)
+ 
+changed_hunks: 1
+
+=== diff -u tools/check-limine-pins.py .ufo/waves/round-96/before/controls/bends/N03-era-label-flip.py
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-96/before/controls/bends/N03-era-label-flip.py	2026-11-08 07:42:43.149819038 -0300
+@@ -315,7 +315,7 @@
+     return {"schema": "tsukuroi-limine-pins-v3", "verdict": verdict, "rc": rc,
+             "limine_version": limine_version,
+             "limine_version_source": limine_version_source,
+-            "visibility_era": "12.9.5+" if era_b else "pre-12.9.5",
++            "visibility_era": "pre-12.9.5" if era_b else "12.9.5+",  # N03 (label bent)
+             "hash_mismatch_panic": None if panic_setting is None else
+             {"line": panic_setting[0], "value": sanitize(panic_setting[1])},
+             "measured_boot": None if measured_setting is None else
+changed_hunks: 1
+
+=== diff -u tools/check-limine-pins.py .ufo/waves/round-96/before/controls/bends/N04-extra-components.py
+--- tools/check-limine-pins.py	2026-11-08 03:56:46.703650900 -0300
++++ .ufo/waves/round-96/before/controls/bends/N04-extra-components.py	2026-11-08 07:42:43.149977148 -0300
+@@ -96,7 +96,7 @@
+     if not isinstance(text, str):
+         return None
+     parts = text.split(".")
+-    if len(parts) != 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
++    if len(parts) < 3 or not all(p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):  # N04p.isascii() and p.isdigit() and len(p) <= 9 for p in parts):
+         return None
+     return tuple(int(p) for p in parts)
+ 
+changed_hunks: 1
+

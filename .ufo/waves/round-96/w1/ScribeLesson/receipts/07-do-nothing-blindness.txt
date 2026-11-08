@@ -1,0 +1,37 @@
+# Receipt 07 — the do-nothing blindness legs, run by seat ScribeLesson (2026-11-08)
+# Commands:
+  python3 .ufo/waves/round-96/before/controls/do-nothing-battery-r95.py \
+      --gate tools/check-limine-pins.py --runs 1 --work <scratch> --json <out>
+  python3 .ufo/waves/round-96/before/controls/do-nothing-battery-r95.py \
+      --gate .ufo/waves/round-96/before/controls/bends/N04-extra-components.py \
+      --runs 1 --work <scratch> --json <out>
+
+## landed gate (dn-landed.json)
+  verdict            : met
+  families_passed    : 99/99
+  failed_families    : []
+  cases              : 396
+  error rows         : 0
+  roster carries EXPLICIT-VERSION-ECHO    : False
+  roster carries EXPLICIT-VERSION-ERA     : False
+  roster carries REFUSAL-VERSIONS-9DIGIT-Y : False
+  roster carries EXTRA-COMPONENT          : False
+  exit code          : 0
+
+## N04 bend (dn-n04.json)
+  verdict            : unmet
+  families_passed    : 98/99
+  failed_families    : ['REFUSAL-VERSIONS']
+  cases              : 396
+  error rows         : 0
+  roster carries EXPLICIT-VERSION-ECHO    : False
+  roster carries EXPLICIT-VERSION-ERA     : False
+  roster carries REFUSAL-VERSIONS-9DIGIT-Y : False
+  roster carries EXTRA-COMPONENT          : False
+  exit code          : 1
+
+Reading: the r95 do-nothing battery is blind to the three NEW families (none of
+EXPLICIT-VERSION-ECHO / EXPLICIT-VERSION-ERA / REFUSAL-VERSIONS-9DIGIT-Y appears in its
+roster) and reads met 99/99 on the landed gate. On the N04 bend it reads 98/99 unmet with
+failed_families exactly ['REFUSAL-VERSIONS'] — the pre-existing 12.9.5.1 row, not the new
+family — which is the blindness receipt C1's target asks for.

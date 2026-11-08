@@ -1,0 +1,39 @@
+# Receipt 12 — the routed r95 report-count miss, closed end to end (seat ScribeLesson)
+# The r96 fleet report and the r96 ledger landed after this seat's earlier readings;
+# this receipt re-runs the checker against them.
+
+## the committed r96 ledger
+$ awk -F'\t' 'NF>1{c[$3]++} END{for(k in c) print k, c[k]}' .ufo/waves/round-96/claim-falsification.tsv
+neutral 7
+falsifies-number 1
+falsifies-wording 3
+rows: 11
+
+## the r96 report's own count sentence
+$ grep -n 'falsifies-wording' /home/vgpnk/Projects/shokunin/.ufo/reports/round-96/tsukuroi.md
+64:  rows — 3 falsifies-wording rows and 1 falsifies-number row, plus 7 neutral — covering both claims
+
+## the checker, landed tree + filed r96 report + committed r96 ledger
+$ python3 tools/check-r96-calibration.py --root . --report /home/vgpnk/Projects/shokunin/.ufo/reports/round-96/tsukuroi.md --tsv .ufo/waves/round-96/claim-falsification.tsv
+{
+ "schema": "tsukuroi-r96-calibration-v1",
+ "root": "/home/vgpnk/Projects/shokunin/tsukuroi-shokunin",
+ "report": "/home/vgpnk/Projects/shokunin/.ufo/reports/round-96/tsukuroi.md",
+ "findings": [],
+ "unreadable": [],
+ "status": "PASS"
+}
+exit=0
+
+## and against the r95 report (the routed miss), same ledger
+$ python3 tools/check-r96-calibration.py --root . --report /home/vgpnk/Projects/shokunin/.ufo/reports/round-95/tsukuroi.md --tsv .ufo/waves/round-95/claim-falsification.tsv
+status FAIL
+  F6 report states no falsifies-wording count
+  F6 report states no falsifies-number count
+
+Reading: the r96 report states the numeral the committed r96 ledger holds (3 falsifies-wording,
+1 falsifies-number, 7 neutral) and the checker reads PASS / findings [] / exit 0. Against the
+r95 report the same checker fires F6 twice — because the r95 sentence spells the count as the
+WORD 'four', which the checker's numeric regex ((\d+)\s+.?falsifies-wording) cannot bind at all.
+So the routed miss is closed not only by a corrected numeral but by a sentence the checker can
+read: the r96 report's first numeric occurrence of each class is the true one.

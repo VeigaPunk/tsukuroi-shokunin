@@ -1,0 +1,69 @@
+receipt 01 — the new source (S390 candidate): CPython `sys.int_info.default_max_str_digits`
+seat: ScoutSources (round 96, w1). access date: 2026-11-08. scratch: /fast/scratch/hyaku/tsukuroi-r96/ScoutSources/
+
+$ curl -sS -L -o sys.html -w "HTTP:%{http_code} SIZE:%{size_download} URL:%{url_effective}\n" \
+    'https://docs.python.org/3/library/sys.html#sys.int_info.default_max_str_digits'
+HTTP:200 SIZE:280632 URL:https://docs.python.org/3/library/sys.html#sys.int_info.default_max_str_digits
+(no redirect on sys.html)
+
+$ curl -sS -L -o sys-3.15.html -w "HTTP:%{http_code} SIZE:%{size_download} URL:%{url_effective}\n" \
+    'https://docs.python.org/3.15/library/sys.html#sys.int_info.default_max_str_digits'
+HTTP:200 SIZE:280632 URL:https://docs.python.org/3.15/library/sys.html#sys.int_info.default_max_str_digits
+$ cmp sys.html sys-3.15.html  -> IDENTICAL (the /3/ alias and the version-pinned 3.15 copy are the same bytes today)
+
+$ sha256sum sys.html
+a7e005875e4152bcccaf44b9a834c123cc69bf7b66b3b8398aef91cffe77dd0e
+$ wc -c sys.html
+280632
+
+page identity: <title>sys — System-specific parameters and functions — Python 3.15.2 documentation</title>
+Sphinx build stamp: "Last updated on Nov 08, 2026 (07:53 UTC)." (byte 280348)
+
+ANCHOR — the attribute the brief names exists:
+  id="sys.int_info.default_max_str_digits"      at byte 157525  (the <dt> element starts at 157495)
+  inner id="sys.int_info"                        at byte 155979
+  visible name text "default_max_str_digits"     at byte 157698
+
+THE QUOTED SENTENCE (12 words, <=25):
+  "The default value for sys.get_int_max_str_digits() when it is not otherwise explicitly configured."
+
+WHERE IT IS, measured on this 280632-byte pin:
+  <dd><p> opening tag at byte 157844
+  text run 1: "The default value for "                       at byte 157851
+  code span:  <span class="pre">sys.get_int_max_str_digits()</span> at byte 158032
+  newline at byte 158096
+  text run 2: "when it is not otherwise explicitly configured." at byte 158097 (ends 158142)
+  The sentence is NOT byte-contiguous in the raw HTML (a <a>/<code> element and a newline
+  split it).  A contiguous copy exists only in the rendered text:
+    html.parser text extraction  -> offset 42794
+    whitespace-normalised text   -> offset 40511
+  So an anchor that cites a single raw byte for the whole sentence cannot resolve; the
+  offsets that resolve are 157851 and 158097 (the two raw text runs).
+
+WHAT THE SOURCE DOES NOT STATE (checked by byte search on the 280632-byte pin):
+  b"4300"       0 occurrences  <- the page never states the default's numeric value
+  b"640"        0 occurrences  <- the page never states the check threshold
+  b"Limine"     0 occurrences
+  b"limine"     0 occurrences
+  The page also carries no "as provided by" phrasing for the threshold entry
+  (sys.int_info.str_digits_check_threshold's <dd> names sys.set_int_max_str_digits(),
+   PYTHONINTMAXSTRDIGITS and -X int_max_str_digits but states no number).
+  => the page grounds the *default value of the limit*, i.e. that a default exists and where
+     it is configured; it does NOT state 4300, does NOT state 640, and states NO Limine
+     behaviour whatsoever.  The 4300 figure comes from the sibling page (S389, stdtypes).
+
+TIER-A GROUNDING (what text grounds tier A for this row's scope):
+  The scope is "CPython's decimal-conversion limit default".  Tier A is grounded by the
+  attribute's own upstream definition — the CPython reference documentation of the
+  interpreter that implements the limit, i.e. the sentence
+  "The default value for sys.get_int_max_str_digits() when it is not otherwise explicitly
+  configured."  The page is the CPython project's own reference for its own runtime:
+  primary and authoritative for the scope "what CPython's int->str conversion limit
+  defaults to".  It is NOT evidence for Limine's behaviour, for the 4300 figure
+  (S389's page), or for the gate's 9-digit per-component cap (the lane's own design).
+
+HOST-SIDE CONFIRMATION (read-only, no install):
+  $ python3 -c "import sys; print(sys.int_info.default_max_str_digits)"
+  4300
+  $ python3 -c "import sys; print(sys.int_info.str_digits_check_threshold)"
+  640

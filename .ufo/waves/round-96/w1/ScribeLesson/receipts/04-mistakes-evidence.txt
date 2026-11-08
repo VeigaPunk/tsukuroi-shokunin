@@ -1,0 +1,38 @@
+# Receipt 04 — the two round-96 mistakes, re-derived by seat ScribeLesson (2026-11-08)
+# Commands run (all read-only; no lane byte written):
+
+--- (a) R96-FRONTIER-NOT-SENT: the r95 Frontier bullet vs the instrument's own roster
+$ grep -n '12\.9\.6\.1' corpus/README.md            # at 73c47107 (pre-round)
+1147:- Still open from r94: the `12.9.6.1` extra-component shape (not sent at battery level); the r92
+
+$ grep -n 'REFUSAL_VERSIONS = ' tools/limine-pin-battery-r96.py   # r96 landed
+1662:REFUSAL_VERSIONS = ("12.9", "12.9.5.1", "abc", "", " 12.9.5", "12.9.5 ", "+12.9.5", "12..5",
+
+$ grep -n 'REFUSAL_VERSIONS = ' <r95 battery at 73c47107>
+1643:REFUSAL_VERSIONS = ("12.9", "12.9.5.1", "abc", "", " 12.9.5", "12.9.5 ", "+12.9.5", "12..5",
+
+--- (b) R96-N04-TWO-FAMILIES: the N04 bend's failed_families, measured twice
+$ python3 tools/limine-pin-battery-r96.py --gate .ufo/waves/round-96/before/controls/bends/N04-extra-components.py --runs 1 --work <scratch> --json <seat>/n04-bend.json
+verdict unmet families_passed 101 / 103 cases 412
+failed_families ['EXTRA-COMPONENT', 'REFUSAL-VERSIONS']
+error rows 0
+
+$ the frozen development run under before/dev (same reading, pre-freeze)
+verdict unmet families_passed 101 / 103 cases 412
+failed_families ['EXTRA-COMPONENT', 'REFUSAL-VERSIONS']
+error rows 0
+
+--- (c) the routed r95 report-count miss (F6)
+$ grep -c 'falsifies-wording' .ufo/waves/round-95/claim-falsification.tsv
+6
+$ grep -c 'falsifies-number' .ufo/waves/round-95/claim-falsification.tsv
+1
+$ grep -c '' .ufo/waves/round-95/claim-falsification.tsv   # total rows
+21
+$ the r95 filed report's own sentence (.ufo/reports/round-95/tsukuroi.md:219)
+the artifact column; the four `falsifies-wording` rows point at A2/A3/A4 and the one
+$ the same sentence under the r96 checker at the landed tree
+status FAIL
+  F6 report states no falsifies-wording count
+  F6 report states no falsifies-number count
+checker exit=1 (status FAIL)

@@ -1,0 +1,53 @@
+# Receipt 11 — the seven r95 spot-check routed items, each re-measured (seat ScribeLesson)
+
+## routed 1 — report prose count
+$ grep -c 'falsifies-wording' .ufo/waves/round-95/claim-falsification.tsv
+6
+$ sed -n '219p' /home/vgpnk/Projects/shokunin/.ufo/reports/round-95/tsukuroi.md
+the artifact column; the four `falsifies-wording` rows point at A2/A3/A4 and the one
+=> the r95 report says 'four', the ledger holds six; F6 binds the numeral (see receipt 04 (c))
+
+## routed 2 — QUALITY.md owes M1 a criterion
+$ grep -n '^140\.' corpus/QUALITY.md
+348:140. **A target clause is re-read against one development run before the freeze (R95-M1):** before a round freezes a
+$ the checker's own criterion_block(q, 140) -> found, and cites:
+   criterion 140 found: True
+   cites round-95.md      -> True
+   cites M1               -> True
+   cites development run  -> True
+
+## routed 3 — C2's void clause had a dead pointer
+$ cat .ufo/waves/round-96/before/r95-registry-gate.sha256
+6fcb2d0a5f1b2493aa505e179aa013b479e2a06894152d3b206e017720a24812  tools/check-registry-coverage.py
+$ sha256sum tools/check-registry-coverage.py
+6fcb2d0a5f1b2493aa505e179aa013b479e2a06894152d3b206e017720a24812  tools/check-registry-coverage.py
+$ grep -c 6fcb2d0a5f1b2493aa505e179aa013b479e2a06894152d3b206e017720a24812 .ufo/waves/round-96/before/instruments.sha256
+1
+$ python3 (SCORECARD.md '## Round 96' section contains 'void', 'git diff', 'check-registry-coverage.py')
+   void                       -> True
+   git diff                   -> True
+   check-registry-coverage.py -> True
+
+## routed 4 — superseded superlative in the frozen r95 tool docstrings
+  tools/limine-pin-battery-r95.py: largest-in-bound=0 boundary-member=4
+  tools/make-r95-bends.py: largest-in-bound=0 boundary-member=1
+  (full detail and the AST-equality proof: receipt 09)
+
+## routed 5 — README A4 over-scope
+$ grep -c 'r94 family roster' corpus/README.md
+1
+$ grep -c 'before instrument has no in-bound' corpus/README.md
+0
+
+## routed 6 — derived, not measured, C2 revisions
+$ python3 -c 'json.load(before/c2-tip-b8f878c8.json)'
+  status PASS revision b8f878c88fa795fbf20d6129807dfc5222e5fadf counts {'findings': 0, 'missing': 0, 'registered': 151, 'rows_total': 151, 'tools_total': 151}
+
+## routed 7 — carried Frontier rows
+$ grep -n 'Still open from r94' corpus/README.md
+1148:- Still open from r94: the `12.9.6.1` extra-component shape (not sent at battery level); the r92
+$ grep -n 'r92 launcher residuals' corpus/README.md
+1086:- The r92 launcher residuals (argv via `/proc`, host fingerprint, writable gate-copy parent, `/dev`
+1114:- The r92 launcher residuals stay open; the r93 AUTO-fake literal leakage is disclosed in the battery
+1183:  the r92 launcher residuals; the r93 probe pre-release caveat; r89's blanks-before-CRLF, ESP
+=> still open; only the four-component entry is corrected this round

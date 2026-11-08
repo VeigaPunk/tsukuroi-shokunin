@@ -1,0 +1,32 @@
+# Receipt 05 — Gate rejections: candidates opened and REFUSED (seat ScribeLesson, 2026-11-08)
+# Command: curl -sSL -w '%{http_code} %{size_download}' -o <pin> <url>
+
+## Rejection 1 — https://man.archlinux.org/man/limine.8
+status        : HTTP 404
+body bytes    : 2706
+body title    : 'Page not found — Arch manual pages'
+body head     : b'\n\n<!DOCTYPE html>\n<html lang="en">\n    <head>\n        <meta charset="UTF-8">\n '
+verdict       : REJECT — no such man page exists in the Arch manual pages; the body is the
+                site's own 'Page not found' page, which states no Limine behaviour and
+                grounds no proposition. (Same URL refused in r94 and r95; the refusal
+                repeats rather than being a new finding.)
+
+## Rejection 2 — https://api.github.com/repos/Limine-Bootloader/Limine/releases/tags/v12.9.6
+status        : HTTP 200
+body bytes    : 26652
+tag_name      : 'v12.9.6'
+body length   : 512 chars
+body (first 260 chars, verbatim):
+  Changelog can be found [here](https://github.com/Limine-Bootloader/Limine/blob/v12.9.6/ChangeLog).
+  
+  Tarballs are signed using key ID `05D29860D0A0668AAEFB9D691F3C021BECA23821` which can be obtained from a keyserver such as `keyserver.ubuntu.com`.
+  
+  Import the p
+verdict       : REJECT as a registry row — it points at the ChangeLog and carries the
+                tarball-signature text; it states no Limine behaviour. Kept as a
+                wave-directory locator only. (Same URL refused in r94 and r95.)
+
+## Third candidate opened and refused — https://man.archlinux.org/man/limine.conf.5
+status        : HTTP 404
+body bytes    : 2725
+verdict       : REJECT — no such page; nothing to admit.

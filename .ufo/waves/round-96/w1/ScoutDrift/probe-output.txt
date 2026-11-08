@@ -1,0 +1,29 @@
+== P1: era selection under two rules ==
+  EXPLICIT_VERSION_META v=12.9.4           whole=False -> pre-12.9.5  | X-only=True  -> 12.9.5+     | Y-only=True  -> 12.9.5+     | max-only=True
+  EXPLICIT_VERSION_META v=12.9.5           whole=True  -> 12.9.5+     | X-only=True  -> 12.9.5+     | Y-only=True  -> 12.9.5+     | max-only=True
+  EXPLICIT_VERSION_META v=12.9.6           whole=True  -> 12.9.5+     | X-only=True  -> 12.9.5+     | Y-only=True  -> 12.9.5+     | max-only=True
+  EXPLICIT_VERSION_META v=999999999.9.9    whole=True  -> 12.9.5+     | X-only=True  -> 12.9.5+     | Y-only=True  -> 12.9.5+     | max-only=True
+  Y_DIGIT9             v=12.999999999.4   whole=True  -> 12.9.5+     | X-only=True  -> 12.9.5+     | Y-only=True  -> 12.9.5+     | max-only=True
+  Y_DIGIT9             v=0.999999999.0    whole=False -> pre-12.9.5  | X-only=False -> pre-12.9.5  | Y-only=True  -> 12.9.5+     | max-only=True
+  note: battery code uses the whole tuple (Case.era_b: tuple(int(p) for p in version.split('.')) >= (12,9,5))
+  note: gate code uses the whole tuple (check(): era_b = version >= VISIBILITY_ERA_SPLIT, version = parse_limine_version(flag))
+  verdict: a rule reading ONLY the first component gives the SAME label as the whole tuple for
+           every META version and for every Y version, so the Y family's docstring sentence
+           ('reads the era from X alone answers era B for 0.999999999.0') is not satisfiable
+           by a first-component-only rule (X=0 cannot yield era B); the rule that yields era B
+           for 0.999999999.0 is a second-component(Y)-only or max-component rule.
+
+== P2: component counts of the EXTRA-COMPONENT members ==
+  12.9.6.1     components=4 ['12', '9', '6', '1']
+  12.9.6.1.0   components=5 ['12', '9', '6', '1', '0']
+  12.9.6.99    components=4 ['12', '9', '6', '99']
+  12.9.6.7     components=4 ['12', '9', '6', '7']
+  gate grammar: parse_limine_version requires len(parts)==3 -> every member above is refused rc 64
+  NOTE: '12.9.6.1.0' has 5 components, not 4: the family is named EXTRA-COMPONENT and its
+        docstring calls all four members 'a version with a fourth component'.
+
+== P3: frozen C2 checker F4 over-scope clause vs a newline-wrapped sentence ==
+  clean fixture findings: []
+  one-line over-scope README -> findings: ['F4', 'F4']
+  newline-wrapped over-scope README -> findings: ['F4']
+  verdict: frozen F4 second clause is a raw substring test; a wrapped sentence is invisible to it.

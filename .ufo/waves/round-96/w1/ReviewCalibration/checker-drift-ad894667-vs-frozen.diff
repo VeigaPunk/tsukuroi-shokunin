@@ -1,0 +1,27 @@
+--- /dev/fd/63	2026-11-08 08:01:50.843462075 -0300
++++ /fast/scratch/hyaku/tsukuroi-r96/ReviewCalibration/checker-wt.py	2026-11-08 07:52:30.259430703 -0300
+@@ -117,18 +117,20 @@
+         if text is None:
+             findings.append(("F3", "%s missing" % rel))
+             continue
+-        if "largest in-bound" in text:
++        flat = " ".join(text.split())
++        if "largest in-bound" in flat:
+             findings.append(("F3", "%s still says largest in-bound" % rel))
+-        if "boundary member" not in text:
++        if "boundary member" not in flat:
+             findings.append(("F3", "%s does not say boundary member" % rel))
+     lesson = read(root, "corpus/lessons/round-96.md", errors)
+     if lesson is None or "r95 freeze manifest" not in lesson:
+         findings.append(("F3", "lesson does not relate the r95 freeze manifest to the edits"))
+ 
+     readme = read(root, "corpus/README.md", errors)
+-    if readme is None or "r94 family roster" not in readme:
++    flat = " ".join(readme.split()) if readme is not None else ""
++    if "r94 family roster" not in flat:
+         findings.append(("F4", "README does not scope the sentence to the r94 family roster"))
+-    if readme is not None and "before instrument has no in-bound" in readme:
++    if "before instrument has no in-bound" in flat:
+         findings.append(("F4", "README still over-scopes the before instrument"))
+ 
+     tip = read(root, TIP_RECEIPT, errors)
