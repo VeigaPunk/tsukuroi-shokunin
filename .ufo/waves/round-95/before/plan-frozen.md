@@ -148,4 +148,29 @@ Free-text slot. After the freeze, an amendment may NARROW a claim to what the in
 recorded here with the artifact that falsified the wider sentence. No amendment may widen a target or
 re-define a predicate after a seat has scored it (fleet lesson, kumitate r42).
 
-- (none at freeze)
+- **A1 (pre-scoring narrowing, 2026-11-08T06:5x-03:00, before any seat was dispatched and before any
+  receipt existed).** C1's first frozen target said the N05 leg reads "0 error rows" and that the r94
+  do-nothing battery on the landed gate reads "unmet 98/99". Both sentences are wrong about the
+  instruments. (a) `N05-strict-8` refuses the 9-digit value with rc 64 and no JSON, so the battery
+  records four `error` rows for that family — that is the bend's refusal receipt, not a crash, and the
+  0-error-row rule binds only the landed-gate legs. (b) The r94 battery runs its own 98-family roster,
+  so on the landed gate it reads `met` 98/98 and cannot read 98/99; the family-absence evidence is 0
+  `REFUSAL-VERSIONS-9DIGIT` rows in its `case_log`. Evidence pointer:
+  `/fast/scratch/hyaku/tsukuroi-r95/l1/dev-n05-r95.json` and `dev-n05-r94.json` (development runs,
+  never receipts). The live sentences are these (and `claims.json`), superseding the two sentences in
+  the C1 row above; no target was widened and no receipt had been produced when this was recorded:
+
+  > **Target (A1).** Landed gate with the r95 battery: `99/99` met ×3 canonical and clone,
+  > `failed_families []`, 0 error rows. `N05-strict-8` with the r95 battery: `98/99` unmet ×3 both
+  > layouts, `failed_families` exactly `["REFUSAL-VERSIONS-9DIGIT"]`, and its four N05 case rows carry
+  > the battery's `error` text (the bend refuses rc 64 and emits no JSON — the bend's refusal receipt,
+  > expected in this leg only). `N05-strict-8` with the r94 do-nothing battery: `met` `98/98` ×3, 0
+  > error rows, 0 `REFUSAL-VERSIONS-9DIGIT` rows in `case_log`. Landed gate with the r94 do-nothing
+  > battery: `met` `98/98` ×3, 0 error rows, 0 `REFUSAL-VERSIONS-9DIGIT` rows in `case_log`.
+  >
+  > **Kill rule (A1).** Unmet if any landed-gate r95 run reads below 99/99 or carries a non-null
+  > `error` row; unmet if any N05 r95 run is not `unmet` or its `failed_families` is not exactly
+  > `["REFUSAL-VERSIONS-9DIGIT"]`; unmet if any N05 r94 run is not `met` `98/98` or carries a non-null
+  > `error` row; unmet if any landed-gate r94 run is not `met` `98/98`, carries a non-null `error`
+  > row, or lists a `REFUSAL-VERSIONS-9DIGIT` row in `case_log`; void if any instrument byte differs
+  > from `.ufo/waves/round-95/before/instruments.sha256` at scoring time.
