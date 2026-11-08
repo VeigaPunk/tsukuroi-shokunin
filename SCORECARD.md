@@ -7640,3 +7640,28 @@ Operability stays 9 (a sharper runnable arm, no ordinal claim); depth stays 8 un
 Disclosure: the candidate gate is drafted alongside the battery, because each near-miss control is that draft with ONE
 r91 clause bent; its bytes are committed here as `.ufo/waves/round-91/before/controls/candidate-draft.py` and no score
 of it is a receipt. The landed gate is committed and scored only after this freeze.
+
+## Round 91 — measured outcome (pre-wave)
+
+**C1 (measured, operability 9 assurance arm):** R90-R1 repair — `hash_mismatch_panic` and
+`measured_boot` are read ONLY in the global section (before first `/` entry line), EXCEPT when
+file's first line is an entry line (config.c raw 642-650). Battery `tools/limine-pin-battery-r91.py`
+(82 families) certifies the r90 survivor clauses plus V1 visibility and U1 unverified-image-lines
+reporting. Controls K1 (r90 landed gate), K2 (adapter), N01-N10 (near-misses) all correctly kill
+their expected families in both canonical and clone layouts.
+
+**C2 (exploratory, depth 8):** `corpus/knowledge/limine-unverified-image-r91.md` + `.json` — what
+the gate should REPORT for an unhashed/URI-less `path:`/`image_path:` on an efi chainload entry.
+Host line 72 (`path: boot():/EFI/BOOT/BOOTX64.EFI`, no `#`) is a live instance. New S-rows S374-S376
+(uri.c, chainload.c, config.c) opened this round; all clauses confirmed by ReviewSource.
+
+**Wave w1:** 13 seats dispatched (ExecReplicate, ExecLints, MutGate, MutBattery, CriticForgers,
+CriticClaims, ReviewSource, ReviewGate, ScoutURI, ScoutChainload, ScoutDrift, ConnectorOverlap,
+ScribeLesson). ReviewGate found S1 (sanitize `measured_boot.value`/`hash_mismatch_panic.value` —
+FIXED in `45ae6518`), S2 (selftest lacks V1/U1 coverage — battery covers it, selftest is smoke only).
+ReviewSource confirmed all battery clauses V1/U1/R6/R9/R10 with two precision notes folded into the
+C2 entry.
+
+**Before→after:** Battery r90 73 families → r91 82 families (+9: V1 visibility ×4, U1 unverified ×5).
+Gate `check-limine-pins.py` gains `unverified_image_lines` field and global-section scoping for
+`hash_mismatch_panic`/`measured_boot`. Selftest 25/25 PASS.
